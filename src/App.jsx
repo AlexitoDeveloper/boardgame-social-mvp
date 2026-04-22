@@ -1,16 +1,19 @@
-import { supabase } from './lib/supabaseClient'
-import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AppShell } from './components/layout/AppShell'
+import { CreateReviewPage } from './pages/CreateReviewPage'
+import { FeedPage } from './pages/FeedPage'
+import { RadarPage } from './pages/RadarPage'
 
 function App() {
   return (
-    <main className="app-shell">
-      <h1>Boardgame Social MVP</h1>
-      <p>Fase 1 completada: base React + Vite + Supabase.</p>
-      <p className="hint">
-        Cliente Supabase listo con URL:{' '}
-        <code>{supabase?.supabaseUrl ?? 'No configurada'}</code>
-      </p>
-    </main>
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route path="/" element={<FeedPage />} />
+        <Route path="/review/new" element={<CreateReviewPage />} />
+        <Route path="/radar" element={<RadarPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   )
 }
 
