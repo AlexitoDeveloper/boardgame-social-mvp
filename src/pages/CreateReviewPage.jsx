@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { searchBoardGames } from '../services/bggService'
 import { supabase } from '../lib/supabaseClient'
+import { useAuth } from '../lib/authContext'
 import imageCompression from 'browser-image-compression'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -17,6 +18,7 @@ const MotionP = motion.p;
 const MotionForm = motion.form;
 
 export function CreateReviewPage() {
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [games, setGames] = useState([])
   const [selectedGame, setSelectedGame] = useState(null)
@@ -58,8 +60,8 @@ export function CreateReviewPage() {
     setErrorMsg('')
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const userId = user?.id || 'anonymous_user'
+      const userId = user?.id
+      if (!userId) throw new Error('Debes iniciar sesión para publicar una reseña.')
 
       let photoUrl = null
       if (file) {
