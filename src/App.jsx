@@ -4,6 +4,7 @@ import { CreateReviewPage } from './pages/CreateReviewPage'
 import { FeedPage } from './pages/FeedPage'
 import { RadarPage } from './pages/RadarPage'
 import { AuthPage } from './pages/AuthPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { useAuth } from './lib/authContext'
 
 /** Redirects unauthenticated users to /auth */
@@ -32,6 +33,14 @@ function App() {
           }
         />
         <Route path="/radar" element={<RadarPage />} />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
