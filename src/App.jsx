@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateReviewPage } from './pages/CreateReviewPage'
+import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { FeedPage } from './pages/FeedPage'
 import { RadarPage } from './pages/RadarPage'
 import { AuthPage } from './pages/AuthPage'
@@ -33,6 +34,14 @@ function App() {
           }
         />
         <Route path="/radar" element={<RadarPage />} />
+        <Route
+          path="/radar/new"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/perfil"
           element={

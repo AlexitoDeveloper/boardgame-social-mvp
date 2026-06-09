@@ -216,3 +216,26 @@ on public.meetups
 for delete
 to authenticated
 using (creator_id = auth.uid());
+
+-- ==========================================
+-- ROLE GRANTS (Allows Supabase API access)
+-- ==========================================
+
+-- Grant schema usage
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- Grant permissions to public.users
+GRANT ALL ON TABLE public.users TO anon, authenticated, service_role;
+
+-- Grant permissions to public.games_cache
+GRANT ALL ON TABLE public.games_cache TO anon, authenticated, service_role;
+
+-- Grant permissions to public.reviews
+GRANT ALL ON TABLE public.reviews TO anon, authenticated, service_role;
+
+-- Grant permissions to public.meetups TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.meetups TO anon, authenticated, service_role;
+
+-- If a custom games table exists in the database, grant access to it as well
+GRANT ALL ON TABLE public.games TO anon, authenticated, service_role;
+

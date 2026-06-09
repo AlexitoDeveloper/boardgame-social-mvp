@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button'
 import { motion } from 'framer-motion'
 import { MOCK_MEETUPS } from '../lib/mockData'
 import { MapPin, CalendarDays } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const MotionDiv = motion.div
 
@@ -58,11 +59,20 @@ export function RadarPage() {
   }
 
   return (
-    <section className="space-y-4 pb-20 p-4 max-w-xl mx-auto">
-      <h1 className="text-3xl font-extrabold tracking-tight mb-2">Radar Local</h1>
-      <p className="text-sm text-muted-foreground mb-8">
-        Descubre partidas y reuniones de juegos de mesa cerca de ti.
-      </p>
+    <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Radar Local</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Descubre partidas y reuniones cerca de ti.
+          </p>
+        </div>
+        <Link to="/radar/new">
+          <Button className="rounded-xl font-bold shadow-md shadow-primary/20 flex items-center gap-1.5 h-10 hover:shadow-primary/40 transition-all">
+            Organizar Partida
+          </Button>
+        </Link>
+      </div>
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">

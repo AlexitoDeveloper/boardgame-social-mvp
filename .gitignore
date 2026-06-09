@@ -30,3 +30,4 @@ dist-ssr
 
 # Large data files
 *.csv
+raw-data/
