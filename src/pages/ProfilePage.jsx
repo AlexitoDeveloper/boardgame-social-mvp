@@ -44,12 +44,16 @@ export function ProfilePage() {
       if (!user?.id) { setLoading(false); return }
       const { data, error } = await supabase
         .from('reviews')
-        .select('*, games_cache(*)')
+        .select('*, games(*)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error || !data?.length) {
-        setReviews(MOCK_REVIEWS.map(r => ({ ...r, users: { username, avatar_url: avatarUrl } })))
+        setReviews(MOCK_REVIEWS.map(r => ({
+          ...r,
+          users: { username, avatar_url: avatarUrl },
+          games: r.games || { title: r.games_cache?.name || 'Juego desconocido' }
+        })))
       } else {
         setReviews(data)
       }
@@ -57,7 +61,7 @@ export function ProfilePage() {
     }
     fetchUserReviews()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id])
+  }, [user?.id, avatarUrl, username])
 
   const avgRating = reviews.length
     ? (reviews.reduce((acc, r) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1)
@@ -169,7 +173,7 @@ export function ProfilePage() {
               {[
                 { label: 'Reseñas', value: reviews.length },
                 { label: 'Media', value: avgRating },
-                { label: 'Juegos', value: [...new Set(reviews.map(r => r.games_cache?.name).filter(Boolean))].length },
+                { label: 'Juegos', value: [...new Set(reviews.map(r => r.games?.title).filter(Boolean))].length },
               ].map(stat => (
                 <div key={stat.label} className="rounded-xl bg-muted/30 border border-border/30 py-3 px-2">
                   <p className="text-2xl font-extrabold text-primary">{stat.value}</p>
@@ -202,14 +206,14 @@ export function ProfilePage() {
                 <Card className="border-border/40 bg-card/70 backdrop-blur-md hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
                   {review.photo_url && (
                     <div className="relative h-36 overflow-hidden rounded-t-xl">
-                      <img src={review.photo_url} alt={review.games_cache?.name} className="w-full h-full object-cover" />
+                      <img src={review.photo_url} alt={review.games?.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
                     </div>
                   )}
                   <CardContent className="pt-4 pb-5 px-5 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-extrabold text-base leading-tight text-primary">
-                        {review.games_cache?.name || 'Juego desconocido'}
+                        {review.games?.title || 'Juego desconocido'}
                       </h3>
                       <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-sm font-bold">
                         <Star className="h-3 w-3 fill-current" />

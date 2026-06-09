@@ -28,7 +28,7 @@ export function RadarPage() {
       try {
         const { data, error } = await supabase
           .from('meetups')
-          .select(`*, users (*)`)
+          .select(`*, users (*), games (*)`)
           .order('date', { ascending: true })
 
         if (error) {
@@ -76,8 +76,13 @@ export function RadarPage() {
               <Card className="overflow-hidden bg-card/80 backdrop-blur-md transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 group">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-extrabold leading-tight">
-                    {meetup.title || meetup.game_name || 'Partida de Juego de Mesa'}
+                    {meetup.title || meetup.games?.title || meetup.game_name || 'Partida de Juego de Mesa'}
                   </CardTitle>
+                  {meetup.title && (meetup.games?.title || meetup.game_name) && (
+                    <div className="mt-1 text-xs font-semibold text-primary">
+                      Juego: {meetup.games?.title || meetup.game_name}
+                    </div>
+                  )}
                   <CardDescription className="flex flex-wrap items-center gap-3 mt-2 text-xs font-medium">
                     <span className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5 text-primary" />

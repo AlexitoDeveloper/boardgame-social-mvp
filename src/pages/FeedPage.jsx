@@ -32,15 +32,18 @@ export function FeedPage() {
           .select(`
             *,
             users (*),
-            games_cache (*)
+            games (*)
           `)
           .order('created_at', { ascending: false })
 
-        if (error) {
-          console.error("Error fetching reviews:", error)
-          setReviews(MOCK_REVIEWS)
+        if (error || !data?.length) {
+          if (error) console.error("Error fetching reviews:", error)
+          setReviews(MOCK_REVIEWS.map(r => ({
+            ...r,
+            games: r.games || { title: r.games_cache?.name || 'Juego Desconocido' }
+          })))
         } else {
-          setReviews(data?.length ? data : MOCK_REVIEWS)
+          setReviews(data)
         }
       } catch (err) {
         console.error("Unexpected error:", err)
@@ -108,7 +111,7 @@ export function FeedPage() {
                     </div>
                   )}
                   <h3 className="font-extrabold text-xl tracking-tight text-primary leading-tight mb-2">
-                    {review.games_cache?.name || 'Juego Desconocido'}
+                    {review.games?.title || 'Juego Desconocido'}
                   </h3>
                   <p className="text-foreground/90 text-sm leading-relaxed">{review.review_text || review.content}</p>
                 </CardContent>

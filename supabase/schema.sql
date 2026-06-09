@@ -67,12 +67,9 @@ create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users (id) on delete cascade,
   game_id integer not null references public.games_cache (bgg_id) on delete restrict,
-  rating_complex integer not null check (rating_complex between 1 and 5),
-  rating_interac integer not null check (rating_interac between 1 and 5),
-  text_pros text,
-  text_cons text,
-  text_verdict text not null,
-  photos text[] not null default '{}',
+  rating integer not null check (rating between 1 and 10),
+  review_text text not null,
+  photo_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -86,9 +83,11 @@ create table if not exists public.meetups (
   id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.users (id) on delete cascade,
   game_id integer not null references public.games_cache (bgg_id) on delete restrict,
+  title text not null,
+  description text,
   city text not null,
   location text not null,
-  meetup_date timestamptz not null,
+  date timestamptz not null,
   max_players integer not null check (max_players between 2 and 50),
   joined_players uuid[] not null default '{}',
   created_at timestamptz not null default now(),
@@ -107,7 +106,7 @@ create index if not exists idx_reviews_game_id on public.reviews (game_id);
 create index if not exists idx_reviews_created_at on public.reviews (created_at desc);
 create index if not exists idx_meetups_city on public.meetups (city);
 create index if not exists idx_meetups_game_id on public.meetups (game_id);
-create index if not exists idx_meetups_date on public.meetups (meetup_date);
+create index if not exists idx_meetups_date on public.meetups (date);
 
 alter table public.users enable row level security;
 alter table public.games_cache enable row level security;

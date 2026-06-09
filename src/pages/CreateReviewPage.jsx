@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import { searchBoardGames } from '../services/bggService'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import imageCompression from 'browser-image-compression'
@@ -11,7 +10,6 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Loader2, UploadCloud, CheckCircle2 } from 'lucide-react'
-import { MOCK_BGG_GAMES } from '../lib/mockData'
 
 const MotionDiv = motion.div;
 const MotionP = motion.p;
@@ -37,16 +35,20 @@ export function CreateReviewPage() {
     setErrorMsg('')
     setIsSearching(true)
     setGames([])
-    const { games: results, error } = await searchBoardGames(searchQuery)
+    
+    const { data, error } = await supabase
+      .from('games')
+      .select('*')
+      .ilike('title', `%${searchQuery}%`)
+      .order('year_published', { ascending: false, nullsFirst: false })
+      .limit(30)
+
     setIsSearching(false)
     if (error) {
-      // Fall back to filtered mock data so the user can see the UI working
-      const filtered = MOCK_BGG_GAMES.filter(g =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      setGames(filtered.length ? filtered : MOCK_BGG_GAMES)
+      console.error(error)
+      setErrorMsg('Error buscando juegos.')
     } else {
-      setGames(results?.length ? results : MOCK_BGG_GAMES)
+      setGames(data || [])
     }
   }
 
@@ -83,8 +85,8 @@ export function CreateReviewPage() {
         photoUrl = publicUrlData.publicUrl
       }
 
-      const { error: insertError } = await supabase.from('reviews').insert({
-        game_id: selectedGame.id || selectedGame.bgg_id,
+        const { error: insertError } = await supabase.from('reviews').insert({
+        game_id: selectedGame.bgg_id,
         user_id: userId,
         rating: Number(rating),
         review_text: reviewText,
@@ -177,7 +179,7 @@ export function CreateReviewPage() {
                                 ) : (
                                   <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
                                 )}
-                                <span className="font-semibold text-sm">{g.name} <span className="text-xs font-normal text-muted-foreground block">{g.year || 'Año desc.'}</span></span>
+                                <span className="font-semibold text-sm">{g.title} <span className="text-xs font-normal text-muted-foreground block">{g.year_published || 'Año desc.'}</span></span>
                               </div>
                               <Button variant="ghost" size="sm" className="h-8 rounded-full text-xs font-bold hover:bg-primary hover:text-primary-foreground">Añadir</Button>
                             </MotionDiv>
@@ -203,7 +205,7 @@ export function CreateReviewPage() {
                       </div>
                       <div>
                         <Label className="text-xs text-primary uppercase font-bold mb-0.5 block">Juego Elegido</Label>
-                        <p className="font-extrabold text-foreground">{selectedGame.name}</p>
+                        <p className="font-extrabold text-foreground">{selectedGame.title}</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" type="button" onClick={() => setSelectedGame(null)} className="rounded-full text-xs h-8 border-border/50">
