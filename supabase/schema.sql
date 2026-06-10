@@ -204,12 +204,12 @@ for insert
 to authenticated
 with check (creator_id = auth.uid());
 
-create policy "meetups_update_creator"
+create policy "meetups_update_authenticated"
 on public.meetups
 for update
 to authenticated
-using (creator_id = auth.uid())
-with check (creator_id = auth.uid());
+using (true)
+with check (true);
 
 create policy "meetups_delete_creator"
 on public.meetups
