@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, ChevronDown } from 'lucide-react'
+import { es } from 'date-fns/locale'
 
 export function CalendarDatePicker({ value, onChange }) {
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -53,7 +54,9 @@ export function CalendarDatePicker({ value, onChange }) {
     }
   }, []);
 
-  const currentYear = new Date().getFullYear();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const currentYear = today.getFullYear();
 
   return (
     <Popover>
@@ -75,34 +78,43 @@ export function CalendarDatePicker({ value, onChange }) {
             onSelect={handleSelectDay}
             className="rounded-md border-0 bg-transparent"
             captionLayout="dropdown"
-            startMonth={new Date(currentYear - 2, 0)}
+            startMonth={new Date(currentYear, 0)}
             endMonth={new Date(currentYear + 10, 11)}
+            locale={es}
+            weekStartsOn={1}
+            disabled={{ before: today }}
           />
           
           {/* Time Selector */}
           <div className="border-t border-border/20 pt-3 flex items-center justify-between gap-4 px-3">
             <span className="text-xs font-bold text-muted-foreground">Hora:</span>
             <div className="flex items-center gap-2">
-              <select
-                value={hour}
-                onChange={(e) => handleTimeChange(e.target.value, minute)}
-                className="bg-background/80 border border-border/50 rounded-lg px-2 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-              >
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <option key={i} value={i}>{String(i).padStart(2, '0')}</option>
-                ))}
-              </select>
+              <div className="relative inline-flex items-center">
+                <select
+                  value={hour}
+                  onChange={(e) => handleTimeChange(e.target.value, minute)}
+                  className="bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all"
+                >
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <option key={i} value={i} className="bg-card text-foreground">{String(i).padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
               <span className="text-muted-foreground font-bold">:</span>
-              <select
-                value={minute}
-                onChange={(e) => handleTimeChange(hour, e.target.value)}
-                className="bg-background/80 border border-border/50 rounded-lg px-2 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-              >
-                {Array.from({ length: 12 }).map((_, i) => {
-                  const val = i * 5;
-                  return <option key={val} value={val}>{String(val).padStart(2, '0')}</option>;
-                })}
-              </select>
+              <div className="relative inline-flex items-center">
+                <select
+                  value={minute}
+                  onChange={(e) => handleTimeChange(hour, e.target.value)}
+                  className="bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all"
+                >
+                  {Array.from({ length: 12 }).map((_, i) => {
+                    const val = i * 5;
+                    return <option key={val} value={val} className="bg-card text-foreground">{String(val).padStart(2, '0')}</option>;
+                  })}
+                </select>
+                <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>

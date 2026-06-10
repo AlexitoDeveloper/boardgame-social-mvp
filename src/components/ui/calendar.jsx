@@ -63,13 +63,18 @@ function Calendar({
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
-          "has-focus:border-ring border-input shadow-xs has-focus:ring-ring/50 has-focus:ring-[3px] relative rounded-md border",
+          "relative inline-flex items-center gap-1",
           defaultClassNames.dropdown_root
         ),
-        dropdown: cn("bg-popover absolute inset-0 opacity-0", defaultClassNames.dropdown),
-        caption_label: cn("select-none font-medium", captionLayout === "label"
-          ? "text-sm"
-          : "[&>svg]:text-muted-foreground flex h-8 items-center gap-1 rounded-md pl-2 pr-1 text-sm [&>svg]:size-3.5", defaultClassNames.caption_label),
+        dropdown: cn(
+          "bg-background text-foreground border border-border/60 rounded-md pl-2 pr-6 py-0.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer h-7 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%25239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[size:10px] bg-[position:right_6px_center]",
+          defaultClassNames.dropdown
+        ),
+        caption_label: cn(
+          "select-none font-medium",
+          captionLayout === "label" ? "text-sm" : "hidden",
+          defaultClassNames.caption_label
+        ),
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
@@ -116,6 +121,24 @@ function Calendar({
 
           return (<ChevronDownIcon className={cn("size-4", className)} {...props} />);
         },
+        Dropdown: ({ options, className, ...props }) => (
+          <div className="relative inline-flex items-center">
+            <select
+              className={cn(
+                "bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all",
+                className
+              )}
+              {...props}
+            >
+              {options?.map((opt) => (
+                <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-card text-foreground">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          </div>
+        ),
         DayButton: CalendarDayButton,
         WeekNumber: ({ children, ...props }) => {
           return (

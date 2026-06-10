@@ -8,7 +8,7 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2 } from 'lucide-react'
+import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 
 const MotionDiv = motion.div;
@@ -148,9 +148,20 @@ export function CreateMeetupPage() {
     <section className="space-y-4 max-w-xl mx-auto p-4 pb-24">
       <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl">
-          <CardHeader className="pb-4 border-b border-border/30">
-            <CardTitle className="text-2xl font-extrabold tracking-tight text-primary">Organizar Partida</CardTitle>
-            <CardDescription className="font-medium text-foreground/80">Crea una reunión local para jugar a juegos de mesa.</CardDescription>
+          <CardHeader className="pb-4 border-b border-border/30 flex flex-row items-center justify-between gap-4">
+            <div className="min-w-0">
+              <CardTitle className="text-2xl font-extrabold tracking-tight text-primary truncate">Organizar Partida</CardTitle>
+              <CardDescription className="font-medium text-foreground/80 truncate">Crea una reunión local para jugar a juegos de mesa.</CardDescription>
+            </div>
+            <Button 
+              type="button"
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/radar')} 
+              className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" /> Volver
+            </Button>
           </CardHeader>
           <CardContent className="pt-6">
             
