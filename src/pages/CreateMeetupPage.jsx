@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
@@ -9,9 +9,29 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../co
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2 } from 'lucide-react'
+import { CalendarDatePicker } from '../components/CalendarDatePicker'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
+
+const ESP_CITIES = [
+  'Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Zaragoza', 'Málaga', 'Murcia', 
+  'Palma de Mallorca', 'Las Palmas de Gran Canaria', 'Bilbao', 'Alicante', 'Córdoba', 
+  'Valladolid', 'Vigo', 'Gijón', 'L\'Hospitalet de Llobregat', 'Vitoria-Gasteiz', 
+  'A Coruña', 'Granada', 'Elche', 'Oviedo', 'Terrassa', 'Badalona', 'Cartagena', 
+  'Sabadell', 'Jerez de la Frontera', 'Móstoles', 'Santa Cruz de Tenerife', 
+  'Pamplona', 'Almería', 'Alcalá de Henares', 'Fuenlabrada', 'Leganés', 
+  'San Sebastián', 'Getafe', 'Burgos', 'Alcorcón', 'Santander', 'Castelló de la Plana', 
+  'Badajoz', 'Logroño', 'Huelva', 'Salamanca', 'Marbella', 'Lleida', 'Tarragona', 
+  'Dos Hermanas', 'Parla', 'Torrejón de Ardoz', 'Mataró', 'León', 'Algeciras', 
+  'Santa Coloma de Gramenet', 'Cádiz', 'Alcobendas', 'Jaén', 'Ourense', 'Reus', 
+  'Telde', 'Barakaldo', 'Roquetas de Mar', 'Girona', 'Santiago de Compostela', 
+  'Cáceres', 'Lorca', 'San Fernando', 'Las Rozas de Madrid', 'Melilla', 
+  'Sant Cugat del Vallès', 'San Sebastián de los Reyes', 'El Puerto de Santa María', 
+  'Rivas-Vaciamadrid', 'Ceuta', 'Gandía', 'Manresa', 'Ciudad Real', 'Ávila', 
+  'Palencia', 'Segovia', 'Teruel', 'Soria', 'Huesca', 'Cuenca', 'Guadalajara', 
+  'Toledo', 'Zamora', 'Pontevedra', 'Lugo'
+];
 
 export function CreateMeetupPage() {
   const { user } = useAuth()
@@ -31,9 +51,33 @@ export function CreateMeetupPage() {
   const [date, setDate] = useState('')
   const [maxPlayers, setMaxPlayers] = useState('4')
 
+  // City Autocomplete State
+  const [allCities, setAllCities] = useState(ESP_CITIES)
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Fetch unique cities from current database on mount
+  useEffect(() => {
+    async function loadCities() {
+      try {
+        const { data, error } = await supabase
+          .from('meetups')
+          .select('city')
+        
+        if (data && !error) {
+          const dbCities = data.map(m => m.city).filter(Boolean)
+          const merged = [...new Set([...dbCities, ...ESP_CITIES])].sort()
+          setAllCities(merged)
+        }
+      } catch (err) {
+        console.error("Error al cargar sugerencias de ciudades:", err)
+      }
+    }
+    loadCities()
+  }, [])
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -95,6 +139,11 @@ export function CreateMeetupPage() {
     }
   }
 
+  // Filter city suggestions based on input
+  const suggestions = city.trim()
+    ? allCities.filter(c => c.toLowerCase().includes(city.toLowerCase()) && c.toLowerCase() !== city.toLowerCase())
+    : []
+
   return (
     <section className="space-y-4 max-w-xl mx-auto p-4 pb-24">
       <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -104,6 +153,24 @@ export function CreateMeetupPage() {
             <CardDescription className="font-medium text-foreground/80">Crea una reunión local para jugar a juegos de mesa.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
+            
+            {/* Stepper Wizard Header */}
+            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!selectedGame ? 'text-primary' : 'text-success/90'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
+                  {!selectedGame ? '1' : '✓'}
+                </span>
+                <span>Seleccionar Juego</span>
+              </div>
+              <div className="w-8 sm:w-16 h-px bg-border/40" />
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${selectedGame ? 'text-primary' : 'text-muted-foreground/60'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
+                  2
+                </span>
+                <span>Detalles de la Partida</span>
+              </div>
+            </div>
+
             <AnimatePresence mode="wait">
               {errorMsg && (
                 <MotionDiv 
@@ -129,7 +196,7 @@ export function CreateMeetupPage() {
                   className="space-y-5"
                 >
                   <div className="space-y-3">
-                    <Label className="text-foreground/80 font-bold text-sm">Paso 1: Selecciona el juego de mesa</Label>
+                    <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -192,7 +259,7 @@ export function CreateMeetupPage() {
                   <div className="flex items-center justify-between p-4 border border-primary/20 rounded-xl bg-primary/5 shadow-inner">
                     <div className="flex items-center gap-3">
                       {selectedGame.image_url ? (
-                        <img src={selectedGame.image_url} alt={selectedGame.title} className="w-12 h-12 rounded object-cover shadow-sm" />
+                        <img src={selectedGame.image_url} alt={selectedGame.title} className="w-12 h-12 rounded object-contain bg-background/50 border border-border/30 p-0.5 shadow-sm" />
                       ) : (
                         <div className="bg-primary/20 p-2 rounded-full text-primary">
                           <CheckCircle2 className="w-6 h-6" />
@@ -204,7 +271,7 @@ export function CreateMeetupPage() {
                       </div>
                     </div>
                     <Button variant="outline" size="sm" type="button" onClick={() => setSelectedGame(null)} className="rounded-full text-xs h-8 border-border/50">
-                      Cambiar
+                      Cambiar Juego
                     </Button>
                   </div>
 
@@ -235,7 +302,9 @@ export function CreateMeetupPage() {
 
                   {/* City & Location Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
+                    
+                    {/* City Input with Autocomplete */}
+                    <div className="space-y-1.5 relative">
                       <Label htmlFor="city" className="font-bold flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
                       </Label>
@@ -244,9 +313,38 @@ export function CreateMeetupPage() {
                         placeholder="Ej: Madrid, Barcelona..."
                         className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => {
+                          setCity(e.target.value)
+                          setShowCitySuggestions(true)
+                        }}
+                        onFocus={() => setShowCitySuggestions(true)}
+                        onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
                         required 
+                        autoComplete="off"
                       />
+                      <AnimatePresence>
+                        {showCitySuggestions && suggestions.length > 0 && (
+                          <MotionDiv
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
+                          >
+                            {suggestions.slice(0, 8).map((suggestion, idx) => (
+                              <div
+                                key={idx}
+                                className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
+                                onMouseDown={() => {
+                                  setCity(suggestion)
+                                  setShowCitySuggestions(false)
+                                }}
+                              >
+                                {suggestion}
+                              </div>
+                            ))}
+                          </MotionDiv>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <div className="space-y-1.5">
@@ -268,14 +366,7 @@ export function CreateMeetupPage() {
                       <Label htmlFor="date" className="font-bold flex items-center gap-1">
                         <CalendarDays className="w-3.5 h-3.5 text-primary" /> Fecha y Hora
                       </Label>
-                      <Input 
-                        id="date"
-                        type="datetime-local"
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        required 
-                      />
+                      <CalendarDatePicker value={date} onChange={setDate} />
                     </div>
 
                     <div className="space-y-1.5">

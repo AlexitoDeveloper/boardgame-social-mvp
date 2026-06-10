@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '../components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { motion } from 'framer-motion'
 import { MOCK_MEETUPS } from '../lib/mockData'
-import { MapPin, CalendarDays } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/authContext'
+import { MeetupCard } from '../components/MeetupCard'
 
 const MotionDiv = motion.div
 
@@ -21,8 +20,11 @@ const itemVars = {
 }
 
 export function RadarPage() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [meetups, setMeetups] = useState([])
   const [loading, setLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState(null)
 
   useEffect(() => {
     async function fetchMeetups() {
@@ -30,7 +32,8 @@ export function RadarPage() {
         const { data, error } = await supabase
           .from('meetups')
           .select(`*, users (*), games (*)`)
-          .order('date', { ascending: true })
+          .gte('date', new Date().toISOString()) // filter out past events
+          .order('date', { ascending: true }) // closest future events first
 
         if (error) {
           console.error("Error fetching meetups:", error)
@@ -48,6 +51,43 @@ export function RadarPage() {
 
     fetchMeetups()
   }, [])
+
+  const handleJoinLeave = async (meetup) => {
+    if (!user) {
+      navigate('/auth')
+      return
+    }
+
+    const userId = user.id
+    const isJoined = meetup.joined_players?.includes(userId)
+    const isCreator = meetup.creator_id === userId
+
+    if (isCreator) return // El creador no puede salirse de su meetup
+
+    let updatedPlayers = []
+    if (isJoined) {
+      updatedPlayers = meetup.joined_players.filter(id => id !== userId)
+    } else {
+      if ((meetup.joined_players?.length || 0) >= meetup.max_players) return
+      updatedPlayers = [...(meetup.joined_players || []), userId]
+    }
+
+    setUpdatingId(meetup.id)
+    try {
+      const { error } = await supabase
+        .from('meetups')
+        .update({ joined_players: updatedPlayers })
+        .eq('id', meetup.id)
+
+      if (error) throw error
+
+      setMeetups(prev => prev.map(m => m.id === meetup.id ? { ...m, joined_players: updatedPlayers } : m))
+    } catch (err) {
+      console.error("Error al actualizar asistencia:", err)
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -83,47 +123,13 @@ export function RadarPage() {
         <MotionDiv variants={containerVars} initial="hidden" animate="show" className="space-y-5">
           {meetups.map(meetup => (
             <MotionDiv key={meetup.id} variants={itemVars}>
-              <Card className="overflow-hidden bg-card/80 backdrop-blur-md transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 group">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-extrabold leading-tight">
-                    {meetup.title || meetup.games?.title || meetup.game_name || 'Partida de Juego de Mesa'}
-                  </CardTitle>
-                  {meetup.title && (meetup.games?.title || meetup.game_name) && (
-                    <div className="mt-1 text-xs font-semibold text-primary">
-                      Juego: {meetup.games?.title || meetup.game_name}
-                    </div>
-                  )}
-                  <CardDescription className="flex flex-wrap items-center gap-3 mt-2 text-xs font-medium">
-                    <span className="flex items-center gap-1.5">
-                      <CalendarDays className="h-3.5 w-3.5 text-primary" />
-                      {new Date(meetup.date || meetup.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' })}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />
-                      {meetup.location || 'Ubicación por definir'}
-                    </span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-3 space-y-3">
-                  <p className="text-sm text-foreground/80 leading-relaxed">{meetup.description || 'Sin descripción adicional.'}</p>
-                  <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-                    <Avatar className="w-7 h-7 border border-background">
-                      <AvatarImage src={meetup.users?.avatar_url} />
-                      <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
-                        {meetup.users?.username?.slice(0,2)?.toUpperCase() || 'H'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-xs text-muted-foreground">
-                      Organizado por <span className="font-semibold text-foreground">{meetup.users?.username || 'anónimo'}</span>
-                    </span>
-                  </div>
-                </CardContent>
-                <CardFooter className="pb-5">
-                  <Button variant="outline" className="w-full rounded-xl font-semibold border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all">
-                    Ver Detalles
-                  </Button>
-                </CardFooter>
-              </Card>
+              <MeetupCard
+                meetup={meetup}
+                user={user}
+                updatingId={updatingId}
+                onJoinLeave={handleJoinLeave}
+                onNavigate={navigate}
+              />
             </MotionDiv>
           ))}
         </MotionDiv>
