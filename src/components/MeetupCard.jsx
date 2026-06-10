@@ -80,19 +80,6 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
       )
     }
 
-    // Highlight button in amber/orange if exactly 1 spot remains
-    if (isLastSpot) {
-      return (
-        <Button 
-          onClick={() => onJoinLeave(meetup)} 
-          variant="default" 
-          size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md shadow-amber-500/20 border-none transition-all hover:shadow-amber-500/35"
-        >
-          Apuntarse
-        </Button>
-      )
-    }
 
     return (
       <Button 
@@ -151,10 +138,12 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
 
       {/* Card Body Description */}
       <div className="mt-3.5 space-y-3.5">
-        <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed line-clamp-3">{meetup.description || 'Sin descripción adicional.'}</p>
+        {meetup.description && (
+          <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed line-clamp-3">{meetup.description}</p>
+        )}
         
         {/* Joined players info */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/30">
+        <div className={`flex items-center justify-between pt-3 ${meetup.description ? 'border-t border-border/30' : ''}`}>
           <div className="flex items-center gap-2">
             <Avatar className="w-6 h-6 border border-background shadow-sm">
               <AvatarImage src={meetup.users?.avatar_url} />
