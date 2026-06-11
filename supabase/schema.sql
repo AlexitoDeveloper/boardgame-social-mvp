@@ -63,22 +63,6 @@ before update on public.games_cache
 for each row
 execute function public.set_updated_at();
 
-create table if not exists public.reviews (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.users (id) on delete cascade,
-  game_id integer not null references public.games_cache (bgg_id) on delete restrict,
-  rating integer not null check (rating between 1 and 10),
-  review_text text not null,
-  photo_url text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create trigger trg_reviews_updated_at
-before update on public.reviews
-for each row
-execute function public.set_updated_at();
-
 create table if not exists public.meetups (
   id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.users (id) on delete cascade,
@@ -101,23 +85,20 @@ before update on public.meetups
 for each row
 execute function public.set_updated_at();
 
-create index if not exists idx_reviews_user_id on public.reviews (user_id);
-create index if not exists idx_reviews_game_id on public.reviews (game_id);
-create index if not exists idx_reviews_created_at on public.reviews (created_at desc);
+
 create index if not exists idx_meetups_city on public.meetups (city);
 create index if not exists idx_meetups_game_id on public.meetups (game_id);
 create index if not exists idx_meetups_date on public.meetups (date);
 
 alter table public.users enable row level security;
 alter table public.games_cache enable row level security;
-alter table public.reviews enable row level security;
+
 alter table public.meetups enable row level security;
 
 -- USERS RLS
-create policy "users_select_authenticated"
+create policy "users_select_public"
 on public.users
 for select
-to authenticated
 using (true);
 
 create policy "users_insert_own_profile"
@@ -140,10 +121,9 @@ to authenticated
 using (id = auth.uid());
 
 -- GAMES CACHE RLS (read by authenticated users, write by service role only)
-create policy "games_cache_select_authenticated"
+create policy "games_cache_select_public"
 on public.games_cache
 for select
-to authenticated
 using (true);
 
 create policy "games_cache_insert_service_role"
@@ -165,37 +145,10 @@ for delete
 to service_role
 using (true);
 
--- REVIEWS RLS
-create policy "reviews_select_authenticated"
-on public.reviews
-for select
-to authenticated
-using (true);
-
-create policy "reviews_insert_own"
-on public.reviews
-for insert
-to authenticated
-with check (user_id = auth.uid());
-
-create policy "reviews_update_own"
-on public.reviews
-for update
-to authenticated
-using (user_id = auth.uid())
-with check (user_id = auth.uid());
-
-create policy "reviews_delete_own"
-on public.reviews
-for delete
-to authenticated
-using (user_id = auth.uid());
-
 -- MEETUPS RLS
-create policy "meetups_select_authenticated"
+create policy "meetups_select_public"
 on public.meetups
 for select
-to authenticated
 using (true);
 
 create policy "meetups_insert_creator"
@@ -229,9 +182,6 @@ GRANT ALL ON TABLE public.users TO anon, authenticated, service_role;
 
 -- Grant permissions to public.games_cache
 GRANT ALL ON TABLE public.games_cache TO anon, authenticated, service_role;
-
--- Grant permissions to public.reviews
-GRANT ALL ON TABLE public.reviews TO anon, authenticated, service_role;
 
 -- Grant permissions to public.meetups TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.meetups TO anon, authenticated, service_role;
