@@ -39,7 +39,7 @@ export function MeetupDetailHero({ meetup, gameInfo, isPast, isFull, spotsRemain
             </Badge>
           ) : isFull ? (
             <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5">
-              Completa
+              Mesa Llena
             </Badge>
           ) : spotsRemaining === 1 ? (
             <Badge variant="outline" className="bg-amber-500/15 text-amber-400 border-amber-500/30 font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5 animate-pulse">
@@ -47,7 +47,7 @@ export function MeetupDetailHero({ meetup, gameInfo, isPast, isFull, spotsRemain
             </Badge>
           ) : (
             <Badge variant="outline" className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30 font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5">
-              Abierta
+              Mesa Abierta
             </Badge>
           )}
           

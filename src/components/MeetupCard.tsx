@@ -165,7 +165,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               </AvatarFallback>
             </Avatar>
             <span className="text-[11px] text-muted-foreground font-medium">
-              Organiza <span className="font-semibold text-foreground">{meetup.users?.username || 'anónimo'}</span>
+              Master: <span className="font-semibold text-foreground">{meetup.users?.username || 'anónimo'}</span>
             </span>
           </div>
 
@@ -190,7 +190,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
       {/* Actions footer */}
       <div className="flex gap-2 pt-4">
         <Button 
-          onClick={() => onNavigate(`/radar/${meetup.id}`)}
+          onClick={() => onNavigate(`/tablero/${meetup.id}`)}
           variant="outline" 
           size="sm" 
           className="flex-1 rounded-xl font-semibold border-border/50 text-xs h-9 transition-colors hover:bg-muted/80"

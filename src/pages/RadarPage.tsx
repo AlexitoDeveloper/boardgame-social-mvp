@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Button } from '../components/ui/button'
+import { Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { MOCK_MEETUPS } from '../lib/mockData'
 import { Link, useNavigate } from 'react-router-dom'
@@ -116,7 +117,7 @@ export function RadarPage() {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-4">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-muted-foreground animate-pulse font-medium">Buscando partidas en tu radar...</p>
+        <p className="text-muted-foreground animate-pulse font-medium">Buscando partidas en el tablero...</p>
       </div>
     )
   }
@@ -125,22 +126,22 @@ export function RadarPage() {
     <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Radar Local</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Descubre partidas y reuniones cerca de ti.
+            Descubre partidas y mesas de juego cerca de ti.
           </p>
         </div>
-        <Link to="/radar/new">
-          <Button className="rounded-xl font-bold shadow-md shadow-primary/20 flex items-center gap-1.5 h-10 hover:shadow-primary/40 transition-all">
-            Organizar Partida
+        <Link to="/tablero/new">
+          <Button className="rounded-xl font-bold shadow-sm flex items-center gap-1.5 h-10 cursor-pointer">
+            <Plus className="w-4 h-4" /> Abrir Mesa
           </Button>
         </Link>
       </div>
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">
-          <p className="text-muted-foreground text-lg mb-1">No hay partidas en el radar aún.</p>
-          <p className="text-sm text-foreground/60">¡Sé el primero en organizar una!</p>
+          <p className="text-muted-foreground text-lg mb-1">No hay partidas en el tablero aún.</p>
+          <p className="text-sm text-foreground/60">¡Sé el primero en abrir una mesa!</p>
         </div>
       ) : (
         <MotionDiv variants={containerVars} initial="hidden" animate="show" className="space-y-5">

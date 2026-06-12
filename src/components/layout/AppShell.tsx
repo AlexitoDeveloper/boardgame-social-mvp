@@ -1,6 +1,6 @@
 import { createElement, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { Compass, LogIn, LogOut, User, Sun, Moon, Trophy, LucideIcon } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, Trophy, LucideIcon } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 const MotionDiv = motion.div
 
 const navItems = [
-  { to: '/', label: 'Radar', icon: Compass },
+  { to: '/', label: 'Tablero', icon: Dices },
   { to: '/tops', label: 'Crear Top', icon: Trophy },
 ]
 

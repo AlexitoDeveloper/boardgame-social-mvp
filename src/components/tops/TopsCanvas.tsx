@@ -201,7 +201,7 @@ export function TopsCanvas({
       <div 
         ref={exportAreaRef} 
         id="export-ranking-area" 
-        className="border border-primary/20 rounded-2xl p-6 bg-gradient-to-br from-[#0a362e] via-[#0f172a] to-[#070b16] shadow-2xl relative overflow-hidden space-y-6 flex flex-col justify-between min-h-[420px]"
+        className="border border-primary/20 rounded-2xl p-6 bg-gradient-to-br from-[#141b29] via-[#0e121b] to-[#0a362e] shadow-2xl relative overflow-hidden space-y-6 flex flex-col justify-between min-h-[420px]"
       >
         {/* Ambient Background decoration inside image */}
         <div className="absolute top-0 right-0 w-[70%] h-[50%] bg-gradient-to-br from-primary/20 to-teal-600/20 rounded-full blur-[100px] -z-10 pointer-events-none" />
@@ -209,15 +209,17 @@ export function TopsCanvas({
         <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
         {/* Header Branding info inside Image */}
-        <div className="space-y-1">
-          <Input
-            type="text"
-            value={rankingTitle}
-            onChange={(e) => setRankingTitle(e.target.value)}
-            placeholder="Dale un título a tu ranking..."
-            className="text-2xl font-extrabold tracking-tight text-white border-0 border-b border-transparent hover:border-primary/50 focus:border-primary focus:ring-0 bg-transparent px-0 py-1 h-auto w-full transition-colors truncate"
-          />
-          <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-3.5">
+          <div className="flex-1 min-w-0">
+            <input
+              type="text"
+              value={rankingTitle}
+              onChange={(e) => setRankingTitle(e.target.value)}
+              placeholder="Dale un título a tu ranking..."
+              className="text-xl font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none"
+            />
+          </div>
+          <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none">
             <Trophy className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
           </p>
         </div>
@@ -265,11 +267,7 @@ export function TopsCanvas({
                           >
                             <Plus className="w-5 h-5" />
                           </button>
-                        ) : (
-                          <span className="text-xs text-white/60 font-medium select-none pointer-events-none">
-                            Arrastra un juego aquí
-                          </span>
-                        )
+                        ) : null
                       ) : (
                         <>
                           {tier.games.map((g) => (
@@ -354,13 +352,11 @@ export function TopsCanvas({
                           )}
                         </div>
                       ) : (
-                        <div className="text-xs font-medium select-none flex items-center gap-2">
-                          {isPlaceable ? (
+                        isPlaceable && (
+                          <div className="text-xs font-medium select-none flex items-center gap-2">
                             <Plus className="w-3.5 h-3.5 text-primary shrink-0" />
-                          ) : (
-                            <span className="text-white/60">Arrastra un juego aquí</span>
-                          )}
-                        </div>
+                          </div>
+                        )
                       )}
                     </div>
                   )
@@ -372,8 +368,8 @@ export function TopsCanvas({
 
         {/* Bottom branding footer */}
         <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
-          <span>Organiza partidas en Boardgame Social</span>
-          <span className="font-extrabold text-primary">#BoardgameSocial</span>
+          <span>Abre tu mesa en Boardgame Social</span>
+          <span className="font-extrabold text-white">#BoardgameSocial</span>
         </div>
 
       </div>

@@ -26,10 +26,11 @@ function App() {
       <Route element={<AppShell />}>
         <Route path="/" element={<RadarPage />} />
         <Route path="/radar" element={<Navigate to="/" replace />} />
-        <Route path="/radar/:id" element={<MeetupDetailPage />} />
+        <Route path="/tablero" element={<Navigate to="/" replace />} />
+        <Route path="/tablero/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route
-          path="/radar/:id/edit"
+          path="/tablero/:id/edit"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />
@@ -37,7 +38,7 @@ function App() {
           }
         />
         <Route
-          path="/radar/new"
+          path="/tablero/new"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />
