@@ -30,7 +30,6 @@ export function TopsPage() {
           searchResults={tops.searchResults}
           setSearchResults={tops.setSearchResults}
           isSearching={tops.isSearching}
-          handleSearch={tops.handleSearch}
           errorMsg={tops.errorMsg}
           addToPool={tops.addToPool}
           pool={tops.pool}
@@ -45,6 +44,16 @@ export function TopsPage() {
           setSelectedGameForPlacement={tops.setSelectedGameForPlacement}
           handleDragStart={tops.handleDragStart}
           handleDropOnPool={tops.handleDropOnPool}
+          isPremium={tops.isPremium}
+          setIsPremium={tops.setIsPremium}
+          showWatermark={tops.showWatermark}
+          setShowWatermark={tops.setShowWatermark}
+          customWatermark={tops.customWatermark}
+          setCustomWatermark={tops.setCustomWatermark}
+          selectedBg={tops.selectedBg}
+          setSelectedBg={tops.setSelectedBg}
+          aspectRatio={tops.aspectRatio}
+          setAspectRatio={tops.setAspectRatio}
         />
 
         {/* BOTTOM PANEL: Exportable Editor Canvas */}
@@ -68,6 +77,11 @@ export function TopsPage() {
           exporting={tops.exporting}
           pool={tops.pool}
           handleClearAll={tops.handleClearAll}
+          isPremium={tops.isPremium}
+          showWatermark={tops.showWatermark}
+          customWatermark={tops.customWatermark}
+          selectedBg={tops.selectedBg}
+          aspectRatio={tops.aspectRatio}
         />
       </div>
     </section>

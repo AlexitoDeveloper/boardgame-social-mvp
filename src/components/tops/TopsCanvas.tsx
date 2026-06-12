@@ -140,7 +140,62 @@ interface TopsCanvasProps {
   exporting: boolean;
   pool: Game[];
   handleClearAll: () => void;
+
+  // Premium props
+  isPremium: boolean;
+  showWatermark: boolean;
+  customWatermark: string;
+  selectedBg: string;
+  aspectRatio: 'standard' | 'square' | 'story' | 'landscape';
 }
+
+const BACKGROUNDS: Record<string, string> = {
+  default: 'from-[#141b29] via-[#0e121b] to-[#0a362e]',
+  sunset: 'from-indigo-950 via-purple-950 to-pink-900',
+  cyberpunk: 'from-slate-950 via-violet-950 to-indigo-900',
+  ocean: 'from-slate-950 via-sky-950 to-cyan-900',
+  volcanic: 'from-stone-950 via-stone-900 to-red-950',
+  'midnight-gold': 'from-zinc-950 via-zinc-900 to-amber-950',
+  minimal: 'from-zinc-950 via-zinc-900 to-zinc-950',
+};
+
+const GLOWS: Record<string, { g1: string; g2: string; g3: string }> = {
+  default: {
+    g1: 'from-primary/20 to-teal-600/20',
+    g2: 'from-teal-500/20 to-emerald-600/20',
+    g3: 'bg-primary/10'
+  },
+  sunset: {
+    g1: 'from-pink-500/10 to-transparent',
+    g2: 'from-purple-500/10 to-transparent',
+    g3: 'bg-pink-500/5'
+  },
+  cyberpunk: {
+    g1: 'from-fuchsia-500/10 to-transparent',
+    g2: 'from-violet-500/10 to-transparent',
+    g3: 'bg-fuchsia-500/5'
+  },
+  ocean: {
+    g1: 'from-sky-500/15 to-transparent',
+    g2: 'from-blue-500/10 to-transparent',
+    g3: 'bg-cyan-500/5'
+  },
+  volcanic: {
+    g1: 'from-red-500/10 to-transparent',
+    g2: 'from-orange-650/10 to-transparent',
+    g3: 'bg-red-500/5'
+  },
+  'midnight-gold': {
+    g1: 'from-amber-500/10 to-transparent',
+    g2: 'from-yellow-600/10 to-transparent',
+    g3: 'bg-amber-500/5'
+  },
+  minimal: {
+    g1: 'from-white/5 to-transparent',
+    g2: 'from-white/5 to-transparent',
+    g3: 'bg-white/5'
+  }
+};
 
 export function TopsCanvas({
   exportAreaRef,
@@ -162,6 +217,11 @@ export function TopsCanvas({
   exporting,
   pool,
   handleClearAll,
+  isPremium,
+  showWatermark,
+  customWatermark,
+  selectedBg,
+  aspectRatio,
 }: TopsCanvasProps) {
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
@@ -214,31 +274,49 @@ export function TopsCanvas({
       </div>
 
       {/* Exportable Area */}
-      <div 
-        ref={exportAreaRef} 
-        id="export-ranking-area" 
-        className="border border-primary/20 rounded-2xl p-6 bg-gradient-to-br from-[#141b29] via-[#0e121b] to-[#0a362e] shadow-2xl relative overflow-hidden space-y-6 flex flex-col justify-between min-h-[420px]"
-      >
-        {/* Ambient Background decoration inside image */}
-        <div className="absolute top-0 right-0 w-[70%] h-[50%] bg-gradient-to-br from-primary/20 to-teal-600/20 rounded-full blur-[100px] -z-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[70%] h-[50%] bg-gradient-to-tr from-teal-500/20 to-emerald-600/20 rounded-full blur-[100px] -z-10 pointer-events-none" />
-        <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px] -z-10 pointer-events-none" />
+      {(() => {
+        const bgClass = BACKGROUNDS[selectedBg] || BACKGROUNDS.default;
+        const glow = GLOWS[selectedBg] || GLOWS.default;
 
-        {/* Header Branding info inside Image */}
-        <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-3.5">
-          <div className="flex-1 min-w-0">
-            <input
-              type="text"
-              value={rankingTitle}
-              onChange={(e) => setRankingTitle(e.target.value)}
-              placeholder="Dale un título a tu ranking..."
-              className="text-xl font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none"
-            />
-          </div>
-          <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none">
-            <Trophy className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
-          </p>
-        </div>
+        let aspectClass = "min-h-[420px] w-full p-6";
+        if (isPremium) {
+          if (aspectRatio === 'square') {
+            aspectClass = "w-full max-w-[620px] aspect-square p-6 mx-auto justify-between";
+          } else if (aspectRatio === 'story') {
+            aspectClass = "w-full max-w-[420px] aspect-[9/16] p-8 mx-auto justify-between";
+          } else if (aspectRatio === 'landscape') {
+            aspectClass = "w-full max-w-[850px] aspect-[16/9] p-6 mx-auto justify-between";
+          }
+        }
+
+        return (
+          <div 
+            ref={exportAreaRef} 
+            id="export-ranking-area" 
+            className={`border border-primary/20 rounded-2xl bg-gradient-to-br ${bgClass} shadow-2xl relative overflow-hidden flex flex-col space-y-6 justify-between ${aspectClass}`}
+          >
+            {/* Ambient Background decoration inside image */}
+            <div className={`absolute top-0 right-0 w-[70%] h-[50%] bg-gradient-to-br ${glow.g1} rounded-full blur-[100px] -z-10 pointer-events-none`} />
+            <div className={`absolute bottom-0 left-0 w-[70%] h-[50%] bg-gradient-to-tr ${glow.g2} rounded-full blur-[100px] -z-10 pointer-events-none`} />
+            <div className={`absolute top-[30%] left-[20%] w-[40%] h-[40%] ${glow.g3} rounded-full blur-[100px] -z-10 pointer-events-none`} />
+
+            {/* Header Branding info inside Image */}
+            <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-3.5">
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  value={rankingTitle}
+                  onChange={(e) => setRankingTitle(e.target.value)}
+                  placeholder="Dale un título a tu ranking..."
+                  className="text-xl font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none"
+                />
+              </div>
+              {(!isPremium || showWatermark) && (
+                <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none">
+                  <Trophy className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
+                </p>
+              )}
+            </div>
 
         {/* Content Renders based on Mode */}
         <div className="flex-1">
@@ -382,13 +460,17 @@ export function TopsCanvas({
           </AnimatePresence>
         </div>
 
-        {/* Bottom branding footer */}
-        <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
-          <span>Abre tu mesa en Boardgame Social</span>
-          <span className="font-extrabold text-white">#BoardgameSocial</span>
-        </div>
+            {/* Bottom branding footer */}
+            {(!isPremium || showWatermark) && (
+              <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
+                <span>{(isPremium && customWatermark) ? customWatermark : "Abre tu mesa en Boardgame Social"}</span>
+                {(!isPremium || !customWatermark) && <span className="font-extrabold text-white font-extrabold">#BoardgameSocial</span>}
+              </div>
+            )}
 
-      </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
