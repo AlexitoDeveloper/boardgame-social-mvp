@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
@@ -8,11 +8,12 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { Game } from '../types'
 import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
+import { useClickOutside } from '../hooks/useClickOutside'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -47,6 +48,14 @@ export function CreateMeetupPage() {
   const [games, setGames] = useState<Game[]>([])
   const [selectedGame, setSelectedGame] = useState<Game | null>(null)
   const [isSearching, setIsSearching] = useState(false)
+
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
+  useClickOutside(
+    searchContainerRef,
+    () => setGames([]),
+    games.length > 0
+  )
 
   // Form Fields State
   const [title, setTitle] = useState('')
@@ -317,15 +326,7 @@ export function CreateMeetupPage() {
                 >
                   <div className="space-y-3">
                     <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
-                    <div className="relative z-20">
-                      {/* Click-away overlay to close search results when clicking outside */}
-                      {games.length > 0 && (
-                        <div 
-                          className="fixed inset-0 z-10 bg-transparent"
-                          onClick={() => setGames([])}
-                        />
-                      )}
-
+                    <div ref={searchContainerRef} className="relative z-20">
                       <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
                         <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
                           <div className="flex-1">
@@ -349,12 +350,12 @@ export function CreateMeetupPage() {
                               exit={{ opacity: 0, y: -4 }}
                               className="absolute z-50 left-0 right-0 top-full mt-1.5 shadow-2xl"
                             >
-                              <div className="border border-zinc-800 bg-zinc-950 rounded-xl overflow-hidden">
-                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-zinc-800/40">
+                              <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
+                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-border/40">
                                   {games.map(g => (
                                     <CommandItem 
                                       key={g.bgg_id} 
-                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-white/5 hover:text-white data-[selected=true]:bg-white/5 data-[selected=true]:text-white"
+                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
                                       onSelect={() => {
                                         setSelectedGame(g)
                                         setGames([]) // Clear list to close dropdown

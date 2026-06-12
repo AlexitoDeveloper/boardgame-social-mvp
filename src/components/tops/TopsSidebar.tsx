@@ -1,11 +1,12 @@
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, Download, Trash2, Check } from 'lucide-react'
+import { Search, Loader2, Trash2, Check } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card'
-import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 import { Command, CommandInput, CommandList, CommandItem } from '../ui/command'
+import { useClickOutside } from '../../hooks/useClickOutside'
 
 interface TopsSidebarProps {
   mode: 'tier' | 'top10';
@@ -15,7 +16,6 @@ interface TopsSidebarProps {
   searchResults: Game[];
   setSearchResults: (results: Game[]) => void;
   isSearching: boolean;
-  handleSearch: (e?: React.FormEvent) => void;
   errorMsg: string;
   addToPool: (game: Game) => void;
   pool: Game[];
@@ -40,7 +40,6 @@ export function TopsSidebar({
   searchResults,
   setSearchResults,
   isSearching,
-  handleSearch,
   errorMsg,
   addToPool,
   pool,
@@ -56,6 +55,14 @@ export function TopsSidebar({
   handleDragStart,
   handleDropOnPool,
 }: TopsSidebarProps) {
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
+  useClickOutside(
+    searchContainerRef,
+    () => setSearchResults([]),
+    searchResults.length > 0
+  )
+
   return (
     <div className="space-y-4">
       
@@ -73,15 +80,7 @@ export function TopsSidebar({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 relative animate-fade-in">
-            <div className="relative">
-              {/* Click-away overlay to close search results when clicking outside */}
-              {searchResults.length > 0 && (
-                <div 
-                  className="fixed inset-0 z-40 bg-transparent"
-                  onClick={() => setSearchResults([])}
-                />
-              )}
-
+            <div ref={searchContainerRef} className="relative">
               <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
                 <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
                   <div className="flex-1">
@@ -106,8 +105,8 @@ export function TopsSidebar({
                       exit={{ opacity: 0, y: -4 }}
                       className="absolute z-50 left-0 right-0 top-full mt-1.5 w-full shadow-2xl"
                     >
-                      <div className="border border-zinc-800 bg-zinc-950 rounded-xl overflow-hidden">
-                        <CommandList className="max-h-60 custom-scrollbar divide-y divide-zinc-800/40">
+                      <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
+                        <CommandList className="max-h-60 custom-scrollbar divide-y divide-border/40">
                           {searchResults.map((game) => {
                             const isAdded = pool.some(g => g.bgg_id === game.bgg_id) || 
                                             tiers.some(t => t.games.some(g => g.bgg_id === game.bgg_id)) || 
@@ -115,7 +114,7 @@ export function TopsSidebar({
                             return (
                               <CommandItem
                                 key={game.bgg_id} 
-                                className={`p-3 flex items-center justify-between gap-3 transition-colors cursor-pointer text-foreground hover:bg-white/5 hover:text-white data-[selected=true]:bg-white/5 data-[selected=true]:text-white ${
+                                className={`p-3 flex items-center justify-between gap-3 transition-colors cursor-pointer text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground ${
                                   isAdded ? 'opacity-50 cursor-default bg-emerald-500/5 hover:bg-emerald-500/5' : ''
                                 }`}
                                 onSelect={() => !isAdded && addToPool(game)}
