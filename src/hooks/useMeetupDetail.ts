@@ -29,6 +29,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   
   const [meetup, setMeetup] = useState<Meetup | null>(null)
   const [attendees, setAttendees] = useState<UserProfile[]>([])
+  const [guestReservation, setGuestReservation] = useState<{ id: string, name: string } | null>(null)
   const [gameInfo, setGameInfo] = useState<Game | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [joining, setJoining] = useState<boolean>(false)
@@ -46,6 +47,19 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       setLoading(true)
       setErrorMsg('')
       
+      // Read local guest reservation if any
+      const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+      if (localReservations) {
+        const parsed = JSON.parse(localReservations)
+        if (parsed[id]) {
+          setGuestReservation(parsed[id])
+        } else {
+          setGuestReservation(null)
+        }
+      } else {
+        setGuestReservation(null)
+      }
+
       const isMock = id.startsWith('mock-')
       
       if (isMock) {
@@ -70,8 +84,22 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         }
 
         const mockMaxPlayers = id === 'mock-m1' ? 4 : id === 'mock-m2' ? 2 : 6
+        
+        // Get mock guests from local storage
+        const mockGuestsKey = 'boardgame_social_mock_guests'
+        const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
+        const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+        const meetupMockGuests = allMockGuests[id] || []
+        const formattedMockGuests = meetupMockGuests.map((g: any) => ({
+          id: g.id,
+          username: g.guest_name,
+          avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
+          is_guest: true
+        }))
+
         const mockAttendees = getMockAttendees(id)
-        const mockJoinedPlayers = mockAttendees.map(a => a.id)
+        const combinedMockAttendees = [...mockAttendees, ...formattedMockGuests]
+        const mockJoinedPlayers = combinedMockAttendees.map(a => a.id)
 
         const formattedMock: Meetup = {
           id: foundMock.id,
@@ -101,7 +129,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         }
 
         setMeetup(formattedMock)
-        setAttendees(mockAttendees)
+        setAttendees(combinedMockAttendees)
         
         // Handle raw games cache as array or single object
         const mockRawGame = formattedMock.games
@@ -127,6 +155,8 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           const dbParsedGame = Array.isArray(dbRawGame) ? dbRawGame[0] : dbRawGame
           setGameInfo((dbParsedGame as Game) || null)
 
+          let sortedRegistered: UserProfile[] = []
+
           // Fetch attendees profiles
           if (data.joined_players && data.joined_players.length > 0) {
             const { data: profiles, error: profilesError } = await supabase
@@ -136,14 +166,28 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
             if (!profilesError && profiles) {
               // Sort profiles so creator/organizer is first
-              const sorted = [...profiles].sort((a, b) => {
+              sortedRegistered = [...profiles].sort((a, b) => {
                 if (a.id === data.creator_id) return -1
                 if (b.id === data.creator_id) return 1
                 return 0
               })
-              setAttendees(sorted as UserProfile[])
             }
           }
+
+          // Fetch guests profiles
+          const { data: guests, error: guestsError } = await supabase
+            .from('meetup_guests')
+            .select('id, guest_name, created_at')
+            .eq('meetup_id', id)
+
+          const guestProfiles: UserProfile[] = (guests || []).map(g => ({
+            id: g.id,
+            username: g.guest_name,
+            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
+            is_guest: true
+          }))
+
+          setAttendees([...sortedRegistered, ...guestProfiles])
         } catch (err: any) {
           console.error("Error loading meetup detail:", err)
           setErrorMsg(err.message || 'Error al obtener los detalles de la partida.')
@@ -316,7 +360,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
           updatedAttendees = attendees.filter(a => a.id !== userId)
         } else {
-          if (meetup.joined_players.length >= meetup.max_players) {
+          if (attendees.length >= meetup.max_players) {
             setJoining(false)
             return
           }
@@ -333,7 +377,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       if (isJoined) {
         updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
       } else {
-        if ((meetup.joined_players?.length || 0) >= meetup.max_players) {
+        if (attendees.length >= meetup.max_players) {
           setJoining(false)
           return
         }
@@ -355,6 +399,19 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
         if (profilesError) throw profilesError
 
+        // Also fetch guests profiles to avoid wiping them out
+        const { data: guests, error: guestsError } = await supabase
+          .from('meetup_guests')
+          .select('id, guest_name, created_at')
+          .eq('meetup_id', meetup.id)
+
+        const guestProfiles: UserProfile[] = (guests || []).map(g => ({
+          id: g.id,
+          username: g.guest_name,
+          avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
+          is_guest: true
+        }))
+
         setMeetup(prev => prev ? ({ ...prev, joined_players: updatedPlayers }) : null)
         
         const sorted = [...(profiles || [])].sort((a, b) => {
@@ -362,7 +419,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           if (b.id === meetup.creator_id) return 1
           return 0
         })
-        setAttendees(sorted as UserProfile[])
+        setAttendees([...sorted, ...guestProfiles])
       } catch (err) {
         console.error('Error joining/leaving meetup:', err)
       } finally {
@@ -399,6 +456,141 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     }
   }
 
+  // Handle Join as guest (shadow user)
+  const handleJoinAsGuest = async (guestName: string) => {
+    if (!id || !meetup) return
+    
+    // Check if space is available
+    if (attendees.length >= meetup.max_players) {
+      setErrorMsg('La mesa ya está llena.')
+      return
+    }
+
+    setJoining(true)
+    const isMock = id.startsWith('mock-')
+
+    if (isMock) {
+      setTimeout(() => {
+        const guestId = `mock-guest-${Date.now()}`
+        
+        // Save to reservations in localStorage
+        const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+        const reservations = localReservations ? JSON.parse(localReservations) : {}
+        reservations[id] = { id: guestId, name: guestName }
+        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+
+        // Save to mock guests list in localStorage
+        const mockGuestsKey = 'boardgame_social_mock_guests'
+        const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
+        const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+        if (!allMockGuests[id]) allMockGuests[id] = []
+        allMockGuests[id].push({ id: guestId, guest_name: guestName })
+        localStorage.setItem(mockGuestsKey, JSON.stringify(allMockGuests))
+
+        setGuestReservation({ id: guestId, name: guestName })
+        
+        const newGuest: UserProfile = {
+          id: guestId,
+          username: guestName,
+          avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(guestName)}`,
+          is_guest: true
+        }
+
+        setAttendees(prev => [...prev, newGuest])
+        setJoining(false)
+      }, 500)
+    } else {
+      try {
+        const { data, error } = await supabase
+          .from('meetup_guests')
+          .insert({ meetup_id: id, guest_name: guestName })
+          .select()
+          .single()
+
+        if (error) throw error
+        if (!data) throw new Error('No se pudo registrar el invitado shadow.')
+
+        // Save to reservations in localStorage
+        const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+        const reservations = localReservations ? JSON.parse(localReservations) : {}
+        reservations[id] = { id: data.id, name: guestName }
+        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+
+        setGuestReservation({ id: data.id, name: guestName })
+
+        const newGuest: UserProfile = {
+          id: data.id,
+          username: guestName,
+          avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(guestName)}`,
+          is_guest: true
+        }
+
+        setAttendees(prev => [...prev, newGuest])
+      } catch (err: any) {
+        console.error('Error joining as guest:', err)
+        setErrorMsg('Error al unirse como invitado.')
+      } finally {
+        setJoining(false)
+      }
+    }
+  }
+
+  // Handle Leave as guest (shadow user)
+  const handleLeaveAsGuest = async () => {
+    if (!id || !meetup) return
+
+    const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+    if (!localReservations) return
+    const reservations = JSON.parse(localReservations)
+    const reservation = reservations[id]
+    if (!reservation) return
+
+    setJoining(true)
+    const isMock = id.startsWith('mock-')
+
+    if (isMock) {
+      setTimeout(() => {
+        // Remove from reservations in localStorage
+        delete reservations[id]
+        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+
+        // Remove from mock guests in localStorage
+        const mockGuestsKey = 'boardgame_social_mock_guests'
+        const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
+        const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+        if (allMockGuests[id]) {
+          allMockGuests[id] = allMockGuests[id].filter((g: any) => g.id !== reservation.id)
+          localStorage.setItem(mockGuestsKey, JSON.stringify(allMockGuests))
+        }
+
+        setAttendees(prev => prev.filter(a => a.id !== reservation.id))
+        setGuestReservation(null)
+        setJoining(false)
+      }, 500)
+    } else {
+      try {
+        const { error } = await supabase
+          .from('meetup_guests')
+          .delete()
+          .eq('id', reservation.id)
+
+        if (error) throw error
+
+        // Remove from reservations in localStorage
+        delete reservations[id]
+        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+
+        setAttendees(prev => prev.filter(a => a.id !== reservation.id))
+        setGuestReservation(null)
+      } catch (err: any) {
+        console.error('Error leaving as guest:', err)
+        setErrorMsg('Error al abandonar la mesa.')
+      } finally {
+        setJoining(false)
+      }
+    }
+  }
+
   return {
     meetup,
     attendees,
@@ -411,6 +603,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     errorMsg,
     handleShare,
     handleJoinLeave,
-    handleCancelMeetup
+    handleCancelMeetup,
+    guestReservation,
+    handleJoinAsGuest,
+    handleLeaveAsGuest
   }
 }

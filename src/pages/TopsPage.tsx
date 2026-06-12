@@ -37,7 +37,7 @@ export function TopsPage() {
           selectedGameForPlacement={tops.selectedGameForPlacement}
           selectGame={tops.selectGame}
           removeFromPool={tops.removeFromPool}
-          handleClearAll={tops.handleClearAll}
+          handleClearPool={tops.handleClearPool}
           tiers={tops.tiers}
           top10={tops.top10}
           placeInTier={tops.placeInTier}
@@ -67,6 +67,7 @@ export function TopsPage() {
           handleExportImage={tops.handleExportImage}
           exporting={tops.exporting}
           pool={tops.pool}
+          handleClearAll={tops.handleClearAll}
         />
       </div>
     </section>

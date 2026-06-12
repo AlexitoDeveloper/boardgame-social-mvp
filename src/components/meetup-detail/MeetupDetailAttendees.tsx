@@ -13,10 +13,18 @@ interface MeetupDetailAttendeesProps {
   spotsRemaining: number;
   creatorId: string;
   userId: string | undefined;
+  guestReservationId?: string;
 }
 
-export function MeetupDetailAttendees({ attendees, maxPlayers, spotsRemaining, creatorId, userId }: MeetupDetailAttendeesProps) {
-  // Determine empty slots to display cleanly, capping them to at most 4 individual slots
+export function MeetupDetailAttendees({ 
+  attendees, 
+  maxPlayers, 
+  spotsRemaining, 
+  creatorId, 
+  userId, 
+  guestReservationId 
+}: MeetupDetailAttendeesProps) {
+  
   const renderEmptySlots = () => {
     const slotsToRender = Math.min(3, spotsRemaining)
     if (slotsToRender <= 0) return null
@@ -53,24 +61,31 @@ export function MeetupDetailAttendees({ attendees, maxPlayers, spotsRemaining, c
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-1">
             {attendees.map((attendee) => {
               const isUserOrganizer = attendee.id === creatorId
-              const isCurrentAttendee = attendee.id === userId
+              const isCurrentAttendee = attendee.id === userId || (guestReservationId && attendee.id === guestReservationId)
 
               return (
                 <MotionDiv 
                   key={attendee.id} 
                   layoutId={`attendee-${attendee.id}`}
-                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/30 hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 group"
+                  className={`flex items-center justify-between p-3 rounded-xl border bg-background/30 hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 group ${
+                    attendee.is_guest 
+                      ? 'border-border/20 border-dashed opacity-90' 
+                      : 'border-border/30'
+                  }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Avatar className="w-9 h-9 border border-background shadow-sm group-hover:scale-105 transition-transform duration-300">
                       <AvatarImage src={attendee.avatar_url || undefined} />
-                      <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
-                        {attendee.username?.slice(0,2)?.toUpperCase() || 'H'}
+                      <AvatarFallback className={`text-xs font-bold ${attendee.is_guest ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
+                        {attendee.username?.slice(0,2)?.toUpperCase() || 'IN'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
                       <span className="text-sm font-bold block text-foreground truncate">
                         {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">(Tú)</span>}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-medium block">
+                        {isUserOrganizer ? 'Organiza la partida' : attendee.is_guest ? 'Invitado temporal' : 'Jugador'}
                       </span>
                     </div>
                   </div>
@@ -79,6 +94,12 @@ export function MeetupDetailAttendees({ attendees, maxPlayers, spotsRemaining, c
                     <div className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center gap-1.5 text-[10px] font-bold shrink-0">
                       <Crown className="w-3.5 h-3.5 fill-current" />
                       Master
+                    </div>
+                  )}
+
+                  {attendee.is_guest && !isUserOrganizer && (
+                    <div className="px-2 py-0.5 rounded-full bg-muted/60 border border-border text-muted-foreground/80 flex items-center text-[10px] font-bold shrink-0">
+                      Invitado
                     </div>
                   )}
                 </MotionDiv>

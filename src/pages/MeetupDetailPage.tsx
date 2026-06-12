@@ -34,7 +34,10 @@ export function MeetupDetailPage() {
     errorMsg,
     handleShare,
     handleJoinLeave,
-    handleCancelMeetup
+    handleCancelMeetup,
+    guestReservation,
+    handleJoinAsGuest,
+    handleLeaveAsGuest
   } = useMeetupDetail(id, user)
 
   if (loading) {
@@ -64,7 +67,7 @@ export function MeetupDetailPage() {
   const userId = user?.id
   const isJoined = userId ? meetup.joined_players?.includes(userId) : false
   const isCreator = meetup.creator_id === userId
-  const spotsRemaining = meetup.max_players - (meetup.joined_players?.length || 0)
+  const spotsRemaining = meetup.max_players - attendees.length
   const isFull = spotsRemaining <= 0
   const isPast = new Date(meetup.date).getTime() < new Date().getTime()
 
@@ -127,6 +130,7 @@ export function MeetupDetailPage() {
             spotsRemaining={spotsRemaining}
             creatorId={meetup.creator_id}
             userId={userId}
+            guestReservationId={guestReservation?.id}
           />
 
           {/* Location details card & Google Map locator */}
@@ -151,6 +155,9 @@ export function MeetupDetailPage() {
           user={user}
           handleJoinLeave={handleJoinLeave}
           handleCancelMeetup={handleCancelMeetup}
+          guestReservation={guestReservation}
+          handleJoinAsGuest={handleJoinAsGuest}
+          handleLeaveAsGuest={handleLeaveAsGuest}
         />
       </div>
     </section>
