@@ -37,6 +37,7 @@ export interface Meetup {
   users?: UserProfile;
   games?: Game | Game[];
   game_name?: string; // Usado en datos mock y compatibilidad
+  meetup_guests?: { id: string; guest_name: string }[];
 }
 
 export interface BggSearchResult {
@@ -48,3 +49,15 @@ export interface BggSearchResult {
   max_players?: number;
   playing_time?: number;
 }
+
+export interface MeetupMessage {
+  id: string;
+  meetup_id: string;
+  user_id: string | null;
+  guest_id: string | null;
+  sender_name: string;
+  avatar_url: string | null;
+  content: string;
+  created_at: string;
+}
+

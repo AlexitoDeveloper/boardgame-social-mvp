@@ -9,7 +9,7 @@
 ### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
 *Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
 - [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
-- [ ] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
+- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
 - [ ] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
 
 ### FASE 3: PULIDO Y MONETIZACIÓN (Sostenibilidad)

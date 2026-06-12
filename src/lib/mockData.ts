@@ -1,6 +1,8 @@
 // ────────────────────────────────────────────────────────────
 //  Mock data – used while waiting for live data / BGG API key
 // ────────────────────────────────────────────────────────────
+import { Meetup } from '../types'
+
 export interface MockMeetup {
   id: string;
   title: string;
@@ -13,6 +15,48 @@ export interface MockMeetup {
     avatar_url: string;
   };
 }
+
+export function getMockMeetupsForList(): Meetup[] {
+  const mockGuestsKey = 'boardgame_social_mock_guests'
+  const allMockGuestsStr = typeof window !== 'undefined' ? localStorage.getItem(mockGuestsKey) : null
+  const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+
+  return MOCK_MEETUPS.map(m => {
+    const meetupMockGuests = allMockGuests[m.id] || []
+    const guestsList = meetupMockGuests.map((g: any) => ({
+      id: g.id,
+      guest_name: g.guest_name
+    }))
+    
+    const mockMaxPlayers = m.id === 'mock-m1' ? 4 : m.id === 'mock-m2' ? 2 : 6
+    const initialRegistered = m.id === 'mock-m1' ? ['mock-u1', 'mock-u2', 'mock-u3', 'mock-u4'] : m.id === 'mock-m2' ? ['mock-u3', 'mock-u1'] : ['mock-u1']
+
+    return {
+      id: m.id,
+      creator_id: m.id === 'mock-m1' ? 'mock-u1' : m.id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
+      game_id: 1,
+      title: m.title,
+      description: m.description,
+      city: 'Madrid',
+      location: m.location,
+      date: m.date,
+      max_players: mockMaxPlayers,
+      joined_players: initialRegistered,
+      users: {
+        id: m.id === 'mock-m1' ? 'mock-u1' : m.id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
+        username: m.users?.username || 'anónimo',
+        avatar_url: m.users?.avatar_url || null
+      },
+      games: {
+        bgg_id: 1,
+        title: m.game_name,
+        image_url: null
+      },
+      meetup_guests: guestsList
+    }
+  })
+}
+
 
 export interface MockBggGame {
   id: string;
