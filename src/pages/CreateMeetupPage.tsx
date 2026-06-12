@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
@@ -8,10 +8,12 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { Game } from '../types'
+import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
+import { useClickOutside } from '../hooks/useClickOutside'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -46,6 +48,14 @@ export function CreateMeetupPage() {
   const [games, setGames] = useState<Game[]>([])
   const [selectedGame, setSelectedGame] = useState<Game | null>(null)
   const [isSearching, setIsSearching] = useState(false)
+
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+
+  useClickOutside(
+    searchContainerRef,
+    () => setGames([]),
+    games.length > 0
+  )
 
   // Form Fields State
   const [title, setTitle] = useState('')
@@ -82,6 +92,19 @@ export function CreateMeetupPage() {
     }
     loadCities()
   }, [])
+
+  // Debounced search on type
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch()
+      } else {
+        setGames([])
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery])
 
   // Load existing meetup details in Edit Mode
   useEffect(() => {
@@ -141,7 +164,7 @@ export function CreateMeetupPage() {
           }
         } catch (err) {
           console.error("Error loading meetup for edit:", err)
-          setErrorMsg('No se pudo cargar la reunión para editar.')
+          setErrorMsg('No se pudo cargar la mesa de juego para editar.')
         }
       }
     }
@@ -183,7 +206,7 @@ export function CreateMeetupPage() {
 
     try {
       const userId = user?.id
-      if (!userId) throw new Error('Debes iniciar sesión para organizar una reunión.')
+      if (!userId) throw new Error('Debes iniciar sesión para abrir una mesa.')
 
       if (isEditMode && id) {
         const isMock = id.startsWith('mock-')
@@ -204,9 +227,9 @@ export function CreateMeetupPage() {
             })
             .eq('id', id)
 
-          if (updateError) throw new Error(`Error al actualizar la reunión: ${updateError.message}`)
+          if (updateError) throw new Error(`Error al actualizar la partida: ${updateError.message}`)
         }
-        navigate(`/radar/${id}`)
+        navigate(`/tablero/${id}`)
       } else {
         const { error: insertError } = await supabase.from('meetups').insert({
           creator_id: userId,
@@ -220,8 +243,8 @@ export function CreateMeetupPage() {
           joined_players: [userId] // The creator joins their own meetup automatically
         })
 
-        if (insertError) throw new Error(`Error al crear la reunión: ${insertError.message}`)
-        navigate('/radar')
+        if (insertError) throw new Error(`Error al abrir la mesa: ${insertError.message}`)
+        navigate('/')
       }
     } catch (err: any) {
       console.error(err)
@@ -243,17 +266,17 @@ export function CreateMeetupPage() {
           <CardHeader className="pb-4 border-b border-border/30 flex flex-row items-center justify-between gap-4">
             <div className="min-w-0">
               <CardTitle className="text-2xl font-extrabold tracking-tight text-primary truncate">
-                {isEditMode ? 'Editar Partida' : 'Organizar Partida'}
+                {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
               </CardTitle>
               <CardDescription className="font-medium text-foreground/80 truncate">
-                {isEditMode ? 'Modifica los detalles de tu reunión.' : 'Crea una reunión local para jugar a juegos de mesa.'}
+                {isEditMode ? 'Modifica los detalles de tu partida.' : 'Abre una mesa de juego para reunir jugadores en tu zona.'}
               </CardDescription>
             </div>
             <Button 
               type="button"
               variant="ghost" 
               size="sm" 
-              onClick={() => navigate(isEditMode ? `/radar/${id}` : '/radar')} 
+              onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
               className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" /> Volver
@@ -300,58 +323,67 @@ export function CreateMeetupPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className="space-y-5"
                 >
                   <div className="space-y-3">
                     <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
-                          className="pl-9 bg-background/50 focus-visible:ring-primary/40 border-border/50 h-10"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                      </div>
-                      <Button onClick={() => handleSearch()} type="button" disabled={isSearching} className="shadow-md shadow-primary/20 transition-all hover:shadow-primary/40">
-                        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
-                      </Button>
+                    <div ref={searchContainerRef} className="relative z-20">
+                      <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
+                        <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
+                          <div className="flex-1">
+                            <CommandInput 
+                              placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
+                              value={searchQuery}
+                              onValueChange={setSearchQuery}
+                              className="h-10 text-sm border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent"
+                            />
+                          </div>
+                          {isSearching && (
+                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
+                          )}
+                        </div>
+
+                        <AnimatePresence>
+                          {games.length > 0 && (
+                            <MotionDiv 
+                              initial={{ opacity: 0, y: -4 }} 
+                              animate={{ opacity: 1, y: 0 }} 
+                              exit={{ opacity: 0, y: -4 }}
+                              className="absolute z-50 left-0 right-0 top-full mt-1.5 shadow-2xl"
+                            >
+                              <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
+                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-border/40">
+                                  {games.map(g => (
+                                    <CommandItem 
+                                      key={g.bgg_id} 
+                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
+                                      onSelect={() => {
+                                        setSelectedGame(g)
+                                        setGames([]) // Clear list to close dropdown
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-3 pointer-events-none">
+                                        {g.image_url ? (
+                                          <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
+                                        ) : (
+                                          <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
+                                        )}
+                                        <span className="font-semibold text-sm text-left">
+                                          {g.title} 
+                                          <span className="text-xs font-normal text-muted-foreground block mt-0.5">
+                                            {g.year_published || 'Año desc.'}
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandList>
+                              </div>
+                            </MotionDiv>
+                          )}
+                        </AnimatePresence>
+                      </Command>
                     </div>
                   </div>
-                  
-                  <AnimatePresence>
-                    {games.length > 0 && (
-                      <MotionDiv 
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: "auto" }} 
-                        exit={{ opacity: 0, height: 0 }}
-                        className="border border-border/50 rounded-xl overflow-hidden divide-y divide-border/20 bg-background/40 shadow-inner"
-                      >
-                        <div className="max-h-56 overflow-y-auto custom-scrollbar">
-                          {games.map(g => (
-                            <MotionDiv 
-                              whileHover={{ backgroundColor: "rgba(var(--primary), 0.05)" }}
-                              key={g.bgg_id} 
-                              className="p-3 flex items-center justify-between cursor-pointer transition-colors"
-                              onClick={() => setSelectedGame(g)}
-                            >
-                              <div className="flex items-center gap-3">
-                                {g.image_url ? (
-                                  <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
-                                ) : (
-                                  <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
-                                )}
-                                <span className="font-semibold text-sm">{g.title} <span className="text-xs font-normal text-muted-foreground block">{g.year_published || 'Año desc.'}</span></span>
-                              </div>
-                              <Button variant="ghost" size="sm" className="h-8 rounded-full text-xs font-bold hover:bg-primary hover:text-primary-foreground">Seleccionar</Button>
-                            </MotionDiv>
-                          ))}
-                        </div>
-                      </MotionDiv>
-                    )}
-                  </AnimatePresence>
                 </MotionDiv>
               ) : (
                 <MotionForm 
@@ -384,7 +416,7 @@ export function CreateMeetupPage() {
 
                   {/* Title */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="title" className="font-bold">Título de la reunión</Label>
+                    <Label htmlFor="title" className="font-bold">Título de la mesa</Label>
                     <Input 
                       id="title"
                       placeholder="Ej: Tarde de Eurogames, Campaña Gloomhaven..."
@@ -498,10 +530,10 @@ export function CreateMeetupPage() {
                     <Button type="submit" className="w-full h-12 text-md font-bold shadow-xl shadow-primary/20 transition-all hover:shadow-primary/40" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
-                          <Loader2 className="w-5 h-5 animate-spin"/> {isEditMode ? 'Guardando cambios...' : 'Creando reunión...'}
+                          <Loader2 className="w-5 h-5 animate-spin"/> {isEditMode ? 'Guardando cambios...' : 'Abriendo mesa...'}
                         </span>
                       ) : (
-                        isEditMode ? 'Guardar Cambios' : 'Publicar Partida en el Radar'
+                        isEditMode ? 'Guardar Cambios' : 'Abrir Mesa en el Tablero'
                       )}
                     </Button>
                   </div>

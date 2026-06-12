@@ -41,7 +41,7 @@ export function MeetupDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-4">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Cargando detalles de la reunión...</p>
+        <p className="text-muted-foreground animate-pulse font-medium">Cargando detalles de la partida...</p>
       </div>
     )
   }
@@ -52,10 +52,10 @@ export function MeetupDetailPage() {
         <div className="text-destructive bg-destructive/10 px-4 py-6 rounded-2xl border border-destructive/20 space-y-3">
           <Info className="w-10 h-10 mx-auto text-destructive" />
           <h2 className="text-xl font-bold">¡Vaya! Algo salió mal</h2>
-          <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar la reunión solicitada.'}</p>
+          <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar la partida solicitada.'}</p>
         </div>
-        <Button onClick={() => navigate('/radar')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="w-4 h-4" /> Volver al Radar
+        <Button onClick={() => navigate('/')} className="rounded-xl flex items-center gap-1.5 mx-auto">
+          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
         </Button>
       </section>
     )
@@ -76,10 +76,10 @@ export function MeetupDetailPage() {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate('/radar')} 
+          onClick={() => navigate('/')} 
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> Volver al Radar
+          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
         </Button>
         
         <Button
@@ -96,7 +96,7 @@ export function MeetupDetailPage() {
           ) : (
             <>
               <Share2 className="w-4 h-4 text-primary" />
-              <span>Compartir Reunión</span>
+              <span>Compartir Partida</span>
             </>
           )}
         </Button>

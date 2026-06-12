@@ -4,6 +4,7 @@ import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { RadarPage } from './pages/RadarPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
+import { TopsPage } from './pages/TopsPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -25,9 +26,11 @@ function App() {
       <Route element={<AppShell />}>
         <Route path="/" element={<RadarPage />} />
         <Route path="/radar" element={<Navigate to="/" replace />} />
-        <Route path="/radar/:id" element={<MeetupDetailPage />} />
+        <Route path="/tablero" element={<Navigate to="/" replace />} />
+        <Route path="/tablero/:id" element={<MeetupDetailPage />} />
+        <Route path="/tops" element={<TopsPage />} />
         <Route
-          path="/radar/:id/edit"
+          path="/tablero/:id/edit"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />
@@ -35,7 +38,7 @@ function App() {
           }
         />
         <Route
-          path="/radar/new"
+          path="/tablero/new"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />

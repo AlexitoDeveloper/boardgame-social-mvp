@@ -55,7 +55,7 @@ export function MeetupDetailSidebar({
     if (isPast) {
       return (
         <Button disabled className="w-full rounded-xl font-bold h-11 bg-muted/60 text-muted-foreground border border-border/40 select-none">
-          Evento Finalizado
+          Mesa Cerrada
         </Button>
       )
     }
@@ -75,7 +75,7 @@ export function MeetupDetailSidebar({
           variant="destructive"
           className="w-full rounded-xl font-extrabold text-sm h-11 shadow-lg shadow-destructive/15 transition-all hover:bg-destructive/90 cursor-pointer"
         >
-          Salirse de la Partida
+          Abandonar la Mesa
         </Button>
       )
     }
@@ -87,7 +87,7 @@ export function MeetupDetailSidebar({
           variant="outline"
           className="w-full rounded-xl font-bold h-11 border-border/50 bg-muted/40 text-muted-foreground/80 cursor-not-allowed select-none"
         >
-          Completo (Sin Plazas)
+          Mesa Llena
         </Button>
       )
     }
@@ -96,10 +96,10 @@ export function MeetupDetailSidebar({
       <Button
         onClick={handleJoinLeave}
         variant="default"
-        className="w-full rounded-xl font-extrabold text-sm h-11 shadow-lg shadow-primary/15 transition-all hover:-translate-y-0.5 cursor-pointer"
+        className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
       >
         <span className="flex items-center gap-1.5 justify-center">
-          <CalendarCheck2 className="w-4 h-4" /> Apuntarse a la Partida
+          <CalendarCheck2 className="w-4 h-4" /> Sentarse a la Mesa
         </span>
       </Button>
     )
@@ -124,7 +124,7 @@ export function MeetupDetailSidebar({
           {/* Spots Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold text-muted-foreground">
-              <span>Plazas Ocupadas</span>
+              <span>Asientos Ocupados</span>
               <span className="text-foreground">{attendees.length} / {meetup.max_players}</span>
             </div>
             <div className="w-full h-2 rounded-full bg-muted overflow-hidden border border-border/30">
@@ -149,7 +149,7 @@ export function MeetupDetailSidebar({
               {!confirmCancel ? (
                 <div className="grid grid-cols-2 gap-2">
                   <Button 
-                    onClick={() => navigate(`/radar/${meetup.id}/edit`)}
+                    onClick={() => navigate(`/tablero/${meetup.id}/edit`)}
                     variant="outline" 
                     size="sm"
                     className="rounded-xl font-bold h-10 border-border/50 text-xs flex items-center gap-1.5 hover:bg-muted/80 cursor-pointer"
@@ -169,7 +169,7 @@ export function MeetupDetailSidebar({
               ) : (
                 <div className="p-3.5 rounded-xl border border-destructive/20 bg-destructive/5 space-y-3 text-center">
                   <div className="text-xs font-bold text-destructive flex items-center justify-center gap-1.5">
-                    <AlertTriangle className="w-4 h-4" /> ¿Cancelar reunión?
+                    <AlertTriangle className="w-4 h-4" /> ¿Cancelar la partida?
                   </div>
                   <div className="flex gap-2">
                     <Button 

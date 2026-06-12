@@ -51,8 +51,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       if (isMock) {
         // Find in mock meetups
         const foundMock = MOCK_MEETUPS.find(m => m.id === id)
+
         if (!foundMock) {
-          setErrorMsg('No se encontró la reunión en los datos de demostración.')
+          setErrorMsg('No se encontró la partida en los datos de demostración.')
           setLoading(false)
           return
         }
@@ -117,7 +118,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
             .single()
 
           if (error) throw error
-          if (!data) throw new Error('Reunión no encontrada.')
+          if (!data) throw new Error('Partida no encontrada.')
 
           setMeetup(data as Meetup)
           
@@ -145,7 +146,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           }
         } catch (err: any) {
           console.error("Error loading meetup detail:", err)
-          setErrorMsg(err.message || 'Error al obtener los detalles de la reunión.')
+          setErrorMsg(err.message || 'Error al obtener los detalles de la partida.')
         } finally {
           setLoading(false)
         }
@@ -196,7 +197,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   // Handle Share button click
   const handleShare = async () => {
     const url = window.location.href
-    const title = meetup?.title || 'Reunión de Juego de Mesa'
+    const title = meetup?.title || 'Partida de Juego de Mesa'
     const text = `¡Únete a mi partida de ${gameInfo?.title || meetup?.game_name || 'juego de mesa'}!`
 
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -379,7 +380,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (isMock) {
       setTimeout(() => {
         setCanceling(false)
-        navigate('/radar')
+        navigate('/')
       }, 500)
     } else {
       try {
@@ -389,10 +390,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           .eq('id', id)
 
         if (error) throw error
-        navigate('/radar')
+        navigate('/')
       } catch (err) {
         console.error('Error deleting meetup:', err)
-        setErrorMsg('No se pudo cancelar la reunión.')
+        setErrorMsg('No se pudo cancelar la partida.')
         setCanceling(false)
       }
     }

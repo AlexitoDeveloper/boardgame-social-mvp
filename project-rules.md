@@ -20,3 +20,7 @@ Este archivo contiene las directrices, reglas y estándares para el desarrollo d
 ## 4. Comunicación y Contexto
 - **Preguntar siempre** que se necesite más contexto o si surge alguna duda sobre los requisitos, la arquitectura o las decisiones de diseño antes de proceder con el desarrollo.
 - Priorizar la claridad de la implementación y alineación con las intenciones del usuario.
+
+## 5. Control de Versiones (Git)
+- **Siempre** que se vaya a comenzar una nueva tarea, se debe crear una **nueva rama a partir de `develop`** (ej. `feature/nombre-de-la-tarea` o `roadmap/fase-1-tops`). No trabajar directamente sobre `develop` o `main`.
+

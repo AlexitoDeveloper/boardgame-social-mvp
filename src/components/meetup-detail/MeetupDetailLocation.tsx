@@ -19,7 +19,7 @@ export function MeetupDetailLocation({ location, city }: MeetupDetailLocationPro
             <MapPin className="w-5 h-5" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-extrabold text-sm text-foreground">Dirección de la quedada</h3>
+            <h3 className="font-extrabold text-sm text-foreground">Dirección de la mesa</h3>
             <p className="text-sm text-muted-foreground font-medium">{location}</p>
             <p className="text-sm text-foreground/80 font-bold">{city}</p>
           </div>
