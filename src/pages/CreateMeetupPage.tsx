@@ -12,6 +12,7 @@ import { Search, Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft }
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { Game } from '../types'
+import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -82,6 +83,19 @@ export function CreateMeetupPage() {
     }
     loadCities()
   }, [])
+
+  // Debounced search on type
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch()
+      } else {
+        setGames([])
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchQuery])
 
   // Load existing meetup details in Edit Mode
   useEffect(() => {
@@ -300,58 +314,75 @@ export function CreateMeetupPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className="space-y-5"
                 >
                   <div className="space-y-3">
                     <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
-                          className="pl-9 bg-background/50 focus-visible:ring-primary/40 border-border/50 h-10"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    <div className="relative z-20">
+                      {/* Click-away overlay to close search results when clicking outside */}
+                      {games.length > 0 && (
+                        <div 
+                          className="fixed inset-0 z-10 bg-transparent"
+                          onClick={() => setGames([])}
                         />
-                      </div>
-                      <Button onClick={() => handleSearch()} type="button" disabled={isSearching} className="shadow-md shadow-primary/20 transition-all hover:shadow-primary/40">
-                        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
-                      </Button>
+                      )}
+
+                      <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
+                        <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
+                          <div className="flex-1">
+                            <CommandInput 
+                              placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
+                              value={searchQuery}
+                              onValueChange={setSearchQuery}
+                              className="h-10 text-sm border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent"
+                            />
+                          </div>
+                          {isSearching && (
+                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
+                          )}
+                        </div>
+
+                        <AnimatePresence>
+                          {games.length > 0 && (
+                            <MotionDiv 
+                              initial={{ opacity: 0, y: -4 }} 
+                              animate={{ opacity: 1, y: 0 }} 
+                              exit={{ opacity: 0, y: -4 }}
+                              className="absolute z-50 left-0 right-0 top-full mt-1.5 shadow-2xl"
+                            >
+                              <div className="border border-zinc-800 bg-zinc-950 rounded-xl overflow-hidden">
+                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-zinc-800/40">
+                                  {games.map(g => (
+                                    <CommandItem 
+                                      key={g.bgg_id} 
+                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-white/5 hover:text-white data-[selected=true]:bg-white/5 data-[selected=true]:text-white"
+                                      onSelect={() => {
+                                        setSelectedGame(g)
+                                        setGames([]) // Clear list to close dropdown
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-3 pointer-events-none">
+                                        {g.image_url ? (
+                                          <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
+                                        ) : (
+                                          <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
+                                        )}
+                                        <span className="font-semibold text-sm text-left">
+                                          {g.title} 
+                                          <span className="text-xs font-normal text-muted-foreground block mt-0.5">
+                                            {g.year_published || 'Año desc.'}
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandList>
+                              </div>
+                            </MotionDiv>
+                          )}
+                        </AnimatePresence>
+                      </Command>
                     </div>
                   </div>
-                  
-                  <AnimatePresence>
-                    {games.length > 0 && (
-                      <MotionDiv 
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: "auto" }} 
-                        exit={{ opacity: 0, height: 0 }}
-                        className="border border-border/50 rounded-xl overflow-hidden divide-y divide-border/20 bg-background/40 shadow-inner"
-                      >
-                        <div className="max-h-56 overflow-y-auto custom-scrollbar">
-                          {games.map(g => (
-                            <MotionDiv 
-                              whileHover={{ backgroundColor: "rgba(var(--primary), 0.05)" }}
-                              key={g.bgg_id} 
-                              className="p-3 flex items-center justify-between cursor-pointer transition-colors"
-                              onClick={() => setSelectedGame(g)}
-                            >
-                              <div className="flex items-center gap-3">
-                                {g.image_url ? (
-                                  <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
-                                ) : (
-                                  <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
-                                )}
-                                <span className="font-semibold text-sm">{g.title} <span className="text-xs font-normal text-muted-foreground block">{g.year_published || 'Año desc.'}</span></span>
-                              </div>
-                              <Button variant="ghost" size="sm" className="h-8 rounded-full text-xs font-bold hover:bg-primary hover:text-primary-foreground">Seleccionar</Button>
-                            </MotionDiv>
-                          ))}
-                        </div>
-                      </MotionDiv>
-                    )}
-                  </AnimatePresence>
                 </MotionDiv>
               ) : (
                 <MotionForm 

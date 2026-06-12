@@ -1,6 +1,6 @@
 import { createElement, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { Compass, LogIn, LogOut, User, Sun, Moon, LucideIcon } from 'lucide-react'
+import { Compass, LogIn, LogOut, User, Sun, Moon, Trophy, LucideIcon } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -11,6 +11,7 @@ const MotionDiv = motion.div
 
 const navItems = [
   { to: '/', label: 'Radar', icon: Compass },
+  { to: '/tops', label: 'Crear Top', icon: Trophy },
 ]
 
 interface NavItemProps {
