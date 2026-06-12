@@ -57,6 +57,21 @@ export function useTops() {
   const [exporting, setExporting] = useState(false)
   const exportAreaRef = useRef<HTMLDivElement>(null)
 
+  // Premium / Pro States
+  const [isPremium, setIsPremiumState] = useState<boolean>(() => {
+    return localStorage.getItem('bgs_pro_simulated') === 'true'
+  })
+
+  const setIsPremium = (val: boolean) => {
+    localStorage.setItem('bgs_pro_simulated', String(val))
+    setIsPremiumState(val)
+  }
+
+  const [showWatermark, setShowWatermark] = useState(true)
+  const [customWatermark, setCustomWatermark] = useState('')
+  const [selectedBg, setSelectedBg] = useState('default')
+  const [aspectRatio, setAspectRatio] = useState<'standard' | 'square' | 'story' | 'landscape'>('standard')
+
   // Database search
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
@@ -419,7 +434,16 @@ export function useTops() {
     top10,
     exporting,
     exportAreaRef,
-    handleSearch,
+    isPremium,
+    setIsPremium,
+    showWatermark,
+    setShowWatermark,
+    customWatermark,
+    setCustomWatermark,
+    selectedBg,
+    setSelectedBg,
+    aspectRatio,
+    setAspectRatio,
     addToPool,
     removeFromPool,
     selectGame,

@@ -201,6 +201,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 | 2026-06-11 | Antigravity AI | Eliminación | Eliminación de las funcionalidades de Reseñas y Perfil público. |
 | 2026-06-11 | Antigravity AI | Actualización | Inclusión del Roadmap de Desarrollo de 3 Fases y reglas de ramificación. |
 | 2026-06-12 | Antigravity AI | Actualización | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3). |
+| 2026-06-12 | Antigravity AI | Actualización | Implementación del Generador de Tops "Pro" (Premium) con fondos, ratios adaptados y marca de agua. |
 
 ---
 
@@ -212,7 +213,7 @@ El desarrollo del proyecto se realizará de forma incremental dividiéndose en l
 *Objetivo: Que la app se promocione orgánicamente mediante contenido interactivo y compartible.*
 - [x] **[GRATIS] Generador de "Tops/Tier Lists" Básico:** Pantalla para buscar juegos en la base de datos local (`games`), ordenarlos de forma interactiva y exportar una imagen nativa y estética (con el logo y estilo de la app) lista para compartir en redes.
 - [x] **[GRATIS] Invitados "Shadow":** Permitir que los usuarios reserven plaza en una meetup poniendo solo su nombre, sin necesidad de registro completo inicial. Gestión en tabla `meetup_guests`.
-- [ ] **[PREMIUM] Generador de Tops "Pro":** Funcionalidad opcional para exportar las Tier Lists sin marca de agua, con fondos personalizados en alta resolución y formatos adaptados.
+- [x] **[PREMIUM] Generador de Tops "Pro":** Funcionalidad opcional para exportar las Tier Lists sin marca de agua, con fondos personalizados en alta resolución y formatos adaptados.
 
 ### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
 *Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
