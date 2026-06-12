@@ -200,6 +200,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 | 2026-06-11 | Antigravity AI | Creación | Creación del documento inicial de contexto del proyecto. |
 | 2026-06-11 | Antigravity AI | Eliminación | Eliminación de las funcionalidades de Reseñas y Perfil público. |
 | 2026-06-11 | Antigravity AI | Actualización | Inclusión del Roadmap de Desarrollo de 3 Fases y reglas de ramificación. |
+| 2026-06-12 | Antigravity AI | Actualización | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3). |
 
 ---
 
@@ -209,17 +210,20 @@ El desarrollo del proyecto se realizará de forma incremental dividiéndose en l
 
 ### FASE 1: VIRALIDAD Y ADQUISICIÓN (Traer gente)
 *Objetivo: Que la app se promocione orgánicamente mediante contenido interactivo y compartible.*
-- **[ ] Generador de "Tops/Tier Lists":** Pantalla para buscar juegos en nuestra base de datos local (`games`), ordenarlos de forma interactiva (ej. Tiers S, A, B, C o Top 1-10) y exportar una imagen nativa y estética (con el logo y estilo de la app) lista para compartir en Instagram/TikTok.
-- **[ ] Invitados "Shadow":** Permitir que los usuarios reserven plaza en una meetup poniendo solo su nombre, sin necesidad de registro completo inicial. Se invitará a crear una cuenta después. Requiere una tabla nueva `meetup_guests`.
+- [x] **[GRATIS] Generador de "Tops/Tier Lists" Básico:** Pantalla para buscar juegos en la base de datos local (`games`), ordenarlos de forma interactiva y exportar una imagen nativa y estética (con el logo y estilo de la app) lista para compartir en redes.
+- [x] **[GRATIS] Invitados "Shadow":** Permitir que los usuarios reserven plaza en una meetup poniendo solo su nombre, sin necesidad de registro completo inicial. Gestión en tabla `meetup_guests`.
+- [ ] **[PREMIUM] Generador de Tops "Pro":** Funcionalidad opcional para exportar las Tier Lists sin marca de agua, con fondos personalizados en alta resolución y formatos adaptados.
 
 ### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
-*Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día.*
-- **[ ] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono (HTTP 202) de la API de BGG.
-- **[ ] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Se implementará usando Supabase Realtime y políticas RLS avanzadas.
+*Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
+- [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
+- [ ] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
+- [ ] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
 
 ### FASE 3: PULIDO Y MONETIZACIÓN (Sostenibilidad)
 *Objetivo: Añadir vías de ingresos pasivos y mejorar la experiencia de usuario final.*
-- **[ ] Afiliación Transparente:** Botón de "Comprar" en la ficha del juego con enlaces de referido enlazando a Amazon o tiendas colaboradoras.
-- **[ ] Filtros "Matchmaking":** Buscador avanzado de eventos locales filtrando por categorías y mecánicas de juegos de mesa guardadas en caché.
-- **[ ] Historial y Cierre (Bucle Viral):** Posibilidad de marcar una quedada como "Completada", seleccionar ganadores/puntuaciones y generar una imagen resumen para compartir en redes.
+- [ ] **[SOSTENIBILIDAD] Afiliación Transparente:** Botón de "Comprar" en la ficha del juego con enlaces de referido a tiendas colaboradoras.
+- [ ] **[GRATIS] Filtros "Matchmaking":** Buscador avanzado de eventos locales filtrando por categorías y mecánicas en caché.
+- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas.
+- [ ] **[PREMIUM] Estadísticas Avanzadas (El Pique Sano):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
 
