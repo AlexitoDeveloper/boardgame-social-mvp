@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Button } from '../components/ui/button'
 import { Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { MOCK_MEETUPS } from '../lib/mockData'
+import { getMockMeetupsForList } from '../lib/mockData'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { MeetupCard } from '../components/MeetupCard'
@@ -33,36 +33,13 @@ export function RadarPage() {
       try {
         const { data, error } = await supabase
           .from('meetups')
-          .select(`*, users (*), games (*)`)
+          .select(`*, users (*), games (*), meetup_guests (id, guest_name)`)
           .gte('date', new Date().toISOString()) // filter out past events
           .order('date', { ascending: true }) // closest future events first
 
         if (error) {
           console.error("Error fetching meetups:", error)
-          // Map MOCK_MEETUPS to Meetup structure
-          const formattedMocks = MOCK_MEETUPS.map(m => ({
-            id: m.id,
-            creator_id: 'mock-creator-id',
-            game_id: 1,
-            title: m.title,
-            description: m.description,
-            city: 'Madrid',
-            location: m.location,
-            date: m.date,
-            max_players: 4,
-            joined_players: ['mock-u1', 'mock-u2'],
-            users: {
-              id: 'mock-creator-id',
-              username: m.users?.username || 'anónimo',
-              avatar_url: m.users?.avatar_url || null
-            },
-            games: {
-              bgg_id: 1,
-              title: m.game_name,
-              image_url: null
-            }
-          }))
-          setMeetups(formattedMocks)
+          setMeetups(getMockMeetupsForList())
         } else {
           setMeetups(data?.length ? (data as Meetup[]) : [])
         }

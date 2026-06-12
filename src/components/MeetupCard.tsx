@@ -18,10 +18,13 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   const userId = user?.id
   const isJoined = userId ? meetup.joined_players?.includes(userId) : false
   const isCreator = meetup.creator_id === userId
-  const isFull = (meetup.joined_players?.length || 0) >= meetup.max_players
+  const registeredCount = meetup.joined_players?.length || 0
+  const guestsCount = meetup.meetup_guests?.length || 0
+  const totalAttendees = registeredCount + guestsCount
+  const isFull = totalAttendees >= meetup.max_players
   const isLoading = updatingId === meetup.id
 
-  const spotsRemaining = meetup.max_players - (meetup.joined_players?.length || 0)
+  const spotsRemaining = meetup.max_players - totalAttendees
   const isLastSpot = spotsRemaining === 1
 
   // Extract game title and image url from meetup
@@ -173,7 +176,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <div className="flex flex-col items-end gap-1">
             <div className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 border border-primary/20 bg-primary/10 text-primary transition-all duration-300">
               <Users className="w-3 h-3" />
-              {meetup.joined_players?.length || 0} / {meetup.max_players} plazas
+              {totalAttendees} / {meetup.max_players} plazas
             </div>
             {isLastSpot && (
               <Badge
