@@ -258,7 +258,7 @@ export function TopsSidebar({
                         standard: 'Fluido',
                         square: '1:1 (Post)',
                         story: '9:16 (Story)',
-                        landscape: '16:9 (Twitter)',
+                        landscape: '16:9 (X)',
                       }
                       return (
                         <Button
