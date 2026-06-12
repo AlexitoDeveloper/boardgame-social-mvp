@@ -30,6 +30,9 @@ interface MeetupDetailSidebarProps {
   user: User | null;
   handleJoinLeave: () => void;
   handleCancelMeetup: () => void;
+  guestReservation: { id: string, name: string } | null;
+  handleJoinAsGuest: (name: string) => void;
+  handleLeaveAsGuest: () => void;
 }
 
 export function MeetupDetailSidebar({ 
@@ -45,10 +48,96 @@ export function MeetupDetailSidebar({
   timeLeft, 
   user, 
   handleJoinLeave, 
-  handleCancelMeetup 
+  handleCancelMeetup,
+  guestReservation,
+  handleJoinAsGuest,
+  handleLeaveAsGuest
 }: MeetupDetailSidebarProps) {
   const navigate = useNavigate()
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [guestName, setGuestName] = useState('')
+
+  const handleGuestJoinSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!guestName.trim()) return
+    handleJoinAsGuest(guestName.trim())
+  }
+
+  const renderGuestSection = () => {
+    if (isPast) {
+      return (
+        <Button disabled className="w-full rounded-xl font-bold h-11 bg-muted/60 text-muted-foreground border border-border/40 select-none">
+          Mesa Cerrada
+        </Button>
+      )
+    }
+
+    if (guestReservation) {
+      return (
+        <div className="space-y-3">
+          <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 text-center text-xs font-bold text-foreground">
+            Te has unido como invitado: <span className="text-primary font-extrabold">{guestReservation.name}</span>
+          </div>
+          <Button
+            onClick={handleLeaveAsGuest}
+            variant="destructive"
+            className="w-full rounded-xl font-extrabold text-sm h-11 shadow-lg shadow-destructive/15 transition-all hover:bg-destructive/90 cursor-pointer"
+          >
+            {joining ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Abandonar Mesa (Invitado)'}
+          </Button>
+          <p className="text-[10px] text-muted-foreground text-center font-medium leading-normal mt-2">
+            ¡Tu plaza está reservada! <Link to="/auth" className="text-primary hover:underline font-bold">Crea una cuenta</Link> para guardar tu historial.
+          </p>
+        </div>
+      )
+    }
+
+    if (isFull) {
+      return (
+        <div className="space-y-3">
+          <Button
+            disabled
+            variant="outline"
+            className="w-full rounded-xl font-bold h-11 border-border/50 bg-muted/40 text-muted-foreground/80 cursor-not-allowed select-none"
+          >
+            Mesa Llena
+          </Button>
+          <p className="text-[10px] text-muted-foreground text-center font-semibold pt-1">
+            Necesitas <Link to="/auth" className="text-primary hover:underline font-extrabold">iniciar sesión</Link> para unirte.
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <form onSubmit={handleGuestJoinSubmit} className="space-y-3 pt-1">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Sentarse como invitado</label>
+          <div className="flex gap-2 flex-col">
+            <input
+              type="text"
+              placeholder="Introduce tu nombre..."
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              maxLength={25}
+              className="flex-1 px-3.5 py-2 rounded-xl border border-border/40 bg-background/30 text-sm font-semibold placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:bg-background/50 transition-all"
+              required
+            />
+            <Button
+              type="submit"
+              disabled={joining || !guestName.trim()}
+              className="rounded-xl font-extrabold text-xs px-4 h-9 shadow-sm shrink-0"
+            >
+              {joining ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sentarse'}
+            </Button>
+          </div>
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center font-semibold pt-1">
+          O si prefieres, <Link to="/auth" className="text-primary hover:underline font-extrabold">inicia sesión</Link> para guardar tus estadísticas.
+        </p>
+      </form>
+    )
+  }
 
   // Render the Join/Leave/Full button
   const renderActionButton = () => {
@@ -136,7 +225,9 @@ export function MeetupDetailSidebar({
           </div>
 
           {/* Main Join / Leave / Full Buttons (For normal users) */}
-          {!isCreator && renderActionButton()}
+          {!isCreator && (
+            user ? renderActionButton() : renderGuestSection()
+          )}
 
           {/* Admin panel for the creator (Edit / Cancel options) */}
           {isCreator && (
@@ -193,12 +284,6 @@ export function MeetupDetailSidebar({
                 </div>
               )}
             </div>
-          )}
-
-          {!user && !isPast && (
-            <p className="text-[11px] text-muted-foreground text-center font-semibold pt-1">
-              Necesitas <Link to="/auth" className="text-primary hover:underline font-extrabold">iniciar sesión</Link> para unirte.
-            </p>
           )}
         </CardContent>
       </Card>

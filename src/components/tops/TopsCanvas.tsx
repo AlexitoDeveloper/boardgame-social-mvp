@@ -139,6 +139,7 @@ interface TopsCanvasProps {
   handleExportImage: () => void;
   exporting: boolean;
   pool: Game[];
+  handleClearAll: () => void;
 }
 
 export function TopsCanvas({
@@ -160,10 +161,13 @@ export function TopsCanvas({
   handleExportImage,
   exporting,
   pool,
+  handleClearAll,
 }: TopsCanvasProps) {
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
     : top10.some(g => g !== null)
+
+  const canReset = hasGames || pool.length > 0
 
   return (
     <div className="w-full space-y-4">
@@ -176,11 +180,23 @@ export function TopsCanvas({
             <ArrowLeftRight className="w-3.5 h-3.5" />
             <span>Arrastra o haz clic para colocar</span>
           </div>
+          
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleClearAll}
+            disabled={!canReset}
+            className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Reiniciar</span>
+          </Button>
+
           <Button
             size="sm"
             onClick={handleExportImage}
             disabled={exporting || !hasGames}
-            className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs"
+            className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs rounded-xl"
           >
             {exporting ? (
               <>

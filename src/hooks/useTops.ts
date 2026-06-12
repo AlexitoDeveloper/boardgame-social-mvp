@@ -215,6 +215,12 @@ export function useTops() {
     setTop10(Array(10).fill(null))
   }
 
+  // Clear only the preparation pool
+  const handleClearPool = () => {
+    setPool([])
+    setSelectedGameForPlacement(null)
+  }
+
   // Drag and Drop implementation
   const handleDragStart = (e: React.DragEvent, gameId: number, source: string) => {
     e.dataTransfer.setData('text/plain', gameId.toString())
@@ -423,6 +429,7 @@ export function useTops() {
     returnTop10GameToPool,
     editTierName,
     handleClearAll,
+    handleClearPool,
     handleExportImage,
     handleDragStart,
     handleDropOnTier,

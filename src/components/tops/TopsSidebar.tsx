@@ -22,7 +22,7 @@ interface TopsSidebarProps {
   selectedGameForPlacement: Game | null;
   selectGame: (game: Game) => void;
   removeFromPool: (bggId: number) => void;
-  handleClearAll: () => void;
+  handleClearPool: () => void;
   tiers: Tier[];
   top10: (Game | null)[];
   placeInTier: (tierId: string) => void;
@@ -46,7 +46,7 @@ export function TopsSidebar({
   selectedGameForPlacement,
   selectGame,
   removeFromPool,
-  handleClearAll,
+  handleClearPool,
   tiers,
   top10,
   placeInTier,
@@ -199,7 +199,7 @@ export function TopsSidebar({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={handleClearAll}
+              onClick={handleClearPool}
               className="h-8 p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
