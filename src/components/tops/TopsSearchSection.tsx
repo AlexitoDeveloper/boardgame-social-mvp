@@ -5,8 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui
 import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
-import { Command, CommandInput, CommandList, CommandItem } from '../ui/command'
-import { useClickOutside } from '../../hooks/useClickOutside'
+import { GameSearchBar } from '../GameSearchBar'
 
 interface TopsSearchSectionProps {
   searchQuery: string;
@@ -53,13 +52,7 @@ export function TopsSearchSection({
   handleDropOnPool,
   mode,
 }: TopsSearchSectionProps) {
-  const searchContainerRef = useRef<HTMLDivElement>(null)
 
-  useClickOutside(
-    searchContainerRef,
-    () => setSearchResults([]),
-    searchResults.length > 0
-  )
 
   return (
     <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl overflow-visible relative z-20">
@@ -72,75 +65,20 @@ export function TopsSearchSection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 relative">
-        {/* Search Bar Input */}
-        <div ref={searchContainerRef} className="relative z-30">
-          <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
-            <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
-              <div className="flex-1">
-                <CommandInput 
-                  placeholder="Ej. Catan, Brass, Carcassonne..." 
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                  className="h-10 text-xs border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent"
-                />
-              </div>
-              {isSearching && (
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
-              )}
-            </div>
-
-            {/* Dropdown Overlay Results */}
-            <AnimatePresence>
-              {searchResults.length > 0 && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  className="absolute z-50 left-0 right-0 top-full mt-1.5 w-full shadow-2xl"
-                >
-                  <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
-                    <CommandList className="max-h-60 custom-scrollbar divide-y divide-border/40">
-                      {searchResults.map((game) => {
-                        const isAdded = pool.some(g => g.bgg_id === game.bgg_id) || 
-                                        tiers.some(t => t.games.some(g => g.bgg_id === game.bgg_id)) || 
-                                        top10.some(g => g?.bgg_id === game.bgg_id)
-                        return (
-                          <CommandItem
-                            key={game.bgg_id} 
-                            className={`p-3 flex items-center justify-between gap-3 transition-colors cursor-pointer text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground ${
-                              isAdded ? 'opacity-50 cursor-default bg-emerald-500/5 hover:bg-emerald-500/5' : ''
-                            }`}
-                            onSelect={() => !isAdded && addToPool(game)}
-                          >
-                            <div className="flex items-center gap-3 min-w-0 pointer-events-none">
-                              {game.image_url ? (
-                                <img src={game.image_url} alt={game.title} className="w-10 h-10 rounded object-cover shadow-sm shrink-0" />
-                              ) : (
-                                <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0 font-extrabold">?</div>
-                              )}
-                              <span className="font-semibold text-sm truncate block text-left">
-                                {game.title}
-                                <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                                  {game.year_published || 'Año desc.'}
-                                </span>
-                              </span>
-                            </div>
-                            
-                            {isAdded && (
-                              <div className="text-emerald-400 shrink-0 select-none mr-2 pointer-events-none">
-                                <Check className="w-5 h-5" />
-                              </div>
-                            )}
-                          </CommandItem>
-                        )
-                      })}
-                    </CommandList>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Command>
-        </div>
+        <GameSearchBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          games={searchResults}
+          setGames={setSearchResults}
+          isSearching={isSearching}
+          placeholder="Ej. Catan, Brass, Carcassonne..."
+          onSelectGame={addToPool}
+          isGameDisabled={(game) => 
+            pool.some(g => g.bgg_id === game.bgg_id) || 
+            tiers.some(t => t.games.some(g => g.bgg_id === game.bgg_id)) || 
+            top10.some(g => g?.bgg_id === game.bgg_id)
+          }
+        />
 
         {/* Show error */}
         {errorMsg && (

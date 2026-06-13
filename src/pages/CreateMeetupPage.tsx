@@ -13,8 +13,7 @@ import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
-import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
-import { useClickOutside } from '../hooks/useClickOutside'
+import { GameSearchBar } from '../components/GameSearchBar'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -50,13 +49,7 @@ export function CreateMeetupPage() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null)
   const [isSearching, setIsSearching] = useState(false)
 
-  const searchContainerRef = useRef<HTMLDivElement>(null)
 
-  useClickOutside(
-    searchContainerRef,
-    () => setGames([]),
-    games.length > 0
-  )
 
   // Form Fields State
   const [title, setTitle] = useState('')
@@ -327,63 +320,15 @@ export function CreateMeetupPage() {
                 >
                   <div className="space-y-3">
                     <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
-                    <div ref={searchContainerRef} className="relative z-20">
-                      <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
-                        <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
-                          <div className="flex-1">
-                            <CommandInput 
-                              placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
-                              value={searchQuery}
-                              onValueChange={setSearchQuery}
-                              className="h-10 text-sm border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent"
-                            />
-                          </div>
-                          {isSearching && (
-                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
-                          )}
-                        </div>
-
-                        <AnimatePresence>
-                          {games.length > 0 && (
-                            <MotionDiv 
-                              initial={{ opacity: 0, y: -4 }} 
-                              animate={{ opacity: 1, y: 0 }} 
-                              exit={{ opacity: 0, y: -4 }}
-                              className="absolute z-50 left-0 right-0 top-full mt-1.5 shadow-2xl"
-                            >
-                              <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
-                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-border/40">
-                                  {games.map(g => (
-                                    <CommandItem 
-                                      key={g.bgg_id} 
-                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
-                                      onSelect={() => {
-                                        setSelectedGame(g)
-                                        setGames([]) // Clear list to close dropdown
-                                      }}
-                                    >
-                                      <div className="flex items-center gap-3 pointer-events-none">
-                                        {g.image_url ? (
-                                          <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
-                                        ) : (
-                                          <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
-                                        )}
-                                        <span className="font-semibold text-sm text-left">
-                                          {g.title} 
-                                          <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                                            {g.year_published || 'Año desc.'}
-                                          </span>
-                                        </span>
-                                      </div>
-                                    </CommandItem>
-                                  ))}
-                                </CommandList>
-                              </div>
-                            </MotionDiv>
-                          )}
-                        </AnimatePresence>
-                      </Command>
-                    </div>
+                    <GameSearchBar
+                      searchQuery={searchQuery}
+                      setSearchQuery={setSearchQuery}
+                      games={games}
+                      setGames={setGames}
+                      isSearching={isSearching}
+                      placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
+                      onSelectGame={setSelectedGame}
+                    />
                   </div>
                 </MotionDiv>
               ) : (

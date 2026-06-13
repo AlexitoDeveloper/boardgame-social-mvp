@@ -284,10 +284,10 @@ export function ChatsPage() {
   }
 
   return (
-    <section className="h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-7rem)] w-[calc(100%+2rem)] mx-[-1rem] mt-[-1.5rem] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+    <section className="h-full w-full md:h-[calc(100dvh-7rem)] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
-      <div className={`w-full md:w-80 border-r border-border/40 flex flex-col bg-card/40 ${
+      <div className={`w-full md:w-80 border-r border-border/40 flex flex-col bg-card/40 h-full ${
         activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
         <div className="p-4 border-b border-border/30 flex items-center justify-between">

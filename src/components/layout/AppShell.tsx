@@ -1,5 +1,5 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -32,7 +32,7 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
         cn(
           'relative flex items-center gap-3 px-3 py-2 text-sm transition-colors duration-300',
           !mobile && 'rounded-xl',
-          mobile && 'flex-1 flex-col justify-center gap-1.5 rounded-lg px-0 py-2.5 text-xs font-medium',
+          mobile && 'flex-1 flex-col justify-center items-center gap-0 rounded-xl px-0 py-2 text-xs font-medium',
           isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
         )
       }
@@ -42,16 +42,21 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
           {isActive && (
             <MotionDiv
               layoutId={mobile ? 'mobile-nav-active' : 'desktop-nav-active'}
-              className={cn('absolute inset-0 bg-primary/15 dark:bg-primary/20 z-0', mobile ? 'rounded-lg' : 'rounded-xl')}
+              className={cn(
+                'absolute z-0',
+                mobile 
+                  ? 'inset-x-3 inset-y-0.5 bg-primary/15 dark:bg-primary/20 rounded-xl' 
+                  : 'inset-0 bg-primary/15 dark:bg-primary/20 rounded-xl'
+              )}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             />
           )}
-          <div className={cn('relative z-10 flex w-full items-center', !mobile && 'justify-between', mobile && 'flex-col justify-center')}>
-            <div className={cn('flex items-center gap-3', mobile && 'flex-col gap-1.5 relative')}>
-              {createElement(icon, { className: cn(mobile ? 'h-5 w-5 mb-1 opacity-90' : 'h-5 w-5') })}
-              <span>{label}</span>
+          <div className={cn('relative z-10 flex items-center justify-center', !mobile && 'w-full justify-between')}>
+            <div className={cn('flex items-center gap-3', mobile && 'flex-col gap-0 relative')}>
+              {createElement(icon, { className: cn(mobile ? 'h-5 w-5 opacity-90' : 'h-5 w-5') })}
+              {!mobile && <span>{label}</span>}
               {mobile && badgeCount > 0 && (
-                <span className="absolute top-[-4px] right-[-6px] w-[18px] h-[18px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[8px] font-black shrink-0 border border-card aspect-square">
+                <span className="absolute top-[-5px] right-[-8px] w-[16px] h-[16px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[8px] font-black shrink-0 border border-card aspect-square">
                   {badgeCount}
                 </span>
               )}
@@ -72,9 +77,12 @@ export function AppShell() {
   const { user, signOut } = useAuth()
   const { isDark, toggle } = useTheme()
   const navigate = useNavigate()
+  const location = useLocation()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false)
   const [unreadChats, setUnreadChats] = useState(0)
+
+  const isChatPage = location.pathname.startsWith('/chats')
 
   // Function to calculate and update unread chats count
   const updateUnreadCount = useCallback(async () => {
@@ -253,13 +261,16 @@ export function AppShell() {
           </div>
         </aside>
 
-        <main className="flex-1 w-full max-w-full px-4 pb-24 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-6 pt-[calc(1.5rem+env(safe-area-inset-top))] md:p-8 md:pb-8">
+        <main className={cn(
+          "flex-1 w-full max-w-full px-4 pb-24 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-6 pt-[calc(1.5rem+env(safe-area-inset-top))] md:p-8 md:pb-8",
+          isChatPage && "px-0 pt-0 pb-[calc(3rem+env(safe-area-inset-bottom))] h-dvh overflow-hidden flex flex-col md:p-8 md:pb-8 md:h-auto md:overflow-visible"
+        )}>
           <Outlet />
         </main>
       </div>
 
       {/* ── Mobile bottom nav ──────────────────────────────── */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/30 bg-card px-2 pb-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/30 bg-card px-2 pb-1.5 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
           {navItems.map((item) => (
             <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} mobile />
@@ -268,13 +279,12 @@ export function AppShell() {
             <div className="relative flex flex-1 items-center justify-center">
               <button
                 onClick={() => setShowMobileUserMenu(v => !v)}
-                className="flex flex-col items-center justify-center gap-1.5 rounded-lg px-0 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 relative"
               >
-                <Avatar className="h-5 w-5 mb-1">
+                <Avatar className="h-5 w-5">
                   <AvatarImage src={avatarUrl || undefined} />
                   <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">{initials}</AvatarFallback>
                 </Avatar>
-                <span>Perfil</span>
               </button>
               
               <AnimatePresence>
@@ -326,10 +336,9 @@ export function AppShell() {
           ) : (
             <button
               onClick={() => navigate('/auth')}
-              className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg px-0 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+              className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9"
             >
-              <User className="h-5 w-5 mb-1 text-primary" />
-              <span>Entrar</span>
+              <User className="h-5 w-5 text-primary" />
             </button>
           )}
         </div>

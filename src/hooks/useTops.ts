@@ -149,7 +149,10 @@ export function useTops() {
       return
     }
 
-    setPool(prev => [...prev, game])
+    setPool(prev => {
+      if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+      return [...prev, game]
+    })
   }
 
   // Remove game from pool
@@ -174,11 +177,11 @@ export function useTops() {
     if (!selectedGameForPlacement) return
 
     setTiers(prev => prev.map(t => {
+      const cleanGames = t.games.filter(g => g.bgg_id !== selectedGameForPlacement.bgg_id)
       if (t.id === tierId) {
-        if (t.games.some(g => g.bgg_id === selectedGameForPlacement.bgg_id)) return t
-        return { ...t, games: [...t.games, selectedGameForPlacement] }
+        return { ...t, games: [...cleanGames, selectedGameForPlacement] }
       }
-      return t
+      return { ...t, games: cleanGames }
     }))
 
     removeFromPool(selectedGameForPlacement.bgg_id)
@@ -193,7 +196,10 @@ export function useTops() {
       }
       return t
     }))
-    setPool(prev => [...prev, game])
+    setPool(prev => {
+      if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+      return [...prev, game]
+    })
   }
 
   // Place selected game to a Top 10 Slot
@@ -203,7 +209,7 @@ export function useTops() {
     const existingGame = top10[index]
 
     setTop10(prev => {
-      const next = [...prev]
+      const next = prev.map(g => g?.bgg_id === selectedGameForPlacement.bgg_id ? null : g)
       next[index] = selectedGameForPlacement
       return next
     })
@@ -211,7 +217,10 @@ export function useTops() {
     removeFromPool(selectedGameForPlacement.bgg_id)
 
     if (existingGame) {
-      setPool(prev => [...prev, existingGame])
+      setPool(prev => {
+        if (prev.some(g => g.bgg_id === existingGame.bgg_id)) return prev
+        return [...prev, existingGame]
+      })
     }
 
     setSelectedGameForPlacement(null)
@@ -228,7 +237,10 @@ export function useTops() {
       return next
     })
 
-    setPool(prev => [...prev, game])
+    setPool(prev => {
+      if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+      return [...prev, game]
+    })
   }
 
   // Edit Tier Row Name
@@ -289,11 +301,11 @@ export function useTops() {
 
     if (gameToPlace) {
       setTiers(prev => prev.map(t => {
+        const cleanGames = t.games.filter(g => g.bgg_id !== gameToPlace!.bgg_id)
         if (t.id === tierId) {
-          if (t.games.some(g => g.bgg_id === draggedBggId)) return t
-          return { ...t, games: [...t.games, gameToPlace!] }
+          return { ...t, games: [...cleanGames, gameToPlace!] }
         }
-        return t
+        return { ...t, games: cleanGames }
       }))
     }
   }
@@ -332,7 +344,7 @@ export function useTops() {
     if (gameToPlace) {
       const existingGame = top10[targetIdx]
       setTop10(prev => {
-        const next = [...prev]
+        const next = prev.map(g => g?.bgg_id === gameToPlace!.bgg_id ? null : g)
         next[targetIdx] = gameToPlace
         return next
       })
