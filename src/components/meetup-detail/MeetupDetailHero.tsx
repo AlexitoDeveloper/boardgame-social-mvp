@@ -78,10 +78,15 @@ export function MeetupDetailHero({ meetup, gameInfo, isPast, isFull, spotsRemain
             <Calendar className="h-4.5 w-4.5 text-primary shrink-0" />
             {new Date(meetup.date).toLocaleDateString('es-ES', { weekday: 'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}
           </span>
-          <span className="flex items-center gap-2">
+          <a 
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${meetup.location}, ${meetup.city}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+          >
             <MapPin className="h-4.5 w-4.5 text-primary shrink-0" />
-            {meetup.location}, {meetup.city}
-          </span>
+            <span className="underline decoration-dotted decoration-primary/50 underline-offset-4">{meetup.location}, {meetup.city}</span>
+          </a>
         </div>
       </div>
     </div>
