@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
+import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
 import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
 import { useClickOutside } from '../hooks/useClickOutside'
@@ -112,7 +113,7 @@ export function CreateMeetupPage() {
     async function loadMeetupForEdit() {
       if (!id) return
       setErrorMsg('')
-      const isMock = id.startsWith('mock-')
+      const isMock = USE_MOCKS && id.startsWith('mock-')
       
       if (isMock) {
         const foundMock = MOCK_MEETUPS.find(m => m.id === id)
@@ -209,7 +210,7 @@ export function CreateMeetupPage() {
       if (!userId) throw new Error('Debes iniciar sesión para abrir una mesa.')
 
       if (isEditMode && id) {
-        const isMock = id.startsWith('mock-')
+        const isMock = USE_MOCKS && id.startsWith('mock-')
         if (isMock) {
           // Simulate editing delay
           await new Promise(resolve => setTimeout(resolve, 500))

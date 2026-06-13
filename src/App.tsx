@@ -5,6 +5,8 @@ import { RadarPage } from './pages/RadarPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
 import { TopsPage } from './pages/TopsPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { ChatsPage } from './pages/ChatsPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -29,6 +31,23 @@ function App() {
         <Route path="/tablero" element={<Navigate to="/" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
+        <Route
+          path="/chats"
+          element={
+            <ProtectedRoute>
+              <ChatsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/perfil/:id" element={<ProfilePage />} />
         <Route
           path="/tablero/:id/edit"
           element={

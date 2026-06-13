@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trophy, Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download } from 'lucide-react'
-import { Input } from '../ui/input'
+import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check, MoreVertical } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
@@ -157,6 +156,10 @@ interface TopsCanvasProps {
   customWatermark: string;
   selectedBg: string;
   aspectRatio: 'standard' | 'square' | 'story' | 'landscape';
+  isExportingCanvas: boolean;
+  saving: boolean;
+  saveSuccess: boolean;
+  handleSaveToProfile: () => void;
 }
 
 const BACKGROUNDS: Record<string, string> = {
@@ -232,7 +235,13 @@ export function TopsCanvas({
   customWatermark,
   selectedBg,
   aspectRatio,
+  isExportingCanvas,
+  saving,
+  saveSuccess,
+  handleSaveToProfile,
 }: TopsCanvasProps) {
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
     : top10.some(g => g !== null)
@@ -245,41 +254,144 @@ export function TopsCanvas({
         <h2 className="text-lg font-bold text-foreground/80 flex items-center gap-1.5">
           <Sparkles className="w-4.5 h-4.5 text-primary animate-pulse" /> Diseña tu lista
         </h2>
-        <div className="flex items-center gap-3 ml-auto sm:ml-0">
+        <div className="flex items-center gap-3 ml-auto sm:ml-0 relative">
           <div className="hidden sm:flex text-xs text-muted-foreground items-center gap-1">
             <ArrowLeftRight className="w-3.5 h-3.5" />
             <span>Arrastra o haz clic para colocar</span>
           </div>
           
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleClearAll}
-            disabled={!canReset}
-            className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Reiniciar</span>
-          </Button>
+          {/* Desktop buttons (visible on sm and larger screens) */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleClearAll}
+              disabled={!canReset}
+              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Reiniciar</span>
+            </Button>
 
-          <Button
-            size="sm"
-            onClick={handleExportImage}
-            disabled={exporting || !hasGames}
-            className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs rounded-xl"
-          >
-            {exporting ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Exportando...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-3.5 h-3.5" />
-                <span>Descargar Imagen</span>
-              </>
-            )}
-          </Button>
+            <Button
+              size="sm"
+              onClick={handleSaveToProfile}
+              disabled={saving || !hasGames}
+              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-primary/10 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all rounded-xl"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Guardando...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                  <span className="text-emerald-500">¡Guardado!</span>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-3.5 h-3.5" />
+                  <span>Guardar en Perfil</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={handleExportImage}
+              disabled={exporting || !hasGames}
+              className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs rounded-xl"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exportando...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar Imagen</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Mobile responsive buttons layout (hidden on desktop) */}
+          <div className="flex sm:hidden items-center gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleExportImage}
+              disabled={exporting || !hasGames}
+              className="h-9 w-9 p-0 rounded-xl flex items-center justify-center shadow-md cursor-pointer"
+              title="Descargar Imagen"
+            >
+              {exporting ? (
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+              ) : (
+                <Download className="w-4 h-4 text-white" />
+              )}
+            </Button>
+
+            <div className="relative">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="h-9 w-9 p-0 rounded-xl flex items-center justify-center border-border/50 bg-background/50 hover:bg-muted text-foreground cursor-pointer"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+
+              <AnimatePresence>
+                {showMobileMenu && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowMobileMenu(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-48 bg-card border border-border/60 rounded-2xl shadow-xl py-1.5 z-50 flex flex-col divide-y divide-border/20 text-left animate-none"
+                    >
+                      <button
+                        onClick={() => {
+                          setShowMobileMenu(false)
+                          handleSaveToProfile()
+                        }}
+                        disabled={saving || !hasGames}
+                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-foreground hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
+                      >
+                        {saving ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        ) : saveSuccess ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Bookmark className="w-4 h-4 text-primary" />
+                        )}
+                        <span>{saving ? 'Guardando...' : saveSuccess ? '¡Guardado!' : 'Guardar en Perfil'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowMobileMenu(false)
+                          handleClearAll()
+                        }}
+                        disabled={!canReset}
+                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Reiniciar Canvas</span>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -288,18 +400,21 @@ export function TopsCanvas({
         const bgClass = BACKGROUNDS[selectedBg] || BACKGROUNDS.default;
         const glow = GLOWS[selectedBg] || GLOWS.default;
 
+        const effectiveAspectRatio = isExportingCanvas ? aspectRatio : 'standard';
+        const isLandscape = isPremium && effectiveAspectRatio === 'landscape';
+
         let aspectClass = "min-h-[420px] w-full p-6";
         if (isPremium) {
-          if (aspectRatio === 'square') {
+          if (effectiveAspectRatio === 'square') {
             aspectClass = "w-full max-w-[620px] aspect-square p-6 mx-auto justify-between";
-          } else if (aspectRatio === 'story') {
+          } else if (effectiveAspectRatio === 'story') {
             aspectClass = "w-full max-w-[420px] aspect-[9/16] p-8 mx-auto justify-between";
-          } else if (aspectRatio === 'landscape') {
+          } else if (effectiveAspectRatio === 'landscape') {
             aspectClass = "w-full max-w-[950px] aspect-[16/9] p-4 sm:p-5 mx-auto justify-between text-xs";
           }
         }
 
-        const spaceClass = isPremium && aspectRatio === 'landscape' ? 'space-y-1.5' : 'space-y-6';
+        const spaceClass = isLandscape ? 'space-y-1.5' : 'space-y-6';
 
         return (
           <div 
@@ -313,19 +428,19 @@ export function TopsCanvas({
             <div className={`absolute top-[30%] left-[20%] w-[40%] h-[40%] ${glow.g3} rounded-full blur-[100px] -z-10 pointer-events-none`} />
 
             {/* Header Branding info inside Image */}
-            <div className={`flex items-center justify-between gap-4 border-b border-white/5 ${isPremium && aspectRatio === 'landscape' ? 'pb-1.5' : 'pb-3.5'}`}>
-              <div className="flex-1 min-w-0">
+            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'}`}>
+              <div className="flex-1 min-w-0 w-full">
                 <input
                   type="text"
                   value={rankingTitle}
                   onChange={(e) => setRankingTitle(e.target.value)}
                   placeholder="Dale un título a tu ranking..."
-                  className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isPremium && aspectRatio === 'landscape' ? 'text-sm py-0.5' : 'text-xl'}`}
+                  className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
                 />
               </div>
               {(!isPremium || showWatermark) && (
-                <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none">
-                  <Trophy className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
+                <p className="text-[10px] sm:text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none self-end sm:self-auto px-2">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
                 </p>
               )}
             </div>
@@ -342,17 +457,17 @@ export function TopsCanvas({
                 className="border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5 bg-zinc-800/90 shadow-2xl"
               >
                 {tiers.map((tier) => (
-                  <div key={tier.id} className={`flex ${isPremium && aspectRatio === 'landscape' ? 'min-h-[52px]' : 'min-h-[96px]'}`}>
+                  <div key={tier.id} className={`flex ${isLandscape ? 'min-h-[52px]' : 'min-h-[96px]'}`}>
                     
                     {/* Tier Label Box */}
                     <div className={`flex flex-col items-center justify-center text-center border-r border-white/10 select-none ${tier.color} shrink-0 ${
-                      isPremium && aspectRatio === 'landscape' ? 'w-16 p-1' : 'w-24 sm:w-28 p-3'
+                      isLandscape ? 'w-16 p-1' : 'w-24 sm:w-28 p-3'
                     }`}>
                       <input
                         type="text"
                         value={tier.name}
                         onChange={(e) => editTierName(tier.id, e.target.value)}
-                        className={`w-full text-center font-extrabold bg-transparent border-0 focus:ring-0 p-0 text-inherit placeholder-current/40 uppercase tracking-wider ${isPremium && aspectRatio === 'landscape' ? 'text-xs' : 'text-sm sm:text-base'}`}
+                        className={`w-full text-center font-extrabold bg-transparent border-0 focus:ring-0 p-0 text-inherit placeholder-current/40 uppercase tracking-wider ${isLandscape ? 'text-xs' : 'text-sm sm:text-base'}`}
                       />
                     </div>
 
@@ -366,7 +481,7 @@ export function TopsCanvas({
                         handleDropOnTier(tier.id, draggedBggId, source)
                       }}
                       className={`flex-1 flex flex-wrap items-center transition-colors ${
-                        isPremium && aspectRatio === 'landscape' ? 'p-1 gap-1.5' : 'p-3 gap-2.5'
+                        isLandscape ? 'p-1 gap-1.5' : 'p-3 gap-2.5'
                       }`}
                     >
                       {tier.games.length === 0 ? (
@@ -374,10 +489,10 @@ export function TopsCanvas({
                           <button
                             onClick={() => placeInTier(tier.id)}
                             className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 ${
-                              isPremium && aspectRatio === 'landscape' ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
+                              isLandscape ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
                             }`}
                           >
-                            <Plus className={isPremium && aspectRatio === 'landscape' ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
+                            <Plus className={isLandscape ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
                           </button>
                         ) : null
                       ) : (
@@ -389,17 +504,17 @@ export function TopsCanvas({
                               tierId={tier.id}
                               handleDragStart={handleDragStart}
                               returnTierGameToPool={returnTierGameToPool}
-                              isLandscape={isPremium && aspectRatio === 'landscape'}
+                              isLandscape={isLandscape}
                             />
                           ))}
                           {selectedGameForPlacement && (
                             <button
                               onClick={() => placeInTier(tier.id)}
                               className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 ${
-                                isPremium && aspectRatio === 'landscape' ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
+                                isLandscape ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
                               }`}
                             >
-                              <Plus className={isPremium && aspectRatio === 'landscape' ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
+                              <Plus className={isLandscape ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
                             </button>
                           )}
                         </>
@@ -415,11 +530,10 @@ export function TopsCanvas({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className={`grid gap-2 ${isPremium && aspectRatio === 'landscape' ? 'grid-cols-5' : 'grid-cols-1 sm:grid-cols-2'}`}
+                className={`grid gap-2 ${isLandscape ? 'grid-cols-5' : 'grid-cols-1 sm:grid-cols-2'}`}
               >
                 {top10.map((game, idx) => {
                   const isPlaceable = !!selectedGameForPlacement
-                  const isLandscape = isPremium && aspectRatio === 'landscape'
                   return (
                     <div 
                       key={idx}
@@ -491,7 +605,7 @@ export function TopsCanvas({
             {(!isPremium || showWatermark) && (
               <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
                 <span>{(isPremium && customWatermark) ? customWatermark : "Abre tu mesa en Boardgame Social"}</span>
-                {(!isPremium || !customWatermark) && <span className="font-extrabold text-white font-extrabold">#BoardgameSocial</span>}
+                {(!isPremium || !customWatermark) && <span className="font-extrabold text-white">#BoardgameSocial</span>}
               </div>
             )}
 

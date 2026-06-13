@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { MeetupCard } from '../components/MeetupCard'
 import { Meetup } from '../types'
+import { USE_MOCKS } from '../lib/config'
 
 const MotionDiv = motion.div
 
@@ -31,15 +32,42 @@ export function RadarPage() {
   useEffect(() => {
     async function fetchMeetups() {
       try {
+        if (USE_MOCKS) {
+          const allMocks = getMockMeetupsForList()
+          // Filter out completed mock meetups
+          const completedMockKey = 'boardgame_social_mock_completed_meetups'
+          const completedMockStr = localStorage.getItem(completedMockKey)
+          const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+          const activeMocks = allMocks.map(m => {
+            const completedInfo = completedMockData[m.id]
+            if (completedInfo) {
+              return { 
+                ...m, 
+                completed: completedInfo.completed,
+                winner_user_id: completedInfo.winner_user_id,
+                winner_guest_id: completedInfo.winner_guest_id,
+                attended_players: completedInfo.attended_players,
+                attended_guests: completedInfo.attended_guests
+              }
+            }
+            return m
+          }).filter(m => !m.completed)
+
+          setMeetups(activeMocks)
+          setLoading(false)
+          return
+        }
+
         const { data, error } = await supabase
           .from('meetups')
-          .select(`*, users (*), games (*), meetup_guests (id, guest_name)`)
+          .select(`*, users:users!meetups_creator_id_fkey (*), games (*), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
+          .eq('completed', false) // only active/open meetups
           .gte('date', new Date().toISOString()) // filter out past events
           .order('date', { ascending: true }) // closest future events first
 
         if (error) {
           console.error("Error fetching meetups:", error)
-          setMeetups(getMockMeetupsForList())
+          setMeetups([])
         } else {
           setMeetups(data?.length ? (data as Meetup[]) : [])
         }
@@ -100,7 +128,7 @@ export function RadarPage() {
   }
 
   return (
-    <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
+    <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto relative">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
@@ -108,12 +136,24 @@ export function RadarPage() {
             Descubre partidas y mesas de juego cerca de ti.
           </p>
         </div>
-        <Link to="/tablero/new">
+        <Link to="/tablero/new" className="hidden sm:inline-block">
           <Button className="rounded-xl font-bold shadow-sm flex items-center gap-1.5 h-10 cursor-pointer">
             <Plus className="w-4 h-4" /> Abrir Mesa
           </Button>
         </Link>
       </div>
+
+      {/* Mobile Floating Action Button (FAB) for opening tables */}
+      <Link 
+        to="/tablero/new" 
+        className="sm:hidden fixed bottom-24 right-5 z-40"
+      >
+        <Button 
+          className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </Button>
+      </Link>
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">

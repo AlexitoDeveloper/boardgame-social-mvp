@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Lock, Loader2, MessageSquare, Sparkles } from 'lucide-react'
+import { Send, Lock, Loader2, MessageSquare } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
 import { useMeetupChat } from '../../hooks/useMeetupChat'

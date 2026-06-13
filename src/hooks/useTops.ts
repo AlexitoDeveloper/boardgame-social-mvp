@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Game } from '../types'
 import { MOCK_BGG_GAMES } from '../lib/mockData'
 import { toPng } from 'html-to-image'
+import { USE_MOCKS } from '../lib/config'
 
 export interface Tier {
   id: string;
@@ -55,7 +56,12 @@ export function useTops() {
 
   // Export State
   const [exporting, setExporting] = useState(false)
+  const [isExportingCanvas, setIsExportingCanvas] = useState(false)
   const exportAreaRef = useRef<HTMLDivElement>(null)
+
+  // Save to Profile State
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Premium / Pro States
   const [isPremium, setIsPremiumState] = useState<boolean>(() => {
@@ -92,7 +98,28 @@ export function useTops() {
       if (data && data.length > 0) {
         setSearchResults(data as Game[])
       } else {
-        // Fallback to searching mock games locally if table is empty or offline
+        if (USE_MOCKS) {
+          // Fallback to searching mock games locally if table is empty or offline
+          const filteredMock = MOCK_BGG_GAMES.filter(g =>
+            g.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ).map(g => ({
+            bgg_id: Number(g.bgg_id),
+            title: g.name,
+            year_published: g.year,
+            image_url: g.image_url.startsWith('/') ? null : g.image_url
+          }))
+          setSearchResults(filteredMock)
+          if (filteredMock.length === 0) {
+            setErrorMsg('No se encontraron juegos con ese título.')
+          }
+        } else {
+          setErrorMsg('No se encontraron juegos con ese título.')
+        }
+      }
+    } catch (err: any) {
+      console.error('Error buscando juegos:', err)
+      if (USE_MOCKS) {
+        // Fallback search
         const filteredMock = MOCK_BGG_GAMES.filter(g =>
           g.name.toLowerCase().includes(searchQuery.toLowerCase())
         ).map(g => ({
@@ -102,22 +129,9 @@ export function useTops() {
           image_url: g.image_url.startsWith('/') ? null : g.image_url
         }))
         setSearchResults(filteredMock)
-        if (filteredMock.length === 0) {
-          setErrorMsg('No se encontraron juegos con ese título.')
-        }
+      } else {
+        setErrorMsg('Error al buscar juegos en el catálogo.')
       }
-    } catch (err: any) {
-      console.error('Error buscando juegos:', err)
-      // Fallback search
-      const filteredMock = MOCK_BGG_GAMES.filter(g =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ).map(g => ({
-        bgg_id: Number(g.bgg_id),
-        title: g.name,
-        year_published: g.year,
-        image_url: g.image_url.startsWith('/') ? null : g.image_url
-      }))
-      setSearchResults(filteredMock)
     } finally {
       setIsSearching(false)
     }
@@ -371,9 +385,13 @@ export function useTops() {
   const handleExportImage = async () => {
     if (!exportAreaRef.current) return
     setExporting(true)
+    setIsExportingCanvas(true)
     setErrorMsg('')
 
     try {
+      // Wait 150ms for DOM layout update (especially on mobile)
+      await new Promise(resolve => setTimeout(resolve, 150))
+
       const dataUrl = await toPng(exportAreaRef.current, {
         quality: 0.95,
         pixelRatio: 3,
@@ -412,6 +430,66 @@ export function useTops() {
       setErrorMsg('No se pudo generar la imagen. Asegúrate de que las imágenes se carguen correctamente.')
     } finally {
       setExporting(false)
+      setIsExportingCanvas(false)
+    }
+  }
+
+  // Save ranking design to Supabase or localStorage fallback
+  const handleSaveToProfile = async () => {
+    // 1. Get current auth user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setErrorMsg('Inicia sesión para poder guardar rankings en tu perfil.')
+      setTimeout(() => setErrorMsg(''), 4000)
+      return
+    }
+
+    setSaving(true)
+    setErrorMsg('')
+    setSaveSuccess(false)
+
+    // 2. Build payload
+    const payload = {
+      user_id: user.id,
+      title: rankingTitle,
+      mode,
+      data: {
+        tiers: mode === 'tier' ? tiers : [],
+        top10: mode === 'top10' ? top10 : [],
+        selectedBg,
+        aspectRatio
+      }
+    }
+
+    try {
+      // 3. Try to save to Supabase user_rankings table
+      const { error } = await supabase
+        .from('user_rankings')
+        .insert(payload)
+
+      // Always update localStorage for fast retrieval & offline fallback
+      const localKey = `boardgame_social_saved_rankings_${user.id}`
+      const existingStr = localStorage.getItem(localKey)
+      const existing = existingStr ? JSON.parse(existingStr) : []
+      const newLocalItem = {
+        id: Math.random().toString(36).substring(2, 9),
+        ...payload,
+        created_at: new Date().toISOString()
+      }
+      localStorage.setItem(localKey, JSON.stringify([newLocalItem, ...existing]))
+
+      if (error) {
+        console.warn("Could not save to Supabase table 'user_rankings', fell back to localStorage:", error)
+      }
+
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (err: any) {
+      console.error("Error saving ranking:", err)
+      setErrorMsg('No se pudo guardar el ranking en tu perfil.')
+      setTimeout(() => setErrorMsg(''), 4000)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -433,6 +511,7 @@ export function useTops() {
     tiers,
     top10,
     exporting,
+    isExportingCanvas,
     exportAreaRef,
     isPremium,
     setIsPremium,
@@ -444,6 +523,9 @@ export function useTops() {
     setSelectedBg,
     aspectRatio,
     setAspectRatio,
+    saving,
+    saveSuccess,
+    handleSaveToProfile,
     addToPool,
     removeFromPool,
     selectGame,
