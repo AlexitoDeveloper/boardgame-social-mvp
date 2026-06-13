@@ -33,7 +33,8 @@ import {
   Sparkles,
   Share2,
   X,
-  Plus
+  Plus,
+  Info
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
@@ -201,6 +202,8 @@ export function ProfilePage() {
   const [selectedRanking, setSelectedRanking] = useState<any | null>(null)
   const [exportingRanking, setExportingRanking] = useState(false)
   const exportModalRef = useRef<HTMLDivElement>(null)
+  const [showXpHelp, setShowXpHelp] = useState(false)
+  const [activeAchId, setActiveAchId] = useState<string>('host')
 
   useEffect(() => {
     async function loadProfileData() {
@@ -535,7 +538,7 @@ export function ProfilePage() {
 
         {/* Banner backdrop */}
         <div className="h-32 bg-gradient-to-r from-primary/30 via-[#260f38]/20 to-[#0e271a]/30 border-b border-white/5 relative overflow-hidden">
-          <div className="absolute bottom-2 right-4 flex items-center gap-1.5 text-[10px] font-bold text-white/40 select-none uppercase tracking-wider">
+          <div className="absolute top-3 right-4 flex items-center gap-1.5 text-[10px] font-bold text-white/40 select-none uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" /> Gamer Showcase
           </div>
         </div>
@@ -566,9 +569,19 @@ export function ProfilePage() {
             </div>
 
             {/* Experience Bar layout */}
-            <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20">
-              <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-                <span>Experiencia del Jugador</span>
+            <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20 relative">
+              <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                <span className="flex items-center gap-1">
+                  Experiencia del Jugador
+                  <button 
+                    type="button"
+                    onClick={() => setShowXpHelp(!showXpHelp)}
+                    className="p-0.5 rounded hover:bg-muted text-primary transition-colors cursor-pointer"
+                    title="¿Cómo conseguir XP?"
+                  >
+                    <Info className="w-3.5 h-3.5" />
+                  </button>
+                </span>
                 <span className="text-foreground font-black">{xpCurrent} / {xpRange} XP</span>
               </div>
               <div className="w-full h-2 rounded-full bg-background border border-border/30 overflow-hidden relative">
@@ -580,6 +593,37 @@ export function ProfilePage() {
               <span className="text-[8.5px] text-muted-foreground/80 block leading-none font-semibold">
                 ¡Total acumulado de {totalXp} XP de partidas, victorias y tops!
               </span>
+
+              <AnimatePresence>
+                {showXpHelp && (
+                  <MotionDiv
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden border-t border-border/10 mt-1.5 pt-1.5"
+                  >
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[9px] text-zinc-300 font-extrabold select-none">
+                      <div className="flex items-center justify-between">
+                        <span>🎲 Partida Jugada:</span>
+                        <span className="text-emerald-400 font-black">+100 XP</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>⚔️ Victoria:</span>
+                        <span className="text-rose-400 font-black">+250 XP</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>👑 Partida Master:</span>
+                        <span className="text-amber-400 font-black">+150 XP</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>✨ Ranking Creado:</span>
+                        <span className="text-cyan-400 font-black">+200 XP</span>
+                      </div>
+                    </div>
+                  </MotionDiv>
+                )}
+              </AnimatePresence>
             </div>
             
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5 text-xs font-bold pt-0.5">
@@ -599,32 +643,40 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Gamified Achievements Grid */}
-      <div className="space-y-2.5">
+      {/* Gamified Achievements Grid & Details card layout */}
+      <div className="space-y-3">
         <h3 className="text-xs font-extrabold uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
           <Award className="w-4 h-4 text-primary" /> Vitrina de Logros
         </h3>
         <div className="grid grid-cols-5 gap-2.5">
           {achievements.map((ach) => {
             const Icon = ach.icon
+            const isActive = activeAchId === ach.id
             return (
               <div 
                 key={ach.id} 
-                className="group relative flex flex-col items-center select-none"
-                title={`${ach.name}: ${ach.description}`}
+                onClick={() => setActiveAchId(ach.id)}
+                onMouseEnter={() => setActiveAchId(ach.id)}
+                className="flex flex-col items-center select-none cursor-pointer"
               >
                 {/* Achievement Badge Container */}
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
                   ach.unlocked 
-                    ? `bg-gradient-to-br bg-background/80 shadow-md ${ach.color} border-white/10 hover:scale-105 cursor-pointer`
-                    : 'bg-zinc-950/30 border-dashed border-border/40 opacity-40 filter grayscale'
+                    ? `bg-gradient-to-br bg-background/80 shadow-md ${ach.color} ${
+                        isActive ? 'ring-2 ring-primary border-primary/40 scale-105' : 'border-white/10 hover:scale-105'
+                      }`
+                    : `bg-zinc-950/30 border-dashed border-border/40 opacity-40 filter grayscale ${
+                        isActive ? 'ring-2 ring-muted border-muted-foreground/40 scale-105' : ''
+                      }`
                 }`}>
                   <Icon className={`w-6 h-6 ${ach.unlocked ? '' : 'text-zinc-500'}`} />
                 </div>
                 
                 {/* Mini label below */}
                 <span className={`text-[8px] font-extrabold uppercase tracking-wide mt-1.5 text-center truncate w-full ${
-                  ach.unlocked ? 'text-foreground font-black' : 'text-zinc-500'
+                  ach.unlocked 
+                    ? isActive ? 'text-primary font-black' : 'text-foreground font-black'
+                    : 'text-zinc-500'
                 }`}>
                   {ach.unlocked ? ach.name : 'Bloqueado'}
                 </span>
@@ -632,17 +684,42 @@ export function ProfilePage() {
                 <span className="text-[7.5px] font-semibold text-muted-foreground/80 scale-90">
                   {ach.value}
                 </span>
-
-                {/* Floating tooltip preview for locked achievements */}
-                <div className="absolute bottom-full mb-2 bg-zinc-900 border border-white/10 text-white p-2.5 rounded-xl text-[10px] w-48 text-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-30 shadow-xl leading-normal font-semibold">
-                  <p className="font-extrabold text-primary uppercase text-[8.5px] tracking-wide mb-0.5">{ach.name}</p>
-                  <p className="text-zinc-300 leading-normal">{ach.description}</p>
-                  <p className="text-[8.5px] text-zinc-500 mt-1 uppercase font-bold tracking-wider">Requisito: {ach.value}</p>
-                </div>
               </div>
             )
           })}
         </div>
+
+        {/* Selected Achievement Detail Sub-card (Clean Mobile tooltips replacement) */}
+        {(() => {
+          const activeAch = achievements.find(a => a.id === activeAchId) || achievements[0]
+          if (!activeAch) return null
+
+          return (
+            <AnimatePresence mode="wait">
+              <MotionDiv
+                key={activeAch.id}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.15 }}
+                className="p-3.5 rounded-2xl border bg-muted/20 border-border/30 text-left relative overflow-hidden"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[9.5px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    {activeAch.unlocked ? '🏆 Logro Desbloqueado' : '🔒 Logro Bloqueado'}
+                  </span>
+                  <span className={`text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 ${
+                    activeAch.unlocked ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {activeAch.value}
+                  </span>
+                </div>
+                <h4 className="font-extrabold text-xs text-foreground mt-1">{activeAch.name}</h4>
+                <p className="text-[10px] text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
+              </MotionDiv>
+            </AnimatePresence>
+          )
+        })()}
       </div>
 
       {/* Stats Dashboard Layout */}
@@ -1006,28 +1083,29 @@ export function ProfilePage() {
           const mode = selectedRanking.mode
           const bgClass = BACKGROUNDS[rData.selectedBg] || BACKGROUNDS.default;
           const glow = GLOWS[rData.selectedBg] || GLOWS.default;
-          const isLandscape = rData.aspectRatio === 'landscape';
+          const effectiveAspectRatio = exportingRanking ? rData.aspectRatio : 'standard';
+          const isLandscape = effectiveAspectRatio === 'landscape';
 
-          // Set aspect classes
+          // Set aspect classes dynamically
           let aspectClass = "min-h-[350px] w-full p-5 text-sm";
-          if (rData.aspectRatio === 'square') {
+          if (effectiveAspectRatio === 'square') {
             aspectClass = "w-full max-w-[480px] aspect-square p-5 mx-auto justify-between";
-          } else if (rData.aspectRatio === 'story') {
+          } else if (effectiveAspectRatio === 'story') {
             aspectClass = "w-full max-w-[340px] aspect-[9/16] p-6 mx-auto justify-between";
-          } else if (rData.aspectRatio === 'landscape') {
+          } else if (effectiveAspectRatio === 'landscape') {
             aspectClass = "w-full max-w-[750px] aspect-[16/9] p-4 mx-auto justify-between text-xs";
           }
 
           return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
               <MotionDiv 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#0b0f19] border border-white/10 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
+                className="bg-[#0b0f19] border-0 lg:border border-white/10 rounded-none lg:rounded-2xl max-w-3xl w-full h-full lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-screen lg:max-h-[95vh]"
               >
                 {/* Modal Header bar */}
-                <div className="p-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/60 z-10">
+                <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] lg:pt-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/60 z-10">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                     <h3 className="font-extrabold text-sm text-white truncate max-w-xs sm:max-w-md">
@@ -1039,17 +1117,17 @@ export function ProfilePage() {
                       size="sm"
                       onClick={handleExportModalImage}
                       disabled={exportingRanking}
-                      className="font-bold text-xs h-8 px-3 rounded-xl flex items-center gap-1.5"
+                      className="font-bold text-xs h-8 px-2 sm:px-3 rounded-xl flex items-center gap-1.5 cursor-pointer"
                     >
                       {exportingRanking ? (
                         <>
-                          <Loader2 className="w-3 animate-spin" />
-                          <span>Generando...</span>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                          <span className="hidden sm:inline">Generando...</span>
                         </>
                       ) : (
                         <>
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Guardar Foto</span>
+                          <Download className="w-3.5 h-3.5 shrink-0" />
+                          <span className="hidden sm:inline">Guardar Foto</span>
                         </>
                       )}
                     </Button>
@@ -1065,7 +1143,7 @@ export function ProfilePage() {
                 </div>
 
                 {/* Printable container view */}
-                <div className="flex-1 overflow-y-auto p-6 flex justify-center items-center bg-[#070b13]/85 custom-scrollbar min-h-0">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-6 flex justify-center items-center bg-[#070b13]/85 custom-scrollbar min-h-0">
                   <div 
                     ref={exportModalRef} 
                     className={`border border-white/10 rounded-2xl bg-gradient-to-br ${bgClass} shadow-2xl relative overflow-hidden flex flex-col justify-between select-none ${aspectClass}`}
@@ -1076,11 +1154,11 @@ export function ProfilePage() {
                     <div className={`absolute top-[35%] left-[25%] w-[35%] h-[35%] ${glow.g3} rounded-full blur-[70px] -z-10 pointer-events-none`} />
 
                     {/* Branding text inside printed graphic */}
-                    <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-2.5">
-                      <h3 className={`font-black text-white px-1 leading-snug truncate ${isLandscape ? 'text-xs' : 'text-base'}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 pb-2.5">
+                      <h3 className={`font-black text-white px-1 leading-snug truncate w-full flex-1 ${isLandscape ? 'text-xs' : 'text-sm sm:text-base'}`}>
                         {selectedRanking.title}
                       </h3>
-                      <span className="text-[9px] font-black text-primary uppercase tracking-widest flex items-center gap-1 select-none">
+                      <span className="text-[8.5px] sm:text-[9.5px] font-black text-primary uppercase tracking-widest flex items-center gap-1 select-none self-end sm:self-auto px-1">
                         <Sparkles className="w-2.5 h-2.5" /> boardgamesocial.app
                       </span>
                     </div>

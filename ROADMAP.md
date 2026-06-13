@@ -13,8 +13,9 @@ _Objetivo: Que la app se promocione orgánicamente mediante contenido interactiv
 _Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad._
 
 - [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
-- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
-- [x] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
+- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Centralizado en una página dedicada con badges de notificaciones.
+- [x] **[GRATIS] Escaparate de Jugador (Perfil Gamificado):** Perfil rediseñado con sistema de experiencia (XP) con desglose de rates, rango de jugador (Novato, Maestro, Leyenda), vitrina de logros interactiva y visualización/descarga de rankings guardados.
+- [x] **[GRATIS] Cierre de Partida e Historial:** Registro de asistencia real, cálculo de karma y ganador en el cierre de meetups (asociado a iconos de espadas de victoria, no coronas).
 
 ### FASE 3: PULIDO Y GAMIFICACIÓN (El Pique Sano)
 

@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   Loader2,
   MessageSquare,
-  Award,
+  NotebookPen,
   Swords,
   CalendarCheck2,
   CheckSquare,
@@ -176,7 +176,7 @@ export function MeetupDetailSidebar({
     return (
       <div className="space-y-4 pt-1">
         <div className="text-xs font-bold text-foreground flex items-center gap-1.5 border-b border-border/20 pb-2">
-          <Award className="w-4 h-4 text-primary" />
+          <NotebookPen className="w-4 h-4 text-primary" />
           Registrar Cierre de Partida
         </div>
 

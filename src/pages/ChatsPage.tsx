@@ -284,7 +284,7 @@ export function ChatsPage() {
   }
 
   return (
-    <section className="h-[calc(100dvh-10rem)] md:h-[calc(100dvh-7rem)] max-w-5xl mx-auto flex flex-col md:flex-row border border-border/30 bg-card/65 backdrop-blur-2xl rounded-2xl overflow-hidden shadow-2xl relative">
+    <section className="h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-7rem)] w-[calc(100%+2rem)] mx-[-1rem] mt-[-1.5rem] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
       <div className={`w-full md:w-80 border-r border-border/40 flex flex-col bg-card/40 ${
@@ -411,8 +411,10 @@ export function ChatsPage() {
                   )}
                 </div>
 
-                <div className="min-w-0 text-left">
-                  <h2 className="text-xs font-black text-foreground truncate max-w-[200px] sm:max-w-[320px]">{activeMeetup.title}</h2>
+                <div className="min-w-0 text-left flex-1">
+                  <h2 className="text-sm md:text-base font-black text-foreground truncate max-w-[120px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-[380px] block" title={activeMeetup.title}>
+                    {activeMeetup.title}
+                  </h2>
                   <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
                     <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                     {new Date(activeMeetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}

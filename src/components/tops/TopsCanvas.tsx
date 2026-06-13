@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check } from 'lucide-react'
+import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check, MoreVertical } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Game } from '../../types'
@@ -241,6 +241,8 @@ export function TopsCanvas({
   saveSuccess,
   handleSaveToProfile,
 }: TopsCanvasProps) {
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
     : top10.some(g => g !== null)
@@ -253,65 +255,144 @@ export function TopsCanvas({
         <h2 className="text-lg font-bold text-foreground/80 flex items-center gap-1.5">
           <Sparkles className="w-4.5 h-4.5 text-primary animate-pulse" /> Diseña tu lista
         </h2>
-        <div className="flex items-center gap-3 ml-auto sm:ml-0">
+        <div className="flex items-center gap-3 ml-auto sm:ml-0 relative">
           <div className="hidden sm:flex text-xs text-muted-foreground items-center gap-1">
             <ArrowLeftRight className="w-3.5 h-3.5" />
             <span>Arrastra o haz clic para colocar</span>
           </div>
           
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleClearAll}
-            disabled={!canReset}
-            className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Reiniciar</span>
-          </Button>
+          {/* Desktop buttons (visible on sm and larger screens) */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleClearAll}
+              disabled={!canReset}
+              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Reiniciar</span>
+            </Button>
 
-          <Button
-            size="sm"
-            onClick={handleSaveToProfile}
-            disabled={saving || !hasGames}
-            className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-primary/10 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all rounded-xl"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Guardando...</span>
-              </>
-            ) : saveSuccess ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                <span className="text-emerald-500">¡Guardado!</span>
-              </>
-            ) : (
-              <>
-                <Bookmark className="w-3.5 h-3.5" />
-                <span>Guardar en Perfil</span>
-              </>
-            )}
-          </Button>
+            <Button
+              size="sm"
+              onClick={handleSaveToProfile}
+              disabled={saving || !hasGames}
+              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-primary/10 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all rounded-xl"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Guardando...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                  <span className="text-emerald-500">¡Guardado!</span>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-3.5 h-3.5" />
+                  <span>Guardar en Perfil</span>
+                </>
+              )}
+            </Button>
 
-          <Button
-            size="sm"
-            onClick={handleExportImage}
-            disabled={exporting || !hasGames}
-            className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs rounded-xl"
-          >
-            {exporting ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Exportando...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-3.5 h-3.5" />
-                <span>Descargar Imagen</span>
-              </>
-            )}
-          </Button>
+            <Button
+              size="sm"
+              onClick={handleExportImage}
+              disabled={exporting || !hasGames}
+              className="font-bold shadow-md shadow-primary/10 transition-all hover:shadow-primary/20 flex items-center gap-1.5 cursor-pointer h-9 px-3 text-xs rounded-xl"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exportando...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar Imagen</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Mobile responsive buttons layout (hidden on desktop) */}
+          <div className="flex sm:hidden items-center gap-1.5">
+            <Button
+              size="sm"
+              onClick={handleExportImage}
+              disabled={exporting || !hasGames}
+              className="h-9 w-9 p-0 rounded-xl flex items-center justify-center shadow-md cursor-pointer"
+              title="Descargar Imagen"
+            >
+              {exporting ? (
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+              ) : (
+                <Download className="w-4 h-4 text-white" />
+              )}
+            </Button>
+
+            <div className="relative">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="h-9 w-9 p-0 rounded-xl flex items-center justify-center border-border/50 bg-background/50 hover:bg-muted text-foreground cursor-pointer"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+
+              <AnimatePresence>
+                {showMobileMenu && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowMobileMenu(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-48 bg-card border border-border/60 rounded-2xl shadow-xl py-1.5 z-50 flex flex-col divide-y divide-border/20 text-left animate-none"
+                    >
+                      <button
+                        onClick={() => {
+                          setShowMobileMenu(false)
+                          handleSaveToProfile()
+                        }}
+                        disabled={saving || !hasGames}
+                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-foreground hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
+                      >
+                        {saving ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        ) : saveSuccess ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Bookmark className="w-4 h-4 text-primary" />
+                        )}
+                        <span>{saving ? 'Guardando...' : saveSuccess ? '¡Guardado!' : 'Guardar en Perfil'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowMobileMenu(false)
+                          handleClearAll()
+                        }}
+                        disabled={!canReset}
+                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Reiniciar Canvas</span>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -348,18 +429,18 @@ export function TopsCanvas({
             <div className={`absolute top-[30%] left-[20%] w-[40%] h-[40%] ${glow.g3} rounded-full blur-[100px] -z-10 pointer-events-none`} />
 
             {/* Header Branding info inside Image */}
-            <div className={`flex items-center justify-between gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'}`}>
-              <div className="flex-1 min-w-0">
+            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'}`}>
+              <div className="flex-1 min-w-0 w-full">
                 <input
                   type="text"
                   value={rankingTitle}
                   onChange={(e) => setRankingTitle(e.target.value)}
                   placeholder="Dale un título a tu ranking..."
-                  className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isLandscape ? 'text-sm py-0.5' : 'text-xl'}`}
+                  className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
                 />
               </div>
               {(!isPremium || showWatermark) && (
-                <p className="text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none">
+                <p className="text-[10px] sm:text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none self-end sm:self-auto px-2">
                   <Sparkles className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
                 </p>
               )}

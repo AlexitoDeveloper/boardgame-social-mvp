@@ -128,7 +128,7 @@ export function RadarPage() {
   }
 
   return (
-    <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
+    <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto relative">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
@@ -136,12 +136,24 @@ export function RadarPage() {
             Descubre partidas y mesas de juego cerca de ti.
           </p>
         </div>
-        <Link to="/tablero/new">
+        <Link to="/tablero/new" className="hidden sm:inline-block">
           <Button className="rounded-xl font-bold shadow-sm flex items-center gap-1.5 h-10 cursor-pointer">
             <Plus className="w-4 h-4" /> Abrir Mesa
           </Button>
         </Link>
       </div>
+
+      {/* Mobile Floating Action Button (FAB) for opening tables */}
+      <Link 
+        to="/tablero/new" 
+        className="sm:hidden fixed bottom-24 right-5 z-40"
+      >
+        <Button 
+          className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </Button>
+      </Link>
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">
