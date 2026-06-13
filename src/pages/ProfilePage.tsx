@@ -21,17 +21,12 @@ import {
   Clock, 
   CalendarDays,
   UserX,
-  Target,
-  Users,
   Dices,
   Swords,
   Trash2,
   ListOrdered,
   Download,
-  Bookmark,
-  Check,
   Sparkles,
-  Share2,
   X,
   Plus,
   Info
@@ -434,7 +429,6 @@ export function ProfilePage() {
   // Gamer Progression Level Formulas
   const totalXp = (stats.played * 100) + (stats.won * 250) + (organizedCount * 150) + (savedRankings.length * 200)
   const playerLevel = Math.floor(totalXp / 1000) + 1
-  const nextLevelXp = playerLevel * 1000
   const prevLevelXp = (playerLevel - 1) * 1000
   const xpRange = 1000
   const xpCurrent = totalXp - prevLevelXp

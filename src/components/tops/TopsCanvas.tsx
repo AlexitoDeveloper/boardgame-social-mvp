@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check, MoreVertical } from 'lucide-react'
-import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
