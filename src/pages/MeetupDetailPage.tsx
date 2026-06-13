@@ -15,6 +15,7 @@ import { MeetupDetailHero } from '../components/meetup-detail/MeetupDetailHero'
 import { MeetupDetailDescription } from '../components/meetup-detail/MeetupDetailDescription'
 import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailAttendees'
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
+import { MeetupDetailOnline } from '../components/meetup-detail/MeetupDetailOnline'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
 
 export function MeetupDetailPage() {
@@ -134,11 +135,19 @@ export function MeetupDetailPage() {
             guestReservationId={guestReservation?.id}
           />
 
-          {/* Location details card & Google Map locator */}
-          <MeetupDetailLocation
-            location={meetup.location}
-            city={meetup.city}
-          />
+          {/* Location details card or Online Logistics */}
+          {meetup.is_online ? (
+            <MeetupDetailOnline
+              platform={meetup.platform || ''}
+              voiceLink={meetup.voice_link}
+              isAuthorized={isJoined || isCreator || Boolean(guestReservation)}
+            />
+          ) : (
+            <MeetupDetailLocation
+              location={meetup.location || ''}
+              city={meetup.city || ''}
+            />
+          )}
 
 
         </div>

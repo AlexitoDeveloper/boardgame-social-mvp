@@ -8,7 +8,7 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft, Laptop, PhoneCall } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
@@ -54,8 +54,11 @@ export function CreateMeetupPage() {
   // Form Fields State
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [isOnline, setIsOnline] = useState(false)
   const [city, setCity] = useState('')
   const [location, setLocation] = useState('')
+  const [platform, setPlatform] = useState('')
+  const [voiceLink, setVoiceLink] = useState('')
   const [date, setDate] = useState('')
   const [maxPlayers, setMaxPlayers] = useState('4')
 
@@ -113,8 +116,21 @@ export function CreateMeetupPage() {
         if (foundMock) {
           setTitle(foundMock.title || '')
           setDescription(foundMock.description || '')
-          setCity('Madrid') // default city for mocks
-          setLocation(foundMock.location || '')
+          
+          const isOnlineMock = foundMock.is_online || false
+          setIsOnline(isOnlineMock)
+          if (isOnlineMock) {
+            setPlatform(foundMock.platform || '')
+            setVoiceLink(foundMock.voice_link || '')
+            setCity('')
+            setLocation('')
+          } else {
+            setCity('Madrid') // default city for mocks
+            setLocation(foundMock.location || '')
+            setPlatform('')
+            setVoiceLink('')
+          }
+          
           setDate(foundMock.date || '')
           setMaxPlayers('4') // default max_players
           
@@ -147,8 +163,21 @@ export function CreateMeetupPage() {
           if (data) {
             setTitle(data.title)
             setDescription(data.description || '')
-            setCity(data.city)
-            setLocation(data.location)
+            
+            const isOnlineVal = data.is_online || false
+            setIsOnline(isOnlineVal)
+            if (isOnlineVal) {
+              setPlatform(data.platform || '')
+              setVoiceLink(data.voice_link || '')
+              setCity('')
+              setLocation('')
+            } else {
+              setCity(data.city || '')
+              setLocation(data.location || '')
+              setPlatform('')
+              setVoiceLink('')
+            }
+            
             setDate(data.date)
             setMaxPlayers(String(data.max_players))
             
@@ -195,6 +224,17 @@ export function CreateMeetupPage() {
       return
     }
 
+    const selectedDate = new Date(date)
+    if (isNaN(selectedDate.getTime())) {
+      setErrorMsg('La fecha seleccionada no es válida.')
+      return
+    }
+
+    if (selectedDate.getTime() < Date.now()) {
+      setErrorMsg('No puedes programar una partida en el pasado. Selecciona una fecha y hora futura.')
+      return
+    }
+
     setIsSubmitting(true)
     setErrorMsg('')
 
@@ -214,8 +254,11 @@ export function CreateMeetupPage() {
               game_id: selectedGame.bgg_id,
               title: title.trim(),
               description: description.trim() || null,
-              city: city.trim(),
-              location: location.trim(),
+              is_online: isOnline,
+              city: isOnline ? null : city.trim(),
+              location: isOnline ? null : location.trim(),
+              platform: isOnline ? platform.trim() : null,
+              voice_link: isOnline ? voiceLink.trim() : null,
               date: new Date(date).toISOString(),
               max_players: Number(maxPlayers)
             })
@@ -230,8 +273,11 @@ export function CreateMeetupPage() {
           game_id: selectedGame.bgg_id,
           title: title.trim(),
           description: description.trim() || null,
-          city: city.trim(),
-          location: location.trim(),
+          is_online: isOnline,
+          city: isOnline ? null : city.trim(),
+          location: isOnline ? null : location.trim(),
+          platform: isOnline ? platform.trim() : null,
+          voice_link: isOnline ? voiceLink.trim() : null,
           date: new Date(date).toISOString(),
           max_players: Number(maxPlayers),
           joined_players: [userId] // The creator joins their own meetup automatically
@@ -393,65 +439,140 @@ export function CreateMeetupPage() {
                     />
                   </div>
 
-                  {/* City & Location Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    {/* City Input with Autocomplete */}
-                    <div className="space-y-1.5 relative">
-                      <Label htmlFor="city" className="font-bold flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
-                      </Label>
-                      <Input 
-                        id="city"
-                        placeholder="Ej: Madrid, Barcelona..."
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
-                        value={city}
-                        onChange={(e) => {
-                          setCity(e.target.value)
-                          setShowCitySuggestions(true)
-                        }}
-                        onFocus={() => setShowCitySuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                        required 
-                        autoComplete="off"
-                      />
-                      <AnimatePresence>
-                        {showCitySuggestions && suggestions.length > 0 && (
-                          <MotionDiv
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
-                          >
-                            {suggestions.slice(0, 8).map((suggestion, idx) => (
-                              <div
-                                key={idx}
-                                className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
-                                onMouseDown={() => {
-                                  setCity(suggestion)
-                                  setShowCitySuggestions(false)
-                                }}
-                              >
-                                {suggestion}
-                              </div>
-                            ))}
-                          </MotionDiv>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>
-                      <Input 
-                        id="location"
-                        placeholder="Ej: Café Central, Calle Mayor 5..."
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        required 
-                      />
+                  {/* Modality Selector */}
+                  <div className="space-y-1.5">
+                    <Label className="font-bold">Modalidad de la Partida</Label>
+                    <div className="grid grid-cols-2 gap-2 p-1.5 bg-muted/30 backdrop-blur-sm rounded-xl border border-border/40">
+                      <button
+                        type="button"
+                        onClick={() => setIsOnline(false)}
+                        className={`py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          !isOnline
+                            ? 'bg-background text-primary shadow-sm border border-border/20 font-black'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <MapPin className="w-3.5 h-3.5" /> Presencial
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsOnline(true)}
+                        className={`py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          isOnline
+                            ? 'bg-background text-primary shadow-sm border border-border/20 font-black'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Laptop className="w-3.5 h-3.5" /> Online
+                      </button>
                     </div>
                   </div>
+
+                  {/* City/Location vs Platform/Voice Link conditional rendering with animation */}
+                  <AnimatePresence mode="wait">
+                    {!isOnline ? (
+                      <MotionDiv
+                        key="presencial-fields"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      >
+                        {/* City Input with Autocomplete */}
+                        <div className="space-y-1.5 relative">
+                          <Label htmlFor="city" className="font-bold flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
+                          </Label>
+                          <Input 
+                            id="city"
+                            placeholder="Ej: Madrid, Barcelona..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={city}
+                            onChange={(e) => {
+                              setCity(e.target.value)
+                              setShowCitySuggestions(true)
+                            }}
+                            onFocus={() => setShowCitySuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                            required 
+                            autoComplete="off"
+                          />
+                          <AnimatePresence>
+                            {showCitySuggestions && suggestions.length > 0 && (
+                              <MotionDiv
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
+                              >
+                                {suggestions.slice(0, 8).map((suggestion, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
+                                    onMouseDown={() => {
+                                      setCity(suggestion)
+                                      setShowCitySuggestions(false)
+                                    }}
+                                  >
+                                    {suggestion}
+                                  </div>
+                                ))}
+                              </MotionDiv>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>
+                          <Input 
+                            id="location"
+                            placeholder="Ej: Café Central, Calle Mayor 5..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            required 
+                          />
+                        </div>
+                      </MotionDiv>
+                    ) : (
+                      <MotionDiv
+                        key="online-fields"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      >
+                        <div className="space-y-1.5">
+                          <Label htmlFor="platform" className="font-bold flex items-center gap-1">
+                            <Laptop className="w-3.5 h-3.5 text-primary" /> Plataforma Online
+                          </Label>
+                          <Input 
+                            id="platform"
+                            placeholder="Ej: Board Game Arena, TTS, Discord..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={platform}
+                            onChange={(e) => setPlatform(e.target.value)}
+                            required 
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="voiceLink" className="font-bold flex items-center gap-1">
+                            <PhoneCall className="w-3.5 h-3.5 text-primary" /> Enlace de Voz (Opcional)
+                          </Label>
+                          <Input 
+                            id="voiceLink"
+                            placeholder="Ej: https://discord.gg/... o meet.google.com/..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={voiceLink}
+                            onChange={(e) => setVoiceLink(e.target.value)}
+                          />
+                        </div>
+                      </MotionDiv>
+                    )}
+                  </AnimatePresence>
 
                   {/* Date & Max Players Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

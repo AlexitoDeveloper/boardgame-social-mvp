@@ -2,7 +2,7 @@ import { Card, CardTitle, CardDescription } from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-import { MapPin, CalendarDays, Users, Loader2 } from 'lucide-react'
+import { MapPin, CalendarDays, Users, Loader2, Laptop } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
 
@@ -147,10 +147,17 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
               {new Date(meetup.date || meetup.created_at || '').toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
             </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
-              {meetup.location || 'Ubicación por definir'}
-            </span>
+            {meetup.is_online ? (
+              <span className="flex items-center gap-1">
+                <Laptop className="h-3.5 w-3.5 text-primary" />
+                Online • {meetup.platform || 'Por definir'}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                {meetup.location || 'Ubicación por definir'}
+              </span>
+            )}
           </CardDescription>
         </div>
 
