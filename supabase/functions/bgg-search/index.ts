@@ -75,13 +75,25 @@ function parseThingResponse(xmlText: string): GameCacheItem[] {
     .filter((item): item is GameCacheItem => item !== null);
 }
 
+function getBggHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Accept": "application/xml",
+    "User-Agent": "BoardGameSocialMVP/1.0 (Contact: admin@example.com)"
+  };
+  const bggToken = Deno.env.get("BGG_API_KEY");
+  if (bggToken) {
+    headers["Authorization"] = `Bearer ${bggToken}`;
+  }
+  return headers;
+}
+
 async function fetchBggSearchIds(query: string): Promise<number[]> {
   const url = new URL("https://boardgamegeek.com/xmlapi2/search");
   url.searchParams.set("query", query);
   url.searchParams.set("type", "boardgame");
 
   const response = await fetch(url.toString(), {
-    headers: { Accept: "application/xml" },
+    headers: getBggHeaders(),
   });
 
   if (!response.ok) {
@@ -100,7 +112,7 @@ async function fetchBggGames(ids: number[]): Promise<GameCacheItem[]> {
   url.searchParams.set("stats", "0");
 
   const response = await fetch(url.toString(), {
-    headers: { Accept: "application/xml" },
+    headers: getBggHeaders(),
   });
 
   if (!response.ok) {
@@ -145,19 +157,22 @@ Deno.serve(async (request) => {
     const ids = await fetchBggSearchIds(normalizedSearch);
     const games = await fetchBggGames(ids);
 
-    const supabase = createClient(
-      getEnv("SUPABASE_URL"),
-      getEnv("SUPABASE_SERVICE_ROLE_KEY"),
-    );
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY") || "";
 
-    if (games.length > 0) {
-      const { error: upsertError } = await supabase
-        .from("games_cache")
-        .upsert(games, { onConflict: "bgg_id" });
+      if (games.length > 0 && supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const { error: upsertError } = await supabase
+          .from("games_cache")
+          .upsert(games, { onConflict: "bgg_id" });
 
-      if (upsertError) {
-        throw new Error(`Failed to upsert games cache: ${upsertError.message}`);
+        if (upsertError) {
+          console.warn(`Failed to upsert games cache, proceeding anyway: ${upsertError.message}`);
+        }
       }
+    } catch (e) {
+      console.warn("Could not save to cache, bypassing.", e);
     }
 
     return new Response(

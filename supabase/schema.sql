@@ -63,32 +63,15 @@ before update on public.games_cache
 for each row
 execute function public.set_updated_at();
 
-create table if not exists public.reviews (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.users (id) on delete cascade,
-  game_id integer not null references public.games_cache (bgg_id) on delete restrict,
-  rating_complex integer not null check (rating_complex between 1 and 5),
-  rating_interac integer not null check (rating_interac between 1 and 5),
-  text_pros text,
-  text_cons text,
-  text_verdict text not null,
-  photos text[] not null default '{}',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create trigger trg_reviews_updated_at
-before update on public.reviews
-for each row
-execute function public.set_updated_at();
-
 create table if not exists public.meetups (
   id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.users (id) on delete cascade,
   game_id integer not null references public.games_cache (bgg_id) on delete restrict,
+  title text not null,
+  description text,
   city text not null,
   location text not null,
-  meetup_date timestamptz not null,
+  date timestamptz not null,
   max_players integer not null check (max_players between 2 and 50),
   joined_players uuid[] not null default '{}',
   created_at timestamptz not null default now(),
@@ -102,23 +85,20 @@ before update on public.meetups
 for each row
 execute function public.set_updated_at();
 
-create index if not exists idx_reviews_user_id on public.reviews (user_id);
-create index if not exists idx_reviews_game_id on public.reviews (game_id);
-create index if not exists idx_reviews_created_at on public.reviews (created_at desc);
+
 create index if not exists idx_meetups_city on public.meetups (city);
 create index if not exists idx_meetups_game_id on public.meetups (game_id);
-create index if not exists idx_meetups_date on public.meetups (meetup_date);
+create index if not exists idx_meetups_date on public.meetups (date);
 
 alter table public.users enable row level security;
 alter table public.games_cache enable row level security;
-alter table public.reviews enable row level security;
+
 alter table public.meetups enable row level security;
 
 -- USERS RLS
-create policy "users_select_authenticated"
+create policy "users_select_public"
 on public.users
 for select
-to authenticated
 using (true);
 
 create policy "users_insert_own_profile"
@@ -141,10 +121,9 @@ to authenticated
 using (id = auth.uid());
 
 -- GAMES CACHE RLS (read by authenticated users, write by service role only)
-create policy "games_cache_select_authenticated"
+create policy "games_cache_select_public"
 on public.games_cache
 for select
-to authenticated
 using (true);
 
 create policy "games_cache_insert_service_role"
@@ -166,37 +145,10 @@ for delete
 to service_role
 using (true);
 
--- REVIEWS RLS
-create policy "reviews_select_authenticated"
-on public.reviews
-for select
-to authenticated
-using (true);
-
-create policy "reviews_insert_own"
-on public.reviews
-for insert
-to authenticated
-with check (user_id = auth.uid());
-
-create policy "reviews_update_own"
-on public.reviews
-for update
-to authenticated
-using (user_id = auth.uid())
-with check (user_id = auth.uid());
-
-create policy "reviews_delete_own"
-on public.reviews
-for delete
-to authenticated
-using (user_id = auth.uid());
-
 -- MEETUPS RLS
-create policy "meetups_select_authenticated"
+create policy "meetups_select_public"
 on public.meetups
 for select
-to authenticated
 using (true);
 
 create policy "meetups_insert_creator"
@@ -205,15 +157,35 @@ for insert
 to authenticated
 with check (creator_id = auth.uid());
 
-create policy "meetups_update_creator"
+create policy "meetups_update_authenticated"
 on public.meetups
 for update
 to authenticated
-using (creator_id = auth.uid())
-with check (creator_id = auth.uid());
+using (true)
+with check (true);
 
 create policy "meetups_delete_creator"
 on public.meetups
 for delete
 to authenticated
 using (creator_id = auth.uid());
+
+-- ==========================================
+-- ROLE GRANTS (Allows Supabase API access)
+-- ==========================================
+
+-- Grant schema usage
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- Grant permissions to public.users
+GRANT ALL ON TABLE public.users TO anon, authenticated, service_role;
+
+-- Grant permissions to public.games_cache
+GRANT ALL ON TABLE public.games_cache TO anon, authenticated, service_role;
+
+-- Grant permissions to public.meetups TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.meetups TO anon, authenticated, service_role;
+
+-- If a custom games table exists in the database, grant access to it as well
+GRANT ALL ON TABLE public.games TO anon, authenticated, service_role;
+

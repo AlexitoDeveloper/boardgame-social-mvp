@@ -1,10 +1,16 @@
 import { supabase } from '../lib/supabaseClient'
+import { BggSearchResult } from '../types'
+
+interface SearchResponse {
+  games: BggSearchResult[];
+  error: string | null;
+}
 
 /**
  * Calls the Supabase Edge Function that searches BoardGameGeek,
  * normalizes the XML response, caches rows in games_cache, and returns results.
  */
-export async function searchBoardGames(search) {
+export async function searchBoardGames(search: string): Promise<SearchResponse> {
   const normalizedSearch = String(search ?? '').trim()
 
   if (normalizedSearch.length < 2) {
@@ -19,5 +25,5 @@ export async function searchBoardGames(search) {
     return { games: [], error: error.message || 'Failed to search BGG.' }
   }
 
-  return { games: data?.games ?? [], error: null }
+  return { games: (data?.games as BggSearchResult[]) ?? [], error: null }
 }
