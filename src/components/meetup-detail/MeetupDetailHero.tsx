@@ -1,6 +1,7 @@
 import { Calendar, MapPin } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Meetup, Game } from '../../types'
+import { USE_MOCKS } from '../../lib/config'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup;
@@ -51,7 +52,7 @@ export function MeetupDetailHero({ meetup, gameInfo, isPast, isFull, spotsRemain
             </Badge>
           )}
           
-          {meetup.id.startsWith('mock-') && (
+          {USE_MOCKS && meetup.id.startsWith('mock-') && (
             <Badge variant="secondary" className="font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5">
               Demo
             </Badge>

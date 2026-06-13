@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile, Game } from '../types'
+import { USE_MOCKS } from '../lib/config'
 
 // Helper to get mock attendees lists for mock data
 const getMockAttendees = (meetupId: string): UserProfile[] => {
@@ -60,7 +61,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         setGuestReservation(null)
       }
 
-      const isMock = id.startsWith('mock-')
+      const isMock = USE_MOCKS && id.startsWith('mock-')
       
       if (isMock) {
         // Find in mock meetups
@@ -97,6 +98,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           is_guest: true
         }))
 
+        // Check for completed mock meetups in localStorage
+        const completedMockKey = 'boardgame_social_mock_completed_meetups'
+        const completedMockStr = localStorage.getItem(completedMockKey)
+        const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+        const thisMeetupCompleted = completedMockData[id] || null
+
         const mockAttendees = getMockAttendees(id)
         const combinedMockAttendees = [...mockAttendees, ...formattedMockGuests]
         const mockJoinedPlayers = combinedMockAttendees.map(a => a.id)
@@ -125,7 +132,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
             avatar_url: foundMock.users?.avatar_url || null
           },
           creator_id: id === 'mock-m1' ? 'mock-u1' : id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
-          game_id: Number(foundGame.bgg_id)
+          game_id: Number(foundGame.bgg_id),
+          completed: thisMeetupCompleted ? thisMeetupCompleted.completed : false,
+          winner_user_id: thisMeetupCompleted ? thisMeetupCompleted.winner_user_id : null,
+          winner_guest_id: thisMeetupCompleted ? thisMeetupCompleted.winner_guest_id : null,
+          attended_players: thisMeetupCompleted ? thisMeetupCompleted.attended_players : [],
+          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : []
         }
 
         setMeetup(formattedMock)
@@ -141,7 +153,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         try {
           const { data, error } = await supabase
             .from('meetups')
-            .select('*, users(*), games(*)')
+            .select('*, users:users!meetups_creator_id_fkey(*), games(*)')
             .eq('id', id)
             .single()
 
@@ -336,7 +348,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
     if (!meetup) return
 
-    const isMock = id && id.startsWith('mock-')
+    const isMock = USE_MOCKS && id && id.startsWith('mock-')
     const userId = user.id
     const isJoined = meetup.joined_players?.includes(userId)
     const isCreator = meetup.creator_id === userId
@@ -431,7 +443,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   // Handle Cancel (delete) meetup
   const handleCancelMeetup = async () => {
     if (!user || !id) return
-    const isMock = id.startsWith('mock-')
+    const isMock = USE_MOCKS && id.startsWith('mock-')
     setCanceling(true)
 
     if (isMock) {
@@ -467,7 +479,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     }
 
     setJoining(true)
-    const isMock = id.startsWith('mock-')
+    const isMock = USE_MOCKS && id.startsWith('mock-')
 
     if (isMock) {
       setTimeout(() => {
@@ -546,7 +558,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (!reservation) return
 
     setJoining(true)
-    const isMock = id.startsWith('mock-')
+    const isMock = USE_MOCKS && id.startsWith('mock-')
 
     if (isMock) {
       setTimeout(() => {
@@ -591,6 +603,80 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     }
   }
 
+  // Handle Complete Meetup (Close Match and Save stats)
+  const handleCompleteMeetup = async (
+    winnerId: string | null,
+    attendedPlayerIds: string[],
+    attendedGuestIds: string[]
+  ) => {
+    if (!id || !meetup) return
+    const isMock = USE_MOCKS && id.startsWith('mock-')
+
+    let winnerUserId: string | null = null
+    let winnerGuestId: string | null = null
+
+    if (winnerId) {
+      const winnerIsGuest = attendees.find(a => a.id === winnerId)?.is_guest
+      if (winnerIsGuest) {
+        winnerGuestId = winnerId
+      } else {
+        winnerUserId = winnerId
+      }
+    }
+
+    if (isMock) {
+      const completedMockKey = 'boardgame_social_mock_completed_meetups'
+      const completedMockStr = localStorage.getItem(completedMockKey)
+      const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+
+      completedMockData[id] = {
+        completed: true,
+        winner_user_id: winnerUserId,
+        winner_guest_id: winnerGuestId,
+        attended_players: attendedPlayerIds,
+        attended_guests: attendedGuestIds
+      }
+
+      localStorage.setItem(completedMockKey, JSON.stringify(completedMockData))
+
+      setMeetup(prev => prev ? ({
+        ...prev,
+        completed: true,
+        winner_user_id: winnerUserId,
+        winner_guest_id: winnerGuestId,
+        attended_players: attendedPlayerIds,
+        attended_guests: attendedGuestIds
+      }) : null)
+    } else {
+      try {
+        const { error } = await supabase
+          .from('meetups')
+          .update({
+            completed: true,
+            winner_user_id: winnerUserId,
+            winner_guest_id: winnerGuestId,
+            attended_players: attendedPlayerIds,
+            attended_guests: attendedGuestIds
+          })
+          .eq('id', id)
+
+        if (error) throw error
+
+        setMeetup(prev => prev ? ({
+          ...prev,
+          completed: true,
+          winner_user_id: winnerUserId,
+          winner_guest_id: winnerGuestId,
+          attended_players: attendedPlayerIds,
+          attended_guests: attendedGuestIds
+        }) : null)
+      } catch (err: any) {
+        console.error('Error completing meetup:', err)
+        setErrorMsg('Error al cerrar la partida.')
+      }
+    }
+  }
+
   return {
     meetup,
     attendees,
@@ -606,6 +692,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     handleCancelMeetup,
     guestReservation,
     handleJoinAsGuest,
-    handleLeaveAsGuest
+    handleLeaveAsGuest,
+    handleCompleteMeetup
   }
 }

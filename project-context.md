@@ -201,8 +201,8 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 | 2026-06-11 | Antigravity AI | Eliminación | Eliminación de las funcionalidades de Reseñas y Perfil público. |
 | 2026-06-11 | Antigravity AI | Actualización | Inclusión del Roadmap de Desarrollo de 3 Fases y reglas de ramificación. |
 | 2026-06-12 | Antigravity AI | Actualización | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3). |
-| 2026-06-12 | Antigravity AI | Actualización | Implementación del Generador de Tops "Pro" (Premium) con fondos, ratios adaptados y marca de agua. |
 | 2026-06-12 | Antigravity AI | Actualización | Implementación del Chat Activo por Partida (Realtime) con Supabase Realtime y RLS. |
+| 2026-06-12 | Antigravity AI | Actualización | Implementación de Cierre de Partida (asistencia/ganador) y Perfil Básico (Win Rate / Karma). |
 
 ---
 
@@ -220,7 +220,7 @@ El desarrollo del proyecto se realizará de forma incremental dividiéndose en l
 *Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
 - [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
 - [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
-- [ ] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
+- [x] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
 
 ### FASE 3: PULIDO Y MONETIZACIÓN (Sostenibilidad)
 *Objetivo: Añadir vías de ingresos pasivos y mejorar la experiencia de usuario final.*

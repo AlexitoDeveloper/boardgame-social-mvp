@@ -16,7 +16,6 @@ import { MeetupDetailDescription } from '../components/meetup-detail/MeetupDetai
 import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailAttendees'
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
-import { MeetupDetailChat } from '../components/meetup-detail/MeetupDetailChat'
 
 export function MeetupDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -38,7 +37,8 @@ export function MeetupDetailPage() {
     handleCancelMeetup,
     guestReservation,
     handleJoinAsGuest,
-    handleLeaveAsGuest
+    handleLeaveAsGuest,
+    handleCompleteMeetup
   } = useMeetupDetail(id, user)
 
   if (loading) {
@@ -140,14 +140,7 @@ export function MeetupDetailPage() {
             city={meetup.city}
           />
 
-          {/* Realtime Chat */}
-          <MeetupDetailChat
-            meetupId={id}
-            currentUser={user}
-            guestReservation={guestReservation}
-            meetup={meetup}
-            attendees={attendees}
-          />
+
         </div>
 
         {/* Right Columns - Sidebar */}
@@ -168,6 +161,7 @@ export function MeetupDetailPage() {
           guestReservation={guestReservation}
           handleJoinAsGuest={handleJoinAsGuest}
           handleLeaveAsGuest={handleLeaveAsGuest}
+          handleCompleteMeetup={handleCompleteMeetup}
         />
       </div>
     </section>

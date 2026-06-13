@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui
 import { Badge } from '../ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { UserProfile } from '../../types'
 
 const MotionDiv = motion.div
@@ -63,6 +64,25 @@ export function MeetupDetailAttendees({
               const isUserOrganizer = attendee.id === creatorId
               const isCurrentAttendee = attendee.id === userId || (guestReservationId && attendee.id === guestReservationId)
 
+              const attendeeContent = (
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Avatar className="w-9 h-9 border border-background shadow-sm group-hover:scale-105 transition-transform duration-300">
+                    <AvatarImage src={attendee.avatar_url || undefined} />
+                    <AvatarFallback className={`text-xs font-bold ${attendee.is_guest ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
+                      {attendee.username?.slice(0,2)?.toUpperCase() || 'IN'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 text-left">
+                    <span className="text-sm font-bold block text-foreground truncate group-hover:text-primary transition-colors">
+                      {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">(Tú)</span>}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium block">
+                      {isUserOrganizer ? 'Organiza la partida' : attendee.is_guest ? 'Invitado temporal' : 'Jugador'}
+                    </span>
+                  </div>
+                </div>
+              )
+
               return (
                 <MotionDiv 
                   key={attendee.id} 
@@ -73,22 +93,13 @@ export function MeetupDetailAttendees({
                       : 'border-border/30'
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar className="w-9 h-9 border border-background shadow-sm group-hover:scale-105 transition-transform duration-300">
-                      <AvatarImage src={attendee.avatar_url || undefined} />
-                      <AvatarFallback className={`text-xs font-bold ${attendee.is_guest ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
-                        {attendee.username?.slice(0,2)?.toUpperCase() || 'IN'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <span className="text-sm font-bold block text-foreground truncate">
-                        {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">(Tú)</span>}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground font-medium block">
-                        {isUserOrganizer ? 'Organiza la partida' : attendee.is_guest ? 'Invitado temporal' : 'Jugador'}
-                      </span>
-                    </div>
-                  </div>
+                  {attendee.is_guest ? (
+                    attendeeContent
+                  ) : (
+                    <Link to={`/perfil/${attendee.id}`} className="min-w-0 flex-1 flex items-center">
+                      {attendeeContent}
+                    </Link>
+                  )}
 
                   {isUserOrganizer && (
                     <div className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center gap-1.5 text-[10px] font-bold shrink-0">

@@ -38,6 +38,11 @@ export interface Meetup {
   games?: Game | Game[];
   game_name?: string; // Usado en datos mock y compatibilidad
   meetup_guests?: { id: string; guest_name: string }[];
+  completed?: boolean;
+  winner_user_id?: string | null;
+  winner_guest_id?: string | null;
+  attended_players?: string[];
+  attended_guests?: string[];
 }
 
 export interface BggSearchResult {

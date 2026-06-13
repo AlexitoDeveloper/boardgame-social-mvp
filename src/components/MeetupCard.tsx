@@ -32,6 +32,19 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   const gameInfo = Array.isArray(meetup.games) ? meetup.games[0] : meetup.games;
 
   const renderJoinButton = () => {
+    if (meetup.completed) {
+      return (
+        <Button 
+          disabled 
+          variant="outline" 
+          size="sm" 
+          className="flex-1 rounded-xl font-bold text-xs h-9 bg-emerald-500/5 text-emerald-500 border-emerald-500/15 cursor-not-allowed select-none"
+        >
+          Finalizada
+        </Button>
+      )
+    }
+
     if (!user) {
       return (
         <Button 
@@ -114,8 +127,13 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
       {/* Header with Title and Game Cover Frame */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1.5 flex-1 min-w-0">
-          <CardTitle className="text-lg font-extrabold leading-tight tracking-tight text-card-foreground truncate">
-            {meetup.title || 'Partida de Juego de Mesa'}
+          <CardTitle className="text-lg font-extrabold leading-tight tracking-tight text-card-foreground truncate flex items-center gap-2">
+            <span className="truncate">{meetup.title || 'Partida de Juego de Mesa'}</span>
+            {meetup.completed && (
+              <Badge className="bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-[10px] font-extrabold tracking-wide rounded-full shrink-0 border-0">
+                Completada
+              </Badge>
+            )}
           </CardTitle>
           
           {(gameInfo?.title || meetup.game_name) && (
@@ -160,15 +178,18 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         
         {/* Joined players info */}
         <div className={`flex items-center justify-between pt-3 ${meetup.description ? 'border-t border-border/30' : ''}`}>
-          <div className="flex items-center gap-2">
-            <Avatar className="w-6 h-6 border border-background shadow-sm">
+          <div 
+            className="flex items-center gap-2 cursor-pointer group/creator"
+            onClick={() => onNavigate(`/perfil/${meetup.creator_id}`)}
+          >
+            <Avatar className="w-6 h-6 border border-background shadow-sm group-hover/creator:scale-105 transition-transform duration-300">
               <AvatarImage src={meetup.users?.avatar_url || undefined} />
               <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-bold">
                 {meetup.users?.username?.slice(0,2)?.toUpperCase() || 'H'}
               </AvatarFallback>
             </Avatar>
-            <span className="text-[11px] text-muted-foreground font-medium">
-              Master: <span className="font-semibold text-foreground">{meetup.users?.username || 'anónimo'}</span>
+            <span className="text-[11px] text-muted-foreground font-medium group-hover/creator:text-primary transition-colors">
+              Master: <span className="font-semibold text-foreground group-hover/creator:text-primary transition-colors">{meetup.users?.username || 'anónimo'}</span>
             </span>
           </div>
 

@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Game } from '../types'
 import { MOCK_BGG_GAMES } from '../lib/mockData'
 import { toPng } from 'html-to-image'
+import { USE_MOCKS } from '../lib/config'
 
 export interface Tier {
   id: string;
@@ -55,6 +56,7 @@ export function useTops() {
 
   // Export State
   const [exporting, setExporting] = useState(false)
+  const [isExportingCanvas, setIsExportingCanvas] = useState(false)
   const exportAreaRef = useRef<HTMLDivElement>(null)
 
   // Premium / Pro States
@@ -92,7 +94,28 @@ export function useTops() {
       if (data && data.length > 0) {
         setSearchResults(data as Game[])
       } else {
-        // Fallback to searching mock games locally if table is empty or offline
+        if (USE_MOCKS) {
+          // Fallback to searching mock games locally if table is empty or offline
+          const filteredMock = MOCK_BGG_GAMES.filter(g =>
+            g.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ).map(g => ({
+            bgg_id: Number(g.bgg_id),
+            title: g.name,
+            year_published: g.year,
+            image_url: g.image_url.startsWith('/') ? null : g.image_url
+          }))
+          setSearchResults(filteredMock)
+          if (filteredMock.length === 0) {
+            setErrorMsg('No se encontraron juegos con ese título.')
+          }
+        } else {
+          setErrorMsg('No se encontraron juegos con ese título.')
+        }
+      }
+    } catch (err: any) {
+      console.error('Error buscando juegos:', err)
+      if (USE_MOCKS) {
+        // Fallback search
         const filteredMock = MOCK_BGG_GAMES.filter(g =>
           g.name.toLowerCase().includes(searchQuery.toLowerCase())
         ).map(g => ({
@@ -102,22 +125,9 @@ export function useTops() {
           image_url: g.image_url.startsWith('/') ? null : g.image_url
         }))
         setSearchResults(filteredMock)
-        if (filteredMock.length === 0) {
-          setErrorMsg('No se encontraron juegos con ese título.')
-        }
+      } else {
+        setErrorMsg('Error al buscar juegos en el catálogo.')
       }
-    } catch (err: any) {
-      console.error('Error buscando juegos:', err)
-      // Fallback search
-      const filteredMock = MOCK_BGG_GAMES.filter(g =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ).map(g => ({
-        bgg_id: Number(g.bgg_id),
-        title: g.name,
-        year_published: g.year,
-        image_url: g.image_url.startsWith('/') ? null : g.image_url
-      }))
-      setSearchResults(filteredMock)
     } finally {
       setIsSearching(false)
     }
@@ -371,9 +381,13 @@ export function useTops() {
   const handleExportImage = async () => {
     if (!exportAreaRef.current) return
     setExporting(true)
+    setIsExportingCanvas(true)
     setErrorMsg('')
 
     try {
+      // Wait 150ms for DOM layout update (especially on mobile)
+      await new Promise(resolve => setTimeout(resolve, 150))
+
       const dataUrl = await toPng(exportAreaRef.current, {
         quality: 0.95,
         pixelRatio: 3,
@@ -412,6 +426,7 @@ export function useTops() {
       setErrorMsg('No se pudo generar la imagen. Asegúrate de que las imágenes se carguen correctamente.')
     } finally {
       setExporting(false)
+      setIsExportingCanvas(false)
     }
   }
 
@@ -433,6 +448,7 @@ export function useTops() {
     tiers,
     top10,
     exporting,
+    isExportingCanvas,
     exportAreaRef,
     isPremium,
     setIsPremium,

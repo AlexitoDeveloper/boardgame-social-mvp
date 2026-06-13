@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { MeetupCard } from '../components/MeetupCard'
 import { Meetup } from '../types'
+import { USE_MOCKS } from '../lib/config'
 
 const MotionDiv = motion.div
 
@@ -31,15 +32,42 @@ export function RadarPage() {
   useEffect(() => {
     async function fetchMeetups() {
       try {
+        if (USE_MOCKS) {
+          const allMocks = getMockMeetupsForList()
+          // Filter out completed mock meetups
+          const completedMockKey = 'boardgame_social_mock_completed_meetups'
+          const completedMockStr = localStorage.getItem(completedMockKey)
+          const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+          const activeMocks = allMocks.map(m => {
+            const completedInfo = completedMockData[m.id]
+            if (completedInfo) {
+              return { 
+                ...m, 
+                completed: completedInfo.completed,
+                winner_user_id: completedInfo.winner_user_id,
+                winner_guest_id: completedInfo.winner_guest_id,
+                attended_players: completedInfo.attended_players,
+                attended_guests: completedInfo.attended_guests
+              }
+            }
+            return m
+          }).filter(m => !m.completed)
+
+          setMeetups(activeMocks)
+          setLoading(false)
+          return
+        }
+
         const { data, error } = await supabase
           .from('meetups')
-          .select(`*, users (*), games (*), meetup_guests (id, guest_name)`)
+          .select(`*, users:users!meetups_creator_id_fkey (*), games (*), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
+          .eq('completed', false) // only active/open meetups
           .gte('date', new Date().toISOString()) // filter out past events
           .order('date', { ascending: true }) // closest future events first
 
         if (error) {
           console.error("Error fetching meetups:", error)
-          setMeetups(getMockMeetupsForList())
+          setMeetups([])
         } else {
           setMeetups(data?.length ? (data as Meetup[]) : [])
         }

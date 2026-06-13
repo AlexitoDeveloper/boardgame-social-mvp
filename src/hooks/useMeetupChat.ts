@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile, MeetupMessage } from '../types'
+import { USE_MOCKS } from '../lib/config'
 
 export function useMeetupChat(
   meetupId: string | undefined,
@@ -14,7 +15,7 @@ export function useMeetupChat(
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  const isMock = meetupId ? meetupId.startsWith('mock-') : false
+  const isMock = USE_MOCKS && meetupId ? meetupId.startsWith('mock-') : false
 
   // Determine if current user is an attendee (registered or shadow guest)
   const isAttendee = useCallback(() => {
