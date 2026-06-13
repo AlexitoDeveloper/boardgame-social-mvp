@@ -262,7 +262,7 @@ export function AppShell() {
         </aside>
 
         <main className={cn(
-          "flex-1 w-full max-w-full px-4 pb-24 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-6 pt-[calc(1.5rem+env(safe-area-inset-top))] md:p-8 md:pb-8",
+          "flex-1 min-w-0 w-full max-w-full px-4 pb-24 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-6 pt-[calc(1.5rem+env(safe-area-inset-top))] md:p-8 md:pb-8",
           isChatPage && "px-0 pt-0 pb-[calc(3rem+env(safe-area-inset-bottom))] h-dvh overflow-hidden flex flex-col md:p-8 md:pb-8 md:h-auto md:overflow-visible"
         )}>
           <Outlet />
@@ -270,7 +270,7 @@ export function AppShell() {
       </div>
 
       {/* ── Mobile bottom nav ──────────────────────────────── */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/30 bg-card px-2 pb-1.5 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-[-2px] z-50 border-t border-border/30 bg-card px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
           {navItems.map((item) => (
             <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} mobile />

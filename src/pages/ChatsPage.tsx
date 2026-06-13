@@ -7,7 +7,8 @@ import {
   Send, 
   ArrowLeft, 
   Loader2,
-  Clock 
+  Clock,
+  Info
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
@@ -287,7 +288,7 @@ export function ChatsPage() {
     <section className="h-full w-full md:h-[calc(100dvh-7rem)] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
-      <div className={`w-full md:w-80 border-r border-border/40 flex flex-col bg-card/40 h-full ${
+      <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/40 h-full ${
         activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
         <div className="p-4 border-b border-border/30 flex items-center justify-between">
@@ -386,14 +387,14 @@ export function ChatsPage() {
       </div>
 
       {/* ── Right chat window ─────────────────────────────── */}
-      <div className={`flex-1 flex flex-col bg-card/10 relative ${
+      <div className={`flex-1 flex flex-col bg-card/10 relative min-w-0 ${
         !activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
         {activeMeetup ? (
           <>
             {/* Header toolbar */}
             <div className="p-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card/30">
-              <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex items-center gap-3.5 min-w-0 flex-1">
                 <Button 
                   onClick={handleBackToList}
                   variant="ghost" 
@@ -403,33 +404,32 @@ export function ChatsPage() {
                   <ArrowLeft className="w-4 h-4 text-foreground" />
                 </Button>
 
-                <div className="w-9 h-9 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
-                  {activeGame?.image_url ? (
-                    <img src={activeGame.image_url} alt={activeGame.title} className="w-full h-full object-contain" />
-                  ) : (
-                    <div className="text-[8px] font-black text-muted-foreground uppercase">{activeMeetup.game_name?.slice(0, 3) || 'JUE'}</div>
-                  )}
-                </div>
+                {/* Clickable info/link area that goes to details page */}
+                <div 
+                  onClick={() => navigate(`/tablero/${activeMeetup.id}`)}
+                  className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group/info"
+                  title="Ver Ficha de Partida"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 group-hover/info:border-primary/50 transition-colors shadow-sm">
+                    {activeGame?.image_url ? (
+                      <img src={activeGame.image_url} alt={activeGame.title} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="text-[8px] font-black text-muted-foreground uppercase">{activeMeetup.game_name?.slice(0, 3) || 'JUE'}</div>
+                    )}
+                  </div>
 
-                <div className="min-w-0 text-left flex-1">
-                  <h2 className="text-sm md:text-base font-black text-foreground truncate max-w-[120px] xs:max-w-[180px] sm:max-w-[280px] md:max-w-[380px] block" title={activeMeetup.title}>
-                    {activeMeetup.title}
-                  </h2>
-                  <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
-                    <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                    {new Date(activeMeetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                  <div className="min-w-0 text-left flex-1">
+                    <h2 className="text-sm md:text-base font-black text-foreground truncate flex items-center gap-1.5 group-hover/info:text-primary transition-colors">
+                      <span className="truncate">{activeMeetup.title}</span>
+                      <Info className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0 group-hover/info:text-primary transition-colors" />
+                    </h2>
+                    <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
+                      <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                      {new Date(activeMeetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/tablero/${activeMeetup.id}`)}
-                className="rounded-xl text-[10px] font-extrabold h-8 border-border/45 hover:bg-primary/5 transition-all hidden sm:flex shrink-0"
-              >
-                Ver Ficha de Partida
-              </Button>
             </div>
 
             {/* Error notifications */}
@@ -476,10 +476,10 @@ export function ChatsPage() {
                           </Avatar>
                         )}
 
-                        <div className="space-y-1 max-w-full">
+                        <div className="space-y-1 max-w-full min-w-0">
                           {/* Sender name label (only for others) */}
                           {!isMyMessage && (
-                            <p className="text-[9.5px] font-black text-primary text-left tracking-wide px-1.5 uppercase">
+                            <p className="text-[9.5px] font-black text-primary text-left tracking-wide px-1.5 uppercase truncate" title={msg.sender_name}>
                               {msg.sender_name} {msg.guest_id && <span className="text-[7.5px] text-muted-foreground lowercase font-medium">(invitado)</span>}
                             </p>
                           )}

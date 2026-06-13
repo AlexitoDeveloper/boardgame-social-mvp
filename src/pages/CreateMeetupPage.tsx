@@ -224,6 +224,17 @@ export function CreateMeetupPage() {
       return
     }
 
+    const selectedDate = new Date(date)
+    if (isNaN(selectedDate.getTime())) {
+      setErrorMsg('La fecha seleccionada no es válida.')
+      return
+    }
+
+    if (selectedDate.getTime() < Date.now()) {
+      setErrorMsg('No puedes programar una partida en el pasado. Selecciona una fecha y hora futura.')
+      return
+    }
+
     setIsSubmitting(true)
     setErrorMsg('')
 
