@@ -501,10 +501,10 @@ export function ProfilePage() {
   const karmaInfo = getKarmaInfo(stats.karma)
 
   return (
-    <section className="space-y-6 max-w-xl mx-auto p-4 pb-24 relative">
+    <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
-      {/* Header bar */}
-      <div className="flex items-center justify-between z-10 relative">
+      {/* Header bar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -537,7 +537,7 @@ export function ProfilePage() {
           </div>
         </div>
         
-        <CardContent className="pb-6 px-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
+        <CardContent className="p-4 pb-6 sm:p-6 sm:pb-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
           {/* Avatar container overlapping banner with dynamic colored status ring */}
           <div className="relative -mt-16 z-10 shrink-0">
             <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-400 via-primary to-emerald-400 opacity-80 animate-spin [animation-duration:15s]" />
@@ -723,7 +723,7 @@ export function ProfilePage() {
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Swords className="w-28 h-28 text-rose-500 stroke-[1.25] rotate-12" />
           </div>
-          <CardContent className="p-5 flex items-center justify-between gap-4 relative z-10">
+          <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
             <div className="space-y-1.5 min-w-0">
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Tasa de Victoria</span>
               <div className="flex items-baseline gap-1">
@@ -749,7 +749,7 @@ export function ProfilePage() {
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Dices className="w-28 h-28 text-emerald-500 stroke-[1.25] -rotate-12" />
           </div>
-          <CardContent className="p-5 flex items-center justify-between gap-4 relative z-10">
+          <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
             <div className="space-y-1.5 min-w-0">
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Asistencia Real</span>
               <div className="flex items-baseline gap-1">

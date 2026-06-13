@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, Check } from 'lucide-react'
+import { Loader2, Check, X } from 'lucide-react'
 import { Command, CommandInput, CommandList, CommandItem } from './ui/command'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
@@ -16,6 +16,7 @@ interface GameSearchBarProps {
   onSelectGame: (game: Game) => void;
   placeholder?: string;
   isGameDisabled?: (game: Game) => boolean;
+  closeOnSelect?: boolean;
 }
 
 export function GameSearchBar({
@@ -26,7 +27,8 @@ export function GameSearchBar({
   isSearching,
   onSelectGame,
   placeholder = "Buscar juego...",
-  isGameDisabled
+  isGameDisabled,
+  closeOnSelect = true
 }: GameSearchBarProps) {
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
@@ -49,7 +51,20 @@ export function GameSearchBar({
             />
           </div>
           {isSearching && (
-            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0 mr-1.5" />
+          )}
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setGames([])
+              }}
+              className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              title="Limpiar búsqueda"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           )}
         </div>
 
@@ -74,7 +89,9 @@ export function GameSearchBar({
                         onSelect={() => {
                           if (!isDisabled) {
                             onSelectGame(g)
-                            setGames([]) // Clear list to close dropdown
+                            if (closeOnSelect) {
+                              setGames([]) // Clear list to close dropdown
+                            }
                           }
                         }}
                       >

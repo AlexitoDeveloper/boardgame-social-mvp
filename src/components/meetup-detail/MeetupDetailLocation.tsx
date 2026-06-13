@@ -10,10 +10,10 @@ interface MeetupDetailLocationProps {
 export function MeetupDetailLocation({ location, city }: MeetupDetailLocationProps) {
   return (
     <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-lg">
-      <CardHeader className="pb-3 border-b border-border/20">
+      <CardHeader className="p-4 sm:p-6 pb-3 border-b border-border/20">
         <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">Ubicación y Logística</CardTitle>
       </CardHeader>
-      <CardContent className="pt-4 space-y-4">
+      <CardContent className="p-4 pt-4 sm:p-6 sm:pt-6 space-y-4">
         <div className="flex gap-4 items-start">
           <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary shrink-0">
             <MapPin className="w-5 h-5" />

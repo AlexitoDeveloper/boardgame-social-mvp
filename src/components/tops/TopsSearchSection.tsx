@@ -78,6 +78,7 @@ export function TopsSearchSection({
             tiers.some(t => t.games.some(g => g.bgg_id === game.bgg_id)) || 
             top10.some(g => g?.bgg_id === game.bgg_id)
           }
+          closeOnSelect={false}
         />
 
         {/* Show error */}
