@@ -59,6 +59,10 @@ export function useTops() {
   const [isExportingCanvas, setIsExportingCanvas] = useState(false)
   const exportAreaRef = useRef<HTMLDivElement>(null)
 
+  // Save to Profile State
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
   // Premium / Pro States
   const [isPremium, setIsPremiumState] = useState<boolean>(() => {
     return localStorage.getItem('bgs_pro_simulated') === 'true'
@@ -430,6 +434,65 @@ export function useTops() {
     }
   }
 
+  // Save ranking design to Supabase or localStorage fallback
+  const handleSaveToProfile = async () => {
+    // 1. Get current auth user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setErrorMsg('Inicia sesión para poder guardar rankings en tu perfil.')
+      setTimeout(() => setErrorMsg(''), 4000)
+      return
+    }
+
+    setSaving(true)
+    setErrorMsg('')
+    setSaveSuccess(false)
+
+    // 2. Build payload
+    const payload = {
+      user_id: user.id,
+      title: rankingTitle,
+      mode,
+      data: {
+        tiers: mode === 'tier' ? tiers : [],
+        top10: mode === 'top10' ? top10 : [],
+        selectedBg,
+        aspectRatio
+      }
+    }
+
+    try {
+      // 3. Try to save to Supabase user_rankings table
+      const { error } = await supabase
+        .from('user_rankings')
+        .insert(payload)
+
+      // Always update localStorage for fast retrieval & offline fallback
+      const localKey = `boardgame_social_saved_rankings_${user.id}`
+      const existingStr = localStorage.getItem(localKey)
+      const existing = existingStr ? JSON.parse(existingStr) : []
+      const newLocalItem = {
+        id: Math.random().toString(36).substring(2, 9),
+        ...payload,
+        created_at: new Date().toISOString()
+      }
+      localStorage.setItem(localKey, JSON.stringify([newLocalItem, ...existing]))
+
+      if (error) {
+        console.warn("Could not save to Supabase table 'user_rankings', fell back to localStorage:", error)
+      }
+
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch (err: any) {
+      console.error("Error saving ranking:", err)
+      setErrorMsg('No se pudo guardar el ranking en tu perfil.')
+      setTimeout(() => setErrorMsg(''), 4000)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return {
     mode,
     setMode,
@@ -460,6 +523,9 @@ export function useTops() {
     setSelectedBg,
     aspectRatio,
     setAspectRatio,
+    saving,
+    saveSuccess,
+    handleSaveToProfile,
     addToPool,
     removeFromPool,
     selectGame,

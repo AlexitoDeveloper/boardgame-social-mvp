@@ -11,6 +11,7 @@ import {
   Loader2,
   MessageSquare,
   Award,
+  Swords,
   CalendarCheck2,
   CheckSquare,
   Square
@@ -126,14 +127,14 @@ export function MeetupDetailSidebar({
     return (
       <div className="space-y-4">
         <div className="text-center p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-500 font-bold text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider">
-          <Crown className="w-4 h-4 text-emerald-500 fill-current animate-pulse" />
+          <Swords className="w-4 h-4 text-emerald-500 fill-current animate-bounce" />
           Partida Completada
         </div>
 
         {winner ? (
           <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 text-center space-y-2.5 relative overflow-hidden shadow-inner">
             <div className="absolute top-1 right-2 opacity-15 rotate-12">
-              <Crown className="w-16 h-16 text-amber-500 fill-current" />
+              <Swords className="w-16 h-16 text-amber-500 fill-current" />
             </div>
             <p className="text-[10px] font-extrabold text-amber-500 uppercase tracking-widest">Ganador de la mesa</p>
             <div className="flex flex-col items-center gap-1.5 relative z-10">
@@ -237,7 +238,7 @@ export function MeetupDetailSidebar({
                     <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
                     <span>{a.username}</span>
                   </div>
-                  {winnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current" />}
+                  {winnerId === a.id && <Swords className="w-3.5 h-3.5 text-primary fill-current" />}
                 </div>
               ))}
           </div>
@@ -289,7 +290,7 @@ export function MeetupDetailSidebar({
             className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
           >
             <span className="flex items-center gap-1.5 justify-center">
-              <MessageSquare className="w-4 h-4 text-white" /> Ir al Chat de la Partida
+              <MessageSquare className="w-4 h-4 text-white" /> Chat de la Partida
             </span>
           </Button>
           <Button
@@ -380,7 +381,7 @@ export function MeetupDetailSidebar({
             className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
           >
             <span className="flex items-center gap-1.5 justify-center">
-              <MessageSquare className="w-4 h-4 text-white" /> Ir al Chat de la Partida
+              <MessageSquare className="w-4 h-4 text-white" /> Chat de la Partida
             </span>
           </Button>
           <Button
@@ -472,7 +473,7 @@ export function MeetupDetailSidebar({
                     variant="outline"
                     className="w-full rounded-xl font-extrabold h-11 border-border/60 hover:bg-primary/5 text-sm flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4 text-primary" /> Ir al Chat de la Partida
+                    <MessageSquare className="w-4 h-4 text-primary" /> Chat de la Partida
                   </Button>
 
                   <Button 

@@ -50,6 +50,9 @@ export function TopsPage() {
             selectedBg={tops.selectedBg}
             aspectRatio={tops.aspectRatio}
             isExportingCanvas={tops.isExportingCanvas}
+            saving={tops.saving}
+            saveSuccess={tops.saveSuccess}
+            handleSaveToProfile={tops.handleSaveToProfile}
           />
         </div>
 

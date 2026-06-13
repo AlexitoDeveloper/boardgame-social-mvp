@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download } from 'lucide-react'
+import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Game } from '../../types'
@@ -158,6 +158,9 @@ interface TopsCanvasProps {
   selectedBg: string;
   aspectRatio: 'standard' | 'square' | 'story' | 'landscape';
   isExportingCanvas: boolean;
+  saving: boolean;
+  saveSuccess: boolean;
+  handleSaveToProfile: () => void;
 }
 
 const BACKGROUNDS: Record<string, string> = {
@@ -234,6 +237,9 @@ export function TopsCanvas({
   selectedBg,
   aspectRatio,
   isExportingCanvas,
+  saving,
+  saveSuccess,
+  handleSaveToProfile,
 }: TopsCanvasProps) {
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
@@ -262,6 +268,30 @@ export function TopsCanvas({
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Reiniciar</span>
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={handleSaveToProfile}
+            disabled={saving || !hasGames}
+            className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-primary/10 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all rounded-xl"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Guardando...</span>
+              </>
+            ) : saveSuccess ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                <span className="text-emerald-500">¡Guardado!</span>
+              </>
+            ) : (
+              <>
+                <Bookmark className="w-3.5 h-3.5" />
+                <span>Guardar en Perfil</span>
+              </>
+            )}
           </Button>
 
           <Button
