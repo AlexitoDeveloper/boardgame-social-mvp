@@ -45,7 +45,7 @@ export function MeetupDetailAttendees({
 
   return (
     <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-lg">
-      <CardHeader className="pb-3 border-b border-border/20 flex flex-row items-center justify-between">
+      <CardHeader className="p-4 sm:p-6 pb-3 border-b border-border/20 flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">Asistentes</CardTitle>
           <CardDescription className="text-xs font-semibold text-muted-foreground mt-0.5">
@@ -57,7 +57,7 @@ export function MeetupDetailAttendees({
         </Badge>
       </CardHeader>
       
-      <CardContent className="pt-4">
+      <CardContent className="p-4 pt-4 sm:p-6 sm:pt-6">
         <div className="max-h-[300px] overflow-y-auto pr-1.5 custom-scrollbar">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-1">
             {attendees.map((attendee) => {

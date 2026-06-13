@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
@@ -254,10 +254,27 @@ export function CreateMeetupPage() {
     : []
 
   return (
-    <section className="space-y-4 max-w-xl mx-auto p-4 pb-24">
+    <section className="space-y-4 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
+      
+      {/* Header bar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+        <Button 
+          type="button"
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
+          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver
+        </Button>
+        <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
+          {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
+        </span>
+      </div>
+
       <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl">
-          <CardHeader className="pb-4 border-b border-border/30 flex flex-row items-center justify-between gap-4">
+          <CardHeader className="p-4 pb-4 sm:p-6 sm:pb-4 border-b border-border/30">
             <div className="min-w-0">
               <CardTitle className="text-2xl font-extrabold tracking-tight text-primary truncate">
                 {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
@@ -266,17 +283,8 @@ export function CreateMeetupPage() {
                 {isEditMode ? 'Modifica los detalles de tu partida.' : 'Abre una mesa de juego para reunir jugadores en tu zona.'}
               </CardDescription>
             </div>
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
-              className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" /> Volver
-            </Button>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-4 pt-6 sm:p-6 sm:pt-6">
             
             {/* Stepper Wizard Header */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">

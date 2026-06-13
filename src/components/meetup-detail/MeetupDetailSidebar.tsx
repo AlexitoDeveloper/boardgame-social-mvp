@@ -286,12 +286,10 @@ export function MeetupDetailSidebar({
           </div>
           <Button
             onClick={() => navigate(`/chats?id=${meetup.id}`)}
-            variant="default"
-            className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
+            variant="outline"
+            className="w-full rounded-xl font-extrabold text-sm h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary flex items-center justify-center gap-2 cursor-pointer transition-all border"
           >
-            <span className="flex items-center gap-1.5 justify-center">
-              <MessageSquare className="w-4 h-4 text-white" /> Chat de la Partida
-            </span>
+            <MessageSquare className="w-4 h-4" /> Chat de la Partida
           </Button>
           <Button
             onClick={handleLeaveAsGuest}
@@ -377,12 +375,10 @@ export function MeetupDetailSidebar({
         <div className="space-y-3">
           <Button
             onClick={() => navigate(`/chats?id=${meetup.id}`)}
-            variant="default"
-            className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
+            variant="outline"
+            className="w-full rounded-xl font-extrabold text-sm h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary flex items-center justify-center gap-2 cursor-pointer transition-all border"
           >
-            <span className="flex items-center gap-1.5 justify-center">
-              <MessageSquare className="w-4 h-4 text-white" /> Chat de la Partida
-            </span>
+            <MessageSquare className="w-4 h-4" /> Chat de la Partida
           </Button>
           <Button
             onClick={handleJoinLeave}
@@ -425,7 +421,7 @@ export function MeetupDetailSidebar({
       
       {/* Action Card / Reservation & Admin Actions */}
       <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden">
-        <CardContent className="pt-5 space-y-5">
+        <CardContent className="p-4 pt-5 sm:p-6 sm:pt-5 space-y-5">
           {meetup.completed ? (
             renderCompletedSection()
           ) : isCompleting ? (
@@ -471,9 +467,9 @@ export function MeetupDetailSidebar({
                   <Button 
                     onClick={() => navigate(`/chats?id=${meetup.id}`)}
                     variant="outline"
-                    className="w-full rounded-xl font-extrabold h-11 border-border/60 hover:bg-primary/5 text-sm flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full rounded-xl font-extrabold h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary text-sm flex items-center justify-center gap-2 cursor-pointer transition-all border"
                   >
-                    <MessageSquare className="w-4 h-4 text-primary" /> Chat de la Partida
+                    <MessageSquare className="w-4 h-4" /> Chat de la Partida
                   </Button>
 
                   <Button 
@@ -539,10 +535,10 @@ export function MeetupDetailSidebar({
       {/* Boardgame Info Card */}
       {gameInfo && (
         <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden">
-          <CardHeader className="pb-3 border-b border-border/20">
+          <CardHeader className="p-4 pb-3 sm:p-6 sm:pb-3 border-b border-border/20">
             <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">Información del Juego</CardTitle>
           </CardHeader>
-          <CardContent className="pt-5 space-y-4">
+          <CardContent className="p-4 pt-5 sm:p-6 sm:pt-5 space-y-4">
             
             {/* Cover image in card */}
             {gameInfo.image_url ? (

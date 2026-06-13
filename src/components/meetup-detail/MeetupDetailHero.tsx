@@ -13,7 +13,7 @@ interface MeetupDetailHeroProps {
 
 export function MeetupDetailHero({ meetup, gameInfo, isPast, isFull, spotsRemaining }: MeetupDetailHeroProps) {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-border/30 bg-card/65 backdrop-blur-xl shadow-xl p-6 sm:p-8 flex flex-col md:flex-row gap-6 items-start md:items-center">
+    <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/30 bg-card/65 backdrop-blur-xl shadow-xl p-4 sm:p-8 flex flex-col md:flex-row gap-4 sm:gap-6 items-start md:items-center">
       
       {/* Game Mini Frame */}
       <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 relative rounded-2xl overflow-hidden bg-background/80 border border-border/40 p-1.5 flex items-center justify-center shadow-md bg-gradient-to-br from-primary/5 to-primary/10">
