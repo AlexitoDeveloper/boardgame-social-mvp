@@ -113,8 +113,8 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           title: foundMock.title,
           description: foundMock.description || '',
           date: foundMock.date,
-          location: foundMock.location,
-          city: 'Madrid', // valor por defecto para mock
+          location: foundMock.is_online ? null : foundMock.location,
+          city: foundMock.is_online ? null : 'Madrid', // valor por defecto para mock
           max_players: mockMaxPlayers,
           joined_players: mockJoinedPlayers,
           games: {
@@ -137,7 +137,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           winner_user_id: thisMeetupCompleted ? thisMeetupCompleted.winner_user_id : null,
           winner_guest_id: thisMeetupCompleted ? thisMeetupCompleted.winner_guest_id : null,
           attended_players: thisMeetupCompleted ? thisMeetupCompleted.attended_players : [],
-          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : []
+          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : [],
+          is_online: foundMock.is_online || false,
+          platform: foundMock.platform || null,
+          voice_link: foundMock.voice_link || null
         }
 
         setMeetup(formattedMock)

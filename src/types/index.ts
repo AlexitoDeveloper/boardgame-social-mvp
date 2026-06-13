@@ -27,8 +27,8 @@ export interface Meetup {
   game_id: number;
   title: string;
   description: string | null;
-  city: string;
-  location: string;
+  city: string | null;
+  location: string | null;
   date: string;
   max_players: number;
   joined_players: string[];
@@ -43,6 +43,9 @@ export interface Meetup {
   winner_guest_id?: string | null;
   attended_players?: string[];
   attended_guests?: string[];
+  is_online?: boolean;
+  platform?: string | null;
+  voice_link?: string | null;
 }
 
 export interface BggSearchResult {
