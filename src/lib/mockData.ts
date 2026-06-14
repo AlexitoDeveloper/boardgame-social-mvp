@@ -10,6 +10,9 @@ export interface MockMeetup {
   description: string;
   date: string;
   location: string;
+  is_online?: boolean;
+  platform?: string;
+  voice_link?: string;
   users: {
     username: string;
     avatar_url: string;
@@ -28,7 +31,7 @@ export function getMockMeetupsForList(): Meetup[] {
       guest_name: g.guest_name
     }))
     
-    const mockMaxPlayers = m.id === 'mock-m1' ? 4 : m.id === 'mock-m2' ? 2 : 6
+    const mockMaxPlayers = m.id === 'mock-m1' ? 4 : m.id === 'mock-m2' ? 2 : m.id === 'mock-m4' ? 5 : 6
     const initialRegistered = m.id === 'mock-m1' ? ['mock-u1', 'mock-u2', 'mock-u3', 'mock-u4'] : m.id === 'mock-m2' ? ['mock-u3', 'mock-u1'] : ['mock-u1']
 
     return {
@@ -37,8 +40,8 @@ export function getMockMeetupsForList(): Meetup[] {
       game_id: 1,
       title: m.title,
       description: m.description,
-      city: 'Madrid',
-      location: m.location,
+      city: m.is_online ? null : 'Madrid',
+      location: m.is_online ? null : m.location,
       date: m.date,
       max_players: mockMaxPlayers,
       joined_players: initialRegistered,
@@ -47,12 +50,17 @@ export function getMockMeetupsForList(): Meetup[] {
         username: m.users?.username || 'anónimo',
         avatar_url: m.users?.avatar_url || null
       },
-      games: {
-        bgg_id: 1,
-        title: m.game_name,
-        image_url: null
-      },
-      meetup_guests: guestsList
+      games: [
+        {
+          bgg_id: 1,
+          title: m.game_name,
+          image_url: null
+        }
+      ],
+      meetup_guests: guestsList,
+      is_online: m.is_online || false,
+      platform: m.platform || null,
+      voice_link: m.voice_link || null
     }
   })
 }
@@ -98,6 +106,19 @@ export const MOCK_MEETUPS: MockMeetup[] = [
       'Sesión para todos los niveles. Empezamos con Dixit para los novatos y cerramos con Código Secreto (Duet). ¡Apuntaos sin miedo!',
     date: new Date(Date.now() + 1000 * 60 * 60 * 200).toISOString(),
     location: 'Bar El Tablero, Barcelona',
+    users: { username: 'meeple_sara', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara' },
+  },
+  {
+    id: 'mock-m4',
+    title: 'Liga de BGA - Euro night',
+    game_name: 'Terraforming Mars',
+    description:
+      'Partida online de Terraforming Mars en Board Game Arena. Imprescindible tener micro, unirse a la llamada de voz y contar con usuario activo en BGA.',
+    date: new Date(Date.now() + 1000 * 60 * 60 * 72).toISOString(),
+    location: '',
+    is_online: true,
+    platform: 'Board Game Arena',
+    voice_link: 'https://discord.gg/invite/boardgame-social',
     users: { username: 'meeple_sara', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara' },
   },
 ]

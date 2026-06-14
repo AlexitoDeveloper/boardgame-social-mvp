@@ -1,6 +1,7 @@
 import { Crown, Sparkles, Check, Layout, Image, Eye, EyeOff } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
+import { Tabs } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Game } from '../../types'
 
@@ -44,24 +45,14 @@ export function TopsSettings({
           <CardDescription className="text-xs">Elige la estructura de tu lista.</CardDescription>
         </CardHeader>
         <CardContent className="pb-4">
-          <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
-            <Button 
-              size="sm" 
-              variant={mode === 'tier' ? 'default' : 'ghost'} 
-              onClick={() => { setMode('tier'); setSelectedGameForPlacement(null) }}
-              className="rounded-lg font-bold text-xs cursor-pointer"
-            >
-              Tier List
-            </Button>
-            <Button 
-              size="sm" 
-              variant={mode === 'top10' ? 'default' : 'ghost'} 
-              onClick={() => { setMode('top10'); setSelectedGameForPlacement(null) }}
-              className="rounded-lg font-bold text-xs cursor-pointer"
-            >
-              Top 10 List
-            </Button>
-          </div>
+          <Tabs
+            options={[
+              { id: 'tier', label: 'Tier List' },
+              { id: 'top10', label: 'Top 10 List' }
+            ]}
+            activeTab={mode}
+            onChange={(val) => { setMode(val); setSelectedGameForPlacement(null) }}
+          />
         </CardContent>
       </Card>
 
@@ -101,31 +92,20 @@ export function TopsSettings({
           </CardHeader>
           <CardContent className="pb-4 space-y-3">
             {/* 1. Ratio selector */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                <Layout className="w-3 h-3" /> Formato / Aspecto
+                <Layout className="w-3 h-3 text-primary" /> Formato / Aspecto
               </label>
-              <div className="grid grid-cols-2 gap-1">
-                {(['standard', 'square', 'story', 'landscape'] as const).map((ratio) => {
-                  const labels = {
-                    standard: 'Fluido',
-                    square: '1:1 (Post)',
-                    story: '9:16 (Story)',
-                    landscape: '16:9 (X)',
-                  }
-                  return (
-                    <Button
-                      key={ratio}
-                      size="sm"
-                      variant={aspectRatio === ratio ? 'default' : 'outline'}
-                      onClick={() => setAspectRatio(ratio)}
-                      className="text-[9px] font-extrabold h-7 rounded-lg cursor-pointer px-1 border-border/40"
-                    >
-                      {labels[ratio]}
-                    </Button>
-                  )
-                })}
-              </div>
+              <Tabs
+                options={[
+                  { id: 'standard', label: 'Fluido' },
+                  { id: 'square', label: '1:1' },
+                  { id: 'story', label: '9:16' },
+                  { id: 'landscape', label: '16:9' }
+                ]}
+                activeTab={aspectRatio}
+                onChange={setAspectRatio}
+              />
             </div>
 
             {/* 2. Gradient background selector */}

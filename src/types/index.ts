@@ -17,25 +17,25 @@ export interface Game {
   min_players?: number | null;
   max_players?: number | null;
   playing_time?: number | null;
-  created_at?: string;
-  updated_at?: string;
+  winner_user_id?: string | null;
+  winner_guest_id?: string | null;
 }
 
 export interface Meetup {
   id: string;
   creator_id: string;
-  game_id: number;
+  game_id?: number | null;
   title: string;
   description: string | null;
-  city: string;
-  location: string;
+  city: string | null;
+  location: string | null;
   date: string;
   max_players: number;
   joined_players: string[];
   created_at?: string;
   updated_at?: string;
   users?: UserProfile;
-  games?: Game | Game[];
+  games?: Game[];
   game_name?: string; // Usado en datos mock y compatibilidad
   meetup_guests?: { id: string; guest_name: string }[];
   completed?: boolean;
@@ -43,6 +43,9 @@ export interface Meetup {
   winner_guest_id?: string | null;
   attended_players?: string[];
   attended_guests?: string[];
+  is_online?: boolean;
+  platform?: string | null;
+  voice_link?: string | null;
 }
 
 export interface BggSearchResult {

@@ -117,24 +117,29 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
    - `year` (integer, opcional).
    - `image_url` (text, opcional).
    - `created_at` / `updated_at`.
-3. **`meetups`**:
+ 3. **`meetups`**:
    - `id` (uuid, clave primaria).
    - `creator_id` (uuid, clave foránea a `users`).
-   - `game_id` (integer, clave foránea a `games_cache`).
+   - `game_id` (integer, clave foránea a `games_cache`, **nullable** para compatibilidad retroactiva).
    - `title` (text, obligatorio).
    - `description` (text, opcional).
-   - `city` (text, obligatorio).
-   - `location` (text, obligatorio).
+   - `city` (text, **nullable** para sesiones online).
+   - `location` (text, **nullable** para sesiones online).
    - `date` (timestamptz, obligatorio).
    - `max_players` (integer, constraint entre 2 y 50).
    - `joined_players` (array de uuids, guarda los IDs de los asistentes).
    - `created_at` / `updated_at`.
    - *Constraint*: La cantidad de elementos en `joined_players` no puede exceder `max_players`.
+ 4. **`meetup_games`**:
+   - `meetup_id` (uuid, clave foránea a `meetups` con borrado en cascada).
+   - `game_id` (integer, clave foránea a `games_cache` con borrado en cascada).
+   - *Clave primaria compuesta*: `(meetup_id, game_id)`.
 
 ### Políticas RLS (Row Level Security)
 - **`users`**: Lectura libre para cualquier usuario. Modificación/eliminación restringida únicamente al propietario del perfil (`id = auth.uid()`).
 - **`games_cache`**: Lectura libre para cualquier usuario. Escritura permitida exclusivamente por el rol de servicio (`service_role`) para que las Edge Functions registren juegos buscados de forma segura.
 - **`meetups`**: Lectura libre. Inserción y eliminación permitidas sólo al creador (`creator_id = auth.uid()`). Actualizaciones permitidas para usuarios autenticados para que puedan sumarse/restarse en la lista de jugadores.
+- **`meetup_games`**: Lectura libre. Inserción y eliminación permitidas únicamente al creador del meetup asociado (`meetup_id` correspondiente a un meetup con `creator_id = auth.uid()`).
 
 ---
 
@@ -203,6 +208,8 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 | 2026-06-12 | Antigravity AI | Actualización | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3). |
 | 2026-06-12 | Antigravity AI | Actualización | Implementación del Chat Activo por Partida (Realtime) con Supabase Realtime y RLS. |
 | 2026-06-12 | Antigravity AI | Actualización | Implementación de Cierre de Partida (asistencia/ganador) y Perfil Básico (Win Rate / Karma). |
+| 2026-06-13 | Antigravity AI | Actualización | Implementación de Modalidad de Partida Online (Presencial/Online, plataforma, enlace de voz). |
+| 2026-06-13 | Antigravity AI | Actualización | Implementación de Sesiones Multijuego (1:N relacion, tabla meetup_games, listado de juegos/Por decidir). |
 
 ---
 
@@ -219,13 +226,18 @@ El desarrollo del proyecto se realizará de forma incremental dividiéndose en l
 ### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
 *Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
 - [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
-- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Implementado con Supabase Realtime y políticas RLS.
-- [x] **[GRATIS] Perfil Básico y Cierre de Partida:** Posibilidad de marcar una quedada como "Completada" eligiendo al ganador. El perfil mostrará el porcentaje de victorias global y el Karma (porcentaje de asistencia real).
+- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Centralizado en una página dedicada con badges de notificaciones.
+- [x] **[GRATIS] Escaparate de Jugador (Perfil Gamificado):** Perfil rediseñado con sistema de experiencia (XP) con desglose de rates, rango de jugador (Novato, Maestro, Leyenda), vitrina de logros interactiva y visualización/descarga de rankings guardados.
+- [x] **[GRATIS] Cierre de Partida e Historial:** Registro de asistencia real, cálculo de karma y ganador en el cierre de meetups (asociado a iconos de espadas de victoria, no coronas).
+- [x] **[GRATIS] Modalidad de Partida "Online":** Selector al crear el evento para elegir entre modalidad presencial u online (Board Game Arena, TTS, etc.), ocultando el campo de ubicación física y añadiendo campos para la plataforma y el enlace de voz (Discord/Meet).
+- [x] **[GRATIS] Sesiones Multijuego:** Transición del modelo "1 partida = 1 juego" a un modelo de "Sesión". Modificación de la tabla de meetups para aceptar un array de juegos (relación 1:N) y adaptación del flujo para permitir decidir el juego en el chat o registrar varios _fillers_ distintos bajo un mismo evento.
 
-### FASE 3: PULIDO Y MONETIZACIÓN (Sostenibilidad)
-*Objetivo: Añadir vías de ingresos pasivos y mejorar la experiencia de usuario final.*
-- [ ] **[SOSTENIBILIDAD] Afiliación Transparente:** Botón de "Comprar" en la ficha del juego con enlaces de referido a tiendas colaboradoras.
-- [ ] **[GRATIS] Filtros "Matchmaking":** Buscador avanzado de eventos locales filtrando por categorías y mecánicas en caché.
-- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas.
-- [ ] **[PREMIUM] Estadísticas Avanzadas (El Pique Sano):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
+### FASE 3: PULIDO Y GAMIFICACIÓN (El Pique Sano)
+*Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usuario final explotando los datos.*
+- [ ] **[GRATIS] Filtros "Matchmaking" Locales:** Buscador avanzado de eventos locales filtrando por categorías y mecánicas en caché.
+- [ ] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
+- [ ] **[VIRALIDAD] Resumen de Partida (Exportable):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
+- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego.
+- [ ] **[PREMIUM] Estadísticas Avanzadas:** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
+
 

@@ -31,7 +31,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   const [meetup, setMeetup] = useState<Meetup | null>(null)
   const [attendees, setAttendees] = useState<UserProfile[]>([])
   const [guestReservation, setGuestReservation] = useState<{ id: string, name: string } | null>(null)
-  const [gameInfo, setGameInfo] = useState<Game | null>(null)
+
   const [loading, setLoading] = useState<boolean>(true)
   const [joining, setJoining] = useState<boolean>(false)
   const [canceling, setCanceling] = useState<boolean>(false)
@@ -113,19 +113,33 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           title: foundMock.title,
           description: foundMock.description || '',
           date: foundMock.date,
-          location: foundMock.location,
-          city: 'Madrid', // valor por defecto para mock
+          location: foundMock.is_online ? null : foundMock.location,
+          city: foundMock.is_online ? null : 'Madrid', // valor por defecto para mock
           max_players: mockMaxPlayers,
           joined_players: mockJoinedPlayers,
-          games: {
+          games: [{
             bgg_id: Number(foundGame.bgg_id),
-            title: foundGame.name,
+            title: foundMock.game_name,
             year_published: foundGame.year,
             image_url: foundGame.image_url,
             min_players: foundGame.min_players || 2,
             max_players: foundGame.max_players || 4,
-            playing_time: foundGame.playing_time || 60
-          },
+            playing_time: foundGame.playing_time || 60,
+            winner_user_id: (() => {
+              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
+              const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
+              if (!winnerId) return null
+              const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
+              return isGuest ? null : winnerId
+            })(),
+            winner_guest_id: (() => {
+              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
+              const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
+              if (!winnerId) return null
+              const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
+              return isGuest ? winnerId : null
+            })()
+          }],
           users: {
             id: foundMock.users?.username === 'boardgamer_alex' ? 'mock-u1' : 'mock-u2',
             username: foundMock.users?.username || 'anónimo',
@@ -134,38 +148,45 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           creator_id: id === 'mock-m1' ? 'mock-u1' : id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
           game_id: Number(foundGame.bgg_id),
           completed: thisMeetupCompleted ? thisMeetupCompleted.completed : false,
-          winner_user_id: thisMeetupCompleted ? thisMeetupCompleted.winner_user_id : null,
-          winner_guest_id: thisMeetupCompleted ? thisMeetupCompleted.winner_guest_id : null,
           attended_players: thisMeetupCompleted ? thisMeetupCompleted.attended_players : [],
-          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : []
+          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : [],
+          is_online: foundMock.is_online || false,
+          platform: foundMock.platform || null,
+          voice_link: foundMock.voice_link || null
         }
 
         setMeetup(formattedMock)
         setAttendees(combinedMockAttendees)
         
-        // Handle raw games cache as array or single object
-        const mockRawGame = formattedMock.games
-        const mockParsedGame = Array.isArray(mockRawGame) ? mockRawGame[0] : mockRawGame
-        setGameInfo(mockParsedGame || null)
         setLoading(false)
       } else {
         // Query from Supabase
         try {
-          const { data, error } = await supabase
+           const { data, error } = await supabase
             .from('meetups')
-            .select('*, users:users!meetups_creator_id_fkey(*), games(*)')
+            .select('*, users:users!meetups_creator_id_fkey(*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*))')
             .eq('id', id)
             .single()
 
           if (error) throw error
           if (!data) throw new Error('Partida no encontrada.')
 
-          setMeetup(data as Meetup)
+          const mg = data.meetup_games || []
+          const mGames = mg.map((item: any) => {
+            if (!item.games) return null
+            return {
+              ...item.games,
+              winner_user_id: item.winner_user_id,
+              winner_guest_id: item.winner_guest_id
+            }
+          }).filter(Boolean) as Game[]
           
-          // Handle raw games join result as array or single object
-          const dbRawGame = data.games
-          const dbParsedGame = Array.isArray(dbRawGame) ? dbRawGame[0] : dbRawGame
-          setGameInfo((dbParsedGame as Game) || null)
+          const formattedMeetup: Meetup = {
+            ...data,
+            games: mGames
+          }
+
+          setMeetup(formattedMeetup)
 
           let sortedRegistered: UserProfile[] = []
 
@@ -187,7 +208,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           }
 
           // Fetch guests profiles
-          const { data: guests, error: guestsError } = await supabase
+          const { data: guests } = await supabase
             .from('meetup_guests')
             .select('id, guest_name, created_at')
             .eq('meetup_id', id)
@@ -254,7 +275,8 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   const handleShare = async () => {
     const url = window.location.href
     const title = meetup?.title || 'Partida de Juego de Mesa'
-    const text = `¡Únete a mi partida de ${gameInfo?.title || meetup?.game_name || 'juego de mesa'}!`
+    const mainGameName = meetup?.games?.[0]?.title || meetup?.game_name || 'juego de mesa'
+    const text = `¡Únete a mi partida de ${mainGameName}!`
 
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 
@@ -412,7 +434,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         if (profilesError) throw profilesError
 
         // Also fetch guests profiles to avoid wiping them out
-        const { data: guests, error: guestsError } = await supabase
+        const { data: guests } = await supabase
           .from('meetup_guests')
           .select('id, guest_name, created_at')
           .eq('meetup_id', meetup.id)
@@ -605,24 +627,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
   // Handle Complete Meetup (Close Match and Save stats)
   const handleCompleteMeetup = async (
-    winnerId: string | null,
+    gameWinners: Record<number, string | null>, // map of game bgg_id to winnerId
     attendedPlayerIds: string[],
     attendedGuestIds: string[]
   ) => {
     if (!id || !meetup) return
     const isMock = USE_MOCKS && id.startsWith('mock-')
-
-    let winnerUserId: string | null = null
-    let winnerGuestId: string | null = null
-
-    if (winnerId) {
-      const winnerIsGuest = attendees.find(a => a.id === winnerId)?.is_guest
-      if (winnerIsGuest) {
-        winnerGuestId = winnerId
-      } else {
-        winnerUserId = winnerId
-      }
-    }
 
     if (isMock) {
       const completedMockKey = 'boardgame_social_mock_completed_meetups'
@@ -631,45 +641,93 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
       completedMockData[id] = {
         completed: true,
-        winner_user_id: winnerUserId,
-        winner_guest_id: winnerGuestId,
+        game_winners: gameWinners,
         attended_players: attendedPlayerIds,
         attended_guests: attendedGuestIds
       }
 
       localStorage.setItem(completedMockKey, JSON.stringify(completedMockData))
 
-      setMeetup(prev => prev ? ({
-        ...prev,
-        completed: true,
-        winner_user_id: winnerUserId,
-        winner_guest_id: winnerGuestId,
-        attended_players: attendedPlayerIds,
-        attended_guests: attendedGuestIds
-      }) : null)
+      setMeetup(prev => {
+        if (!prev) return null
+        const updatedGames = (prev.games || []).map(g => {
+          const wId = gameWinners[g.bgg_id]
+          const isGuest = attendees.find(a => a.id === wId)?.is_guest
+          return {
+            ...g,
+            winner_user_id: wId && !isGuest ? wId : null,
+            winner_guest_id: wId && isGuest ? wId : null
+          }
+        })
+        return {
+          ...prev,
+          completed: true,
+          games: updatedGames,
+          attended_players: attendedPlayerIds,
+          attended_guests: attendedGuestIds
+        }
+      })
     } else {
       try {
-        const { error } = await supabase
+        // 1. Update the meetup status to completed and register attendance
+        const { error: meetupError } = await supabase
           .from('meetups')
           .update({
             completed: true,
-            winner_user_id: winnerUserId,
-            winner_guest_id: winnerGuestId,
             attended_players: attendedPlayerIds,
             attended_guests: attendedGuestIds
           })
           .eq('id', id)
 
-        if (error) throw error
+        if (meetupError) throw meetupError
 
-        setMeetup(prev => prev ? ({
-          ...prev,
-          completed: true,
-          winner_user_id: winnerUserId,
-          winner_guest_id: winnerGuestId,
-          attended_players: attendedPlayerIds,
-          attended_guests: attendedGuestIds
-        }) : null)
+        // 2. Update each game's winner in meetup_games
+        for (const [bggIdStr, wId] of Object.entries(gameWinners)) {
+          const bggId = Number(bggIdStr)
+          let winnerUserId: string | null = null
+          let winnerGuestId: string | null = null
+
+          if (wId) {
+            const isGuest = attendees.find(a => a.id === wId)?.is_guest
+            if (isGuest) {
+              winnerGuestId = wId
+            } else {
+              winnerUserId = wId
+            }
+          }
+
+          const { error: relError } = await supabase
+            .from('meetup_games')
+            .update({
+              winner_user_id: winnerUserId,
+              winner_guest_id: winnerGuestId
+            })
+            .eq('meetup_id', id)
+            .eq('game_id', bggId)
+
+          if (relError) throw relError
+        }
+
+        // 3. Update local state
+        setMeetup(prev => {
+          if (!prev) return null
+          const updatedGames = (prev.games || []).map(g => {
+            const wId = gameWinners[g.bgg_id]
+            const isGuest = attendees.find(a => a.id === wId)?.is_guest
+            return {
+              ...g,
+              winner_user_id: wId && !isGuest ? wId : null,
+              winner_guest_id: wId && isGuest ? wId : null
+            }
+          })
+          return {
+            ...prev,
+            completed: true,
+            games: updatedGames,
+            attended_players: attendedPlayerIds,
+            attended_guests: attendedGuestIds
+          }
+        })
       } catch (err: any) {
         console.error('Error completing meetup:', err)
         setErrorMsg('Error al cerrar la partida.')
@@ -680,7 +738,6 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   return {
     meetup,
     attendees,
-    gameInfo,
     loading,
     joining,
     canceling,

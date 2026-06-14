@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { Tabs } from '../components/ui/tabs'
 import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Trash2, X } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
-import { Command, CommandInput, CommandList, CommandItem } from '../components/ui/command'
-import { useClickOutside } from '../hooks/useClickOutside'
+import { GameSearchBar } from '../components/GameSearchBar'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -47,22 +47,20 @@ export function CreateMeetupPage() {
   // Game Search State
   const [searchQuery, setSearchQuery] = useState('')
   const [games, setGames] = useState<Game[]>([])
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null)
+  const [selectedGames, setSelectedGames] = useState<Game[]>([])
+  const [showDetails, setShowDetails] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
 
-  const searchContainerRef = useRef<HTMLDivElement>(null)
 
-  useClickOutside(
-    searchContainerRef,
-    () => setGames([]),
-    games.length > 0
-  )
 
   // Form Fields State
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [isOnline, setIsOnline] = useState(false)
   const [city, setCity] = useState('')
   const [location, setLocation] = useState('')
+  const [platform, setPlatform] = useState('')
+  const [voiceLink, setVoiceLink] = useState('')
   const [date, setDate] = useState('')
   const [maxPlayers, setMaxPlayers] = useState('4')
 
@@ -120,33 +118,47 @@ export function CreateMeetupPage() {
         if (foundMock) {
           setTitle(foundMock.title || '')
           setDescription(foundMock.description || '')
-          setCity('Madrid') // default city for mocks
-          setLocation(foundMock.location || '')
+          
+          const isOnlineMock = foundMock.is_online || false
+          setIsOnline(isOnlineMock)
+          if (isOnlineMock) {
+            setPlatform(foundMock.platform || '')
+            setVoiceLink(foundMock.voice_link || '')
+            setCity('')
+            setLocation('')
+          } else {
+            setCity('Madrid') // default city for mocks
+            setLocation(foundMock.location || '')
+            setPlatform('')
+            setVoiceLink('')
+          }
+          
           setDate(foundMock.date || '')
           setMaxPlayers('4') // default max_players
           
           const foundGame = MOCK_BGG_GAMES.find(g => g.name === foundMock.game_name)
           if (foundGame) {
-            setSelectedGame({
+            setSelectedGames([{
               bgg_id: Number(foundGame.bgg_id),
               title: foundGame.name,
               year_published: foundGame.year,
               image_url: foundGame.image_url
-            })
+            }])
           } else {
-            setSelectedGame({
+            setSelectedGames([{
               bgg_id: 13,
               title: foundMock.game_name,
               year_published: 2020,
               image_url: null
-            })
+            }])
           }
+          setShowDetails(true)
         }
       } else {
         try {
           const { data, error } = await supabase
             .from('meetups')
-            .select('*, games(*)')
+            .select('*, meetup_games(game_id, winner_user_id, winner_guest_id, games(*))')
             .eq('id', id)
             .single()
 
@@ -154,14 +166,36 @@ export function CreateMeetupPage() {
           if (data) {
             setTitle(data.title)
             setDescription(data.description || '')
-            setCity(data.city)
-            setLocation(data.location)
+            
+            const isOnlineVal = data.is_online || false
+            setIsOnline(isOnlineVal)
+            if (isOnlineVal) {
+              setPlatform(data.platform || '')
+              setVoiceLink(data.voice_link || '')
+              setCity('')
+              setLocation('')
+            } else {
+              setCity(data.city || '')
+              setLocation(data.location || '')
+              setPlatform('')
+              setVoiceLink('')
+            }
+            
             setDate(data.date)
             setMaxPlayers(String(data.max_players))
             
-            const rawGame = data.games
-            const parsedGame = Array.isArray(rawGame) ? rawGame[0] : rawGame
-            setSelectedGame((parsedGame as Game) || null)
+            const mg = data.meetup_games || []
+            const mGames = mg.map((item: any) => {
+              if (!item.games) return null
+              return {
+                ...item.games,
+                winner_user_id: item.winner_user_id,
+                winner_guest_id: item.winner_guest_id
+              }
+            }).filter(Boolean) as Game[]
+            
+            setSelectedGames(mGames)
+            setShowDetails(true)
           }
         } catch (err) {
           console.error("Error loading meetup for edit:", err)
@@ -197,8 +231,15 @@ export function CreateMeetupPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!selectedGame) {
-      setErrorMsg('Debes seleccionar un juego para la partida.')
+
+    const selectedDate = new Date(date)
+    if (isNaN(selectedDate.getTime())) {
+      setErrorMsg('La fecha seleccionada no es válida.')
+      return
+    }
+
+    if (selectedDate.getTime() < Date.now()) {
+      setErrorMsg('No puedes programar una partida en el pasado. Selecciona una fecha y hora futura.')
       return
     }
 
@@ -218,33 +259,70 @@ export function CreateMeetupPage() {
           const { error: updateError } = await supabase
             .from('meetups')
             .update({
-              game_id: selectedGame.bgg_id,
               title: title.trim(),
               description: description.trim() || null,
-              city: city.trim(),
-              location: location.trim(),
+              is_online: isOnline,
+              city: isOnline ? null : city.trim(),
+              location: isOnline ? null : location.trim(),
+              platform: isOnline ? platform.trim() : null,
+              voice_link: isOnline ? voiceLink.trim() : null,
               date: new Date(date).toISOString(),
               max_players: Number(maxPlayers)
             })
             .eq('id', id)
 
           if (updateError) throw new Error(`Error al actualizar la partida: ${updateError.message}`)
+
+          // Delete existing relations
+          const { error: deleteError } = await supabase
+            .from('meetup_games')
+            .delete()
+            .eq('meetup_id', id)
+
+          if (deleteError) console.error("Error deleting old relations:", deleteError)
+
+          // Insert new relations
+          if (selectedGames.length > 0) {
+            const relationRows = selectedGames.map(g => ({
+              meetup_id: id,
+              game_id: g.bgg_id
+            }))
+            const { error: relError } = await supabase.from('meetup_games').insert(relationRows)
+            if (relError) throw relError
+          }
         }
         navigate(`/tablero/${id}`)
       } else {
-        const { error: insertError } = await supabase.from('meetups').insert({
-          creator_id: userId,
-          game_id: selectedGame.bgg_id,
-          title: title.trim(),
-          description: description.trim() || null,
-          city: city.trim(),
-          location: location.trim(),
-          date: new Date(date).toISOString(),
-          max_players: Number(maxPlayers),
-          joined_players: [userId] // The creator joins their own meetup automatically
-        })
+        const { data: insertData, error: insertError } = await supabase
+          .from('meetups')
+          .insert({
+            creator_id: userId,
+            title: title.trim(),
+            description: description.trim() || null,
+            is_online: isOnline,
+            city: isOnline ? null : city.trim(),
+            location: isOnline ? null : location.trim(),
+            platform: isOnline ? platform.trim() : null,
+            voice_link: isOnline ? voiceLink.trim() : null,
+            date: new Date(date).toISOString(),
+            max_players: Number(maxPlayers),
+            joined_players: [userId] // The creator joins their own meetup automatically
+          })
+          .select('id')
+          .single()
 
         if (insertError) throw new Error(`Error al abrir la mesa: ${insertError.message}`)
+
+        // Insert relations
+        if (insertData && selectedGames.length > 0) {
+          const relationRows = selectedGames.map(g => ({
+            meetup_id: insertData.id,
+            game_id: g.bgg_id
+          }))
+          const { error: relError } = await supabase.from('meetup_games').insert(relationRows)
+          if (relError) throw relError
+        }
+
         navigate('/')
       }
     } catch (err: any) {
@@ -261,10 +339,27 @@ export function CreateMeetupPage() {
     : []
 
   return (
-    <section className="space-y-4 max-w-xl mx-auto p-4 pb-24">
+    <section className="space-y-4 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
+      
+      {/* Header bar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+        <Button 
+          type="button"
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
+          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver
+        </Button>
+        <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
+          {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
+        </span>
+      </div>
+
       <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl">
-          <CardHeader className="pb-4 border-b border-border/30 flex flex-row items-center justify-between gap-4">
+          <CardHeader className="p-4 pb-4 sm:p-6 sm:pb-4 border-b border-border/30">
             <div className="min-w-0">
               <CardTitle className="text-2xl font-extrabold tracking-tight text-primary truncate">
                 {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
@@ -273,29 +368,20 @@ export function CreateMeetupPage() {
                 {isEditMode ? 'Modifica los detalles de tu partida.' : 'Abre una mesa de juego para reunir jugadores en tu zona.'}
               </CardDescription>
             </div>
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
-              className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" /> Volver
-            </Button>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-4 pt-6 sm:p-6 sm:pt-6">
             
             {/* Stepper Wizard Header */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">
-              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!selectedGame ? 'text-primary' : 'text-success/90'}`}>
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
-                  {!selectedGame ? '1' : '✓'}
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!showDetails ? 'text-primary' : 'text-success/90'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
+                  {selectedGames.length > 0 ? '✓' : '1'}
                 </span>
-                <span>Seleccionar Juego</span>
+                <span>Seleccionar Juegos</span>
               </div>
               <div className="w-8 sm:w-16 h-px bg-border/40" />
-              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${selectedGame ? 'text-primary' : 'text-muted-foreground/60'}`}>
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${showDetails ? 'text-primary' : 'text-muted-foreground/60'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
                   2
                 </span>
                 <span>Detalles de la Partida</span>
@@ -318,72 +404,99 @@ export function CreateMeetupPage() {
             </AnimatePresence>
 
             <AnimatePresence mode="wait">
-              {!selectedGame ? (
+              {!showDetails ? (
                 <MotionDiv 
                   key="search-stage"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
                 >
                   <div className="space-y-3">
-                    <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
-                    <div ref={searchContainerRef} className="relative z-20">
-                      <Command shouldFilter={false} className="overflow-visible bg-transparent border-0 shadow-none">
-                        <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
-                          <div className="flex-1">
-                            <CommandInput 
-                              placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)" 
-                              value={searchQuery}
-                              onValueChange={setSearchQuery}
-                              className="h-10 text-sm border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent"
-                            />
-                          </div>
-                          {isSearching && (
-                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0" />
-                          )}
-                        </div>
+                    <Label className="text-foreground/80 font-bold text-sm">Busca y añade juegos de mesa a la sesión</Label>
+                    <GameSearchBar
+                      searchQuery={searchQuery}
+                      setSearchQuery={setSearchQuery}
+                      games={games}
+                      setGames={setGames}
+                      isSearching={isSearching}
+                      placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
+                      onSelectGame={(game) => {
+                        setSelectedGames(prev => {
+                          if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+                          return [...prev, game]
+                        })
+                      }}
+                      isGameDisabled={(game) => selectedGames.some(g => g.bgg_id === game.bgg_id)}
+                      closeOnSelect={false}
+                    />
+                  </div>
 
-                        <AnimatePresence>
-                          {games.length > 0 && (
-                            <MotionDiv 
-                              initial={{ opacity: 0, y: -4 }} 
-                              animate={{ opacity: 1, y: 0 }} 
-                              exit={{ opacity: 0, y: -4 }}
-                              className="absolute z-50 left-0 right-0 top-full mt-1.5 shadow-2xl"
-                            >
-                              <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
-                                <CommandList className="max-h-56 custom-scrollbar divide-y divide-border/40">
-                                  {games.map(g => (
-                                    <CommandItem 
-                                      key={g.bgg_id} 
-                                      className="p-3 flex items-center justify-between cursor-pointer transition-colors text-foreground hover:bg-muted hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
-                                      onSelect={() => {
-                                        setSelectedGame(g)
-                                        setGames([]) // Clear list to close dropdown
-                                      }}
-                                    >
-                                      <div className="flex items-center gap-3 pointer-events-none">
-                                        {g.image_url ? (
-                                          <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm" />
-                                        ) : (
-                                          <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-bold text-muted-foreground">?</div>
-                                        )}
-                                        <span className="font-semibold text-sm text-left">
-                                          {g.title} 
-                                          <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                                            {g.year_published || 'Año desc.'}
-                                          </span>
-                                        </span>
-                                      </div>
-                                    </CommandItem>
-                                  ))}
-                                </CommandList>
-                              </div>
-                            </MotionDiv>
-                          )}
-                        </AnimatePresence>
-                      </Command>
+                  {/* Shelf (Bandeja de Juegos) */}
+                  <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3 relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-xs text-muted-foreground font-black uppercase tracking-wider block">Juegos en Bandeja ({selectedGames.length})</Label>
+                      {selectedGames.length > 0 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          type="button"
+                          onClick={() => setSelectedGames([])}
+                          className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Vaciar
+                        </Button>
+                      )}
                     </div>
+
+                    {selectedGames.length === 0 ? (
+                      <div className="text-center py-6 border border-dashed border-border/50 rounded-lg bg-background/30 text-muted-foreground text-xs font-semibold">
+                        Los juegos añadidos aparecerán aquí.
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent min-h-[72px] border border-transparent rounded-lg">
+                        <AnimatePresence initial={false}>
+                          {selectedGames.map((game) => (
+                            <motion.div
+                              key={game.bgg_id}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              layout
+                              className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
+                            >
+                              {game.image_url ? (
+                                <img src={game.image_url} alt={game.title} className="w-full h-full object-cover pointer-events-none" />
+                              ) : (
+                                <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
+                                  {game.title}
+                                </div>
+                              )}
+                              
+                              <button
+                                type="button"
+                                onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-background/90 hover:bg-destructive hover:text-destructive-foreground border border-border rounded-full flex items-center justify-center text-[9px] text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                                title={`Quitar ${game.title}`}
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Continue Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/20">
+                    <Button 
+                      type="button"
+                      onClick={() => setShowDetails(true)}
+                      className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
+                    >
+                      {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego (Decidir en el chat)'}
+                    </Button>
                   </div>
                 </MotionDiv>
               ) : (
@@ -395,24 +508,26 @@ export function CreateMeetupPage() {
                   onSubmit={handleSubmit} 
                   className="space-y-5"
                 >
-                  {/* Selected Game Card Header */}
-                  <div className="flex items-center justify-between p-4 border border-primary/20 rounded-xl bg-primary/5 shadow-inner">
-                    <div className="flex items-center gap-3">
-                      {selectedGame.image_url ? (
-                        <img src={selectedGame.image_url} alt={selectedGame.title} className="w-12 h-12 rounded object-contain bg-background/50 border border-border/30 p-0.5 shadow-sm" />
-                      ) : (
-                        <div className="bg-primary/20 p-2 rounded-full text-primary">
-                          <CheckCircle2 className="w-6 h-6" />
-                        </div>
-                      )}
-                      <div>
-                        <Label className="text-xs text-primary uppercase font-bold mb-0.5 block">Juego de la Partida</Label>
-                        <p className="font-extrabold text-foreground leading-tight">{selectedGame.title}</p>
-                      </div>
+                  {/* Selected Games Showcase Frame */}
+                  <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3">
+                    <div className="flex justify-between items-center border-b border-border/20 pb-2">
+                      <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Juegos de la Sesión</Label>
+                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="rounded-full text-xs h-8 border-border/50 cursor-pointer">
+                        Añadir/Cambiar
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm" type="button" onClick={() => setSelectedGame(null)} className="rounded-full text-xs h-8 border-border/50">
-                      Cambiar Juego
-                    </Button>
+                    {selectedGames.length === 0 ? (
+                      <p className="text-xs font-medium text-muted-foreground italic">Por decidir en el chat (ningún juego fijo aún).</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedGames.map(game => (
+                          <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                            {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
+                            <span>{game.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Title */}
@@ -440,65 +555,124 @@ export function CreateMeetupPage() {
                     />
                   </div>
 
-                  {/* City & Location Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    {/* City Input with Autocomplete */}
-                    <div className="space-y-1.5 relative">
-                      <Label htmlFor="city" className="font-bold flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
-                      </Label>
-                      <Input 
-                        id="city"
-                        placeholder="Ej: Madrid, Barcelona..."
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
-                        value={city}
-                        onChange={(e) => {
-                          setCity(e.target.value)
-                          setShowCitySuggestions(true)
-                        }}
-                        onFocus={() => setShowCitySuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                        required 
-                        autoComplete="off"
-                      />
-                      <AnimatePresence>
-                        {showCitySuggestions && suggestions.length > 0 && (
-                          <MotionDiv
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
-                          >
-                            {suggestions.slice(0, 8).map((suggestion, idx) => (
-                              <div
-                                key={idx}
-                                className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
-                                onMouseDown={() => {
-                                  setCity(suggestion)
-                                  setShowCitySuggestions(false)
-                                }}
-                              >
-                                {suggestion}
-                              </div>
-                            ))}
-                          </MotionDiv>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>
-                      <Input 
-                        id="location"
-                        placeholder="Ej: Café Central, Calle Mayor 5..."
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        required 
-                      />
-                    </div>
+                  {/* Modality Selector */}
+                  <div className="space-y-1.5">
+                    <Label className="font-bold">Modalidad de la Partida</Label>
+                    <Tabs
+                      options={[
+                        { id: 'presencial', label: 'Presencial', icon: MapPin },
+                        { id: 'online', label: 'Online', icon: Laptop }
+                      ]}
+                      activeTab={isOnline ? 'online' : 'presencial'}
+                      onChange={(val) => setIsOnline(val === 'online')}
+                    />
                   </div>
+
+                  {/* City/Location vs Platform/Voice Link conditional rendering with animation */}
+                  <AnimatePresence mode="wait">
+                    {!isOnline ? (
+                      <MotionDiv
+                        key="presencial-fields"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      >
+                        {/* City Input with Autocomplete */}
+                        <div className="space-y-1.5 relative">
+                          <Label htmlFor="city" className="font-bold flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
+                          </Label>
+                          <Input 
+                            id="city"
+                            placeholder="Ej: Madrid, Barcelona..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={city}
+                            onChange={(e) => {
+                              setCity(e.target.value)
+                              setShowCitySuggestions(true)
+                            }}
+                            onFocus={() => setShowCitySuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                            required 
+                            autoComplete="off"
+                          />
+                          <AnimatePresence>
+                            {showCitySuggestions && suggestions.length > 0 && (
+                              <MotionDiv
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
+                              >
+                                {suggestions.slice(0, 8).map((suggestion, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
+                                    onMouseDown={() => {
+                                      setCity(suggestion)
+                                      setShowCitySuggestions(false)
+                                    }}
+                                  >
+                                    {suggestion}
+                                  </div>
+                                ))}
+                              </MotionDiv>
+                            )}
+                          </AnimatePresence>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>
+                          <Input 
+                            id="location"
+                            placeholder="Ej: Café Central, Calle Mayor 5..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            required 
+                          />
+                        </div>
+                      </MotionDiv>
+                    ) : (
+                      <MotionDiv
+                        key="online-fields"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.2 }}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      >
+                        <div className="space-y-1.5">
+                          <Label htmlFor="platform" className="font-bold flex items-center gap-1">
+                            <Laptop className="w-3.5 h-3.5 text-primary" /> Plataforma Online
+                          </Label>
+                          <Input 
+                            id="platform"
+                            placeholder="Ej: Board Game Arena, TTS, Discord..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={platform}
+                            onChange={(e) => setPlatform(e.target.value)}
+                            required 
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="voiceLink" className="font-bold flex items-center gap-1">
+                            <PhoneCall className="w-3.5 h-3.5 text-primary" /> Enlace de Voz (Opcional)
+                          </Label>
+                          <Input 
+                            id="voiceLink"
+                            placeholder="Ej: https://discord.gg/... o meet.google.com/..."
+                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
+                            value={voiceLink}
+                            onChange={(e) => setVoiceLink(e.target.value)}
+                          />
+                        </div>
+                      </MotionDiv>
+                    )}
+                  </AnimatePresence>
 
                   {/* Date & Max Players Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

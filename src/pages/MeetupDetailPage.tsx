@@ -15,6 +15,7 @@ import { MeetupDetailHero } from '../components/meetup-detail/MeetupDetailHero'
 import { MeetupDetailDescription } from '../components/meetup-detail/MeetupDetailDescription'
 import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailAttendees'
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
+import { MeetupDetailOnline } from '../components/meetup-detail/MeetupDetailOnline'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
 
 export function MeetupDetailPage() {
@@ -25,7 +26,6 @@ export function MeetupDetailPage() {
   const {
     meetup,
     attendees,
-    gameInfo,
     loading,
     joining,
     canceling,
@@ -73,34 +73,34 @@ export function MeetupDetailPage() {
   const isPast = new Date(meetup.date).getTime() < new Date().getTime()
 
   return (
-    <section className="space-y-6 max-w-4xl mx-auto p-4 pb-24">
+    <section className="space-y-6 max-w-4xl mx-auto p-0 pb-6 md:p-4 md:pb-24">
       
-      {/* Back navigation and share toolbar */}
-      <div className="flex items-center justify-between">
+      {/* Back navigation and share toolbar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => navigate('/')} 
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Volver al Tablero</span><span className="xs:hidden">Volver</span>
         </Button>
         
         <Button
           variant="outline"
           size="sm"
           onClick={handleShare}
-          className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer"
+          className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer bg-card px-3"
         >
           {copySuccess ? (
             <>
               <Check className="w-4 h-4 text-success" />
-              <span className="text-success font-semibold">¡Enlace Copiado!</span>
+              <span className="text-success font-semibold">¡Copiado!</span>
             </>
           ) : (
             <>
               <Share2 className="w-4 h-4 text-primary" />
-              <span>Compartir Partida</span>
+              <span>Compartir</span>
             </>
           )}
         </Button>
@@ -109,7 +109,6 @@ export function MeetupDetailPage() {
       {/* Hero Header component */}
       <MeetupDetailHero
         meetup={meetup}
-        gameInfo={gameInfo}
         isPast={isPast}
         isFull={isFull}
         spotsRemaining={spotsRemaining}
@@ -134,11 +133,19 @@ export function MeetupDetailPage() {
             guestReservationId={guestReservation?.id}
           />
 
-          {/* Location details card & Google Map locator */}
-          <MeetupDetailLocation
-            location={meetup.location}
-            city={meetup.city}
-          />
+          {/* Location details card or Online Logistics */}
+          {meetup.is_online ? (
+            <MeetupDetailOnline
+              platform={meetup.platform || ''}
+              voiceLink={meetup.voice_link}
+              isAuthorized={isJoined || isCreator || Boolean(guestReservation)}
+            />
+          ) : (
+            <MeetupDetailLocation
+              location={meetup.location || ''}
+              city={meetup.city || ''}
+            />
+          )}
 
 
         </div>
@@ -146,7 +153,6 @@ export function MeetupDetailPage() {
         {/* Right Columns - Sidebar */}
         <MeetupDetailSidebar
           meetup={meetup}
-          gameInfo={gameInfo}
           attendees={attendees}
           isPast={isPast}
           isCreator={isCreator}

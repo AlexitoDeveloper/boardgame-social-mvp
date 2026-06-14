@@ -7,7 +7,7 @@ import { getMockMeetupsForList } from '../lib/mockData'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { MeetupCard } from '../components/MeetupCard'
-import { Meetup } from '../types'
+import { Game, Meetup } from '../types'
 import { USE_MOCKS } from '../lib/config'
 
 const MotionDiv = motion.div
@@ -60,7 +60,7 @@ export function RadarPage() {
 
         const { data, error } = await supabase
           .from('meetups')
-          .select(`*, users:users!meetups_creator_id_fkey (*), games (*), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
+          .select(`*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
           .eq('completed', false) // only active/open meetups
           .gte('date', new Date().toISOString()) // filter out past events
           .order('date', { ascending: true }) // closest future events first
@@ -69,7 +69,22 @@ export function RadarPage() {
           console.error("Error fetching meetups:", error)
           setMeetups([])
         } else {
-          setMeetups(data?.length ? (data as Meetup[]) : [])
+          const formatted = (data || []).map((m: any) => {
+            const mg = m.meetup_games || []
+            const mGames = mg.map((item: any) => {
+              if (!item.games) return null
+              return {
+                ...item.games,
+                winner_user_id: item.winner_user_id,
+                winner_guest_id: item.winner_guest_id
+              }
+            }).filter(Boolean) as Game[]
+            return {
+              ...m,
+              games: mGames
+            }
+          })
+          setMeetups(formatted as Meetup[])
         }
       } catch (err) {
         console.error("Unexpected error:", err)
@@ -146,7 +161,7 @@ export function RadarPage() {
       {/* Mobile Floating Action Button (FAB) for opening tables */}
       <Link 
         to="/tablero/new" 
-        className="sm:hidden fixed bottom-24 right-5 z-40"
+        className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
       >
         <Button 
           className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"

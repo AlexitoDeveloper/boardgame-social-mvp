@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Meetup, UserProfile, Game } from '../types'
 import { getMockMeetupsForList } from '../lib/mockData'
 import { Button } from '../components/ui/button'
+import { Tabs } from '../components/ui/tabs'
 import { USE_MOCKS } from '../lib/config'
 import { Card, CardContent } from '../components/ui/card'
 import { toPng } from 'html-to-image'
@@ -29,11 +30,18 @@ import {
   Sparkles,
   X,
   Plus,
-  Info
+  Info,
+  Edit,
+  User,
+  Camera
 } from 'lucide-react'
+import imageCompression from 'browser-image-compression'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
 
 const MotionDiv = motion.div
 
@@ -183,6 +191,178 @@ export function ProfilePage() {
 
   const profileId = id || user?.id || ''
   const isOwnProfile = profileId === user?.id
+  const isOwnProfileEditable = isOwnProfile || (USE_MOCKS && profileId.startsWith('mock-'))
+
+  // Edit Profile States
+  const [isEditing, setIsEditing] = useState(false)
+  const [editUsername, setEditUsername] = useState('')
+  const [editCity, setEditCity] = useState('')
+  const [editAvatarUrl, setEditAvatarUrl] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [editError, setEditError] = useState('')
+  const [uploadingFile, setUploadingFile] = useState(false)
+
+  const handleOpenEdit = () => {
+    if (!profile) return
+    setEditUsername(profile.username || '')
+    setEditCity(profile.city || '')
+    setEditAvatarUrl(profile.avatar_url || '')
+    setEditError('')
+    setIsEditing(true)
+  }
+
+  const handleRandomAvatar = () => {
+    const randomSeed = Math.random().toString(36).substring(2, 9)
+    setEditAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`)
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingFile(true)
+    setEditError('')
+
+    try {
+      // 1. Process image compression using browser-image-compression
+      const options = {
+        maxSizeMB: 0.1, // ~100KB maximum size
+        maxWidthOrHeight: 256, // limit width/height to 256px
+        useWebWorker: true,
+      }
+      
+      const compressedFile = await imageCompression(file, options)
+
+      const isMock = USE_MOCKS && profileId.startsWith('mock-')
+
+      if (isMock) {
+        // Mock Mode: Convert to Base64
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            setEditAvatarUrl(reader.result)
+          }
+          setUploadingFile(false)
+        }
+        reader.onerror = () => {
+          setEditError('Error al procesar el archivo en modo de demostración.')
+          setUploadingFile(false)
+        }
+        reader.readAsDataURL(compressedFile)
+      } else {
+        // Real Mode: Upload to Supabase Storage with local Base64 fallback
+        try {
+          if (!user) throw new Error('Usuario no autenticado.')
+          
+          const fileExt = file.name.split('.').pop() || 'png'
+          const filePath = `public/${user.id}/${Date.now()}.${fileExt}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, compressedFile, {
+              upsert: true,
+              contentType: compressedFile.type || 'image/png'
+            })
+
+          if (uploadError) throw uploadError
+
+          const { data } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath)
+
+          if (!data?.publicUrl) throw new Error('No se pudo obtener la URL pública del avatar.')
+
+          setEditAvatarUrl(data.publicUrl)
+          setUploadingFile(false)
+        } catch (err: any) {
+          console.warn('Fallo en la subida a Supabase Storage, aplicando fallback a Base64:', err)
+          // Fallback to Base64 direct storage in database if bucket fails or isn't set up
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            if (typeof reader.result === 'string') {
+              setEditAvatarUrl(reader.result)
+            }
+            setUploadingFile(false)
+          }
+          reader.onerror = () => {
+            setEditError('Error al convertir el avatar a Base64.')
+            setUploadingFile(false)
+          }
+          reader.readAsDataURL(compressedFile)
+        }
+      }
+    } catch (err: any) {
+      console.error('Error al procesar la imagen:', err)
+      setEditError(err.message || 'Error al comprimir o procesar la imagen.')
+      setUploadingFile(false)
+    }
+  }
+
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editUsername.trim() || !profile) return
+    setSavingProfile(true)
+    setEditError('')
+
+    const isMock = USE_MOCKS && profileId.startsWith('mock-')
+
+    if (isMock) {
+      setTimeout(() => {
+        const updated: UserProfile = {
+          ...profile,
+          username: editUsername.trim(),
+          city: editCity.trim() || null,
+          avatar_url: editAvatarUrl.trim() || null
+        }
+        setProfile(updated)
+        localStorage.setItem(`boardgame_social_mock_profile_${profileId}`, JSON.stringify(updated))
+        MOCK_PROFILES[profileId] = updated
+        window.dispatchEvent(new Event('profile_update'))
+        setSavingProfile(false)
+        setIsEditing(false)
+      }, 600)
+    } else {
+      try {
+        if (!user) throw new Error('Usuario no autenticado.')
+
+        const { error: dbError } = await supabase
+          .from('users')
+          .update({
+            username: editUsername.trim(),
+            city: editCity.trim() || null,
+            avatar_url: editAvatarUrl.trim() || null
+          })
+          .eq('id', user.id)
+
+        if (dbError) throw dbError
+
+        const { error: authError } = await supabase.auth.updateUser({
+          data: {
+            username: editUsername.trim(),
+            avatar_url: editAvatarUrl.trim() || null
+          }
+        })
+
+        if (authError) throw authError
+
+        const updated: UserProfile = {
+          ...profile,
+          username: editUsername.trim(),
+          city: editCity.trim() || null,
+          avatar_url: editAvatarUrl.trim() || null
+        }
+        setProfile(updated)
+        window.dispatchEvent(new Event('profile_update'))
+        setIsEditing(false)
+      } catch (err: any) {
+        console.error('Error updating profile:', err)
+        setEditError(err.message || 'Error al guardar los cambios de perfil.')
+      } finally {
+        setSavingProfile(false)
+      }
+    }
+  }
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [meetups, setMeetups] = useState<Meetup[]>([])
@@ -247,7 +427,8 @@ export function ProfilePage() {
 
       // 2. Fetch User Profile and Meetups
       if (isMock) {
-        const mockProf = MOCK_PROFILES[profileId]
+        const localMockStr = localStorage.getItem(`boardgame_social_mock_profile_${profileId}`)
+        let mockProf = localMockStr ? JSON.parse(localMockStr) : MOCK_PROFILES[profileId]
         if (!mockProf) {
           setErrorMsg('No se encontró el perfil de demostración.')
           setLoading(false)
@@ -294,13 +475,29 @@ export function ProfilePage() {
 
           const { data: meetupsData, error: meetupsError } = await supabase
             .from('meetups')
-            .select('*, games(*), users:users!meetups_creator_id_fkey(*)')
+            .select('*, meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), users:users!meetups_creator_id_fkey(*)')
             .contains('joined_players', [profileId])
 
           if (meetupsError) throw meetupsError
           
-          setMeetups(meetupsData as Meetup[] || [])
-          calculateStats(meetupsData || [], profileId)
+          const formatted = (meetupsData || []).map((m: any) => {
+            const mg = m.meetup_games || []
+            const mGames = mg.map((item: any) => {
+              if (!item.games) return null
+              return {
+                ...item.games,
+                winner_user_id: item.winner_user_id,
+                winner_guest_id: item.winner_guest_id
+              }
+            }).filter(Boolean) as Game[]
+            return {
+              ...m,
+              games: mGames
+            }
+          })
+          
+          setMeetups(formatted as Meetup[])
+          calculateStats(formatted as Meetup[], profileId)
         } catch (err: any) {
           console.error("Error loading profile:", err)
           setErrorMsg(err.message || 'Error al obtener el perfil de usuario.')
@@ -317,14 +514,33 @@ export function ProfilePage() {
     const completed = userMeetups.filter(m => m.completed)
     const attended = completed.filter(m => m.attended_players?.includes(userId))
     const missed = completed.filter(m => !m.attended_players?.includes(userId))
-    const won = completed.filter(m => m.winner_user_id === userId)
 
-    const winRate = attended.length > 0 ? Math.round((won.length / attended.length) * 100) : 0
+    let totalPlayedGames = 0
+    let totalWonGames = 0
+
+    attended.forEach(m => {
+      const games = m.games || []
+      if (games.length === 0) {
+        totalPlayedGames += 1
+        if (m.winner_user_id === userId) {
+          totalWonGames += 1
+        }
+      } else {
+        totalPlayedGames += games.length
+        games.forEach(g => {
+          if (g.winner_user_id === userId) {
+            totalWonGames += 1
+          }
+        })
+      }
+    })
+
+    const winRate = totalPlayedGames > 0 ? Math.round((totalWonGames / totalPlayedGames) * 100) : 0
     const karma = completed.length > 0 ? Math.round((attended.length / completed.length) * 100) : 100
 
     setStats({
-      played: attended.length,
-      won: won.length,
+      played: totalPlayedGames,
+      won: totalWonGames,
       winRate,
       karma,
       missed: missed.length
@@ -501,10 +717,10 @@ export function ProfilePage() {
   const karmaInfo = getKarmaInfo(stats.karma)
 
   return (
-    <section className="space-y-6 max-w-xl mx-auto p-4 pb-24 relative">
+    <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
-      {/* Header bar */}
-      <div className="flex items-center justify-between z-10 relative">
+      {/* Header bar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -513,15 +729,27 @@ export function ProfilePage() {
         >
           <ArrowLeft className="w-4 h-4" /> Atrás
         </Button>
-        {isOwnProfile ? (
-          <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
-            Tu Escaparate
-          </span>
-        ) : (
-          <span className="text-[10px] font-black text-muted-foreground uppercase bg-muted border border-border/40 px-3 py-1 rounded-full tracking-wider">
-            Escaparate de Jugador
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isOwnProfileEditable && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleOpenEdit}
+              className="rounded-xl flex items-center gap-1.5 font-bold text-xs h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-foreground"
+            >
+              <Edit className="w-3.5 h-3.5 text-primary" /> Editar Datos
+            </Button>
+          )}
+          {isOwnProfile ? (
+            <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
+              Tu Escaparate
+            </span>
+          ) : (
+            <span className="text-[10px] font-black text-muted-foreground uppercase bg-muted border border-border/40 px-3 py-1 rounded-full tracking-wider">
+              Escaparate de Jugador
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Showcase Profile Card with premium gaming card aesthetic */}
@@ -537,7 +765,7 @@ export function ProfilePage() {
           </div>
         </div>
         
-        <CardContent className="pb-6 px-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
+        <CardContent className="p-4 pb-6 sm:p-6 sm:pb-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
           {/* Avatar container overlapping banner with dynamic colored status ring */}
           <div className="relative -mt-16 z-10 shrink-0">
             <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-400 via-primary to-emerald-400 opacity-80 animate-spin [animation-duration:15s]" />
@@ -723,7 +951,7 @@ export function ProfilePage() {
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Swords className="w-28 h-28 text-rose-500 stroke-[1.25] rotate-12" />
           </div>
-          <CardContent className="p-5 flex items-center justify-between gap-4 relative z-10">
+          <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
             <div className="space-y-1.5 min-w-0">
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Tasa de Victoria</span>
               <div className="flex items-baseline gap-1">
@@ -749,7 +977,7 @@ export function ProfilePage() {
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Dices className="w-28 h-28 text-emerald-500 stroke-[1.25] -rotate-12" />
           </div>
-          <CardContent className="p-5 flex items-center justify-between gap-4 relative z-10">
+          <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
             <div className="space-y-1.5 min-w-0">
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Asistencia Real</span>
               <div className="flex items-baseline gap-1">
@@ -771,62 +999,15 @@ export function ProfilePage() {
         </Card>
       </div>
 
-      {/* Tabs Menu Slider (Premium Pill Design with Rankings Tab) */}
-      <div className="bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5">
-        <button
-          onClick={() => setActiveTab('upcoming')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'upcoming' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'upcoming' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <CalendarDays className="w-3.5 h-3.5" /> Próximas ({upcomingMeetups.length})
-          </span>
-        </button>
-        
-        <button
-          onClick={() => setActiveTab('completed')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'completed' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'completed' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <History className="w-3.5 h-3.5" /> Historial ({completedMeetups.length})
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('rankings')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'rankings' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'rankings' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <ListOrdered className="w-3.5 h-3.5" /> Rankings ({savedRankings.length})
-          </span>
-        </button>
-      </div>
+      <Tabs
+        options={[
+          { id: 'upcoming', label: 'Próximas', icon: CalendarDays, count: upcomingMeetups.length },
+          { id: 'completed', label: 'Historial', icon: History, count: completedMeetups.length },
+          { id: 'rankings', label: 'Rankings', icon: ListOrdered, count: savedRankings.length }
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       {/* Tabs Content Sections */}
       <div className="space-y-4">
@@ -847,20 +1028,43 @@ export function ProfilePage() {
                 </div>
               ) : (
                 upcomingMeetups.map(meetup => {
-                  const rawGame = meetup.games
-                  const game = Array.isArray(rawGame) ? rawGame[0] : rawGame
+                  const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
+                  const mainGame = gamesList[0] || null
 
                   return (
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
                       <div className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all group">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
-                            {game?.image_url ? (
-                              <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
-                            ) : (
-                              <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
-                            )}
-                          </div>
+                          {gamesList.length <= 1 ? (
+                            <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
+                              {mainGame?.image_url ? (
+                                <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
+                              {gamesList.slice(0, 3).map((game, idx) => (
+                                <div
+                                  key={game.bgg_id}
+                                  style={{ zIndex: 10 - idx }}
+                                  className="w-11 h-11 rounded-lg overflow-hidden bg-background border border-border/45 p-0.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-105 hover:z-20 transition-all duration-200"
+                                >
+                                  {game.image_url ? (
+                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
+                                  ) : (
+                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
+                                  )}
+                                </div>
+                              ))}
+                              {gamesList.length > 3 && (
+                                <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform">
+                                  <span className="text-[8px] font-black text-primary">+{gamesList.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
@@ -896,8 +1100,8 @@ export function ProfilePage() {
                 </div>
               ) : (
                 completedMeetups.map(meetup => {
-                  const rawGame = meetup.games
-                  const game = Array.isArray(rawGame) ? rawGame[0] : rawGame
+                  const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
+                  const mainGame = gamesList[0] || null
                   const isWinner = meetup.winner_user_id === profileId
                   const didAttend = meetup.attended_players?.includes(profileId)
 
@@ -911,17 +1115,48 @@ export function ProfilePage() {
                             : 'border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20'
                       }`}>
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
-                            isWinner 
-                              ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
-                              : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
-                          }`}>
-                            {game?.image_url ? (
-                              <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
-                            ) : (
-                              <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
-                            )}
-                          </div>
+                          {gamesList.length <= 1 ? (
+                            <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
+                              isWinner 
+                                ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
+                                : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
+                            }`}>
+                              {mainGame?.image_url ? (
+                                <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
+                              {gamesList.slice(0, 3).map((game, idx) => (
+                                <div
+                                  key={game.bgg_id}
+                                  style={{ zIndex: 10 - idx }}
+                                  className={`w-11 h-11 rounded-lg overflow-hidden border p-0.5 flex items-center justify-center shadow-sm hover:scale-105 hover:z-20 transition-all duration-200 ${
+                                    isWinner
+                                      ? 'bg-rose-950/40 border-rose-500/20'
+                                      : 'bg-background border-border/45'
+                                  }`}
+                                >
+                                  {game.image_url ? (
+                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
+                                  ) : (
+                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
+                                  )}
+                                </div>
+                              ))}
+                              {gamesList.length > 3 && (
+                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform ${
+                                  isWinner
+                                    ? 'bg-rose-500/20 border-rose-500/30'
+                                    : 'bg-primary/20 border-primary/30'
+                                }`}>
+                                  <span className={`text-[8px] font-black ${isWinner ? 'text-rose-400' : 'text-primary'}`}>+{gamesList.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
@@ -932,14 +1167,14 @@ export function ProfilePage() {
                               
                               {/* Winner Badge using Swords Icon */}
                               {isWinner && (
-                                <Badge variant="secondary" className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/15 border-rose-500/10 py-0.2 px-1.5 text-[9px] font-black tracking-wide rounded-full flex items-center gap-0.5 border-0">
+                                <Badge variant="destructive" className="flex items-center gap-0.5 shrink-0">
                                   <Swords className="w-2.5 h-2.5 fill-current" /> GANADO
                                 </Badge>
                               )}
 
                               {/* No attendance badge */}
                               {!didAttend && (
-                                <Badge variant="secondary" className="bg-destructive/10 text-destructive hover:bg-destructive/15 border-destructive/10 py-0.2 px-1.5 text-[9px] font-black tracking-wide rounded-full">
+                                <Badge variant="destructive" className="shrink-0">
                                   AUSENTE
                                 </Badge>
                               )}
@@ -1004,7 +1239,7 @@ export function ProfilePage() {
                       <div className="space-y-1.5 flex-1 min-w-0 pr-4">
                         <h4 className="font-extrabold text-sm text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1.5">
                           {ranking.title || 'Ranking sin título'}
-                          <Badge variant="outline" className="text-[8.5px] py-0 px-1.5 font-bold uppercase tracking-wider scale-95 border-primary/20 bg-primary/5 text-primary">
+                          <Badge variant="primary-soft">
                             {mode === 'tier' ? 'Tier List' : 'Top 10'}
                           </Badge>
                         </h4>
@@ -1245,6 +1480,173 @@ export function ProfilePage() {
             </div>
           )
         })()}
+      </AnimatePresence>
+
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {isEditing && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+            <MotionDiv
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-card border border-border/50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl p-6 relative space-y-4 text-left"
+            >
+              <div className="flex justify-between items-center pb-2 border-b border-border/20">
+                <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
+                  <User className="w-5 h-5 text-primary" /> Editar Perfil Lúdico
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(false)}
+                  className="h-8 w-8 p-0 rounded-xl"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {editError && (
+                <div className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                  {editError}
+                </div>
+              )}
+
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Nombre de Usuario</Label>
+                  <Input
+                    id="edit-username"
+                    type="text"
+                    required
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                    className="h-10 text-xs font-medium"
+                    placeholder="Escribe tu username..."
+                  />
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Ciudad</Label>
+                  <Input
+                    id="edit-city"
+                    type="text"
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="h-10 text-xs font-medium"
+                    placeholder="Escribe tu ciudad..."
+                  />
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">Personalizar Avatar</Label>
+                  <div className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border/20">
+                    {/* Interactive Clickable Avatar Preview */}
+                    <div 
+                      onClick={() => !uploadingFile && document.getElementById('avatar-upload')?.click()}
+                      className="relative w-14 h-14 rounded-full border-2 border-primary/30 shrink-0 overflow-hidden group cursor-pointer shadow-sm active:scale-95 transition-all"
+                      title="Subir foto de perfil"
+                    >
+                      <Avatar className="w-full h-full">
+                        <AvatarImage src={editAvatarUrl || undefined} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
+                          {editUsername.slice(0, 2).toUpperCase() || 'US'}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Camera className="w-4 h-4 text-white" />
+                      </div>
+                      
+                      {/* Loading state indicator */}
+                      {uploadingFile && (
+                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5">
+                      <Input
+                        type="text"
+                        value={editAvatarUrl}
+                        onChange={(e) => setEditAvatarUrl(e.target.value)}
+                        className="h-9 text-[10px] font-medium"
+                        placeholder="URL de imagen o semilla..."
+                        disabled={uploadingFile}
+                      />
+                      <div className="flex flex-wrap gap-1.5">
+                        <input 
+                          type="file" 
+                          id="avatar-upload" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleFileChange}
+                          disabled={uploadingFile}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          disabled={uploadingFile}
+                          variant="secondary"
+                          size="sm"
+                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
+                        >
+                          {uploadingFile ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Camera className="w-3.5 h-3.5" />
+                          )}
+                          Subir Foto
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleRandomAvatar}
+                          disabled={uploadingFile}
+                          variant="secondary"
+                          size="sm"
+                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Dices className="w-3.5 h-3.5" /> Cambiar Semilla
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground font-semibold block leading-normal mt-1">
+                    Puedes subir una foto de tu dispositivo, pegar un enlace directo a tu imagen de perfil, o usar un avatar de Dicebear ingresando cualquier palabra (semilla).
+                  </span>
+                </div>
+
+                <div className="flex justify-end gap-2.5 pt-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsEditing(false)}
+                    disabled={savingProfile || uploadingFile}
+                    className="rounded-xl font-bold text-xs h-9 cursor-pointer"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={savingProfile || uploadingFile || !editUsername.trim()}
+                    className="rounded-xl font-bold text-xs h-9 px-4 cursor-pointer shadow-sm shadow-primary/25"
+                  >
+                    {savingProfile ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                        Guardando...
+                      </>
+                    ) : (
+                      'Guardar Cambios'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </MotionDiv>
+          </div>
+        )}
       </AnimatePresence>
 
     </section>
