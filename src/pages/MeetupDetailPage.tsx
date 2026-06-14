@@ -170,6 +170,11 @@ export function MeetupDetailPage() {
           handleCompleteMeetup={handleCompleteMeetup}
         />
       </div>
+
+      {/* Legal Attribution */}
+      <div className="text-center pt-8 text-[11px] text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">
+        Datos de juegos proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+      </div>
     </section>
   )
 }

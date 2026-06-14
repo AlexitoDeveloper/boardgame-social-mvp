@@ -9,6 +9,7 @@ export interface UserProfile {
 }
 
 export interface Game {
+  id?: string;
   bgg_id: number;
   title: string;
   year?: number | null;
@@ -19,6 +20,12 @@ export interface Game {
   playing_time?: number | null;
   winner_user_id?: string | null;
   winner_guest_id?: string | null;
+  is_expansion?: boolean;
+  base_game_id?: string | null;
+  bgg_base_game_id?: number | null;
+  es_publisher?: string | null;
+  has_spanish_edition?: boolean;
+  isFromBgg?: boolean;
 }
 
 export interface Meetup {
