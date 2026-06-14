@@ -50,8 +50,12 @@ export function CreateMeetupPage() {
   const [selectedGames, setSelectedGames] = useState<Game[]>([])
   const [showDetails, setShowDetails] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
+  const [isShowingBggResults, setIsShowingBggResults] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
 
-
+  // Expansions State
+  const [availableExpansions, setAvailableExpansions] = useState<Game[]>([])
+  const [showExpansions, setShowExpansions] = useState(false)
 
   // Form Fields State
   const [title, setTitle] = useState('')
@@ -91,6 +95,45 @@ export function CreateMeetupPage() {
     }
     loadCities()
   }, [])
+
+  // Fetch expansions for selected base games
+  useEffect(() => {
+    async function fetchExpansions() {
+      const baseGames = selectedGames.filter(g => !g.is_expansion);
+      if (baseGames.length === 0) {
+        setAvailableExpansions([]);
+        return;
+      }
+      
+      try {
+        const baseGameIds = baseGames.map(bg => bg.id).filter(Boolean);
+        if (baseGameIds.length > 0) {
+          const { data, error } = await supabase
+            .from('games')
+            .select('*')
+            .in('base_game_id', baseGameIds);
+            
+          if (data && !error) {
+            setAvailableExpansions(data as Game[]);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching expansions:", err);
+      }
+    }
+    
+    fetchExpansions();
+  }, [selectedGames]);
+
+  const handleToggleExpansion = (exp: Game) => {
+    setSelectedGames(prev => {
+      if (prev.some(g => g.bgg_id === exp.bgg_id)) {
+        return prev.filter(g => g.bgg_id !== exp.bgg_id);
+      } else {
+        return [...prev, exp];
+      }
+    });
+  };
 
   // Debounced search on type
   useEffect(() => {
@@ -212,6 +255,7 @@ export function CreateMeetupPage() {
     setErrorMsg('')
     setIsSearching(true)
     setGames([])
+    setIsShowingBggResults(false)
     
     const { data, error } = await supabase
       .from('games')
@@ -226,6 +270,80 @@ export function CreateMeetupPage() {
       setErrorMsg('Error buscando juegos en el catálogo.')
     } else {
       setGames((data as Game[]) || [])
+    }
+  }
+
+  const handleSearchBgg = async () => {
+    if (!searchQuery.trim()) return
+    setErrorMsg('')
+    setIsSearching(true)
+    setGames([])
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('bgg-ingest', {
+        body: { action: 'search', query: searchQuery.trim() }
+      })
+      
+      if (error) throw error
+      
+      if (data && data.results) {
+        const bggGames: Game[] = data.results.map((item: any) => ({
+          bgg_id: item.bgg_id,
+          title: item.title,
+          year_published: item.year_published,
+          is_expansion: item.is_expansion,
+          image_url: null,
+          isFromBgg: true
+        }))
+        setGames(bggGames)
+        setIsShowingBggResults(true)
+      } else {
+        setGames([])
+      }
+    } catch (err: any) {
+      console.error('Error searching BGG:', err)
+      setErrorMsg('No se pudo buscar en BoardGameGeek. Comprueba tu conexión o si la Edge Function está activa.')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSelectGame = async (game: Game) => {
+    if (game.isFromBgg) {
+      setIsImporting(true)
+      setErrorMsg('')
+      try {
+        console.log(`[Import] Ingesting game with BGG ID: ${game.bgg_id}...`)
+        const { data, error } = await supabase.functions.invoke('bgg-ingest', {
+          body: { action: 'ingest', bggIds: [game.bgg_id] }
+        })
+        
+        if (error) throw error
+        
+        if (data && data.success && data.games && data.games.length > 0) {
+          const fullyIngestedGame = data.games[0] as Game
+          setSelectedGames(prev => {
+            if (prev.some(g => g.bgg_id === fullyIngestedGame.bgg_id)) return prev
+            return [...prev, fullyIngestedGame]
+          })
+          setSearchQuery('')
+          setGames([])
+        } else {
+          throw new Error('La ingesta no devolvió los metadatos del juego.')
+        }
+      } catch (err: any) {
+        console.error('Error importing from BGG:', err)
+        setErrorMsg(`Error al importar "${game.title}" desde BGG: ${err.message || err}`)
+      } finally {
+        setIsImporting(false)
+      }
+    } else {
+      setSelectedGames(prev => {
+        if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+        return [...prev, game]
+      })
+      setSearchQuery('')
+      setGames([])
     }
   }
 
@@ -421,15 +539,20 @@ export function CreateMeetupPage() {
                       setGames={setGames}
                       isSearching={isSearching}
                       placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
-                      onSelectGame={(game) => {
-                        setSelectedGames(prev => {
-                          if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
-                          return [...prev, game]
-                        })
-                      }}
+                      onSelectGame={handleSelectGame}
                       isGameDisabled={(game) => selectedGames.some(g => g.bgg_id === game.bgg_id)}
                       closeOnSelect={false}
+                      onSearchBgg={handleSearchBgg}
+                      isShowingBggResults={isShowingBggResults}
+                      isImporting={isImporting}
                     />
+
+                    {isImporting && (
+                      <div className="text-primary bg-primary/5 border border-primary/20 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 animate-pulse shadow-sm">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+                        <span>Importando metadatos y portada del juego desde BoardGameGeek. Por favor, espera...</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Shelf (Bandeja de Juegos) */}
@@ -495,7 +618,7 @@ export function CreateMeetupPage() {
                       onClick={() => setShowDetails(true)}
                       className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
                     >
-                      {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego (Decidir en el chat)'}
+                      {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego'}
                     </Button>
                   </div>
                 </MotionDiv>
@@ -524,11 +647,69 @@ export function CreateMeetupPage() {
                           <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
                             {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
                             <span>{game.title}</span>
+                            {game.is_expansion && (
+                              <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
+                                Expansión
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
+
+                  {/* Expansions Selector */}
+                  {availableExpansions.length > 0 && (
+                    <div className="space-y-2 p-4 border border-border/40 rounded-xl bg-card/40 backdrop-blur-sm">
+                      <button
+                        type="button"
+                        onClick={() => setShowExpansions(!showExpansions)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        {showExpansions ? '− Ocultar Expansiones' : `+ Añadir Expansiones (${availableExpansions.length} disponibles)`}
+                      </button>
+                      
+                      <AnimatePresence>
+                        {showExpansions && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden space-y-2 pt-1"
+                          >
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                              {availableExpansions.map(exp => {
+                                const isChecked = selectedGames.some(sg => sg.bgg_id === exp.bgg_id);
+                                return (
+                                  <label
+                                    key={exp.bgg_id}
+                                    className={`flex items-center gap-3 p-2 border rounded-xl cursor-pointer transition-all text-xs font-semibold ${
+                                      isChecked 
+                                        ? 'border-primary/50 bg-primary/5 shadow-sm shadow-primary/5' 
+                                        : 'border-border/40 bg-background/20 hover:bg-muted/30 hover:border-border/80'
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => handleToggleExpansion(exp)}
+                                      className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer"
+                                    />
+                                    {exp.image_url ? (
+                                      <img src={exp.image_url} alt={exp.title} className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0" />
+                                    ) : (
+                                      <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-[9px] font-extrabold text-muted-foreground shrink-0">?</div>
+                                    )}
+                                    <span className="truncate flex-1 select-none text-foreground/95">{exp.title}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
 
                   {/* Title */}
                   <div className="space-y-1.5">

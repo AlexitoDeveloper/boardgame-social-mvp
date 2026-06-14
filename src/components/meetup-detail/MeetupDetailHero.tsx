@@ -58,20 +58,40 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
             </AnimatePresence>
 
             {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
-            <div className="absolute inset-0 flex items-center justify-center p-4 z-10">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={`cover-${currentGame.bgg_id || activeGameIdx}`}
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.3 }}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`cover-wrapper-${currentGame.bgg_id || activeGameIdx}`}
+                drag={gamesList.length > 1 ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.6}
+                onDragEnd={(event, info) => {
+                  if (gamesList.length <= 1) return;
+                  const swipeThreshold = 50;
+                  if (info.offset.x < -swipeThreshold) {
+                    setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+                  } else if (info.offset.x > swipeThreshold) {
+                    setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
+                  }
+                }}
+                initial={{ opacity: 0, scale: 0.92, x: 0 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ 
+                  opacity: { duration: 0.3 },
+                  scale: { duration: 0.3 },
+                  x: { type: "spring", stiffness: 300, damping: 30 }
+                }}
+                className={`absolute inset-0 flex items-center justify-center p-4 z-10 touch-pan-y ${
+                  gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
+                }`}
+              >
+                <img
                   src={currentGame.image_url}
                   alt={currentGame.title || 'Juego'}
-                  className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355"
+                  className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355 pointer-events-none select-none"
                 />
-              </AnimatePresence>
-            </div>
+              </motion.div>
+            </AnimatePresence>
           </>
         ) : (
           /* Placeholder visual premium cuando no hay portada */

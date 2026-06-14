@@ -17,6 +17,9 @@ interface GameSearchBarProps {
   placeholder?: string;
   isGameDisabled?: (game: Game) => boolean;
   closeOnSelect?: boolean;
+  onSearchBgg?: () => void;
+  isShowingBggResults?: boolean;
+  isImporting?: boolean;
 }
 
 export function GameSearchBar({
@@ -28,7 +31,10 @@ export function GameSearchBar({
   onSelectGame,
   placeholder = "Buscar juego...",
   isGameDisabled,
-  closeOnSelect = true
+  closeOnSelect = true,
+  onSearchBgg,
+  isShowingBggResults = false,
+  isImporting = false
 }: GameSearchBarProps) {
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
@@ -44,16 +50,17 @@ export function GameSearchBar({
         <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
           <div className="flex-1">
             <CommandInput 
-              placeholder={placeholder} 
+              placeholder={isImporting ? "Importando juego..." : placeholder} 
               value={searchQuery}
               onValueChange={setSearchQuery}
+              disabled={isImporting}
               className="h-10 text-xs border-0 focus:ring-0 focus:outline-none placeholder:text-muted-foreground bg-transparent w-full"
             />
           </div>
-          {isSearching && (
+          {(isSearching || isImporting) && (
             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0 mr-1.5" />
           )}
-          {searchQuery && (
+          {searchQuery && !isImporting && (
             <button
               type="button"
               onClick={() => {
@@ -69,7 +76,7 @@ export function GameSearchBar({
         </div>
 
         <AnimatePresence>
-          {games.length > 0 && (
+          {(games.length > 0 || (onSearchBgg && !isShowingBggResults && searchQuery.trim().length > 0)) && (
             <MotionDiv 
               initial={{ opacity: 0, y: -4 }} 
               animate={{ opacity: 1, y: 0 }} 
@@ -77,7 +84,7 @@ export function GameSearchBar({
               className="absolute z-50 left-0 right-0 top-full mt-1.5 w-full shadow-2xl"
             >
               <div className="border border-border bg-card rounded-xl overflow-hidden shadow-2xl">
-                <CommandList className="max-h-56 custom-scrollbar divide-y divide-border/40">
+                <CommandList className="max-h-72 custom-scrollbar divide-y divide-border/40">
                   {games.map(g => {
                     const isDisabled = isGameDisabled ? isGameDisabled(g) : false
                     return (
@@ -87,7 +94,7 @@ export function GameSearchBar({
                           isDisabled ? 'opacity-50 cursor-default bg-emerald-500/5 hover:bg-emerald-500/5' : ''
                         }`}
                         onSelect={() => {
-                          if (!isDisabled) {
+                          if (!isDisabled && !isImporting) {
                             onSelectGame(g)
                             if (closeOnSelect) {
                               setGames([]) // Clear list to close dropdown
@@ -104,7 +111,17 @@ export function GameSearchBar({
                           <span className="font-semibold text-sm text-left truncate block">
                             {g.title} 
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                              {g.year_published || 'Año desc.'}
+                              {g.year_published || g.year || 'Año desc.'}
+                              {g.is_expansion && (
+                                <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
+                                  Expansión
+                                </span>
+                              )}
+                              {g.isFromBgg && (
+                                <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-primary bg-primary/10 border border-primary/20 rounded-md">
+                                  BGG
+                                </span>
+                              )}
                             </span>
                           </span>
                         </div>
@@ -116,6 +133,29 @@ export function GameSearchBar({
                       </CommandItem>
                     )
                   })}
+                  
+                  {onSearchBgg && !isShowingBggResults && searchQuery.trim().length > 0 && (
+                    <CommandItem
+                      className="p-3 flex items-center justify-between cursor-pointer hover:bg-primary/10 text-primary hover:text-primary-foreground font-bold data-[selected=true]:bg-primary/10"
+                      onSelect={() => {
+                        if (!isImporting) {
+                          onSearchBgg();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1 pointer-events-none">
+                        <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0 font-bold text-sm">
+                          🔍
+                        </div>
+                        <span className="text-xs text-left truncate block font-extrabold text-primary">
+                          ¿No encuentras el juego?
+                          <span className="text-muted-foreground font-normal block mt-0.5">
+                            Buscar "{searchQuery}" en BoardGameGeek
+                          </span>
+                        </span>
+                      </div>
+                    </CommandItem>
+                  )}
                 </CommandList>
               </div>
             </MotionDiv>

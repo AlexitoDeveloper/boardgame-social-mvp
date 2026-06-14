@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, CardTitle, CardDescription } from './ui/card'
+import { Card} from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
 import { Tag } from './ui/tag'
@@ -165,20 +165,40 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
             </AnimatePresence>
 
             {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
-            <div className="absolute inset-0 flex items-center justify-center p-4 z-10">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={`cover-${currentGame.bgg_id || activeGameIdx}`}
-                  initial={{ opacity: 0, scale: 0.92 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.3 }}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`cover-wrapper-${currentGame.bgg_id || activeGameIdx}`}
+                drag={gamesList.length > 1 ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.6}
+                onDragEnd={(_, info) => {
+                  if (gamesList.length <= 1) return;
+                  const swipeThreshold = 50;
+                  if (info.offset.x < -swipeThreshold) {
+                    setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+                  } else if (info.offset.x > swipeThreshold) {
+                    setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
+                  }
+                }}
+                initial={{ opacity: 0, scale: 0.92, x: 0 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                transition={{ 
+                  opacity: { duration: 0.3 },
+                  scale: { duration: 0.3 },
+                  x: { type: "spring", stiffness: 300, damping: 30 }
+                }}
+                className={`absolute inset-0 flex items-center justify-center p-4 z-10 touch-pan-y ${
+                  gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
+                }`}
+              >
+                <img
                   src={currentGame.image_url}
                   alt={currentGame.title || 'Juego'}
-                  className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.03] transition-transform duration-300"
+                  className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.03] transition-transform duration-300 pointer-events-none select-none"
                 />
-              </AnimatePresence>
-            </div>
+              </motion.div>
+            </AnimatePresence>
           </>
         ) : (
           /* Placeholder visual premium cuando no hay portada */
@@ -242,7 +262,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         {/* Badge superior derecho: Plazas (usando Tag con variante de diseño sólida) */}
         <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1.5">
           <Tag 
-            variant={isFull ? "destructive-solid" : "secondary-solid"} 
+            variant="secondary-solid"
             className="shadow-md"
           >
             <Users className="w-3.5 h-3.5" /> {totalAttendees} / {meetup.max_players} plazas
@@ -284,9 +304,14 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           ) : (
             <div className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
               <span>Juegos ({gamesList.length}):</span>
-              <span className="text-foreground/90 font-semibold truncate max-w-[180px] md:max-w-[200px]">
+              <span className="text-foreground/90 font-semibold truncate max-w-[120px] md:max-w-[140px]">
                 {currentGame?.title || meetup.game_name}
               </span>
+              {currentGame?.is_expansion && (
+                <Tag variant="purple">
+                  Expansión
+                </Tag>
+              )}
               {gamesList.length > 1 && (
                 <Tag variant="secondary-solid">
                   {activeGameIdx + 1} de {gamesList.length}
