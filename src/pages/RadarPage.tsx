@@ -161,7 +161,7 @@ export function RadarPage() {
       {/* Mobile Floating Action Button (FAB) for opening tables */}
       <Link 
         to="/tablero/new" 
-        className="sm:hidden fixed bottom-24 right-5 z-40"
+        className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
       >
         <Button 
           className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"

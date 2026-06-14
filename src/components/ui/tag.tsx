@@ -10,14 +10,24 @@ const tagVariants = cva(
       variant: {
         default:
           "border-primary/20 bg-primary/10 text-primary",
+        "default-solid":
+          "border-transparent bg-primary text-primary-foreground",
         secondary:
           "border-border/30 bg-muted/70 text-muted-foreground hover:bg-muted/90",
+        "secondary-solid":
+          "border-border/40 bg-card text-card-foreground shadow-sm",
         success:
           "border-success/25 bg-success/10 text-success",
+        "success-solid":
+          "border-transparent bg-success text-success-foreground",
         destructive:
           "border-destructive/25 bg-destructive/10 text-destructive",
+        "destructive-solid":
+          "border-transparent bg-destructive text-destructive-foreground",
         warning:
           "border-amber-500/25 bg-amber-500/10 text-amber-500",
+        "warning-solid":
+          "border-transparent bg-amber-500 text-white",
         outline:
           "border-border/40 text-foreground bg-transparent",
       },

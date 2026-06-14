@@ -301,7 +301,7 @@ export function ChatsPage() {
   }
 
   return (
-    <section className="h-full w-full md:h-[calc(100dvh-7rem)] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+    <section className="h-full flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
       <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/40 h-full ${
@@ -521,7 +521,7 @@ export function ChatsPage() {
                   )
                 })
               )}
-              <div ref={chatEndRef} />
+              {activeChatMessages.length > 0 && <div ref={chatEndRef} />}
             </div>
 
             {/* Input area form */}
