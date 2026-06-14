@@ -26,7 +26,6 @@ export function MeetupDetailPage() {
   const {
     meetup,
     attendees,
-    gameInfo,
     loading,
     joining,
     canceling,
@@ -110,7 +109,6 @@ export function MeetupDetailPage() {
       {/* Hero Header component */}
       <MeetupDetailHero
         meetup={meetup}
-        gameInfo={gameInfo}
         isPast={isPast}
         isFull={isFull}
         spotsRemaining={spotsRemaining}
@@ -155,7 +153,6 @@ export function MeetupDetailPage() {
         {/* Right Columns - Sidebar */}
         <MeetupDetailSidebar
           meetup={meetup}
-          gameInfo={gameInfo}
           attendees={attendees}
           isPast={isPast}
           isCreator={isCreator}

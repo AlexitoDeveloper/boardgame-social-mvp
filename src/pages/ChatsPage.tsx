@@ -2,18 +2,25 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { USE_MOCKS } from '../lib/config'
 import { 
   MessageSquare, 
   Send, 
   ArrowLeft, 
   Loader2,
   Clock,
-  Info
+  Info,
+  Trash2,
+  X
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { Badge } from '../components/ui/badge'
+import { Tag } from '../components/ui/tag'
 import { Meetup, MeetupMessage, Game } from '../types'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const MotionDiv = motion.div
 
 
 export function ChatsPage() {
@@ -35,6 +42,23 @@ export function ChatsPage() {
 
   // Chat window scroll ref
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  // Hidden chats and delete state
+  const [hiddenChats, setHiddenChats] = useState<string[]>([])
+  const [deleteTargetMeetup, setDeleteTargetMeetup] = useState<Meetup | null>(null)
+  const [deletingChat, setDeletingChat] = useState(false)
+
+  // Load hidden chats from localStorage on mount
+  useEffect(() => {
+    const hiddenStr = localStorage.getItem('boardgame_social_hidden_chats')
+    if (hiddenStr) {
+      try {
+        setHiddenChats(JSON.parse(hiddenStr))
+      } catch {
+        setHiddenChats([])
+      }
+    }
+  }, [])
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -91,13 +115,28 @@ export function ChatsPage() {
         // Fetch all meetups where user is creator, member, or guest
         const { data: meetupsData, error: meetupsError } = await supabase
           .from('meetups')
-          .select('*, users:users!meetups_creator_id_fkey (*), games (*), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
+          .select('*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
           .or(orParts.join(','))
           .order('date', { ascending: false })
 
         if (meetupsError) throw meetupsError
 
-        const fetchedMeetups = (meetupsData as Meetup[]) || []
+        const fetchedMeetups = (meetupsData || []).map((m: any) => {
+          const mg = m.meetup_games || []
+          const mGames = mg.map((item: any) => {
+            if (!item.games) return null
+            return {
+              ...item.games,
+              winner_user_id: item.winner_user_id,
+              winner_guest_id: item.winner_guest_id
+            }
+          }).filter(Boolean) as Game[]
+          return {
+            ...m,
+            games: mGames
+          }
+        }) as Meetup[]
+
         setMeetups(fetchedMeetups)
 
         if (fetchedMeetups.length > 0) {
@@ -157,6 +196,16 @@ export function ChatsPage() {
               return [...prev, newMsg]
             })
 
+            // Unhide conversation automatically if hidden
+            setHiddenChats(prev => {
+              if (prev.includes(newMsg.meetup_id)) {
+                const updated = prev.filter(id => id !== newMsg.meetup_id)
+                localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
+                return updated
+              }
+              return prev
+            })
+
             // If this message belongs to the currently active chat, mark as read immediately
             if (activeMeetupId === newMsg.meetup_id) {
               markAsRead(activeMeetupId)
@@ -197,6 +246,59 @@ export function ChatsPage() {
     const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
     const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
     return guestReservations[mId] || null
+  }
+
+  const handleDeleteConversationConfirm = async (action: 'hide' | 'delete') => {
+    if (!deleteTargetMeetup || !user) return
+    setDeletingChat(true)
+
+    const isMock = USE_MOCKS && deleteTargetMeetup.id.startsWith('mock-')
+    const userId = user.id
+    const meetupId = deleteTargetMeetup.id
+
+    if (action === 'hide') {
+      const updatedHidden = [...hiddenChats, meetupId]
+      setHiddenChats(updatedHidden)
+      localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updatedHidden))
+      
+      if (activeMeetupId === meetupId) {
+        handleBackToList()
+      }
+      setDeleteTargetMeetup(null)
+      setDeletingChat(false)
+      return
+    }
+
+    if (action === 'delete') {
+      if (isMock) {
+        setMeetups(prev => prev.filter(m => m.id !== meetupId))
+        if (activeMeetupId === meetupId) {
+          handleBackToList()
+        }
+        setDeleteTargetMeetup(null)
+        setDeletingChat(false)
+      } else {
+        try {
+          const { error } = await supabase
+            .from('meetups')
+            .delete()
+            .eq('id', meetupId)
+
+          if (error) throw error
+
+          setMeetups(prev => prev.filter(m => m.id !== meetupId))
+          if (activeMeetupId === meetupId) {
+            handleBackToList()
+          }
+          setDeleteTargetMeetup(null)
+        } catch (err: any) {
+          console.error('Error deleting meetup:', err)
+          setErrorMsg(err.message || 'Error al cancelar la partida.')
+        } finally {
+          setDeletingChat(false)
+        }
+      }
+    }
   }
 
   // Send message
@@ -250,6 +352,9 @@ export function ChatsPage() {
     }
   }
 
+  // Filter meetups by excluding hidden chats
+  const visibleMeetups = meetups.filter(m => !hiddenChats.includes(m.id))
+
   // Render variables
   const activeMeetup = meetups.find(m => m.id === activeMeetupId)
   const activeGame = activeMeetup?.games 
@@ -285,7 +390,7 @@ export function ChatsPage() {
   }
 
   return (
-    <section className="h-full w-full md:h-[calc(100dvh-7rem)] md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+    <section className="h-full flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
       <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/40 h-full ${
@@ -295,13 +400,13 @@ export function ChatsPage() {
           <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-primary" /> Chats
           </h1>
-          <Badge variant="secondary" className="font-extrabold text-[10px] uppercase tracking-wider">
-            {meetups.length} {meetups.length === 1 ? 'partida' : 'partidas'}
-          </Badge>
+          <Tag variant="secondary">
+            {visibleMeetups.length} {visibleMeetups.length === 1 ? 'partida' : 'partidas'}
+          </Tag>
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-border/20 custom-scrollbar">
-          {meetups.length === 0 ? (
+          {visibleMeetups.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground space-y-2">
               <MessageSquare className="w-10 h-10 mx-auto opacity-30" />
               <p className="text-sm font-bold">No estás en ninguna sala de chat.</p>
@@ -313,7 +418,7 @@ export function ChatsPage() {
               </Button>
             </div>
           ) : (
-            meetups.map((m) => {
+            visibleMeetups.map((m) => {
               const mGame = m.games ? (Array.isArray(m.games) ? m.games[0] : m.games) as Game : null
               const mMessages = allMessages.filter(msg => msg.meetup_id === m.id)
               const lastMsg = mMessages[mMessages.length - 1]
@@ -332,7 +437,7 @@ export function ChatsPage() {
                 <div
                   key={m.id}
                   onClick={() => handleSelectMeetup(m.id)}
-                  className={`p-4 flex items-center justify-between gap-3.5 cursor-pointer transition-colors duration-200 text-left select-none border-l-4 ${
+                  className={`p-4 flex items-center justify-between gap-3.5 cursor-pointer transition-colors duration-200 text-left select-none border-l-4 group/sidebar-item ${
                     isActive 
                       ? 'bg-primary/10 border-l-primary' 
                       : 'hover:bg-muted/40 border-l-transparent'
@@ -362,8 +467,8 @@ export function ChatsPage() {
                     </div>
                   </div>
 
-                  {/* Right side Stack: Timestamp & Badge */}
-                  <div className="flex flex-col items-end justify-between shrink-0 h-9 text-right">
+                  {/* Right side Stack: Timestamp & Badge / Quick Delete */}
+                  <div className="flex flex-col items-end justify-between shrink-0 h-9 text-right relative min-w-[3.5rem]">
                     {lastMsg ? (
                       <span className="text-[9px] font-bold text-muted-foreground">
                         {formatTime(lastMsg.created_at)}
@@ -371,13 +476,23 @@ export function ChatsPage() {
                     ) : (
                       <div className="h-3" />
                     )}
-                    {unreadCount > 0 ? (
-                      <span className="w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[9px] font-black shadow-sm shadow-primary/30 shrink-0 aspect-square">
-                        {unreadCount}
-                      </span>
-                    ) : (
-                      <div className="h-5" />
-                    )}
+                    <div className="flex items-center gap-1.5 mt-auto">
+                      {unreadCount > 0 && (
+                        <span className="w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[9px] font-black shadow-sm shadow-primary/30 shrink-0 aspect-square">
+                          {unreadCount}
+                        </span>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeleteTargetMeetup(m)
+                        }}
+                        className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
+                        title="Borrar chat"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
@@ -429,6 +544,19 @@ export function ChatsPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <div className="flex items-center shrink-0">
+                <Button
+                  onClick={() => setDeleteTargetMeetup(activeMeetup)}
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 px-2 sm:px-3 cursor-pointer flex items-center gap-1.5"
+                  title="Borrar chat"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline font-bold text-xs">Borrar chat</span>
+                </Button>
               </div>
             </div>
 
@@ -505,18 +633,18 @@ export function ChatsPage() {
                   )
                 })
               )}
-              <div ref={chatEndRef} />
+              {activeChatMessages.length > 0 && <div ref={chatEndRef} />}
             </div>
 
             {/* Input area form */}
             <form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
-              <input
+              <Input
                 type="text"
                 placeholder="Escribe tu mensaje..."
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 maxLength={400}
-                className="flex-1 px-4 py-2 text-xs rounded-xl border border-border/40 bg-background/40 placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 focus:bg-background/70 transition-all font-medium h-10"
+                className="flex-1 h-10 text-xs font-medium"
               />
               <Button
                 type="submit"
@@ -541,6 +669,90 @@ export function ChatsPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteTargetMeetup && (() => {
+          const userId = user?.id
+          const isCreator = deleteTargetMeetup.creator_id === userId
+          
+          let title = "¿Borrar chat?"
+          let description = "¿Quieres ocultar esta conversación de tu lista de chats? Volverá a aparecer si llega un nuevo mensaje."
+          let actionLabel = ""
+
+          if (isCreator) {
+            title = "¿Cancelar partida y borrar chat?"
+            description = "Eres el organizador de esta partida. Puedes ocultar el chat de tu vista local, o bien cancelar la partida definitivamente y borrarla para todos los asistentes."
+            actionLabel = "Cancelar partida para todos"
+          }
+
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+              <MotionDiv
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="bg-card border border-border/50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl p-6 relative space-y-4 text-left"
+              >
+                <div className="flex justify-between items-center pb-2 border-b border-border/20">
+                  <h3 className="text-base font-black tracking-tight text-foreground flex items-center gap-2">
+                    <Trash2 className="w-5 h-5 text-destructive" /> {title}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteTargetMeetup(null)}
+                    className="h-8 w-8 p-0 rounded-xl"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
+                  {description}
+                </p>
+
+                <div className="flex flex-col gap-2 pt-2">
+                  <Button
+                    onClick={() => handleDeleteConversationConfirm('hide')}
+                    disabled={deletingChat}
+                    className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer"
+                  >
+                    Ocultar conversación
+                  </Button>
+
+                  {isCreator && actionLabel && (
+                    <Button
+                      onClick={() => handleDeleteConversationConfirm('delete')}
+                      disabled={deletingChat}
+                      variant="destructive"
+                      className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer shadow-sm shadow-destructive/15"
+                    >
+                      {deletingChat ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          Cancelando partida...
+                        </>
+                      ) : (
+                        actionLabel
+                      )}
+                    </Button>
+                  )}
+
+                  <Button
+                    onClick={() => setDeleteTargetMeetup(null)}
+                    disabled={deletingChat}
+                    variant="ghost"
+                    className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer"
+                  >
+                    Cerrar
+                  </Button>
+                </div>
+              </MotionDiv>
+            </div>
+          )
+        })()}
+      </AnimatePresence>
 
     </section>
   )

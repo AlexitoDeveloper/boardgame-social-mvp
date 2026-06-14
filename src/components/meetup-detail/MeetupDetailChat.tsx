@@ -5,6 +5,7 @@ import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
 import { useMeetupChat } from '../../hooks/useMeetupChat'
 import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 
 interface MeetupDetailChatProps {
   meetupId: string | undefined
@@ -190,13 +191,13 @@ export function MeetupDetailChat({
       <div className="p-4 border-t border-border/40 bg-muted/10">
         {isAttendee ? (
           <form onSubmit={handleSend} className="flex gap-2">
-            <input
+            <Input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe un mensaje..."
               maxLength={500}
-              className="flex-1 bg-background border border-border/60 hover:border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-inner"
+              className="flex-1"
               disabled={sending}
             />
             <Button

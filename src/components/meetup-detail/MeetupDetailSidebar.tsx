@@ -18,12 +18,12 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 import { User } from '@supabase/supabase-js'
-import { Meetup, Game, UserProfile } from '../../types'
+import { Meetup, UserProfile } from '../../types'
 
 interface MeetupDetailSidebarProps {
   meetup: Meetup;
-  gameInfo: Game | null;
   attendees: UserProfile[];
   isPast: boolean;
   isCreator: boolean;
@@ -38,12 +38,11 @@ interface MeetupDetailSidebarProps {
   guestReservation: { id: string, name: string } | null;
   handleJoinAsGuest: (name: string) => void;
   handleLeaveAsGuest: () => void;
-  handleCompleteMeetup: (winnerId: string | null, attendedPlayerIds: string[], attendedGuestIds: string[]) => void;
+  handleCompleteMeetup: (gameWinners: Record<number, string | null>, attendedPlayerIds: string[], attendedGuestIds: string[]) => void;
 }
 
 export function MeetupDetailSidebar({ 
   meetup, 
-  gameInfo, 
   attendees, 
   isPast, 
   isCreator, 
@@ -63,20 +62,44 @@ export function MeetupDetailSidebar({
   const navigate = useNavigate()
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [guestName, setGuestName] = useState('')
+  const gamesList = meetup.games || []
 
   // Stats and Completion State
   const [isCompleting, setIsCompleting] = useState(false)
-  const [winnerId, setWinnerId] = useState<string | null>(null)
+  const [gameWinners, setGameWinners] = useState<Record<number, string | null>>({})
   const [attendedPlayers, setAttendedPlayers] = useState<string[]>([])
   const [attendedGuests, setAttendedGuests] = useState<string[]>([])
 
   const openCompleteForm = () => {
-    const registeredIds = attendees.filter(a => !a.is_guest).map(a => a.id)
-    const guestIds = attendees.filter(a => a.is_guest).map(a => a.id)
-    setAttendedPlayers(registeredIds)
-    setAttendedGuests(guestIds)
-    setWinnerId(null)
+    if (meetup.completed) {
+      setAttendedPlayers(meetup.attended_players || [])
+      setAttendedGuests(meetup.attended_guests || [])
+      
+      const initialWinners: Record<number, string | null> = {}
+      gamesList.forEach(g => {
+        initialWinners[g.bgg_id] = g.winner_user_id || g.winner_guest_id || null
+      })
+      setGameWinners(initialWinners)
+    } else {
+      const registeredIds = attendees.filter(a => !a.is_guest).map(a => a.id)
+      const guestIds = attendees.filter(a => a.is_guest).map(a => a.id)
+      setAttendedPlayers(registeredIds)
+      setAttendedGuests(guestIds)
+      
+      const initialWinners: Record<number, string | null> = {}
+      gamesList.forEach(g => {
+        initialWinners[g.bgg_id] = null
+      })
+      setGameWinners(initialWinners)
+    }
     setIsCompleting(true)
+  }
+
+  const selectGameWinner = (bggId: number, winnerId: string | null) => {
+    setGameWinners(prev => ({
+      ...prev,
+      [bggId]: winnerId
+    }))
   }
 
   const togglePlayerAttendance = (playerId: string) => {
@@ -85,7 +108,16 @@ export function MeetupDetailSidebar({
       let next = []
       if (isAttended) {
         next = prev.filter(id => id !== playerId)
-        if (winnerId === playerId) setWinnerId(null)
+        setGameWinners(wPrev => {
+          const wNext = { ...wPrev }
+          Object.keys(wNext).forEach(key => {
+            const numKey = Number(key)
+            if (wNext[numKey] === playerId) {
+              wNext[numKey] = null
+            }
+          })
+          return wNext
+        })
       } else {
         next = [...prev, playerId]
       }
@@ -99,7 +131,16 @@ export function MeetupDetailSidebar({
       let next = []
       if (isAttended) {
         next = prev.filter(id => id !== guestId)
-        if (winnerId === guestId) setWinnerId(null)
+        setGameWinners(wPrev => {
+          const wNext = { ...wPrev }
+          Object.keys(wNext).forEach(key => {
+            const numKey = Number(key)
+            if (wNext[numKey] === guestId) {
+              wNext[numKey] = null
+            }
+          })
+          return wNext
+        })
       } else {
         next = [...prev, guestId]
       }
@@ -108,14 +149,11 @@ export function MeetupDetailSidebar({
   }
 
   const handleSubmitComplete = () => {
-    handleCompleteMeetup(winnerId, attendedPlayers, attendedGuests)
+    handleCompleteMeetup(gameWinners, attendedPlayers, attendedGuests)
     setIsCompleting(false)
   }
 
   const renderCompletedSection = () => {
-    const winningId = meetup.winner_user_id || meetup.winner_guest_id
-    const winner = winningId ? attendees.find(a => a.id === winningId) : null
-    
     const attendedList = attendees.filter(a => {
       if (a.is_guest) {
         return meetup.attended_guests?.includes(a.id)
@@ -131,29 +169,49 @@ export function MeetupDetailSidebar({
           Partida Completada
         </div>
 
-        {winner ? (
-          <div className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 text-center space-y-2.5 relative overflow-hidden shadow-inner">
-            <div className="absolute top-1 right-2 opacity-15 rotate-12">
-              <Swords className="w-16 h-16 text-amber-500 fill-current" />
-            </div>
-            <p className="text-[10px] font-extrabold text-amber-500 uppercase tracking-widest">Ganador de la mesa</p>
-            <div className="flex flex-col items-center gap-1.5 relative z-10">
-              <div className="w-12 h-12 rounded-full border border-amber-500/40 p-0.5 shadow-md shadow-amber-500/10">
-                <img 
-                  src={winner.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(winner.username)}`} 
-                  alt={winner.username} 
-                  className="w-full h-full rounded-full object-cover" 
-                />
+        {/* Game results cards */}
+        <div className="space-y-2.5">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Resultados por juego</p>
+          {gamesList.map((game) => {
+            const winningId = game.winner_user_id || game.winner_guest_id
+            const winner = winningId ? attendees.find(a => a.id === winningId) : null
+            
+            return (
+              <div key={game.bgg_id} className="p-3 rounded-2xl border border-border/40 bg-muted/20 backdrop-blur-sm flex items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {game.image_url ? (
+                    <img 
+                      src={game.image_url} 
+                      alt={game.title} 
+                      className="w-10 h-10 rounded-lg object-cover border border-border/20 shrink-0" 
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <Info className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-foreground truncate">{game.title}</p>
+                    <p className="text-[9px] text-muted-foreground font-semibold">Ganador:</p>
+                  </div>
+                </div>
+                
+                <div className="shrink-0 max-w-[120px]">
+                  {winner ? (
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-500 font-bold text-xs">
+                      <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
+                      <span className="truncate max-w-[75px]">{winner.username}</span>
+                    </div>
+                  ) : (
+                    <div className="px-2 py-0.5 rounded-xl border border-border/50 bg-background/50 text-muted-foreground text-xs font-bold text-center">
+                      Empate 🤝
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-base font-extrabold text-foreground tracking-tight">{winner.username}</p>
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 rounded-2xl border border-border bg-muted/20 text-center space-y-1 py-5">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Resultado</p>
-            <p className="text-sm font-bold text-foreground">Empate o Cooperativo 🤝</p>
-          </div>
-        )}
+            )
+          })}
+        </div>
 
         <div className="space-y-2 pt-2 border-t border-border/20">
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Asistieron ({attendedList.length})</p>
@@ -168,93 +226,134 @@ export function MeetupDetailSidebar({
             ))}
           </div>
         </div>
+
+        {/* Edit results option for master/creator */}
+        {isCreator && (
+          <div className="pt-2 flex justify-center">
+            <Button
+              onClick={openCompleteForm}
+              variant="ghost"
+              size="sm"
+              className="h-8 text-muted-foreground hover:text-primary"
+            >
+              <Edit3 className="w-3.5 h-3.5" /> Editar resultados
+            </Button>
+          </div>
+        )}
       </div>
     )
   }
 
   const renderCompleteForm = () => {
     return (
-      <div className="space-y-4 pt-1">
-        <div className="text-xs font-bold text-foreground flex items-center gap-1.5 border-b border-border/20 pb-2">
+      <div className="space-y-4 pt-1 flex flex-col max-h-[520px]">
+        <div className="text-xs font-bold text-foreground flex items-center gap-1.5 border-b border-border/20 pb-2 shrink-0">
           <NotebookPen className="w-4 h-4 text-primary" />
           Registrar Cierre de Partida
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">1. ¿Quiénes asistieron?</label>
-          <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1 custom-scrollbar">
-            {attendees.map(a => {
-              const isUser = !a.is_guest
-              const isChecked = isUser ? attendedPlayers.includes(a.id) : attendedGuests.includes(a.id)
-              
-              return (
-                <div 
-                  key={a.id} 
-                  onClick={() => isUser ? togglePlayerAttendance(a.id) : toggleGuestAttendance(a.id)}
-                  className="flex items-center justify-between p-2 rounded-lg border border-border/40 bg-background/20 hover:bg-muted/30 cursor-pointer select-none text-xs font-semibold"
-                >
-                  <div className="flex items-center gap-2">
-                    <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
-                    <span>{a.username} {a.is_guest && <span className="text-[9px] text-muted-foreground">(invitado)</span>}</span>
+        {/* Scrollable container for choices (the only scrollbar) */}
+        <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+          {/* 1. Who attended */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">1. ¿Quiénes asistieron?</label>
+            <div className="space-y-1.5">
+              {attendees.map(a => {
+                const isUser = !a.is_guest
+                const isChecked = isUser ? attendedPlayers.includes(a.id) : attendedGuests.includes(a.id)
+                
+                return (
+                  <div 
+                    key={a.id} 
+                    onClick={() => isUser ? togglePlayerAttendance(a.id) : toggleGuestAttendance(a.id)}
+                    className="flex items-center justify-between p-2 rounded-lg border border-border/40 bg-background/20 hover:bg-muted/30 cursor-pointer select-none text-xs font-semibold"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
+                      <span>{a.username} {a.is_guest && <span className="text-[9px] text-muted-foreground">(invitado)</span>}</span>
+                    </div>
+                    {isChecked ? (
+                      <CheckSquare className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Square className="w-4 h-4 text-muted-foreground" />
+                    )}
                   </div>
-                  {isChecked ? (
-                    <CheckSquare className="w-4 h-4 text-primary" />
-                  ) : (
-                    <Square className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">2. Selecciona al ganador</label>
-          <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1 custom-scrollbar">
-            <div 
-              onClick={() => setWinnerId(null)}
-              className={`flex items-center p-2 rounded-lg border cursor-pointer select-none text-xs font-bold ${
-                winnerId === null 
-                  ? 'border-primary bg-primary/5 text-primary' 
-                  : 'border-border/40 bg-background/20 hover:bg-muted/30 text-foreground'
-              }`}
-            >
-              <span>🤝 Sin Ganador / Empate / Coop</span>
+                )
+              })}
             </div>
+          </div>
 
-            {attendees
-              .filter(a => a.is_guest ? attendedGuests.includes(a.id) : attendedPlayers.includes(a.id))
-              .map(a => (
-                <div 
-                  key={a.id} 
-                  onClick={() => setWinnerId(a.id)}
-                  className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer select-none text-xs font-semibold ${
-                    winnerId === a.id 
-                      ? 'border-primary bg-primary/5 text-primary font-bold' 
-                      : 'border-border/40 bg-background/20 hover:bg-muted/30 text-foreground'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
-                    <span>{a.username}</span>
+          {/* 2. Winners per game */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">2. Ganadores por juego</label>
+            <div className="space-y-4">
+              {gamesList.map((game) => {
+                const gameWinnerId = gameWinners[game.bgg_id] || null
+                
+                return (
+                  <div key={game.bgg_id} className="p-3 rounded-2xl border border-border/40 bg-muted/20 backdrop-blur-sm space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      {game.image_url ? (
+                        <img src={game.image_url} alt={game.title} className="w-8 h-8 rounded object-cover border border-border/20 shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center shrink-0">
+                          <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <span className="text-xs font-black text-foreground truncate">{game.title}</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-1">
+                      <div 
+                        onClick={() => selectGameWinner(game.bgg_id, null)}
+                        className={`flex items-center p-2 rounded-lg border cursor-pointer select-none text-xs font-bold transition-colors ${
+                          gameWinnerId === null 
+                            ? 'border-primary bg-primary/5 text-primary' 
+                            : 'border-border/30 bg-background/20 hover:bg-muted/30 text-foreground'
+                        }`}
+                      >
+                        <span>🤝 Sin Ganador / Empate / Coop</span>
+                      </div>
+
+                      {attendees
+                        .filter(a => a.is_guest ? attendedGuests.includes(a.id) : attendedPlayers.includes(a.id))
+                        .map(a => (
+                          <div 
+                            key={a.id} 
+                            onClick={() => selectGameWinner(game.bgg_id, a.id)}
+                            className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer select-none text-xs font-semibold transition-colors ${
+                              gameWinnerId === a.id 
+                                ? 'border-primary bg-primary/5 text-primary font-bold' 
+                                : 'border-border/30 bg-background/20 hover:bg-muted/30 text-foreground'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
+                              <span>{a.username} {a.is_guest && <span className="text-[9px] text-muted-foreground">(invitado)</span>}</span>
+                            </div>
+                            {gameWinnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current shrink-0 animate-pulse" />}
+                          </div>
+                        ))}
+                    </div>
                   </div>
-                  {winnerId === a.id && <Swords className="w-3.5 h-3.5 text-primary fill-current" />}
-                </div>
-              ))}
+                )
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-2 pt-2 border-t border-border/20">
+        <div className="flex flex-col gap-2 pt-3 border-t border-border/20 shrink-0">
           <Button 
             onClick={handleSubmitComplete}
-            className="flex-1 rounded-xl font-bold text-xs h-9 bg-success hover:bg-success/90"
+            variant="default"
+            className="w-full h-9"
           >
-            Guardar
+            Confirmar y Guardar
           </Button>
           <Button 
             onClick={() => setIsCompleting(false)}
-            variant="ghost" 
-            className="flex-1 rounded-xl font-bold text-xs h-9 border border-border/40 bg-card"
+            variant="outline" 
+            className="w-full h-9"
           >
             Cancelar
           </Button>
@@ -272,7 +371,7 @@ export function MeetupDetailSidebar({
   const renderGuestSection = () => {
     if (isPast) {
       return (
-        <Button disabled className="w-full rounded-xl font-bold h-11 bg-muted/60 text-muted-foreground border border-border/40 select-none">
+        <Button disabled variant="outline" className="w-full select-none">
           Mesa Cerrada
         </Button>
       )
@@ -287,14 +386,14 @@ export function MeetupDetailSidebar({
           <Button
             onClick={() => navigate(`/chats?id=${meetup.id}`)}
             variant="outline"
-            className="w-full rounded-xl font-extrabold text-sm h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary flex items-center justify-center gap-2 cursor-pointer transition-all border"
+            className="w-full flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
             <MessageSquare className="w-4 h-4" /> Chat de la Partida
           </Button>
           <Button
             onClick={handleLeaveAsGuest}
             variant="destructive"
-            className="w-full rounded-xl font-extrabold text-sm h-11 shadow-lg shadow-destructive/15 transition-all hover:bg-destructive/90 cursor-pointer"
+            className="w-full h-11"
           >
             {joining ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Abandonar Mesa (Invitado)'}
           </Button>
@@ -311,7 +410,7 @@ export function MeetupDetailSidebar({
           <Button
             disabled
             variant="outline"
-            className="w-full rounded-xl font-bold h-11 border-border/50 bg-muted/40 text-muted-foreground/80 cursor-not-allowed select-none"
+            className="w-full select-none"
           >
             Mesa Llena
           </Button>
@@ -327,19 +426,19 @@ export function MeetupDetailSidebar({
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Sentarse como invitado</label>
           <div className="flex gap-2 flex-col">
-            <input
+            <Input
               type="text"
               placeholder="Introduce tu nombre..."
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               maxLength={25}
-              className="flex-1 px-3.5 py-2 rounded-xl border border-border/40 bg-background/30 text-sm font-semibold placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:bg-background/50 transition-all"
+              className="flex-1"
               required
             />
             <Button
               type="submit"
               disabled={joining || !guestName.trim()}
-              className="rounded-xl font-extrabold text-xs px-4 h-9 shadow-sm shrink-0"
+              className="px-4 h-9 shrink-0"
             >
               {joining ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sentarse'}
             </Button>
@@ -356,7 +455,7 @@ export function MeetupDetailSidebar({
   const renderActionButton = () => {
     if (isPast) {
       return (
-        <Button disabled className="w-full rounded-xl font-bold h-11 bg-muted/60 text-muted-foreground border border-border/40 select-none">
+        <Button disabled variant="outline" className="w-full select-none">
           Mesa Cerrada
         </Button>
       )
@@ -364,7 +463,7 @@ export function MeetupDetailSidebar({
 
     if (joining) {
       return (
-        <Button disabled className="w-full rounded-xl font-extrabold text-sm h-11 flex items-center justify-center">
+        <Button disabled className="w-full h-11">
           <Loader2 className="w-4 h-4 animate-spin" />
         </Button>
       )
@@ -376,14 +475,14 @@ export function MeetupDetailSidebar({
           <Button
             onClick={() => navigate(`/chats?id=${meetup.id}`)}
             variant="outline"
-            className="w-full rounded-xl font-extrabold text-sm h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary flex items-center justify-center gap-2 cursor-pointer transition-all border"
+            className="w-full flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
             <MessageSquare className="w-4 h-4" /> Chat de la Partida
           </Button>
           <Button
             onClick={handleJoinLeave}
             variant="destructive"
-            className="w-full rounded-xl font-extrabold text-sm h-11 shadow-lg shadow-destructive/15 transition-all hover:bg-destructive/90 cursor-pointer"
+            className="w-full h-11"
           >
             Abandonar la Mesa
           </Button>
@@ -396,7 +495,7 @@ export function MeetupDetailSidebar({
         <Button
           disabled
           variant="outline"
-          className="w-full rounded-xl font-bold h-11 border-border/50 bg-muted/40 text-muted-foreground/80 cursor-not-allowed select-none"
+          className="w-full select-none"
         >
           Mesa Llena
         </Button>
@@ -407,7 +506,7 @@ export function MeetupDetailSidebar({
       <Button
         onClick={handleJoinLeave}
         variant="default"
-        className="w-full rounded-xl font-extrabold text-sm h-11 shadow-sm cursor-pointer"
+        className="w-full h-11"
       >
         <span className="flex items-center gap-1.5 justify-center">
           <CalendarCheck2 className="w-4 h-4" /> Sentarse a la Mesa
@@ -422,10 +521,10 @@ export function MeetupDetailSidebar({
       {/* Action Card / Reservation & Admin Actions */}
       <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden">
         <CardContent className="p-4 pt-5 sm:p-6 sm:pt-5 space-y-5">
-          {meetup.completed ? (
-            renderCompletedSection()
-          ) : isCompleting ? (
+          {isCompleting ? (
             renderCompleteForm()
+          ) : meetup.completed ? (
+            renderCompletedSection()
           ) : (
             <>
               {/* Countdown panel with extra padding */}
@@ -467,16 +566,17 @@ export function MeetupDetailSidebar({
                   <Button 
                     onClick={() => navigate(`/chats?id=${meetup.id}`)}
                     variant="outline"
-                    className="w-full rounded-xl font-extrabold h-11 bg-primary/10 hover:bg-primary/15 border-primary/20 hover:border-primary/30 text-primary text-sm flex items-center justify-center gap-2 cursor-pointer transition-all border"
+                    className="w-full flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
                     <MessageSquare className="w-4 h-4" /> Chat de la Partida
                   </Button>
 
                   <Button 
                     onClick={openCompleteForm}
-                    className="w-full rounded-xl font-extrabold h-11 bg-success hover:bg-success/90 shadow-lg shadow-success/15 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer mb-1 text-white border-0"
+                    variant="default"
+                    className="w-full h-11 flex items-center justify-center gap-2 mb-1"
                   >
-                    <CheckSquare className="w-4 h-4 text-white" /> Cerrar Partida
+                    <CheckSquare className="w-4 h-4" /> Cerrar Partida
                   </Button>
 
                   {!confirmCancel ? (
@@ -485,7 +585,7 @@ export function MeetupDetailSidebar({
                         onClick={() => navigate(`/tablero/${meetup.id}/edit`)}
                         variant="outline" 
                         size="sm"
-                        className="rounded-xl font-bold h-10 border-border/50 text-xs flex items-center gap-1.5 hover:bg-muted/80 cursor-pointer"
+                        className="h-10 flex items-center gap-1.5"
                       >
                         <Edit3 className="w-3.5 h-3.5" /> Editar
                       </Button>
@@ -494,7 +594,7 @@ export function MeetupDetailSidebar({
                         onClick={() => setConfirmCancel(true)}
                         variant="outline" 
                         size="sm"
-                        className="rounded-xl font-bold h-10 border-destructive/30 hover:border-destructive/50 text-destructive bg-transparent hover:bg-destructive/5 text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="h-10 text-destructive border-destructive/30 hover:bg-destructive/10 flex items-center gap-1.5"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Cancelar
                       </Button>
@@ -510,15 +610,15 @@ export function MeetupDetailSidebar({
                           disabled={canceling}
                           variant="destructive"
                           size="sm"
-                          className="flex-1 rounded-lg font-bold text-xs h-8 cursor-pointer"
+                          className="flex-1 h-8"
                         >
                           {canceling ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Sí, cancelar'}
                         </Button>
                         <Button 
                           onClick={() => setConfirmCancel(false)}
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="flex-1 rounded-lg font-bold text-xs h-8 border border-border/40 bg-card cursor-pointer"
+                          className="flex-1"
                         >
                           No
                         </Button>
@@ -532,70 +632,77 @@ export function MeetupDetailSidebar({
         </CardContent>
       </Card>
 
-      {/* Boardgame Info Card */}
-      {gameInfo && (
-        <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden">
-          <CardHeader className="p-4 pb-3 sm:p-6 sm:pb-3 border-b border-border/20">
-            <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">Información del Juego</CardTitle>
+      {/* Boardgame Info Cards */}
+      {gamesList.length === 0 ? (
+        <Card className="border-border/30 bg-card/65 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl hover:border-amber-500/25 transition-all">
+          <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2 border-b border-border/20">
+            <CardTitle className="text-sm font-extrabold tracking-tight uppercase text-amber-500">Mesa de Juego Libre</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-5 sm:p-6 sm:pt-5 space-y-4">
-            
-            {/* Cover image in card */}
-            {gameInfo.image_url ? (
-              <div className="w-full h-44 overflow-hidden rounded-2xl border border-border/30 bg-background/50 p-2 flex items-center justify-center bg-gradient-to-br from-primary/[0.02] to-primary/[0.06] shadow-inner group">
-                <img 
-                  src={gameInfo.image_url} 
-                  alt={gameInfo.title} 
-                  className="max-h-full max-w-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-103" 
-                />
-              </div>
-            ) : (
-              <div className="w-full h-44 rounded-2xl bg-muted/40 border border-dashed border-border/60 flex flex-col items-center justify-center p-4 text-center text-muted-foreground">
-                <Info className="w-8 h-8 opacity-40 mb-1" />
-                <span className="text-xs font-semibold">Sin imagen de portada</span>
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <h3 className="font-extrabold text-base leading-tight text-foreground">{gameInfo.title}</h3>
-              {gameInfo.year_published && (
-                <p className="text-xs text-muted-foreground font-semibold">Publicado en {gameInfo.year_published}</p>
-              )}
+          <CardContent className="p-5 text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <MessageSquare className="w-7 h-7" />
             </div>
-
-            {/* Players and Playing time specs */}
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/20">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Jugadores</p>
-                <p className="text-sm font-extrabold text-primary mt-0.5">
-                  {gameInfo.min_players === gameInfo.max_players 
-                    ? `${gameInfo.min_players}` 
-                    : `${gameInfo.min_players}-${gameInfo.max_players}`}
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/20">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Duración</p>
-                <p className="text-sm font-extrabold text-primary mt-0.5">
-                  {gameInfo.playing_time ? `${gameInfo.playing_time} min` : 'N/D'}
-                </p>
-              </div>
+            <div className="space-y-1.5">
+              <p className="font-extrabold text-xs text-foreground">Juegos por decidir</p>
+              <p className="text-[10px] text-muted-foreground leading-normal">
+                Esta sesión no tiene un juego asignado todavía. ¡Usa el chat de la partida para acordar con otros jugadores a qué vais a jugar!
+              </p>
             </div>
-
-            {/* Link button to BoardGameGeek */}
-            {gameInfo.bgg_id && (
-              <a 
-                href={`https://boardgamegeek.com/boardgame/${gameInfo.bgg_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Button variant="outline" className="w-full rounded-xl border border-border/50 text-xs font-bold h-9 flex items-center justify-center gap-1.5 hover:bg-muted/80 cursor-pointer">
-                  Ver Ficha en BGG <ExternalLink className="w-3 h-3 text-primary" />
-                </Button>
-              </a>
-            )}
           </CardContent>
         </Card>
+      ) : (
+        <div className="space-y-4">
+          {gamesList.map((game) => (
+            <Card key={game.bgg_id} className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl">
+              <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
+                <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
+                  {game.title}
+                </CardTitle>
+                {game.bgg_id && (
+                  <a 
+                    href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 transition-colors cursor-pointer shrink-0"
+                    title="Ver en BGG"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </CardHeader>
+              <CardContent className="p-4 pt-4 sm:p-5 sm:pt-4 space-y-3.5">
+                {/* Cover image in card */}
+                {game.image_url && (
+                  <div className="w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner">
+                    <img 
+                      src={game.image_url} 
+                      alt={game.title} 
+                      className="max-h-full max-w-full object-contain rounded-lg" 
+                    />
+                  </div>
+                )}
+
+                {/* Specs */}
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="p-2.5 rounded-xl bg-muted/30 border border-border/20">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Jugadores</p>
+                    <p className="text-xs font-extrabold text-primary mt-0.5">
+                      {game.min_players === game.max_players 
+                        ? `${game.min_players}` 
+                        : `${game.min_players}-${game.max_players}`}
+                    </p>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-muted/30 border border-border/20">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Duración</p>
+                    <p className="text-xs font-extrabold text-primary mt-0.5">
+                      {game.playing_time ? `${game.playing_time} min` : 'N/D'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
     </div>
