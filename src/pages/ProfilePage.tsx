@@ -1219,16 +1219,7 @@ export function ProfilePage() {
                 </div>
               ) : (
                 savedRankings.map((ranking) => {
-                  // Reconstruct flat games array from data.tiers or data.top10
-                  const rData = ranking.data || {}
                   const mode = ranking.mode
-                  
-                  let previewGames: Game[] = []
-                  if (mode === 'tier' && Array.isArray(rData.tiers)) {
-                    previewGames = rData.tiers.flatMap((t: any) => t.games || [])
-                  } else if (mode === 'top10' && Array.isArray(rData.top10)) {
-                    previewGames = rData.top10.filter((g: any) => g !== null)
-                  }
 
                   return (
                     <div 
@@ -1237,9 +1228,9 @@ export function ProfilePage() {
                       className="p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex justify-between items-center group text-left"
                     >
                       <div className="space-y-1.5 flex-1 min-w-0 pr-4">
-                        <h4 className="font-extrabold text-sm text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1.5">
-                          {ranking.title || 'Ranking sin título'}
-                          <Badge variant="primary-soft">
+                        <h4 className="font-extrabold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{ranking.title || 'Ranking sin título'}</span>
+                          <Badge variant="primary-soft" className="shrink-0">
                             {mode === 'tier' ? 'Tier List' : 'Top 10'}
                           </Badge>
                         </h4>
@@ -1250,37 +1241,8 @@ export function ProfilePage() {
                         </div>
                       </div>
 
-                      {/* Cover Avatar Overlapping Preview stack & Actions */}
+                      {/* Actions */}
                       <div className="flex items-center gap-4 shrink-0">
-                        {previewGames.length > 0 ? (
-                          <div className="flex -space-x-2.5 overflow-hidden">
-                            {previewGames.slice(0, 3).map((game, idx) => (
-                              <div 
-                                key={game.bgg_id || idx} 
-                                className="h-8 w-8 rounded-lg overflow-hidden border border-background shadow bg-zinc-950 flex items-center justify-center shrink-0"
-                              >
-                                {game.image_url ? (
-                                  <img 
-                                    src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=35&h=35&fit=cover`} 
-                                    alt={game.title} 
-                                    className="h-full w-full object-cover" 
-                                    crossOrigin="anonymous"
-                                  />
-                                ) : (
-                                  <span className="text-[8px] text-zinc-400 font-bold leading-none">{game.title.slice(0,2)}</span>
-                                )}
-                              </div>
-                            ))}
-                            {previewGames.length > 3 && (
-                              <div className="h-8 w-8 rounded-lg bg-zinc-800 border border-background shadow flex items-center justify-center text-[9px] font-black text-white shrink-0 select-none">
-                                +{previewGames.length - 3}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-[10px] font-bold text-muted-foreground bg-muted/40 px-2 py-0.5 rounded border border-border/20">Vacío</span>
-                        )}
-
                         <div className="flex items-center gap-1">
                           {isOwnProfile && (
                             <Button 
