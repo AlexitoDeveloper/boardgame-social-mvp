@@ -19,6 +19,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { Tag } from '../ui/tag'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
 
@@ -655,9 +656,16 @@ export function MeetupDetailSidebar({
           {gamesList.map((game) => (
             <Card key={game.bgg_id} className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl">
               <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
-                <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
-                  {game.title}
-                </CardTitle>
+                <div className="flex items-center gap-2 min-w-0">
+                  <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
+                    {game.title}
+                  </CardTitle>
+                  {game.is_expansion && (
+                    <Tag variant="purple" className="shrink-0 text-[9px] px-1 py-0 shadow-sm">
+                      Expansión
+                    </Tag>
+                  )}
+                </div>
                 {game.bgg_id && (
                   <a 
                     href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
@@ -699,6 +707,14 @@ export function MeetupDetailSidebar({
                     </p>
                   </div>
                 </div>
+
+                {/* Editorial Info */}
+                {game.es_publisher && (
+                  <div className="px-3 py-2 rounded-xl bg-muted/20 border border-border/15 text-center">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Editorial Española</p>
+                    <p className="text-xs font-extrabold text-foreground mt-0.5">{game.es_publisher}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

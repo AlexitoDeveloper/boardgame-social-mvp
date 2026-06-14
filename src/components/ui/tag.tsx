@@ -28,6 +28,10 @@ const tagVariants = cva(
           "border-amber-500/25 bg-amber-500/10 text-amber-500",
         "warning-solid":
           "border-transparent bg-amber-500 text-white",
+        purple:
+          "border-purple-500/25 bg-purple-500/10 text-purple-400",
+        "purple-solid":
+          "border-transparent bg-purple-600 text-white",
         outline:
           "border-border/40 text-foreground bg-transparent",
       },

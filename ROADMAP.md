@@ -12,6 +12,10 @@ _Objetivo: Que la app se promocione orgánicamente mediante contenido interactiv
 
 _Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad._
 
+- [x] **[INFRAESTRUCTURA] Ingesta Automática del Catálogo (Script BGG):** Script de migración (_scheduler_ diario) para descargar el catálogo de BGG por lotes, evitando baneos de IP. Incluye la conversión de XML a JSON y la descarga de las portadas físicas a Supabase Storage para servir desde CDN propio.
+- [x] **[GRATIS] Soporte de Ediciones en Español:** Lógica en el script de ingesta para leer el nodo `versions`, extrayendo la editorial española y priorizando la descarga de la portada de la edición nacional.
+- [x] **[GRATIS] Gestión de Expansiones y Juegos Base:** Modificación de la tabla `games` (columna `base_game_id`) para relacionar expansiones. En la creación de eventos, permitir desplegar y seleccionar las expansiones asociadas al juego base elegido.
+- [x] **[LEGAL] Atribución de Datos BGG:** Inclusión de un texto discreto ("Datos proporcionados por BoardGameGeek") en el _footer_, perfil o vista de juego para cumplir estrictamente con los Términos de Servicio de la API.
 - [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
 - [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Centralizado en una página dedicada con badges de notificaciones.
 - [x] **[GRATIS] Escaparate de Jugador (Perfil Gamificado):** Perfil rediseñado con sistema de experiencia (XP) con desglose de rates, rango de jugador (Novato, Maestro, Leyenda), vitrina de logros interactiva y visualización/descarga de rankings guardados.
@@ -26,7 +30,7 @@ _Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usua
 - [ ] **[GRATIS] Filtros "Matchmaking" Locales:** Buscador avanzado de eventos locales filtrando por categorías y mecánicas en caché.
 - [ ] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
 - [ ] **[VIRALIDAD] Resumen de Partida (Exportable):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
-- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego.
+- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego (y sus expansiones).
 - [ ] **[PREMIUM] Estadísticas Avanzadas:** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
 
 ### FASE 4: EXPANSIÓN Y ECOSISTEMA LOCAL (Visión a largo plazo)
