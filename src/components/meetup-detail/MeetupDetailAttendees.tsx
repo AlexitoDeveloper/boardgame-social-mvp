@@ -1,6 +1,6 @@
 import { Crown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
-import { Badge } from '../ui/badge'
+import { Tag } from '../ui/tag'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -52,9 +52,9 @@ export function MeetupDetailAttendees({
             {attendees.length} de {maxPlayers} jugadores en la mesa
           </CardDescription>
         </div>
-        <Badge variant="secondary" className="font-extrabold text-xs">
+        <Tag variant="default">
           {spotsRemaining} plazas libres
-        </Badge>
+        </Tag>
       </CardHeader>
       
       <CardContent className="p-4 pt-4 sm:p-6 sm:pt-6">
@@ -102,16 +102,16 @@ export function MeetupDetailAttendees({
                   )}
 
                   {isUserOrganizer && (
-                    <div className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center gap-1.5 text-[10px] font-bold shrink-0">
-                      <Crown className="w-3.5 h-3.5 fill-current" />
+                    <Tag variant="warning" className="flex items-center gap-1 shrink-0">
+                      <Crown className="w-3 h-3 fill-current" />
                       Master
-                    </div>
+                    </Tag>
                   )}
 
                   {attendee.is_guest && !isUserOrganizer && (
-                    <div className="px-2 py-0.5 rounded-full bg-muted/60 border border-border text-muted-foreground/80 flex items-center text-[10px] font-bold shrink-0">
+                    <Tag variant="secondary" className="shrink-0">
                       Invitado
-                    </div>
+                    </Tag>
                   )}
                 </MotionDiv>
               )

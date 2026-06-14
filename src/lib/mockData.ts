@@ -50,11 +50,13 @@ export function getMockMeetupsForList(): Meetup[] {
         username: m.users?.username || 'anónimo',
         avatar_url: m.users?.avatar_url || null
       },
-      games: {
-        bgg_id: 1,
-        title: m.game_name,
-        image_url: null
-      },
+      games: [
+        {
+          bgg_id: 1,
+          title: m.game_name,
+          image_url: null
+        }
+      ],
       meetup_guests: guestsList,
       is_online: m.is_online || false,
       platform: m.platform || null,

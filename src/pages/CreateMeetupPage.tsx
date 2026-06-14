@@ -4,11 +4,12 @@ import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { Tabs } from '../components/ui/tabs'
 import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CalendarDays, MapPin, Users, CheckCircle2, ArrowLeft, Laptop, PhoneCall } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Trash2, X } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
@@ -46,7 +47,8 @@ export function CreateMeetupPage() {
   // Game Search State
   const [searchQuery, setSearchQuery] = useState('')
   const [games, setGames] = useState<Game[]>([])
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null)
+  const [selectedGames, setSelectedGames] = useState<Game[]>([])
+  const [showDetails, setShowDetails] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
 
 
@@ -136,26 +138,27 @@ export function CreateMeetupPage() {
           
           const foundGame = MOCK_BGG_GAMES.find(g => g.name === foundMock.game_name)
           if (foundGame) {
-            setSelectedGame({
+            setSelectedGames([{
               bgg_id: Number(foundGame.bgg_id),
               title: foundGame.name,
               year_published: foundGame.year,
               image_url: foundGame.image_url
-            })
+            }])
           } else {
-            setSelectedGame({
+            setSelectedGames([{
               bgg_id: 13,
               title: foundMock.game_name,
               year_published: 2020,
               image_url: null
-            })
+            }])
           }
+          setShowDetails(true)
         }
       } else {
         try {
           const { data, error } = await supabase
             .from('meetups')
-            .select('*, games(*)')
+            .select('*, meetup_games(game_id, winner_user_id, winner_guest_id, games(*))')
             .eq('id', id)
             .single()
 
@@ -181,9 +184,18 @@ export function CreateMeetupPage() {
             setDate(data.date)
             setMaxPlayers(String(data.max_players))
             
-            const rawGame = data.games
-            const parsedGame = Array.isArray(rawGame) ? rawGame[0] : rawGame
-            setSelectedGame((parsedGame as Game) || null)
+            const mg = data.meetup_games || []
+            const mGames = mg.map((item: any) => {
+              if (!item.games) return null
+              return {
+                ...item.games,
+                winner_user_id: item.winner_user_id,
+                winner_guest_id: item.winner_guest_id
+              }
+            }).filter(Boolean) as Game[]
+            
+            setSelectedGames(mGames)
+            setShowDetails(true)
           }
         } catch (err) {
           console.error("Error loading meetup for edit:", err)
@@ -219,10 +231,6 @@ export function CreateMeetupPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!selectedGame) {
-      setErrorMsg('Debes seleccionar un juego para la partida.')
-      return
-    }
 
     const selectedDate = new Date(date)
     if (isNaN(selectedDate.getTime())) {
@@ -251,7 +259,6 @@ export function CreateMeetupPage() {
           const { error: updateError } = await supabase
             .from('meetups')
             .update({
-              game_id: selectedGame.bgg_id,
               title: title.trim(),
               description: description.trim() || null,
               is_online: isOnline,
@@ -265,25 +272,57 @@ export function CreateMeetupPage() {
             .eq('id', id)
 
           if (updateError) throw new Error(`Error al actualizar la partida: ${updateError.message}`)
+
+          // Delete existing relations
+          const { error: deleteError } = await supabase
+            .from('meetup_games')
+            .delete()
+            .eq('meetup_id', id)
+
+          if (deleteError) console.error("Error deleting old relations:", deleteError)
+
+          // Insert new relations
+          if (selectedGames.length > 0) {
+            const relationRows = selectedGames.map(g => ({
+              meetup_id: id,
+              game_id: g.bgg_id
+            }))
+            const { error: relError } = await supabase.from('meetup_games').insert(relationRows)
+            if (relError) throw relError
+          }
         }
         navigate(`/tablero/${id}`)
       } else {
-        const { error: insertError } = await supabase.from('meetups').insert({
-          creator_id: userId,
-          game_id: selectedGame.bgg_id,
-          title: title.trim(),
-          description: description.trim() || null,
-          is_online: isOnline,
-          city: isOnline ? null : city.trim(),
-          location: isOnline ? null : location.trim(),
-          platform: isOnline ? platform.trim() : null,
-          voice_link: isOnline ? voiceLink.trim() : null,
-          date: new Date(date).toISOString(),
-          max_players: Number(maxPlayers),
-          joined_players: [userId] // The creator joins their own meetup automatically
-        })
+        const { data: insertData, error: insertError } = await supabase
+          .from('meetups')
+          .insert({
+            creator_id: userId,
+            title: title.trim(),
+            description: description.trim() || null,
+            is_online: isOnline,
+            city: isOnline ? null : city.trim(),
+            location: isOnline ? null : location.trim(),
+            platform: isOnline ? platform.trim() : null,
+            voice_link: isOnline ? voiceLink.trim() : null,
+            date: new Date(date).toISOString(),
+            max_players: Number(maxPlayers),
+            joined_players: [userId] // The creator joins their own meetup automatically
+          })
+          .select('id')
+          .single()
 
         if (insertError) throw new Error(`Error al abrir la mesa: ${insertError.message}`)
+
+        // Insert relations
+        if (insertData && selectedGames.length > 0) {
+          const relationRows = selectedGames.map(g => ({
+            meetup_id: insertData.id,
+            game_id: g.bgg_id
+          }))
+          const { error: relError } = await supabase.from('meetup_games').insert(relationRows)
+          if (relError) throw relError
+        }
+
         navigate('/')
       }
     } catch (err: any) {
@@ -334,15 +373,15 @@ export function CreateMeetupPage() {
             
             {/* Stepper Wizard Header */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">
-              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!selectedGame ? 'text-primary' : 'text-success/90'}`}>
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
-                  {!selectedGame ? '1' : '✓'}
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!showDetails ? 'text-primary' : 'text-success/90'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
+                  {selectedGames.length > 0 ? '✓' : '1'}
                 </span>
-                <span>Seleccionar Juego</span>
+                <span>Seleccionar Juegos</span>
               </div>
               <div className="w-8 sm:w-16 h-px bg-border/40" />
-              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${selectedGame ? 'text-primary' : 'text-muted-foreground/60'}`}>
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${selectedGame ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
+              <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${showDetails ? 'text-primary' : 'text-muted-foreground/60'}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
                   2
                 </span>
                 <span>Detalles de la Partida</span>
@@ -365,15 +404,16 @@ export function CreateMeetupPage() {
             </AnimatePresence>
 
             <AnimatePresence mode="wait">
-              {!selectedGame ? (
+              {!showDetails ? (
                 <MotionDiv 
                   key="search-stage"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
                 >
                   <div className="space-y-3">
-                    <Label className="text-foreground/80 font-bold text-sm">Busca y selecciona el juego de mesa</Label>
+                    <Label className="text-foreground/80 font-bold text-sm">Busca y añade juegos de mesa a la sesión</Label>
                     <GameSearchBar
                       searchQuery={searchQuery}
                       setSearchQuery={setSearchQuery}
@@ -381,8 +421,82 @@ export function CreateMeetupPage() {
                       setGames={setGames}
                       isSearching={isSearching}
                       placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
-                      onSelectGame={setSelectedGame}
+                      onSelectGame={(game) => {
+                        setSelectedGames(prev => {
+                          if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+                          return [...prev, game]
+                        })
+                      }}
+                      isGameDisabled={(game) => selectedGames.some(g => g.bgg_id === game.bgg_id)}
+                      closeOnSelect={false}
                     />
+                  </div>
+
+                  {/* Shelf (Bandeja de Juegos) */}
+                  <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3 relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-xs text-muted-foreground font-black uppercase tracking-wider block">Juegos en Bandeja ({selectedGames.length})</Label>
+                      {selectedGames.length > 0 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          type="button"
+                          onClick={() => setSelectedGames([])}
+                          className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Vaciar
+                        </Button>
+                      )}
+                    </div>
+
+                    {selectedGames.length === 0 ? (
+                      <div className="text-center py-6 border border-dashed border-border/50 rounded-lg bg-background/30 text-muted-foreground text-xs font-semibold">
+                        Los juegos añadidos aparecerán aquí.
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent min-h-[72px] border border-transparent rounded-lg">
+                        <AnimatePresence initial={false}>
+                          {selectedGames.map((game) => (
+                            <motion.div
+                              key={game.bgg_id}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              layout
+                              className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
+                            >
+                              {game.image_url ? (
+                                <img src={game.image_url} alt={game.title} className="w-full h-full object-cover pointer-events-none" />
+                              ) : (
+                                <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
+                                  {game.title}
+                                </div>
+                              )}
+                              
+                              <button
+                                type="button"
+                                onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
+                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-background/90 hover:bg-destructive hover:text-destructive-foreground border border-border rounded-full flex items-center justify-center text-[9px] text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                                title={`Quitar ${game.title}`}
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Continue Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/20">
+                    <Button 
+                      type="button"
+                      onClick={() => setShowDetails(true)}
+                      className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
+                    >
+                      {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego (Decidir en el chat)'}
+                    </Button>
                   </div>
                 </MotionDiv>
               ) : (
@@ -394,24 +508,26 @@ export function CreateMeetupPage() {
                   onSubmit={handleSubmit} 
                   className="space-y-5"
                 >
-                  {/* Selected Game Card Header */}
-                  <div className="flex items-center justify-between p-4 border border-primary/20 rounded-xl bg-primary/5 shadow-inner">
-                    <div className="flex items-center gap-3">
-                      {selectedGame.image_url ? (
-                        <img src={selectedGame.image_url} alt={selectedGame.title} className="w-12 h-12 rounded object-contain bg-background/50 border border-border/30 p-0.5 shadow-sm" />
-                      ) : (
-                        <div className="bg-primary/20 p-2 rounded-full text-primary">
-                          <CheckCircle2 className="w-6 h-6" />
-                        </div>
-                      )}
-                      <div>
-                        <Label className="text-xs text-primary uppercase font-bold mb-0.5 block">Juego de la Partida</Label>
-                        <p className="font-extrabold text-foreground leading-tight">{selectedGame.title}</p>
-                      </div>
+                  {/* Selected Games Showcase Frame */}
+                  <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3">
+                    <div className="flex justify-between items-center border-b border-border/20 pb-2">
+                      <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Juegos de la Sesión</Label>
+                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="rounded-full text-xs h-8 border-border/50 cursor-pointer">
+                        Añadir/Cambiar
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm" type="button" onClick={() => setSelectedGame(null)} className="rounded-full text-xs h-8 border-border/50">
-                      Cambiar Juego
-                    </Button>
+                    {selectedGames.length === 0 ? (
+                      <p className="text-xs font-medium text-muted-foreground italic">Por decidir en el chat (ningún juego fijo aún).</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedGames.map(game => (
+                          <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
+                            {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
+                            <span>{game.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Title */}
@@ -442,30 +558,14 @@ export function CreateMeetupPage() {
                   {/* Modality Selector */}
                   <div className="space-y-1.5">
                     <Label className="font-bold">Modalidad de la Partida</Label>
-                    <div className="grid grid-cols-2 gap-2 p-1.5 bg-muted/30 backdrop-blur-sm rounded-xl border border-border/40">
-                      <button
-                        type="button"
-                        onClick={() => setIsOnline(false)}
-                        className={`py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                          !isOnline
-                            ? 'bg-background text-primary shadow-sm border border-border/20 font-black'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        <MapPin className="w-3.5 h-3.5" /> Presencial
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsOnline(true)}
-                        className={`py-2 px-3 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                          isOnline
-                            ? 'bg-background text-primary shadow-sm border border-border/20 font-black'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        <Laptop className="w-3.5 h-3.5" /> Online
-                      </button>
-                    </div>
+                    <Tabs
+                      options={[
+                        { id: 'presencial', label: 'Presencial', icon: MapPin },
+                        { id: 'online', label: 'Online', icon: Laptop }
+                      ]}
+                      activeTab={isOnline ? 'online' : 'presencial'}
+                      onChange={(val) => setIsOnline(val === 'online')}
+                    />
                   </div>
 
                   {/* City/Location vs Platform/Voice Link conditional rendering with animation */}

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'
 import { Meetup, UserProfile, Game } from '../types'
 import { getMockMeetupsForList } from '../lib/mockData'
 import { Button } from '../components/ui/button'
+import { Tabs } from '../components/ui/tabs'
 import { USE_MOCKS } from '../lib/config'
 import { Card, CardContent } from '../components/ui/card'
 import { toPng } from 'html-to-image'
@@ -294,13 +295,29 @@ export function ProfilePage() {
 
           const { data: meetupsData, error: meetupsError } = await supabase
             .from('meetups')
-            .select('*, games(*), users:users!meetups_creator_id_fkey(*)')
+            .select('*, meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), users:users!meetups_creator_id_fkey(*)')
             .contains('joined_players', [profileId])
 
           if (meetupsError) throw meetupsError
           
-          setMeetups(meetupsData as Meetup[] || [])
-          calculateStats(meetupsData || [], profileId)
+          const formatted = (meetupsData || []).map((m: any) => {
+            const mg = m.meetup_games || []
+            const mGames = mg.map((item: any) => {
+              if (!item.games) return null
+              return {
+                ...item.games,
+                winner_user_id: item.winner_user_id,
+                winner_guest_id: item.winner_guest_id
+              }
+            }).filter(Boolean) as Game[]
+            return {
+              ...m,
+              games: mGames
+            }
+          })
+          
+          setMeetups(formatted as Meetup[])
+          calculateStats(formatted as Meetup[], profileId)
         } catch (err: any) {
           console.error("Error loading profile:", err)
           setErrorMsg(err.message || 'Error al obtener el perfil de usuario.')
@@ -317,14 +334,33 @@ export function ProfilePage() {
     const completed = userMeetups.filter(m => m.completed)
     const attended = completed.filter(m => m.attended_players?.includes(userId))
     const missed = completed.filter(m => !m.attended_players?.includes(userId))
-    const won = completed.filter(m => m.winner_user_id === userId)
 
-    const winRate = attended.length > 0 ? Math.round((won.length / attended.length) * 100) : 0
+    let totalPlayedGames = 0
+    let totalWonGames = 0
+
+    attended.forEach(m => {
+      const games = m.games || []
+      if (games.length === 0) {
+        totalPlayedGames += 1
+        if (m.winner_user_id === userId) {
+          totalWonGames += 1
+        }
+      } else {
+        totalPlayedGames += games.length
+        games.forEach(g => {
+          if (g.winner_user_id === userId) {
+            totalWonGames += 1
+          }
+        })
+      }
+    })
+
+    const winRate = totalPlayedGames > 0 ? Math.round((totalWonGames / totalPlayedGames) * 100) : 0
     const karma = completed.length > 0 ? Math.round((attended.length / completed.length) * 100) : 100
 
     setStats({
-      played: attended.length,
-      won: won.length,
+      played: totalPlayedGames,
+      won: totalWonGames,
       winRate,
       karma,
       missed: missed.length
@@ -771,62 +807,15 @@ export function ProfilePage() {
         </Card>
       </div>
 
-      {/* Tabs Menu Slider (Premium Pill Design with Rankings Tab) */}
-      <div className="bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5">
-        <button
-          onClick={() => setActiveTab('upcoming')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'upcoming' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'upcoming' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <CalendarDays className="w-3.5 h-3.5" /> Próximas ({upcomingMeetups.length})
-          </span>
-        </button>
-        
-        <button
-          onClick={() => setActiveTab('completed')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'completed' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'completed' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <History className="w-3.5 h-3.5" /> Historial ({completedMeetups.length})
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('rankings')}
-          className={`flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 ${
-            activeTab === 'rankings' ? 'text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          }`}
-        >
-          {activeTab === 'rankings' && (
-            <MotionDiv 
-              layoutId="active-pill" 
-              className="absolute inset-0 bg-primary rounded-xl z-0"
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center justify-center gap-1">
-            <ListOrdered className="w-3.5 h-3.5" /> Rankings ({savedRankings.length})
-          </span>
-        </button>
-      </div>
+      <Tabs
+        options={[
+          { id: 'upcoming', label: 'Próximas', icon: CalendarDays, count: upcomingMeetups.length },
+          { id: 'completed', label: 'Historial', icon: History, count: completedMeetups.length },
+          { id: 'rankings', label: 'Rankings', icon: ListOrdered, count: savedRankings.length }
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       {/* Tabs Content Sections */}
       <div className="space-y-4">
@@ -847,20 +836,43 @@ export function ProfilePage() {
                 </div>
               ) : (
                 upcomingMeetups.map(meetup => {
-                  const rawGame = meetup.games
-                  const game = Array.isArray(rawGame) ? rawGame[0] : rawGame
+                  const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
+                  const mainGame = gamesList[0] || null
 
                   return (
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
                       <div className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all group">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
-                            {game?.image_url ? (
-                              <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
-                            ) : (
-                              <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
-                            )}
-                          </div>
+                          {gamesList.length <= 1 ? (
+                            <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
+                              {mainGame?.image_url ? (
+                                <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
+                              {gamesList.slice(0, 3).map((game, idx) => (
+                                <div
+                                  key={game.bgg_id}
+                                  style={{ zIndex: 10 - idx }}
+                                  className="w-11 h-11 rounded-lg overflow-hidden bg-background border border-border/45 p-0.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-105 hover:z-20 transition-all duration-200"
+                                >
+                                  {game.image_url ? (
+                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
+                                  ) : (
+                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
+                                  )}
+                                </div>
+                              ))}
+                              {gamesList.length > 3 && (
+                                <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform">
+                                  <span className="text-[8px] font-black text-primary">+{gamesList.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
@@ -896,8 +908,8 @@ export function ProfilePage() {
                 </div>
               ) : (
                 completedMeetups.map(meetup => {
-                  const rawGame = meetup.games
-                  const game = Array.isArray(rawGame) ? rawGame[0] : rawGame
+                  const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
+                  const mainGame = gamesList[0] || null
                   const isWinner = meetup.winner_user_id === profileId
                   const didAttend = meetup.attended_players?.includes(profileId)
 
@@ -911,17 +923,48 @@ export function ProfilePage() {
                             : 'border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20'
                       }`}>
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
-                            isWinner 
-                              ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
-                              : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
-                          }`}>
-                            {game?.image_url ? (
-                              <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
-                            ) : (
-                              <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
-                            )}
-                          </div>
+                          {gamesList.length <= 1 ? (
+                            <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
+                              isWinner 
+                                ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
+                                : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
+                            }`}>
+                              {mainGame?.image_url ? (
+                                <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              ) : (
+                                <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
+                              {gamesList.slice(0, 3).map((game, idx) => (
+                                <div
+                                  key={game.bgg_id}
+                                  style={{ zIndex: 10 - idx }}
+                                  className={`w-11 h-11 rounded-lg overflow-hidden border p-0.5 flex items-center justify-center shadow-sm hover:scale-105 hover:z-20 transition-all duration-200 ${
+                                    isWinner
+                                      ? 'bg-rose-950/40 border-rose-500/20'
+                                      : 'bg-background border-border/45'
+                                  }`}
+                                >
+                                  {game.image_url ? (
+                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
+                                  ) : (
+                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
+                                  )}
+                                </div>
+                              ))}
+                              {gamesList.length > 3 && (
+                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform ${
+                                  isWinner
+                                    ? 'bg-rose-500/20 border-rose-500/30'
+                                    : 'bg-primary/20 border-primary/30'
+                                }`}>
+                                  <span className={`text-[8px] font-black ${isWinner ? 'text-rose-400' : 'text-primary'}`}>+{gamesList.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
@@ -932,14 +975,14 @@ export function ProfilePage() {
                               
                               {/* Winner Badge using Swords Icon */}
                               {isWinner && (
-                                <Badge variant="secondary" className="bg-rose-500/10 text-rose-400 hover:bg-rose-500/15 border-rose-500/10 py-0.2 px-1.5 text-[9px] font-black tracking-wide rounded-full flex items-center gap-0.5 border-0">
+                                <Badge variant="destructive" className="flex items-center gap-0.5 shrink-0">
                                   <Swords className="w-2.5 h-2.5 fill-current" /> GANADO
                                 </Badge>
                               )}
 
                               {/* No attendance badge */}
                               {!didAttend && (
-                                <Badge variant="secondary" className="bg-destructive/10 text-destructive hover:bg-destructive/15 border-destructive/10 py-0.2 px-1.5 text-[9px] font-black tracking-wide rounded-full">
+                                <Badge variant="destructive" className="shrink-0">
                                   AUSENTE
                                 </Badge>
                               )}
@@ -1004,7 +1047,7 @@ export function ProfilePage() {
                       <div className="space-y-1.5 flex-1 min-w-0 pr-4">
                         <h4 className="font-extrabold text-sm text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1.5">
                           {ranking.title || 'Ranking sin título'}
-                          <Badge variant="outline" className="text-[8.5px] py-0 px-1.5 font-bold uppercase tracking-wider scale-95 border-primary/20 bg-primary/5 text-primary">
+                          <Badge variant="primary-soft">
                             {mode === 'tier' ? 'Tier List' : 'Top 10'}
                           </Badge>
                         </h4>

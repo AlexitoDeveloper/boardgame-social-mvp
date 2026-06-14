@@ -2,6 +2,7 @@ import { Card, CardTitle, CardDescription } from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
+import { Tag } from './ui/tag'
 import { MapPin, CalendarDays, Users, Loader2, Laptop } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
@@ -27,18 +28,18 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   const spotsRemaining = meetup.max_players - totalAttendees
   const isLastSpot = spotsRemaining === 1
 
-  // Extract game title and image url from meetup
-  // Sometimes meetup.games can be an array or a single object due to PostgREST structure
-  const gameInfo = Array.isArray(meetup.games) ? meetup.games[0] : meetup.games;
+  // Extract games list from meetup
+  const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : []);
+  const mainGame = gamesList[0] || null;
 
   const renderJoinButton = () => {
     if (meetup.completed) {
       return (
         <Button 
           disabled 
-          variant="outline" 
+          variant="secondary" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 bg-emerald-500/5 text-emerald-500 border-emerald-500/15 cursor-not-allowed select-none"
+          className="flex-1 select-none"
         >
           Finalizada
         </Button>
@@ -51,7 +52,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           onClick={() => onNavigate('/auth')} 
           variant="default" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 shadow-md shadow-primary/10 transition-all"
+          className="flex-1 h-9"
         >
           Apuntarse
         </Button>
@@ -64,7 +65,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           disabled 
           variant="secondary" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 bg-primary/10 text-primary opacity-80"
+          className="flex-1"
         >
           Master
         </Button>
@@ -77,7 +78,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           disabled 
           variant="secondary" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9"
+          className="flex-1 h-9"
         >
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
         </Button>
@@ -90,7 +91,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           onClick={() => onJoinLeave(meetup)} 
           variant="destructive" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 shadow-md shadow-destructive/15 transition-all hover:bg-destructive/90"
+          className="flex-1 h-9"
         >
           Salirse
         </Button>
@@ -103,7 +104,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           disabled 
           variant="outline" 
           size="sm" 
-          className="flex-1 rounded-xl font-bold text-xs h-9 border-muted-foreground/30 text-muted-foreground"
+          className="flex-1"
         >
           Completo
         </Button>
@@ -115,7 +116,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         onClick={() => onJoinLeave(meetup)} 
         variant="default" 
         size="sm" 
-        className="flex-1 rounded-xl font-bold text-xs h-9 shadow-md shadow-primary/15 transition-all hover:bg-primary/95"
+        className="flex-1 h-9"
       >
         Apuntarse
       </Button>
@@ -130,15 +131,25 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <CardTitle className="text-lg font-extrabold leading-tight tracking-tight text-card-foreground truncate flex items-center gap-2">
             <span className="truncate">{meetup.title || 'Partida de Juego de Mesa'}</span>
             {meetup.completed && (
-              <Badge className="bg-emerald-500/10 border-emerald-500/20 text-emerald-500 text-[10px] font-extrabold tracking-wide rounded-full shrink-0 border-0">
+              <Tag variant="success">
                 Completada
-              </Badge>
+              </Tag>
             )}
           </CardTitle>
           
-          {(gameInfo?.title || meetup.game_name) && (
-            <div className="text-xs font-bold text-primary tracking-wide">
-              Juego: <span className="text-foreground/90 font-semibold">{gameInfo?.title || meetup.game_name}</span>
+          {gamesList.length === 0 ? (
+            <div className="text-xs font-bold text-amber-500 tracking-wide flex items-center gap-1">
+              <span>Juego:</span> <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-black uppercase">Por decidir en chat</span>
+            </div>
+          ) : (
+            <div className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
+              <span>Juego:</span> 
+              <span className="text-foreground/90 font-semibold truncate max-w-[150px] inline-block align-middle">{mainGame?.title || meetup.game_name}</span>
+              {gamesList.length > 1 && (
+                <Badge variant="primary-soft">
+                  +{gamesList.length - 1} fillers
+                </Badge>
+              )}
             </div>
           )}
           
@@ -162,16 +173,47 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         </div>
 
         {/* Game Cover Showcase Frame */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 relative rounded-xl overflow-hidden bg-background/50 border border-border/40 p-1.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
-          {gameInfo?.image_url ? (
-            <img 
-              src={gameInfo.image_url} 
-              alt={gameInfo.title || 'Juego'} 
-              className="w-full h-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-105"
-            />
+        <div className="flex-shrink-0 flex items-center">
+          {gamesList.length <= 1 ? (
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-background/50 border border-border/40 p-1.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
+              {mainGame?.image_url ? (
+                <img 
+                  src={mainGame.image_url} 
+                  alt={mainGame.title || 'Juego'} 
+                  className="w-full h-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="text-[10px] text-muted-foreground/60 font-extrabold text-center uppercase tracking-wider p-1 leading-snug">
+                  {gamesList.length === 0 ? '💬 ?' : (mainGame?.title || meetup.game_name || 'JUE').slice(0, 3)}
+                </div>
+              )}
+            </div>
           ) : (
-            <div className="text-[10px] text-muted-foreground/60 font-extrabold text-center uppercase tracking-wider p-1 leading-snug">
-              {(gameInfo?.title || meetup.game_name || 'Juego').slice(0, 3)}
+            <div className="flex -space-x-5 hover:-space-x-2 transition-all duration-350 items-center pl-2">
+              {gamesList.slice(0, 3).map((game, idx) => (
+                <div 
+                  key={game.bgg_id}
+                  style={{ zIndex: 10 - idx }}
+                  className="w-12 h-12 sm:w-15 sm:h-15 rounded-xl overflow-hidden bg-background border border-border/50 p-1 flex items-center justify-center shadow-md bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-110 hover:z-30 transition-all duration-200"
+                >
+                  {game.image_url ? (
+                    <img 
+                      src={game.image_url} 
+                      alt={game.title || 'Juego'} 
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  ) : (
+                    <div className="text-[9px] text-muted-foreground/60 font-extrabold text-center uppercase">
+                      {game.title.slice(0, 3)}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {gamesList.length > 3 && (
+                <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center z-0 translate-x-1 hover:scale-110 transition-transform">
+                  <span className="text-[10px] font-black text-primary">+{gamesList.length - 3}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -202,17 +244,17 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
 
           {/* Player spots badge */}
           <div className="flex flex-col items-end gap-1">
-            <div className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 border border-primary/20 bg-primary/10 text-primary transition-all duration-300">
-              <Users className="w-3 h-3" />
+            <Tag variant="default">
+              <Users className="w-3.5 h-3.5" />
               {totalAttendees} / {meetup.max_players} plazas
-            </div>
+            </Tag>
             {isLastSpot && (
-              <Badge
-                variant="outline"
-                className="text-[11px] font-bold bg-amber-500/15 text-amber-400 border-amber-500/30 animate-pulse [animation-duration:2s]"
+              <Tag
+                variant="warning"
+                pulse
               >
                 Última plaza
-              </Badge>
+              </Tag>
             )}
           </div>
         </div>
@@ -224,7 +266,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           onClick={() => onNavigate(`/tablero/${meetup.id}`)}
           variant="outline" 
           size="sm" 
-          className="flex-1 rounded-xl font-semibold border-border/50 text-xs h-9 transition-colors hover:bg-muted/80"
+          className="flex-1 h-9"
         >
           Ver Detalles
         </Button>

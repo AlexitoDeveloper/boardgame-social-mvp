@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check, MoreVertical } from 'lucide-react'
 import { Button } from '../ui/button'
+import { DropdownIconButton } from '../ui/dropdown-icon-button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 
@@ -240,8 +241,6 @@ export function TopsCanvas({
   saveSuccess,
   handleSaveToProfile,
 }: TopsCanvasProps) {
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
     : top10.some(g => g !== null)
@@ -267,7 +266,7 @@ export function TopsCanvas({
               variant="outline"
               onClick={handleClearAll}
               disabled={!canReset}
-              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-destructive/10 text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-all rounded-xl"
+              className="flex items-center gap-1.5 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Reiniciar</span>
@@ -275,9 +274,10 @@ export function TopsCanvas({
 
             <Button
               size="sm"
+              variant="outline"
               onClick={handleSaveToProfile}
               disabled={saving || !hasGames}
-              className="font-bold border border-border/50 text-xs h-9 px-3 flex items-center gap-1.5 cursor-pointer bg-transparent hover:bg-primary/10 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all rounded-xl"
+              className="flex items-center gap-1.5 cursor-pointer"
             >
               {saving ? (
                 <>
@@ -333,64 +333,33 @@ export function TopsCanvas({
               )}
             </Button>
 
-            <div className="relative">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="h-9 w-9 p-0 rounded-xl flex items-center justify-center border-border/50 bg-background/50 hover:bg-muted text-foreground cursor-pointer"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-
-              <AnimatePresence>
-                {showMobileMenu && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setShowMobileMenu(false)}
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-48 bg-card border border-border/60 rounded-2xl shadow-xl py-1.5 z-50 flex flex-col divide-y divide-border/20 text-left animate-none"
-                    >
-                      <button
-                        onClick={() => {
-                          setShowMobileMenu(false)
-                          handleSaveToProfile()
-                        }}
-                        disabled={saving || !hasGames}
-                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-foreground hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
-                      >
-                        {saving ? (
-                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                        ) : saveSuccess ? (
-                          <Check className="w-4 h-4 text-emerald-500" />
-                        ) : (
-                          <Bookmark className="w-4 h-4 text-primary" />
-                        )}
-                        <span>{saving ? 'Guardando...' : saveSuccess ? '¡Guardado!' : 'Guardar en Perfil'}</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setShowMobileMenu(false)
-                          handleClearAll()
-                        }}
-                        disabled={!canReset}
-                        className="w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Reiniciar Canvas</span>
-                      </button>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            <DropdownIconButton
+              variant="outline"
+              size="sm"
+              icon={MoreVertical}
+              items={[
+                {
+                  label: saving ? 'Guardando...' : saveSuccess ? '¡Guardado!' : 'Guardar en Perfil',
+                  onClick: handleSaveToProfile,
+                  disabled: saving || !hasGames,
+                  icon: saving ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  ) : saveSuccess ? (
+                    <Check className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <Bookmark className="w-4 h-4 text-primary" />
+                  ),
+                  className: "text-foreground hover:bg-muted/50"
+                },
+                {
+                  label: 'Reiniciar Canvas',
+                  onClick: handleClearAll,
+                  disabled: !canReset,
+                  icon: <Trash2 className="w-4 h-4" />,
+                  className: "text-destructive hover:bg-destructive/10"
+                }
+              ]}
+            />
           </div>
         </div>
       </div>

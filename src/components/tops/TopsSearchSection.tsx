@@ -1,6 +1,6 @@
-import { useRef } from 'react'
+import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, Trash2, Check } from 'lucide-react'
+import { Search, Trash2, Check } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
 import { Game } from '../../types'

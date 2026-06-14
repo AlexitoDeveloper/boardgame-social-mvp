@@ -11,8 +11,9 @@ import {
   Info
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { Badge } from '../components/ui/badge'
+import { Tag } from '../components/ui/tag'
 import { Meetup, MeetupMessage, Game } from '../types'
 
 
@@ -91,13 +92,28 @@ export function ChatsPage() {
         // Fetch all meetups where user is creator, member, or guest
         const { data: meetupsData, error: meetupsError } = await supabase
           .from('meetups')
-          .select('*, users:users!meetups_creator_id_fkey (*), games (*), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
+          .select('*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
           .or(orParts.join(','))
           .order('date', { ascending: false })
 
         if (meetupsError) throw meetupsError
 
-        const fetchedMeetups = (meetupsData as Meetup[]) || []
+        const fetchedMeetups = (meetupsData || []).map((m: any) => {
+          const mg = m.meetup_games || []
+          const mGames = mg.map((item: any) => {
+            if (!item.games) return null
+            return {
+              ...item.games,
+              winner_user_id: item.winner_user_id,
+              winner_guest_id: item.winner_guest_id
+            }
+          }).filter(Boolean) as Game[]
+          return {
+            ...m,
+            games: mGames
+          }
+        }) as Meetup[]
+
         setMeetups(fetchedMeetups)
 
         if (fetchedMeetups.length > 0) {
@@ -295,9 +311,9 @@ export function ChatsPage() {
           <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-primary" /> Chats
           </h1>
-          <Badge variant="secondary" className="font-extrabold text-[10px] uppercase tracking-wider">
+          <Tag variant="secondary">
             {meetups.length} {meetups.length === 1 ? 'partida' : 'partidas'}
-          </Badge>
+          </Tag>
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-border/20 custom-scrollbar">
@@ -510,13 +526,13 @@ export function ChatsPage() {
 
             {/* Input area form */}
             <form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
-              <input
+              <Input
                 type="text"
                 placeholder="Escribe tu mensaje..."
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 maxLength={400}
-                className="flex-1 px-4 py-2 text-xs rounded-xl border border-border/40 bg-background/40 placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50 focus:bg-background/70 transition-all font-medium h-10"
+                className="flex-1 h-10 text-xs font-medium"
               />
               <Button
                 type="submit"
