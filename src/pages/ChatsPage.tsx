@@ -253,7 +253,6 @@ export function ChatsPage() {
     setDeletingChat(true)
 
     const isMock = USE_MOCKS && deleteTargetMeetup.id.startsWith('mock-')
-    const userId = user.id
     const meetupId = deleteTargetMeetup.id
 
     if (action === 'hide') {
@@ -390,22 +389,22 @@ export function ChatsPage() {
   }
 
   return (
-    <section className="h-full flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+    <section className="h-full flex-grow flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
       
       {/* ── Left conversations list ────────────────────────── */}
-      <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/40 h-full ${
+      <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full ${
         activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
-        <div className="p-4 border-b border-border/30 flex items-center justify-between">
-          <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
+        <div className="px-5 py-4 border-b border-border/30 flex items-center justify-between bg-card shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
+          <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
             <MessageSquare className="w-5 h-5 text-primary" /> Chats
           </h1>
-          <Tag variant="secondary">
+          <Tag variant="default-solid" className="font-extrabold text-[10px] px-2 py-0.5 rounded-full">
             {visibleMeetups.length} {visibleMeetups.length === 1 ? 'partida' : 'partidas'}
           </Tag>
         </div>
 
-        <div className="flex-1 overflow-y-auto divide-y divide-border/20 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar">
           {visibleMeetups.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground space-y-2">
               <MessageSquare className="w-10 h-10 mx-auto opacity-30" />
@@ -432,20 +431,24 @@ export function ChatsPage() {
               }).length
 
               const isActive = activeMeetupId === m.id
+              const hasUnread = unreadCount > 0
+
+              let itemStyles = "bg-card/45 dark:bg-card/10 border-border/25 hover:bg-card dark:hover:bg-muted/20 hover:border-border/40 hover:-translate-y-[1px]"
+              if (isActive) {
+                itemStyles = "bg-primary/10 border-primary/35 border-l-4 border-l-primary shadow-sm shadow-primary/5 scale-[1.01]"
+              } else if (hasUnread) {
+                itemStyles = "bg-card dark:bg-muted/15 border-border/50 border-l-4 border-l-primary/60 shadow-sm"
+              }
 
               return (
                 <div
                   key={m.id}
                   onClick={() => handleSelectMeetup(m.id)}
-                  className={`p-4 flex items-center justify-between gap-3.5 cursor-pointer transition-colors duration-200 text-left select-none border-l-4 group/sidebar-item ${
-                    isActive 
-                      ? 'bg-primary/10 border-l-primary' 
-                      : 'hover:bg-muted/40 border-l-transparent'
-                  }`}
+                  className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 text-left select-none group/sidebar-item ${itemStyles}`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Game cover thumbnail */}
-                    <div className="w-11 h-11 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                    <div className="w-11 h-11 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 shadow-sm bg-background/50">
                       {mGame?.image_url ? (
                         <img src={mGame.image_url} alt={mGame.title} className="w-full h-full object-contain" />
                       ) : (
@@ -454,8 +457,8 @@ export function ChatsPage() {
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1">
-                      <p className="text-xs font-black text-foreground truncate">{m.title}</p>
-                      <p className={`text-[10px] truncate ${unreadCount > 0 ? 'text-foreground font-black' : 'text-muted-foreground font-medium'}`}>
+                      <p className={`text-xs truncate ${isActive ? 'text-primary font-black' : 'text-foreground font-black'}`}>{m.title}</p>
+                      <p className={`text-[10px] truncate ${hasUnread ? 'text-foreground font-black' : 'text-muted-foreground font-medium'}`}>
                         {lastMsg ? (
                           <>
                             <span className="text-primary font-bold">{lastMsg.sender_name}:</span> {lastMsg.content}
@@ -502,13 +505,13 @@ export function ChatsPage() {
       </div>
 
       {/* ── Right chat window ─────────────────────────────── */}
-      <div className={`flex-1 flex flex-col bg-card/10 relative min-w-0 ${
+      <div className={`flex-grow flex-1 h-full min-h-0 flex flex-col bg-card/10 relative min-w-0 ${
         !activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
         {activeMeetup ? (
           <>
             {/* Header toolbar */}
-            <div className="p-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card/30">
+            <div className="p-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card">
               <div className="flex items-center gap-3.5 min-w-0 flex-1">
                 <Button 
                   onClick={handleBackToList}
@@ -568,15 +571,15 @@ export function ChatsPage() {
             )}
 
             {/* Message window */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-950/5 dark:bg-black/15">
-              {activeChatMessages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground/60 space-y-2 p-6">
-                  <MessageSquare className="w-12 h-12 opacity-25" />
-                  <p className="text-xs font-bold">La sala de chat está vacía.</p>
-                  <p className="text-[10px] text-muted-foreground max-w-[200px]">¡Sé el primero en enviar un mensaje para romper el hielo!</p>
-                </div>
-              ) : (
-                activeChatMessages.map((msg, idx) => {
+            {activeChatMessages.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground/60 space-y-2 p-6 bg-zinc-950/5 dark:bg-black/15">
+                <MessageSquare className="w-12 h-12 opacity-25" />
+                <p className="text-xs font-bold">La sala de chat está vacía.</p>
+                <p className="text-[10px] text-muted-foreground max-w-[200px]">¡Sé el primero en enviar un mensaje para romper el hielo!</p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-950/5 dark:bg-black/15">
+                {activeChatMessages.map((msg, idx) => {
                   const isMyMessage = msg.user_id === user?.id || (msg.guest_id && msg.guest_id === getReservation(activeMeetupId || '')?.id)
                   
                   // Group separator
@@ -631,10 +634,10 @@ export function ChatsPage() {
                       </div>
                     </div>
                   )
-                })
-              )}
-              {activeChatMessages.length > 0 && <div ref={chatEndRef} />}
-            </div>
+                })}
+                <div ref={chatEndRef} />
+              </div>
+            )}
 
             {/* Input area form */}
             <form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
