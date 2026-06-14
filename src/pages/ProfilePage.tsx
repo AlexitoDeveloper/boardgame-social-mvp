@@ -30,11 +30,18 @@ import {
   Sparkles,
   X,
   Plus,
-  Info
+  Info,
+  Edit,
+  User,
+  Camera
 } from 'lucide-react'
+import imageCompression from 'browser-image-compression'
+
 import { motion, AnimatePresence } from 'framer-motion'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
 
 const MotionDiv = motion.div
 
@@ -184,6 +191,178 @@ export function ProfilePage() {
 
   const profileId = id || user?.id || ''
   const isOwnProfile = profileId === user?.id
+  const isOwnProfileEditable = isOwnProfile || (USE_MOCKS && profileId.startsWith('mock-'))
+
+  // Edit Profile States
+  const [isEditing, setIsEditing] = useState(false)
+  const [editUsername, setEditUsername] = useState('')
+  const [editCity, setEditCity] = useState('')
+  const [editAvatarUrl, setEditAvatarUrl] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [editError, setEditError] = useState('')
+  const [uploadingFile, setUploadingFile] = useState(false)
+
+  const handleOpenEdit = () => {
+    if (!profile) return
+    setEditUsername(profile.username || '')
+    setEditCity(profile.city || '')
+    setEditAvatarUrl(profile.avatar_url || '')
+    setEditError('')
+    setIsEditing(true)
+  }
+
+  const handleRandomAvatar = () => {
+    const randomSeed = Math.random().toString(36).substring(2, 9)
+    setEditAvatarUrl(`https://api.dicebear.com/7.x/avataaars/svg?seed=${randomSeed}`)
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingFile(true)
+    setEditError('')
+
+    try {
+      // 1. Process image compression using browser-image-compression
+      const options = {
+        maxSizeMB: 0.1, // ~100KB maximum size
+        maxWidthOrHeight: 256, // limit width/height to 256px
+        useWebWorker: true,
+      }
+      
+      const compressedFile = await imageCompression(file, options)
+
+      const isMock = USE_MOCKS && profileId.startsWith('mock-')
+
+      if (isMock) {
+        // Mock Mode: Convert to Base64
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            setEditAvatarUrl(reader.result)
+          }
+          setUploadingFile(false)
+        }
+        reader.onerror = () => {
+          setEditError('Error al procesar el archivo en modo de demostración.')
+          setUploadingFile(false)
+        }
+        reader.readAsDataURL(compressedFile)
+      } else {
+        // Real Mode: Upload to Supabase Storage with local Base64 fallback
+        try {
+          if (!user) throw new Error('Usuario no autenticado.')
+          
+          const fileExt = file.name.split('.').pop() || 'png'
+          const filePath = `public/${user.id}/${Date.now()}.${fileExt}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, compressedFile, {
+              upsert: true,
+              contentType: compressedFile.type || 'image/png'
+            })
+
+          if (uploadError) throw uploadError
+
+          const { data } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath)
+
+          if (!data?.publicUrl) throw new Error('No se pudo obtener la URL pública del avatar.')
+
+          setEditAvatarUrl(data.publicUrl)
+          setUploadingFile(false)
+        } catch (err: any) {
+          console.warn('Fallo en la subida a Supabase Storage, aplicando fallback a Base64:', err)
+          // Fallback to Base64 direct storage in database if bucket fails or isn't set up
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            if (typeof reader.result === 'string') {
+              setEditAvatarUrl(reader.result)
+            }
+            setUploadingFile(false)
+          }
+          reader.onerror = () => {
+            setEditError('Error al convertir el avatar a Base64.')
+            setUploadingFile(false)
+          }
+          reader.readAsDataURL(compressedFile)
+        }
+      }
+    } catch (err: any) {
+      console.error('Error al procesar la imagen:', err)
+      setEditError(err.message || 'Error al comprimir o procesar la imagen.')
+      setUploadingFile(false)
+    }
+  }
+
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editUsername.trim() || !profile) return
+    setSavingProfile(true)
+    setEditError('')
+
+    const isMock = USE_MOCKS && profileId.startsWith('mock-')
+
+    if (isMock) {
+      setTimeout(() => {
+        const updated: UserProfile = {
+          ...profile,
+          username: editUsername.trim(),
+          city: editCity.trim() || null,
+          avatar_url: editAvatarUrl.trim() || null
+        }
+        setProfile(updated)
+        localStorage.setItem(`boardgame_social_mock_profile_${profileId}`, JSON.stringify(updated))
+        MOCK_PROFILES[profileId] = updated
+        window.dispatchEvent(new Event('profile_update'))
+        setSavingProfile(false)
+        setIsEditing(false)
+      }, 600)
+    } else {
+      try {
+        if (!user) throw new Error('Usuario no autenticado.')
+
+        const { error: dbError } = await supabase
+          .from('users')
+          .update({
+            username: editUsername.trim(),
+            city: editCity.trim() || null,
+            avatar_url: editAvatarUrl.trim() || null
+          })
+          .eq('id', user.id)
+
+        if (dbError) throw dbError
+
+        const { error: authError } = await supabase.auth.updateUser({
+          data: {
+            username: editUsername.trim(),
+            avatar_url: editAvatarUrl.trim() || null
+          }
+        })
+
+        if (authError) throw authError
+
+        const updated: UserProfile = {
+          ...profile,
+          username: editUsername.trim(),
+          city: editCity.trim() || null,
+          avatar_url: editAvatarUrl.trim() || null
+        }
+        setProfile(updated)
+        window.dispatchEvent(new Event('profile_update'))
+        setIsEditing(false)
+      } catch (err: any) {
+        console.error('Error updating profile:', err)
+        setEditError(err.message || 'Error al guardar los cambios de perfil.')
+      } finally {
+        setSavingProfile(false)
+      }
+    }
+  }
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [meetups, setMeetups] = useState<Meetup[]>([])
@@ -248,7 +427,8 @@ export function ProfilePage() {
 
       // 2. Fetch User Profile and Meetups
       if (isMock) {
-        const mockProf = MOCK_PROFILES[profileId]
+        const localMockStr = localStorage.getItem(`boardgame_social_mock_profile_${profileId}`)
+        let mockProf = localMockStr ? JSON.parse(localMockStr) : MOCK_PROFILES[profileId]
         if (!mockProf) {
           setErrorMsg('No se encontró el perfil de demostración.')
           setLoading(false)
@@ -549,15 +729,27 @@ export function ProfilePage() {
         >
           <ArrowLeft className="w-4 h-4" /> Atrás
         </Button>
-        {isOwnProfile ? (
-          <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
-            Tu Escaparate
-          </span>
-        ) : (
-          <span className="text-[10px] font-black text-muted-foreground uppercase bg-muted border border-border/40 px-3 py-1 rounded-full tracking-wider">
-            Escaparate de Jugador
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isOwnProfileEditable && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleOpenEdit}
+              className="rounded-xl flex items-center gap-1.5 font-bold text-xs h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-foreground"
+            >
+              <Edit className="w-3.5 h-3.5 text-primary" /> Editar Datos
+            </Button>
+          )}
+          {isOwnProfile ? (
+            <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
+              Tu Escaparate
+            </span>
+          ) : (
+            <span className="text-[10px] font-black text-muted-foreground uppercase bg-muted border border-border/40 px-3 py-1 rounded-full tracking-wider">
+              Escaparate de Jugador
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Showcase Profile Card with premium gaming card aesthetic */}
@@ -1288,6 +1480,173 @@ export function ProfilePage() {
             </div>
           )
         })()}
+      </AnimatePresence>
+
+      {/* Edit Profile Modal */}
+      <AnimatePresence>
+        {isEditing && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+            <MotionDiv
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-card border border-border/50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl p-6 relative space-y-4 text-left"
+            >
+              <div className="flex justify-between items-center pb-2 border-b border-border/20">
+                <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
+                  <User className="w-5 h-5 text-primary" /> Editar Perfil Lúdico
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(false)}
+                  className="h-8 w-8 p-0 rounded-xl"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {editError && (
+                <div className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                  {editError}
+                </div>
+              )}
+
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Nombre de Usuario</Label>
+                  <Input
+                    id="edit-username"
+                    type="text"
+                    required
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                    className="h-10 text-xs font-medium"
+                    placeholder="Escribe tu username..."
+                  />
+                </div>
+
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Ciudad</Label>
+                  <Input
+                    id="edit-city"
+                    type="text"
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    className="h-10 text-xs font-medium"
+                    placeholder="Escribe tu ciudad..."
+                  />
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">Personalizar Avatar</Label>
+                  <div className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border/20">
+                    {/* Interactive Clickable Avatar Preview */}
+                    <div 
+                      onClick={() => !uploadingFile && document.getElementById('avatar-upload')?.click()}
+                      className="relative w-14 h-14 rounded-full border-2 border-primary/30 shrink-0 overflow-hidden group cursor-pointer shadow-sm active:scale-95 transition-all"
+                      title="Subir foto de perfil"
+                    >
+                      <Avatar className="w-full h-full">
+                        <AvatarImage src={editAvatarUrl || undefined} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
+                          {editUsername.slice(0, 2).toUpperCase() || 'US'}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Camera className="w-4 h-4 text-white" />
+                      </div>
+                      
+                      {/* Loading state indicator */}
+                      {uploadingFile && (
+                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5">
+                      <Input
+                        type="text"
+                        value={editAvatarUrl}
+                        onChange={(e) => setEditAvatarUrl(e.target.value)}
+                        className="h-9 text-[10px] font-medium"
+                        placeholder="URL de imagen o semilla..."
+                        disabled={uploadingFile}
+                      />
+                      <div className="flex flex-wrap gap-1.5">
+                        <input 
+                          type="file" 
+                          id="avatar-upload" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleFileChange}
+                          disabled={uploadingFile}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          disabled={uploadingFile}
+                          variant="secondary"
+                          size="sm"
+                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
+                        >
+                          {uploadingFile ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Camera className="w-3.5 h-3.5" />
+                          )}
+                          Subir Foto
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleRandomAvatar}
+                          disabled={uploadingFile}
+                          variant="secondary"
+                          size="sm"
+                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Dices className="w-3.5 h-3.5" /> Cambiar Semilla
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground font-semibold block leading-normal mt-1">
+                    Puedes subir una foto de tu dispositivo, pegar un enlace directo a tu imagen de perfil, o usar un avatar de Dicebear ingresando cualquier palabra (semilla).
+                  </span>
+                </div>
+
+                <div className="flex justify-end gap-2.5 pt-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsEditing(false)}
+                    disabled={savingProfile || uploadingFile}
+                    className="rounded-xl font-bold text-xs h-9 cursor-pointer"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={savingProfile || uploadingFile || !editUsername.trim()}
+                    className="rounded-xl font-bold text-xs h-9 px-4 cursor-pointer shadow-sm shadow-primary/25"
+                  >
+                    {savingProfile ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                        Guardando...
+                      </>
+                    ) : (
+                      'Guardar Cambios'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </MotionDiv>
+          </div>
+        )}
       </AnimatePresence>
 
     </section>
