@@ -25,10 +25,10 @@
     --foreground: 224 10% 96%;
     --card: 224 24% 14%;
     --card-foreground: 224 10% 96%;
-    --primary: 158 64% 52%;
-    --primary-foreground: 158 30% 8%;
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 142.1 30% 8%;
+    --primary: 158 55% 38%;
+    --primary-foreground: 0 0% 100%;
+    --success: 142.1 55% 35%;
+    --success-foreground: 0 0% 100%;
     --muted: 224 20% 18%;
     --muted-foreground: 224 10% 65%;
     --border: 224 20% 18%;
