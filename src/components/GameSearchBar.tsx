@@ -4,6 +4,7 @@ import { Loader2, Check, X } from 'lucide-react'
 import { Command, CommandInput, CommandList, CommandItem } from './ui/command'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
+import { getGameTitle } from '@/lib/gameLocale'
 
 const MotionDiv = motion.div;
 
@@ -104,14 +105,14 @@ export function GameSearchBar({
                       >
                         <div className="flex items-center gap-3 pointer-events-none min-w-0 flex-1">
                           {g.image_url ? (
-                            <img src={g.image_url} alt={g.title} className="w-10 h-10 rounded object-cover shadow-sm shrink-0" />
+                            <img src={g.image_url} alt={getGameTitle(g)} className="w-10 h-10 rounded object-cover shadow-sm shrink-0" />
                           ) : (
                             <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-extrabold text-muted-foreground shrink-0">?</div>
                           )}
                           <span className="font-semibold text-sm text-left truncate block">
-                            {g.title} 
+                            {getGameTitle(g)} 
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                              {g.year_published || g.year || 'Año desc.'}
+                              {g.year_published || 'Año desc.'}
                               {g.is_expansion && (
                                 <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
                                   Expansión

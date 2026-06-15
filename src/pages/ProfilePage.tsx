@@ -4,6 +4,7 @@ import { useAuth } from '../lib/authContext'
 import { supabase } from '../lib/supabaseClient'
 import { Meetup, UserProfile, Game } from '../types'
 import { getMockMeetupsForList } from '../lib/mockData'
+import { getGameTitle } from '../lib/gameLocale'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { USE_MOCKS } from '../lib/config'
@@ -522,9 +523,7 @@ export function ProfilePage() {
       const games = m.games || []
       if (games.length === 0) {
         totalPlayedGames += 1
-        if (m.winner_user_id === userId) {
-          totalWonGames += 1
-        }
+        // No per-game winner data for this meetup — skip win tracking
       } else {
         totalPlayedGames += games.length
         games.forEach(g => {
@@ -1052,9 +1051,9 @@ export function ProfilePage() {
                                   className="w-11 h-11 rounded-lg overflow-hidden bg-background border border-border/45 p-0.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-105 hover:z-20 transition-all duration-200"
                                 >
                                   {game.image_url ? (
-                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
+                                    <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-contain rounded" />
                                   ) : (
-                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
+                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{getGameTitle(game).slice(0, 3)}</div>
                                   )}
                                 </div>
                               ))}
@@ -1102,7 +1101,7 @@ export function ProfilePage() {
                 completedMeetups.map(meetup => {
                   const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
                   const mainGame = gamesList[0] || null
-                  const isWinner = meetup.winner_user_id === profileId
+                  const isWinner = gamesList.some(g => g.winner_user_id === profileId)
                   const didAttend = meetup.attended_players?.includes(profileId)
 
                   return (
@@ -1418,7 +1417,7 @@ export function ProfilePage() {
                                     )}
                                   </div>
                                   <span className="font-extrabold text-zinc-100 truncate text-[11px] sm:text-xs">
-                                    {game.title}
+                                    {getGameTitle(game)}
                                   </span>
                                 </div>
                               ) : (

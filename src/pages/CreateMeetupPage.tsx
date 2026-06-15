@@ -15,6 +15,7 @@ import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
 import { GameSearchBar } from '../components/GameSearchBar'
+import { getGameTitle } from '../lib/gameLocale'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -260,7 +261,7 @@ export function CreateMeetupPage() {
     const { data, error } = await supabase
       .from('games')
       .select('*')
-      .ilike('title', `%${searchQuery}%`)
+      .or(`title.ilike.%${searchQuery}%,title_es.ilike.%${searchQuery}%`)
       .order('year_published', { ascending: false, nullsFirst: false })
       .limit(30)
 
@@ -589,10 +590,10 @@ export function CreateMeetupPage() {
                               className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
                             >
                               {game.image_url ? (
-                                <img src={game.image_url} alt={game.title} className="w-full h-full object-cover pointer-events-none" />
+                                <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none" />
                               ) : (
                                 <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                                  {game.title}
+                                  {getGameTitle(game)}
                                 </div>
                               )}
                               
@@ -646,7 +647,7 @@ export function CreateMeetupPage() {
                         {selectedGames.map(game => (
                           <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
                             {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
-                            <span>{game.title}</span>
+                            <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
                               <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
                                 Expansión

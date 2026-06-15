@@ -7,6 +7,7 @@ import { MapPin, CalendarDays, Users, Loader2, Laptop, Dices, ChevronLeft, Chevr
 import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getGameTitle } from '../lib/gameLocale'
 
 interface MeetupCardProps {
   meetup: Meetup;
@@ -194,7 +195,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               >
                 <img
                   src={currentGame.image_url}
-                  alt={currentGame.title || 'Juego'}
+                  alt={getGameTitle(currentGame) || 'Juego'}
                   className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.03] transition-transform duration-300 pointer-events-none select-none"
                 />
               </motion.div>
@@ -304,9 +305,9 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           ) : (
             <div className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
               <span>Juegos ({gamesList.length}):</span>
-              <span className="text-foreground/90 font-semibold truncate max-w-[120px] md:max-w-[140px]">
-                {currentGame?.title || meetup.game_name}
-              </span>
+                <span className="text-foreground/90 font-semibold truncate max-w-[120px] md:max-w-[140px]">
+                  {currentGame ? getGameTitle(currentGame) : meetup.game_name}
+                </span>
               {currentGame?.is_expansion && (
                 <Tag variant="purple">
                   Expansión
