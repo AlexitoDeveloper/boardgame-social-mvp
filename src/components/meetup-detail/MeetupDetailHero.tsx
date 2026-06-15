@@ -4,6 +4,7 @@ import { Tag } from '../ui/tag'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getGameTitle } from '../../lib/gameLocale'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup;
@@ -87,7 +88,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
               >
                 <img
                   src={currentGame.image_url}
-                  alt={currentGame.title || 'Juego'}
+                  alt={getGameTitle(currentGame) || 'Juego'}
                   className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355 pointer-events-none select-none"
                 />
               </motion.div>
@@ -192,7 +193,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                   variant={idx === activeGameIdx ? "default" : "secondary"}
                   className="cursor-pointer transition-all hover:scale-105 active:scale-95"
                 >
-                  {g.title}
+                  {getGameTitle(g)}
                 </Tag>
               ))}
             </div>

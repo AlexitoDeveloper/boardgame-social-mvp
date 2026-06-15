@@ -280,13 +280,13 @@ async function runIngestion(limit = 10, targetIds = null) {
     for (const item of xmlItems) {
       const bggId = Number(item['@_id']);
       
-      // Parse title
+      // Parse title (always English/original — NEVER overwrite with Spanish)
       let names = item.name;
       if (!Array.isArray(names)) {
         names = [names];
       }
       const primaryNameObj = names.find(n => n?.['@_type'] === 'primary') || names[0];
-      let title = primaryNameObj?.['@_value'] || 'Juego Desconocido';
+      const title = primaryNameObj?.['@_value'] || 'Unknown Game';
       
       // Parse stats
       const yearPublished = Number(item.yearpublished?.['@_value']) || null;
@@ -297,7 +297,9 @@ async function runIngestion(limit = 10, targetIds = null) {
       // BGG Image URL
       let bggImageUrl = item.image || item.thumbnail || null;
       let hasSpanishEdition = false;
-      let esPublisher = null;
+      let titleEs = null;       // Spanish title
+      let publisher = null;     // Original publisher
+      let esPublisher = null;   // Spanish publisher
       
       // Parse expansion status and base game ID
       const isExpansion = item['@_type'] === 'boardgameexpansion';
@@ -307,6 +309,12 @@ async function runIngestion(limit = 10, targetIds = null) {
         links = [];
       } else if (!Array.isArray(links)) {
         links = [links];
+      }
+
+      // Extract original publisher from main game links
+      const publisherLink = links.find(l => l['@_type'] === 'boardgamepublisher');
+      if (publisherLink) {
+        publisher = publisherLink['@_value'];
       }
       
       if (isExpansion) {
@@ -335,7 +343,7 @@ async function runIngestion(limit = 10, targetIds = null) {
         if (spanishVersion) {
           hasSpanishEdition = true;
 
-          // Try to extract Spanish title
+          // Try to extract Spanish title (does NOT modify title — only sets title_es)
           let spanishNames = spanishVersion.name;
           if (spanishNames) {
             if (!Array.isArray(spanishNames)) {
@@ -345,10 +353,10 @@ async function runIngestion(limit = 10, targetIds = null) {
             const esTitle = primaryEspName?.['@_value'];
             if (esTitle) {
               if (!isGenericEditionName(esTitle)) {
-                title = esTitle;
-                console.log(`[Parser] Spanish title: ${title}`);
+                titleEs = esTitle;
+                console.log(`[Parser] Spanish title: ${titleEs} (original: ${title})`);
               } else {
-                console.log(`[Parser] Spanish version title "${esTitle}" is generic. Retaining primary title: ${title}`);
+                console.log(`[Parser] Spanish version title "${esTitle}" is generic. Keeping English title: ${title}`);
               }
             }
           }
@@ -383,7 +391,9 @@ async function runIngestion(limit = 10, targetIds = null) {
         .from('games')
         .upsert({
           bgg_id: bggId,
-          title,
+          title,             // English/original — never changes
+          title_es: titleEs, // Spanish title (null if no Spanish edition)
+          publisher,         // Original publisher
           year_published: yearPublished,
           image_url: finalImageUrl,
           min_players: minPlayers,
