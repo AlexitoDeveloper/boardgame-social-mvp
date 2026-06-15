@@ -35,6 +35,3 @@ raw-data/
 # Supabase local config & temp files
 .supabase
 supabase/.temp/
-
-# SQL files containing secrets (keys embedded)
-supabase/schedule_bgg_backfill.sql
