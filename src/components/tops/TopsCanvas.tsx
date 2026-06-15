@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { DropdownIconButton } from '../ui/dropdown-icon-button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
+import { getGameTitle } from '../../lib/gameLocale'
 
 interface TierGameItemProps {
   game: Game;
@@ -40,7 +41,7 @@ function TierGameItem({
       {proxiedUrl && !hasError ? (
         <img 
           src={proxiedUrl} 
-          alt={game.title} 
+          alt={getGameTitle(game)} 
           className="w-full h-full object-cover group-hover:opacity-35 transition-opacity" 
           crossOrigin="anonymous"
           onError={() => setHasError(true)}
@@ -52,7 +53,7 @@ function TierGameItem({
         <div className={`absolute inset-0 flex items-center justify-center p-1 font-bold text-center text-white bg-black/70 transition-colors line-clamp-3 leading-tight ${
           isLandscape ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'
         }`}>
-          {game.title}
+          {getGameTitle(game)}
         </div>
       ) : (
         /* Hover cover showing trash icon and label instead of name covering it */
@@ -99,19 +100,19 @@ function Top10GameItem({
           {proxiedUrl && !hasError ? (
             <img 
               src={proxiedUrl} 
-              alt={game.title} 
+              alt={getGameTitle(game)} 
               className="w-full h-full object-cover" 
               crossOrigin="anonymous"
               onError={() => setHasError(true)}
             />
           ) : (
             <span className="text-[8px] font-bold text-center text-zinc-400 p-0.5 line-clamp-2 leading-tight">
-              {game.title}
+              {getGameTitle(game)}
             </span>
           )}
         </div>
         <div className="min-w-0">
-          <p className={`font-semibold text-zinc-100 truncate ${isLandscape ? 'text-xs' : 'text-sm'}`}>{game.title}</p>
+          <p className={`font-semibold text-zinc-100 truncate ${isLandscape ? 'text-xs' : 'text-sm'}`}>{getGameTitle(game)}</p>
           {!isLandscape && <p className="text-xs text-zinc-500">{game.year_published || 'Año desc.'}</p>}
         </div>
       </div>

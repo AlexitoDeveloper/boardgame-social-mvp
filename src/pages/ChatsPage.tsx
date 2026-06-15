@@ -434,11 +434,6 @@ export function ChatsPage() {
               const hasUnread = unreadCount > 0
 
               let itemStyles = "bg-card/45 dark:bg-card/10 border-border/25 hover:bg-card dark:hover:bg-muted/20 hover:border-border/40 hover:-translate-y-[1px]"
-              if (isActive) {
-                itemStyles = "bg-primary/10 border-primary/35 border-l-4 border-l-primary shadow-sm shadow-primary/5 scale-[1.01]"
-              } else if (hasUnread) {
-                itemStyles = "bg-card dark:bg-muted/15 border-border/50 border-l-4 border-l-primary/60 shadow-sm"
-              }
 
               return (
                 <div

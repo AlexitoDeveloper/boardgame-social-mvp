@@ -6,6 +6,7 @@ import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 import { GameSearchBar } from '../GameSearchBar'
+import { getGameTitle } from '../../lib/gameLocale'
 
 interface TopsSearchSectionProps {
   searchQuery: string;
@@ -144,10 +145,10 @@ export function TopsSearchSection({
                       }`}
                     >
                       {game.image_url ? (
-                        <img src={game.image_url} alt={game.title} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
+                        <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
                       ) : (
                         <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                          {game.title}
+                          {getGameTitle(game)}
                         </div>
                       )}
                       {isSelected && (
@@ -171,7 +172,7 @@ export function TopsSearchSection({
                   >
                     <div className="flex items-center justify-between text-xs border-b border-border/20 pb-2">
                       <span className="font-semibold text-foreground truncate max-w-[200px]">
-                        Colocar: <span className="text-primary font-extrabold">{selectedGameForPlacement.title}</span>
+                        Colocar: <span className="text-primary font-extrabold">{getGameTitle(selectedGameForPlacement)}</span>
                       </span>
                       <Button 
                         variant="ghost" 

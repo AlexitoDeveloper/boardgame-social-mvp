@@ -44,8 +44,6 @@ export function RadarPage() {
               return { 
                 ...m, 
                 completed: completedInfo.completed,
-                winner_user_id: completedInfo.winner_user_id,
-                winner_guest_id: completedInfo.winner_guest_id,
                 attended_players: completedInfo.attended_players,
                 attended_guests: completedInfo.attended_guests
               }

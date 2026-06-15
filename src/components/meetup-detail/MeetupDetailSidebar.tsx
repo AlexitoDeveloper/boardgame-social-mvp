@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { getGameTitle, getGamePublisher } from '../../lib/gameLocale'
 import { 
   Clock, 
   Crown, 
@@ -192,7 +193,7 @@ export function MeetupDetailSidebar({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-foreground truncate">{game.title}</p>
+                    <p className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</p>
                     <p className="text-[9px] text-muted-foreground font-semibold">Ganador:</p>
                   </div>
                 </div>
@@ -301,7 +302,7 @@ export function MeetupDetailSidebar({
                           <Info className="w-3.5 h-3.5 text-muted-foreground" />
                         </div>
                       )}
-                      <span className="text-xs font-black text-foreground truncate">{game.title}</span>
+                      <span className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</span>
                     </div>
                     
                     <div className="grid grid-cols-1 gap-1">
@@ -658,7 +659,7 @@ export function MeetupDetailSidebar({
               <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
-                    {game.title}
+                    {getGameTitle(game)}
                   </CardTitle>
                   {game.is_expansion && (
                     <Tag variant="purple" className="shrink-0 text-[9px] px-1 py-0 shadow-sm">
@@ -709,10 +710,10 @@ export function MeetupDetailSidebar({
                 </div>
 
                 {/* Editorial Info */}
-                {game.es_publisher && (
+                {getGamePublisher(game) && (
                   <div className="px-3 py-2 rounded-xl bg-muted/20 border border-border/15 text-center">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Editorial Española</p>
-                    <p className="text-xs font-extrabold text-foreground mt-0.5">{game.es_publisher}</p>
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Editorial</p>
+                    <p className="text-xs font-extrabold text-foreground mt-0.5">{getGamePublisher(game)}</p>
                   </div>
                 )}
               </CardContent>

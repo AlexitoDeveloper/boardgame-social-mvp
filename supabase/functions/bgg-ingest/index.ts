@@ -306,13 +306,13 @@ Deno.serve(async (request) => {
     for (const item of xmlItems) {
       const bggId = Number(item["@_id"]);
       
-      // Parse names
+      // Parse names (title = always English/original, NEVER overwritten with Spanish)
       let names = item.name;
       if (!Array.isArray(names)) {
         names = [names];
       }
       const primaryNameObj = names.find((n: any) => n?.["@_type"] === "primary") || names[0];
-      let title = primaryNameObj?.["@_value"] || "Juego Desconocido";
+      const title = primaryNameObj?.["@_value"] || "Unknown Game";
 
       // Parse stats
       const yearPublished = Number(item.yearpublished?.["@_value"]) || null;
@@ -340,7 +340,13 @@ Deno.serve(async (request) => {
       // Default BGG image
       let bggImageUrl = item.image || item.thumbnail || null;
       let hasSpanishEdition = false;
-      let esPublisher = null;
+      let titleEs: string | null = null;   // Spanish title
+      let publisher: string | null = null; // Original publisher
+      let esPublisher: string | null = null; // Spanish publisher
+
+      // Extract original publisher from main game links
+      const origPubLink = links.find((l: any) => l["@_type"] === "boardgamepublisher");
+      if (origPubLink) publisher = origPubLink["@_value"] ?? null;
 
       // Extract Spanish edition version specifics
       if (item.versions && item.versions.item) {
@@ -360,7 +366,7 @@ Deno.serve(async (request) => {
         if (spanishVersion) {
           hasSpanishEdition = true;
           
-          // Try to extract Spanish title
+          // Try to extract Spanish title (does NOT modify title — only sets title_es)
           let spanishNames = spanishVersion.name;
           if (spanishNames) {
             if (!Array.isArray(spanishNames)) {
@@ -370,7 +376,7 @@ Deno.serve(async (request) => {
             const esTitle = primaryEspName?.["@_value"];
             if (esTitle) {
               if (!isGenericEditionName(esTitle)) {
-                title = esTitle;
+                titleEs = esTitle;
               }
             }
           }
@@ -402,7 +408,9 @@ Deno.serve(async (request) => {
         .from("games")
         .upsert({
           bgg_id: bggId,
-          title,
+          title,              // English/original — never changes
+          title_es: titleEs,  // Spanish title (null if no Spanish edition)
+          publisher,          // Original publisher
           year_published: yearPublished,
           image_url: finalImageUrl,
           min_players: minPlayers,
