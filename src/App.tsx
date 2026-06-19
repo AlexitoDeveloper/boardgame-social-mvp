@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { RadarPage } from './pages/RadarPage'
+import { ExplorePage } from './pages/ExplorePage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
 import { TopsPage } from './pages/TopsPage'
@@ -26,9 +27,9 @@ function App() {
 
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
-        <Route path="/" element={<RadarPage />} />
-        <Route path="/radar" element={<Navigate to="/" replace />} />
-        <Route path="/tablero" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<ExplorePage />} />
+        <Route path="/tablero" element={<RadarPage />} />
+        <Route path="/radar" element={<Navigate to="/tablero" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route

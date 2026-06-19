@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Search } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -11,7 +11,8 @@ import { supabase } from '../../lib/supabaseClient'
 const MotionDiv = motion.div
 
 const navItems = [
-  { to: '/', label: 'Tablero', icon: Dices },
+  { to: '/', label: 'Explorar', icon: Search },
+  { to: '/tablero', label: 'Tablero', icon: Dices },
   { to: '/chats', label: 'Chats', icon: MessageSquare },
   { to: '/tops', label: 'Crear Top', icon: ListOrdered },
 ]
