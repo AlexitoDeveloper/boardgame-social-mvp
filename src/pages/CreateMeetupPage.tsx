@@ -16,6 +16,7 @@ import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
 import { GameSearchBar } from '../components/GameSearchBar'
 import { getGameTitle } from '../lib/gameLocale'
+import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -81,6 +82,7 @@ export function CreateMeetupPage() {
   const [activeMeetupsCount, setActiveMeetupsCount] = useState<number | null>(null)
   const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false)
   const [loadingLimit, setLoadingLimit] = useState(true)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
 
   useEffect(() => {
     async function checkMeetupLimit() {
@@ -580,14 +582,21 @@ export function CreateMeetupPage() {
                     Volver al Tablero
                   </Button>
                   {!isPremiumUser && (
-                    <Button 
-                      type="button"
-                      variant="default"
-                      size="sm"
-                      onClick={() => navigate('/tops')}
-                    >
-                      Obtener PRO (Aumentar a 10)
-                    </Button>
+                    <>
+                      <Button 
+                        type="button"
+                        variant="premium"
+                        size="sm"
+                        onClick={() => setIsUpgradeModalOpen(true)}
+                      >
+                        Obtener PRO (Aumentar a 10)
+                      </Button>
+                      <PremiumUpgradeModal 
+                        isOpen={isUpgradeModalOpen}
+                        onClose={() => setIsUpgradeModalOpen(false)}
+                        onSuccess={() => setIsPremiumUser(true)}
+                      />
+                    </>
                   )}
                 </div>
               </div>

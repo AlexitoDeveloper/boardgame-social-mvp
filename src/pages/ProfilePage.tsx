@@ -9,6 +9,8 @@ import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { USE_MOCKS } from '../lib/config'
 import { Card, CardContent } from '../components/ui/card'
+import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
+import { PremiumDeactivateModal } from '../components/PremiumDeactivateModal'
 import { toPng } from 'html-to-image'
 import { 
   Crown,
@@ -41,6 +43,7 @@ import imageCompression from 'browser-image-compression'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
+import { Tag } from '../components/ui/tag'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 
@@ -364,7 +367,6 @@ export function ProfilePage() {
       }
     }
   }
-
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [meetups, setMeetups] = useState<Meetup[]>([])
   const [stats, setStats] = useState<UserStats>({ played: 0, won: 0, winRate: 0, karma: 100, missed: 0 })
@@ -380,6 +382,8 @@ export function ProfilePage() {
   const exportModalRef = useRef<HTMLDivElement>(null)
   const [showXpHelp, setShowXpHelp] = useState(false)
   const [activeAchId, setActiveAchId] = useState<string>('host')
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
 
   useEffect(() => {
     async function loadProfileData() {
@@ -509,6 +513,14 @@ export function ProfilePage() {
     }
 
     loadProfileData()
+
+    const handleProfileUpdate = () => {
+      loadProfileData()
+    }
+    window.addEventListener('profile_update', handleProfileUpdate)
+    return () => {
+      window.removeEventListener('profile_update', handleProfileUpdate)
+    }
   }, [profileId])
 
   const calculateStats = (userMeetups: Meetup[], userId: string) => {
@@ -759,9 +771,6 @@ export function ProfilePage() {
 
         {/* Banner backdrop */}
         <div className="h-32 bg-gradient-to-r from-primary/30 via-[#260f38]/20 to-[#0e271a]/30 border-b border-white/5 relative overflow-hidden">
-          <div className="absolute top-3 right-4 flex items-center gap-1.5 text-[10px] font-bold text-white/40 select-none uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" /> Gamer Showcase
-          </div>
         </div>
         
         <CardContent className="p-4 pb-6 sm:p-6 sm:pb-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
@@ -783,10 +792,51 @@ export function ProfilePage() {
             <div>
               <h2 className="text-2xl font-black tracking-tight text-foreground truncate flex items-center justify-center sm:justify-start gap-2">
                 {profile.username}
-                {profile.is_premium && (
-                  <Badge variant="warning" className="shrink-0">
-                    <Crown className="w-3 h-3 shrink-0" /> PRO
-                  </Badge>
+                {profile.is_premium ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Tag variant="default" className="shrink-0">
+                      <Crown className="w-3 h-3 shrink-0" /> PRO
+                    </Tag>
+                    {isOwnProfileEditable && (
+                      <>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => setIsDeactivateModalOpen(true)}
+                          className="h-auto p-0 text-[10px] font-extrabold text-muted-foreground hover:text-destructive cursor-pointer hover:no-underline"
+                        >
+                          (Desactivar)
+                        </Button>
+                        <PremiumDeactivateModal
+                          isOpen={isDeactivateModalOpen}
+                          onClose={() => setIsDeactivateModalOpen(false)}
+                          onSuccess={() => {
+                            setProfile(prev => prev ? { ...prev, is_premium: false } : null)
+                          }}
+                        />
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  isOwnProfileEditable && (
+                    <>
+                      <Button
+                        variant="premium"
+                        size="sm"
+                        onClick={() => setIsUpgradeModalOpen(true)}
+                        className="h-7 rounded-full shrink-0 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-colors animate-pulse"
+                      >
+                        <Crown className="w-3.5 h-3.5" /> Obtener PRO
+                      </Button>
+                      <PremiumUpgradeModal 
+                        isOpen={isUpgradeModalOpen}
+                        onClose={() => setIsUpgradeModalOpen(false)}
+                        onSuccess={() => {
+                          setProfile(prev => prev ? { ...prev, is_premium: true } : null)
+                        }}
+                      />
+                    </>
+                  )
                 )}
               </h2>
               <span className="text-xs font-extrabold text-primary block mt-0.5 tracking-wider uppercase">
