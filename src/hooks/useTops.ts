@@ -4,6 +4,7 @@ import { Game } from '../types'
 import { MOCK_BGG_GAMES } from '../lib/mockData'
 import { toPng } from 'html-to-image'
 import { USE_MOCKS } from '../lib/config'
+import { useAuth } from '../lib/authContext'
 
 export interface Tier {
   id: string;
@@ -63,14 +64,55 @@ export function useTops() {
   const [saving, setSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
+  const { user } = useAuth()
+
   // Premium / Pro States
   const [isPremium, setIsPremiumState] = useState<boolean>(() => {
     return localStorage.getItem('bgs_pro_simulated') === 'true'
   })
 
-  const setIsPremium = (val: boolean) => {
+  useEffect(() => {
+    async function checkPremiumStatus() {
+      if (USE_MOCKS) {
+        setIsPremiumState(localStorage.getItem('bgs_pro_simulated') === 'true')
+        return
+      }
+      if (!user) {
+        setIsPremiumState(false)
+        return
+      }
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', user.id)
+          .single()
+        
+        if (error) throw error
+        setIsPremiumState(!!data?.is_premium)
+      } catch (err) {
+        console.warn("Error retrieving premium status from DB, using localStorage simulation:", err)
+        setIsPremiumState(localStorage.getItem('bgs_pro_simulated') === 'true')
+      }
+    }
+    checkPremiumStatus()
+  }, [user])
+
+  const setIsPremium = async (val: boolean) => {
     localStorage.setItem('bgs_pro_simulated', String(val))
     setIsPremiumState(val)
+
+    if (user && !USE_MOCKS) {
+      try {
+        const { error } = await supabase
+          .from('users')
+          .update({ is_premium: val })
+          .eq('id', user.id)
+        if (error) throw error
+      } catch (err) {
+        console.error("Could not persist is_premium status to users table:", err)
+      }
+    }
   }
 
   const [showWatermark, setShowWatermark] = useState(true)

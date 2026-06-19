@@ -637,8 +637,8 @@ export function ProfilePage() {
     )
   }
 
-  const upcomingMeetups = meetups.filter(m => !m.completed)
-  const completedMeetups = meetups.filter(m => m.completed)
+  const upcomingMeetups = meetups.filter(m => !m.completed && new Date(m.date).getTime() >= Date.now())
+  const completedMeetups = meetups.filter(m => m.completed || new Date(m.date).getTime() < Date.now())
   const organizedCount = meetups.filter(m => m.creator_id === profileId).length
 
   // Gamer Progression Level Formulas
@@ -719,7 +719,7 @@ export function ProfilePage() {
     <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
       {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -783,6 +783,11 @@ export function ProfilePage() {
             <div>
               <h2 className="text-2xl font-black tracking-tight text-foreground truncate flex items-center justify-center sm:justify-start gap-2">
                 {profile.username}
+                {profile.is_premium && (
+                  <Badge variant="warning" className="shrink-0">
+                    <Crown className="w-3 h-3 shrink-0" /> PRO
+                  </Badge>
+                )}
               </h2>
               <span className="text-xs font-extrabold text-primary block mt-0.5 tracking-wider uppercase">
                 {playerTitle}
@@ -1034,36 +1039,20 @@ export function ProfilePage() {
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
                       <div className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all group">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          {gamesList.length <= 1 ? (
-                            <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
+                          <div className="relative w-12 h-12 shrink-0">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
                               {mainGame?.image_url ? (
                                 <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                               ) : (
                                 <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                               )}
                             </div>
-                          ) : (
-                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
-                              {gamesList.slice(0, 3).map((game, idx) => (
-                                <div
-                                  key={game.bgg_id}
-                                  style={{ zIndex: 10 - idx }}
-                                  className="w-11 h-11 rounded-lg overflow-hidden bg-background border border-border/45 p-0.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-105 hover:z-20 transition-all duration-200"
-                                >
-                                  {game.image_url ? (
-                                    <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-contain rounded" />
-                                  ) : (
-                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{getGameTitle(game).slice(0, 3)}</div>
-                                  )}
-                                </div>
-                              ))}
-                              {gamesList.length > 3 && (
-                                <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform">
-                                  <span className="text-[8px] font-black text-primary">+{gamesList.length - 3}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            {gamesList.length > 1 && (
+                              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-sm z-10 select-none">
+                                +{gamesList.length - 1}
+                              </div>
+                            )}
+                          </div>
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
@@ -1114,7 +1103,7 @@ export function ProfilePage() {
                             : 'border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20'
                       }`}>
                         <div className="flex items-center gap-3.5 min-w-0">
-                          {gamesList.length <= 1 ? (
+                          <div className="relative w-12 h-12 shrink-0">
                             <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
                               isWinner 
                                 ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
@@ -1126,36 +1115,16 @@ export function ProfilePage() {
                                 <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                               )}
                             </div>
-                          ) : (
-                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
-                              {gamesList.slice(0, 3).map((game, idx) => (
-                                <div
-                                  key={game.bgg_id}
-                                  style={{ zIndex: 10 - idx }}
-                                  className={`w-11 h-11 rounded-lg overflow-hidden border p-0.5 flex items-center justify-center shadow-sm hover:scale-105 hover:z-20 transition-all duration-200 ${
-                                    isWinner
-                                      ? 'bg-rose-950/40 border-rose-500/20'
-                                      : 'bg-background border-border/45'
-                                  }`}
-                                >
-                                  {game.image_url ? (
-                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
-                                  ) : (
-                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
-                                  )}
-                                </div>
-                              ))}
-                              {gamesList.length > 3 && (
-                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform ${
-                                  isWinner
-                                    ? 'bg-rose-500/20 border-rose-500/30'
-                                    : 'bg-primary/20 border-primary/30'
-                                }`}>
-                                  <span className={`text-[8px] font-black ${isWinner ? 'text-rose-400' : 'text-primary'}`}>+{gamesList.length - 3}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            {gamesList.length > 1 && (
+                              <div className={`absolute -bottom-1 -right-1 text-[9px] font-black px-1.5 py-0.5 rounded-md border shadow-sm z-10 select-none ${
+                                isWinner
+                                  ? 'bg-rose-500 text-rose-foreground border-rose-950'
+                                  : 'bg-primary text-primary-foreground border-background'
+                              }`}>
+                                +{gamesList.length - 1}
+                              </div>
+                            )}
+                          </div>
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
@@ -1171,8 +1140,21 @@ export function ProfilePage() {
                                 </Badge>
                               )}
 
+                              {/* Pending Closure warning badges */}
+                              {!meetup.completed && new Date(meetup.date).getTime() < Date.now() && (
+                                meetup.creator_id === user?.id ? (
+                                  <Badge variant="warning" pulse className="shrink-0">
+                                    ⚠️ PENDIENTE DE CIERRE
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="shrink-0">
+                                    ⏳ Pendiente de reporte
+                                  </Badge>
+                                )
+                              )}
+
                               {/* No attendance badge */}
-                              {!didAttend && (
+                              {meetup.completed && !didAttend && (
                                 <Badge variant="destructive" className="shrink-0">
                                   AUSENTE
                                 </Badge>

@@ -183,7 +183,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-background selection:bg-primary/30">
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl">
+      <div className="flex min-h-dvh w-full">
 
         {/* ── Desktop sidebar ────────────────────────────────── */}
         <aside className="hidden w-72 border-r border-border/40 bg-card p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto">

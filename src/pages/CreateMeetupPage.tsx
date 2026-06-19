@@ -77,6 +77,65 @@ export function CreateMeetupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
+  // Meetup Limit Check States
+  const [activeMeetupsCount, setActiveMeetupsCount] = useState<number | null>(null)
+  const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false)
+  const [loadingLimit, setLoadingLimit] = useState(true)
+
+  useEffect(() => {
+    async function checkMeetupLimit() {
+      if (!user) {
+        setLoadingLimit(false)
+        return
+      }
+      setLoadingLimit(true)
+      try {
+        const isMock = USE_MOCKS && id?.startsWith('mock-')
+        if (isMock) {
+          setIsPremiumUser(false)
+          setActiveMeetupsCount(0)
+          setLoadingLimit(false)
+          return
+        }
+
+        // 1. Fetch user premium status
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', user.id)
+          .single()
+
+        if (userError) throw userError
+        const isPremium = !!userData?.is_premium
+        setIsPremiumUser(isPremium)
+
+        // 2. Count active meetups (non-completed and future date)
+        const { count, error: countError } = await supabase
+          .from('meetups')
+          .select('id', { count: 'exact', head: true })
+          .eq('creator_id', user.id)
+          .eq('completed', false)
+          .gte('date', new Date().toISOString())
+
+        if (countError) throw countError
+        setActiveMeetupsCount(count || 0)
+      } catch (err) {
+        console.warn("Could not check meetup limit from DB, using fallback simulated values:", err)
+        const simulatedPremium = localStorage.getItem('bgs_pro_simulated') === 'true'
+        setIsPremiumUser(simulatedPremium)
+        setActiveMeetupsCount(0)
+      } finally {
+        setLoadingLimit(false)
+      }
+    }
+
+    if (!isEditMode) {
+      checkMeetupLimit()
+    } else {
+      setLoadingLimit(false)
+    }
+  }, [user, isEditMode, id])
+
   // Fetch unique cities from current database on mount
   useEffect(() => {
     async function loadCities() {
@@ -452,16 +511,27 @@ export function CreateMeetupPage() {
     }
   }
 
-  // Filter city suggestions based on input
   const suggestions = city.trim()
     ? allCities.filter(c => c.toLowerCase().includes(city.toLowerCase()) && c.toLowerCase() !== city.toLowerCase())
     : []
+
+  const limit = isPremiumUser ? 10 : 5
+  const isLimitExceeded = !isEditMode && activeMeetupsCount !== null && activeMeetupsCount >= limit
+
+  if (loadingLimit) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-muted-foreground animate-pulse font-medium">Comprobando límite de partidas activas...</p>
+      </div>
+    )
+  }
 
   return (
     <section className="space-y-4 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
       {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           type="button"
           variant="ghost" 
@@ -472,7 +542,7 @@ export function CreateMeetupPage() {
           <ArrowLeft className="w-4 h-4" /> Volver
         </Button>
         <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
-          {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
+          {isEditMode ? 'Editar Mesa' : `Partidas Activas: ${activeMeetupsCount !== null ? activeMeetupsCount : 0}/${limit}`}
         </span>
       </div>
 
@@ -489,8 +559,41 @@ export function CreateMeetupPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-6 sm:p-6 sm:pt-6">
-            
-            {/* Stepper Wizard Header */}
+            {isLimitExceeded ? (
+              <div className="text-center py-10 px-4 space-y-5">
+                <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto text-destructive border border-destructive/20 animate-pulse">
+                  <Laptop className="w-8 h-8" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-foreground">Límite de Partidas Alcanzado</h3>
+                  <p className="text-xs text-muted-foreground leading-normal max-w-sm mx-auto">
+                    Has alcanzado el límite máximo de <strong>{limit} partidas activas</strong> creadas. Completa o elimina alguna de tus partidas existentes para poder abrir más.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/')}
+                  >
+                    Volver al Tablero
+                  </Button>
+                  {!isPremiumUser && (
+                    <Button 
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      onClick={() => navigate('/tops')}
+                    >
+                      Obtener PRO (Aumentar a 10)
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Stepper Wizard Header */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">
               <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!showDetails ? 'text-primary' : 'text-success/90'}`}>
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
@@ -897,7 +1000,9 @@ export function CreateMeetupPage() {
                 </MotionForm>
               )}
             </AnimatePresence>
-          </CardContent>
+          </>
+        )}
+      </CardContent>
         </Card>
       </MotionDiv>
     </section>

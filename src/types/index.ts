@@ -6,6 +6,7 @@ export interface UserProfile {
   created_at?: string;
   updated_at?: string;
   is_guest?: boolean; // Identifica si el usuario es un invitado shadow
+  is_premium?: boolean;
 }
 
 export interface Game {

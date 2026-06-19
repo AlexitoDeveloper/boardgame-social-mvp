@@ -35,6 +35,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   
   // State for active game index in carousel
   const [activeGameIdx, setActiveGameIdx] = useState(0);
+  const [showFullTitle, setShowFullTitle] = useState(false);
 
   // Get current active game
   const currentGame = gamesList[activeGameIdx] || null;
@@ -42,16 +43,19 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
+    setShowFullTitle(false);
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+    setShowFullTitle(false);
   };
 
   const handleDotClick = (e: React.MouseEvent, idx: number) => {
     e.stopPropagation();
     setActiveGameIdx(idx);
+    setShowFullTitle(false);
   };
 
   const renderJoinButton = () => {
@@ -303,22 +307,38 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               </Tag>
             </div>
           ) : (
-            <div className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
-              <span>Juegos ({gamesList.length}):</span>
-                <span className="text-foreground/90 font-semibold truncate max-w-[120px] md:max-w-[140px]">
-                  {currentGame ? getGameTitle(currentGame) : meetup.game_name}
-                </span>
+            <motion.div layout className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
+              <motion.span layout>Juegos ({gamesList.length}):</motion.span>
+              <motion.span 
+                layout
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFullTitle(!showFullTitle);
+                }}
+                className={`text-foreground/90 font-semibold cursor-pointer select-none ${
+                  showFullTitle 
+                    ? "whitespace-normal break-words max-w-full" 
+                    : "truncate max-w-[120px] md:max-w-[140px]"
+                }`}
+                title={showFullTitle ? "Click para contraer" : "Click para ver completo"}
+              >
+                {currentGame ? getGameTitle(currentGame) : meetup.game_name}
+              </motion.span>
               {currentGame?.is_expansion && (
-                <Tag variant="purple">
-                  Expansión
-                </Tag>
+                <motion.div layout className="inline-flex">
+                  <Tag variant="purple">
+                    Expansión
+                  </Tag>
+                </motion.div>
               )}
               {gamesList.length > 1 && (
-                <Tag variant="secondary-solid">
-                  {activeGameIdx + 1} de {gamesList.length}
-                </Tag>
+                <motion.div layout className="inline-flex">
+                  <Tag variant="secondary-solid">
+                    {activeGameIdx + 1} de {gamesList.length}
+                  </Tag>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Descripción */}
