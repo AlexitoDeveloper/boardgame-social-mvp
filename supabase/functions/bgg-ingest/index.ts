@@ -46,7 +46,7 @@ function isGenericEditionName(name: string): boolean {
 }
 
 async function fetchBggBatch(ids: number[], bggToken?: string): Promise<string> {
-  const url = `https://boardgamegeek.com/xmlapi2/thing?id=${ids.join(",")}&versions=1`;
+  const url = `https://boardgamegeek.com/xmlapi2/thing?id=${ids.join(",")}&versions=1&stats=1`;
   const maxRetries = 3;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -320,6 +320,25 @@ Deno.serve(async (request) => {
       const maxPlayers = Number(item.maxplayers?.["@_value"]) || null;
       const playingTime = Number(item.playingtime?.["@_value"]) || null;
 
+      // Parse BGG stats (ratings, rank, complexity)
+      const stats = item.statistics?.ratings;
+      const ratingGeek = stats?.bayesaverage?.["@_value"] ? Number(stats.bayesaverage["@_value"]) : null;
+      const ratingAverage = stats?.average?.["@_value"] ? Number(stats.average["@_value"]) : null;
+      const complexity = stats?.averageweight?.["@_value"] ? Number(stats.averageweight["@_value"]) : null;
+      
+      let rank = null;
+      if (stats?.ranks?.rank) {
+        let ranksList = stats.ranks.rank;
+        if (!Array.isArray(ranksList)) {
+          ranksList = [ranksList];
+        }
+        const bgRankObj = ranksList.find((r: any) => r?.["@_name"] === "boardgame");
+        const rankVal = bgRankObj?.["@_value"];
+        if (rankVal && rankVal !== "Not Ranked") {
+          rank = Number(rankVal);
+        }
+      }
+
       // Check expansion status
       const isExpansion = item["@_type"] === "boardgameexpansion";
       let bggBaseGameId = null;
@@ -419,7 +438,11 @@ Deno.serve(async (request) => {
           es_publisher: esPublisher,
           has_spanish_edition: hasSpanishEdition,
           is_expansion: isExpansion,
-          bgg_base_game_id: bggBaseGameId
+          bgg_base_game_id: bggBaseGameId,
+          bgg_rank: rank,
+          rating_geek: ratingGeek,
+          rating_average: ratingAverage,
+          complexity: complexity
         }, { onConflict: "bgg_id" })
         .select("*");
 
