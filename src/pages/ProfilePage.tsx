@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { supabase } from '../lib/supabaseClient'
 import { Meetup, UserProfile, Game } from '../types'
@@ -192,6 +192,8 @@ export function ProfilePage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const rankingIdParam = searchParams.get('ranking')
 
   const profileId = id || user?.id || ''
   const isOwnProfile = profileId === user?.id
@@ -384,6 +386,15 @@ export function ProfilePage() {
   const [activeAchId, setActiveAchId] = useState<string>('host')
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (rankingIdParam && savedRankings.length > 0) {
+      const found = savedRankings.find(r => r.id === rankingIdParam)
+      if (found) {
+        setSelectedRanking(found)
+      }
+    }
+  }, [rankingIdParam, savedRankings])
 
   useEffect(() => {
     async function loadProfileData() {
