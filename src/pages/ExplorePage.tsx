@@ -5,6 +5,7 @@ import { GameCarousel } from '../components/GameCarousel'
 import { GameCoverCard } from '../components/GameCoverCard'
 import { Library } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { cn } from '../lib/utils'
 
 export function ExplorePage() {
   const [search, setSearchChange] = useState('')
@@ -19,6 +20,7 @@ export function ExplorePage() {
     novedades,
     paraDos,
     classics,
+    top10,
     searchResults,
     isFiltering
   } = useExploreGames(search, playerFilter, complexityFilter, spanishOnly)
@@ -36,19 +38,24 @@ export function ExplorePage() {
   )
 
   // Skeleton loaders for carousels
-  const renderSkeletonCarousel = () => (
-    <div className="flex gap-4 overflow-x-hidden py-2">
+  const renderSkeletonCarousel = (isTop10 = false) => (
+    <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-hidden py-2">
       {Array.from({ length: 6 }).map((_, i) => (
         <div 
           key={i} 
-          className="aspect-[2/3] w-[140px] sm:w-[160px] md:w-[180px] rounded-xl bg-muted/40 animate-pulse border border-border/10 shrink-0" 
+          className={cn(
+            "aspect-[2/3] rounded-xl bg-muted/40 animate-pulse border border-border/10 shrink-0",
+            isTop10 
+              ? "w-[130px] sm:w-[150px] md:w-[170px] ml-12" 
+              : "w-[140px] sm:w-[160px] md:w-[180px]"
+          )}
         />
       ))}
     </div>
   )
 
   return (
-    <section className="space-y-6 pb-20 px-4 md:px-0">
+    <section className="space-y-6 pb-20">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
@@ -113,6 +120,10 @@ export function ExplorePage() {
               <div className="space-y-8">
                 <div className="space-y-3">
                   <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
+                  {renderSkeletonCarousel(true)}
+                </div>
+                <div className="space-y-3">
+                  <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
                   {renderSkeletonCarousel()}
                 </div>
                 <div className="space-y-3">
@@ -126,9 +137,10 @@ export function ExplorePage() {
                 animate={{ opacity: 1 }}
                 className="space-y-8"
               >
+                <GameCarousel games={top10} title="🏆 TOP 10 de la Semana" variant="top10" />
                 <GameCarousel games={novedades} title="🔥 Novedades en España" />
                 <GameCarousel games={paraDos} title="👥 Juegos para 2 Jugadores" />
-                <GameCarousel games={classics} title="🏆 Top Clásicos" />
+                <GameCarousel games={classics} title="🎖️ Clásicos más Jugados" />
               </motion.div>
             )}
           </div>

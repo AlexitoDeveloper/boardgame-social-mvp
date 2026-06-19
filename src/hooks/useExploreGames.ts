@@ -16,6 +16,7 @@ export function useExploreGames(
   const [novedades, setNovedades] = useState<Game[]>([])
   const [paraDos, setParaDos] = useState<Game[]>([])
   const [classics, setClassics] = useState<Game[]>([])
+  const [top10, setTop10] = useState<Game[]>([])
 
   // Search grid results state
   const [searchResults, setSearchResults] = useState<Game[]>([])
@@ -53,19 +54,30 @@ export function useExploreGames(
           .order('rating_geek', { ascending: false })
           .limit(15)
 
-        const [novRes, dosRes, claRes] = await Promise.all([
+        // Top 10 de la semana: bgg_rank ASC
+        const top10Query = supabase
+          .from('games')
+          .select('*')
+          .not('bgg_rank', 'is', null)
+          .order('bgg_rank', { ascending: true })
+          .limit(10)
+
+        const [novRes, dosRes, claRes, top10Res] = await Promise.all([
           novedadesQuery,
           paraDosQuery,
-          classicsQuery
+          classicsQuery,
+          top10Query
         ])
 
         if (novRes.error) throw novRes.error
         if (dosRes.error) throw dosRes.error
         if (claRes.error) throw claRes.error
+        if (top10Res.error) throw top10Res.error
 
         setNovedades(novRes.data || [])
         setParaDos(dosRes.data || [])
         setClassics(claRes.data || [])
+        setTop10(top10Res.data || [])
       } catch (err: any) {
         console.error('Error fetching carousels:', err)
         setError(err.message || 'Error al cargar carruseles')
@@ -147,6 +159,7 @@ export function useExploreGames(
     novedades,
     paraDos,
     classics,
+    top10,
     searchResults,
     isFiltering
   }

@@ -6,9 +6,10 @@ import { GameCoverCard } from './GameCoverCard'
 interface GameCarouselProps {
   games: Game[];
   title: string;
+  variant?: 'default' | 'top10';
 }
 
-export function GameCarousel({ games, title }: GameCarouselProps) {
+export function GameCarousel({ games, title, variant = 'default' }: GameCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
@@ -81,7 +82,7 @@ export function GameCarousel({ games, title }: GameCarouselProps) {
         {/* Scroll Container */}
         <div
           ref={containerRef}
-          className="flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
+          className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
           style={{
             scrollbarWidth: 'none', // Firefox
             msOverflowStyle: 'none', // IE/Edge
@@ -93,14 +94,55 @@ export function GameCarousel({ games, title }: GameCarouselProps) {
               display: none;
             }
           `}</style>
-          {games.map((game) => (
-            <div 
-              key={game.bgg_id} 
-              className="snap-start shrink-0 w-[140px] sm:w-[160px] md:w-[180px]"
-            >
-              <GameCoverCard game={game} />
-            </div>
-          ))}
+          {games.map((game, index) => {
+            if (variant === 'top10') {
+              const isOne = index === 0;
+              const isTen = index === 9;
+              
+              const rankStr = String(index + 1);
+
+              const leftClass = isTen
+                ? "left-[-16px] sm:left-[-24px] md:left-[-28px]"
+                : isOne
+                  ? "left-[4px] sm:left-[2px] md:left-[0px]"
+                  : "left-[-6px] sm:left-[-8px] md:left-[-11px]";
+
+              return (
+                 <div 
+                  key={game.bgg_id} 
+                  className="snap-start shrink-0 relative flex items-end pl-16 sm:pl-20 md:pl-24 select-none w-[200px] sm:w-[245px] md:w-[275px] pb-4"
+                >
+                  <span 
+                    className={`absolute ${leftClass} text-[120px] sm:text-[150px] md:text-[180px] bottom-[22px] sm:bottom-[26px] md:bottom-[30px] font-black leading-none select-none z-0 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] transition-all duration-200 flex`}
+                  >
+                    {rankStr.split('').map((char, charIdx) => (
+                      <span
+                        key={charIdx}
+                        className={charIdx > 0 ? "relative ml-[-0.18em] sm:ml-[-0.22em] md:ml-[-0.25em] z-10" : "relative z-0"}
+                        style={{
+                          WebkitTextStroke: '2.5px hsl(var(--foreground))',
+                          color: 'hsl(var(--background))',
+                        }}
+                      >
+                        {char}
+                      </span>
+                    ))}
+                  </span>
+                  <div className="relative z-10 w-[130px] sm:w-[150px] md:w-[170px]">
+                    <GameCoverCard game={game} />
+                  </div>
+                </div>
+              )
+            }
+            return (
+              <div 
+                key={game.bgg_id} 
+                className="snap-start shrink-0 w-[140px] sm:w-[160px] md:w-[180px]"
+              >
+                <GameCoverCard game={game} />
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
