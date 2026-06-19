@@ -28,6 +28,10 @@ export interface Game {
   base_game_id?: string | null;
   bgg_base_game_id?: number | null;
   isFromBgg?: boolean;              // Frontend-only flag, not in DB
+  bgg_rank?: number | null;
+  rating_geek?: number | null;
+  rating_average?: number | null;
+  complexity?: number | null;
 }
 
 export interface Meetup {
