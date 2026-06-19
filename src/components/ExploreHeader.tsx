@@ -63,8 +63,8 @@ export function ExploreHeader({
 
   return (
     <div className={cn(
-      "sticky top-0 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border/20 transition-all duration-300",
-      isScrolled ? "py-2 mb-3 shadow-md shadow-black/5" : "py-4 mb-6"
+      "sticky top-0 z-30 w-auto -mx-5 px-5 md:-mx-10 md:px-10 bg-background border-b border-border/20 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 transition-shadow duration-200",
+      isScrolled && "shadow-md shadow-black/5"
     )}>
       {/* Search Input Row */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between w-full">
@@ -116,12 +116,17 @@ export function ExploreHeader({
               onClick={() => setShowFiltersWhenScrolled(v => !v)}
               variant={showFiltersWhenScrolled || activeFiltersCount > 0 ? 'default' : 'outline'}
               size="sm"
-              className="rounded-xl font-bold text-xs shrink-0 flex items-center gap-1.5 h-9 sm:h-9 px-3 border border-border/60 cursor-pointer transition-all"
+              className="cursor-pointer shrink-0 flex items-center gap-1.5"
             >
-              <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
+              <SlidersHorizontal className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Filtros</span>
               {activeFiltersCount > 0 && (
-                <span className="bg-primary-foreground text-primary text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border border-primary/10">
+                <span className={cn(
+                  "text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border border-primary/10",
+                  showFiltersWhenScrolled || activeFiltersCount > 0
+                    ? "bg-primary-foreground text-primary"
+                    : "bg-primary text-primary-foreground"
+                )}>
                   {activeFiltersCount}
                 </span>
               )}

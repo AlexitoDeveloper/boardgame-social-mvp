@@ -51,8 +51,8 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             {/* Badges row */}
             <div className="flex flex-wrap gap-1 items-center">
               {rating && (
-                <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-black text-black shadow-sm">
-                  <Star className="h-2.5 w-2.5 fill-black text-black shrink-0" />
+                <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-black text-white shadow-sm">
+                  <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
                   {rating}
                 </span>
               )}
@@ -65,7 +65,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             </div>
 
             {/* Title */}
-            <h4 className="text-xs font-black leading-tight line-clamp-2 tracking-tight group-hover:text-primary transition-colors duration-200">
+            <h4 className="text-xs font-black leading-tight line-clamp-2 tracking-tight group-hover:text-white transition-colors duration-200">
               {title}
             </h4>
 

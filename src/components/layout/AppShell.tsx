@@ -187,7 +187,7 @@ export function AppShell() {
       <div className="flex min-h-dvh w-full">
 
         {/* ── Desktop sidebar ────────────────────────────────── */}
-        <aside className="hidden w-72 border-r border-border/40 bg-card p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto">
+        <aside className="hidden w-72 border-r border-border/40 bg-card p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40">
           <div className="mb-6 pt-safeTop px-2">
             <p className="text-xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">Boardgame Social</p>
             <p className="text-sm font-medium text-primary mt-1">MVP</p>

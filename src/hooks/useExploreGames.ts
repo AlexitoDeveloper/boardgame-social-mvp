@@ -1,6 +1,151 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Game } from '../types'
+import { USE_MOCKS } from '../lib/config'
+
+// Mock data fallbacks for community rankings
+const MOCK_COMMUNITY_RANKINGS = [
+  {
+    id: 'mock-r1',
+    user_id: 'mock-u1',
+    title: 'Mis Euros Favoritos',
+    mode: 'tier',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    user: {
+      username: 'boardgamer_alex',
+      avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex'
+    }
+  },
+  {
+    id: 'mock-r2',
+    user_id: 'mock-u3',
+    title: 'Wargames Imprescindibles',
+    mode: 'top10',
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    user: {
+      username: 'hex_and_counter',
+      avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter'
+    }
+  },
+  {
+    id: 'mock-r3',
+    user_id: 'mock-u2',
+    title: 'Party Games Divertidos',
+    mode: 'tier',
+    created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    user: {
+      username: 'meeple_sara',
+      avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara'
+    }
+  }
+]
+
+// Helper function to fetch most played games with robust fallback mechanism
+async function fetchMostPlayedGames(timeLimitIso: string | null): Promise<Game[]> {
+  try {
+    if (USE_MOCKS) {
+      throw new Error('Using mock mode')
+    }
+
+    // 1. Query meetup_games joined with meetups date
+    let query = supabase
+      .from('meetup_games')
+      .select(`
+        game_id,
+        meetup:meetups!inner (
+          date
+        )
+      `)
+
+    if (timeLimitIso) {
+      query = query.gte('meetups.date', timeLimitIso)
+    }
+
+    const { data: playsData, error: playsError } = await query
+    if (playsError) throw playsError
+
+    // 2. Count plays per game_id
+    const counts: Record<number, number> = {}
+    if (playsData) {
+      playsData.forEach((row: any) => {
+        const id = row.game_id
+        if (id) {
+          counts[id] = (counts[id] || 0) + 1
+        }
+      })
+    }
+
+    // Sort by count descending
+    let sortedIds = Object.keys(counts)
+      .map(Number)
+      .sort((a, b) => counts[b] - counts[a])
+
+    // If we have less than 10 games, pad with overall most played games (without date constraint)
+    if (sortedIds.length < 10 && timeLimitIso) {
+      const overallGames = await fetchMostPlayedGames(null)
+      const overallBggIds = overallGames.map(g => g.bgg_id)
+      for (const id of overallBggIds) {
+        if (!sortedIds.includes(id)) {
+          sortedIds.push(id)
+        }
+        if (sortedIds.length >= 10) break
+      }
+    }
+
+    // If still less than 10 games, pad with BGG top rank games
+    if (sortedIds.length < 10) {
+      const { data: bggData } = await supabase
+        .from('games')
+        .select('bgg_id')
+        .not('bgg_rank', 'is', null)
+        .order('bgg_rank', { ascending: true })
+        .limit(20)
+
+      if (bggData) {
+        for (const row of bggData) {
+          if (!sortedIds.includes(row.bgg_id)) {
+            sortedIds.push(row.bgg_id)
+          }
+          if (sortedIds.length >= 10) break
+        }
+      }
+    }
+
+    const top10Ids = sortedIds.slice(0, 10)
+    if (top10Ids.length === 0) return []
+
+    // 3. Fetch full Game objects
+    const { data: gamesData, error: gamesError } = await supabase
+      .from('games')
+      .select('*')
+      .in('bgg_id', top10Ids)
+
+    if (gamesError) throw gamesError
+
+    // Sort gamesData to match top10Ids order
+    const gamesMap = new Map<number, Game>()
+    if (gamesData) {
+      gamesData.forEach((g: Game) => gamesMap.set(g.bgg_id, g))
+    }
+
+    return top10Ids
+      .map(id => gamesMap.get(id))
+      .filter((g): g is Game => !!g)
+  } catch (err) {
+    // Return BGG top rank games as absolute fallback
+    try {
+      const { data } = await supabase
+        .from('games')
+        .select('*')
+        .not('bgg_rank', 'is', null)
+        .order('bgg_rank', { ascending: true })
+        .limit(10)
+      return data || []
+    } catch {
+      return []
+    }
+  }
+}
 
 export function useExploreGames(
   search: string,
@@ -17,6 +162,8 @@ export function useExploreGames(
   const [paraDos, setParaDos] = useState<Game[]>([])
   const [classics, setClassics] = useState<Game[]>([])
   const [top10, setTop10] = useState<Game[]>([])
+  const [top10Month, setTop10Month] = useState<Game[]>([])
+  const [communityRankings, setCommunityRankings] = useState<any[]>([])
 
   // Search grid results state
   const [searchResults, setSearchResults] = useState<Game[]>([])
@@ -29,7 +176,7 @@ export function useExploreGames(
       setLoadingCarousels(true)
       setError(null)
       try {
-        // Novedades en España: year_published DESC, has_spanish_edition = true
+        // novedades Query: year_published DESC, has_spanish_edition = true
         const novedadesQuery = supabase
           .from('games')
           .select('*')
@@ -37,7 +184,7 @@ export function useExploreGames(
           .order('year_published', { ascending: false })
           .limit(15)
 
-        // Juegos para 2: min_players <= 2, max_players >= 2
+        // paraDos Query: min_players <= 2, max_players >= 2
         const paraDosQuery = supabase
           .from('games')
           .select('*')
@@ -46,7 +193,7 @@ export function useExploreGames(
           .order('bgg_rank', { ascending: true, nullsFirst: false })
           .limit(15)
 
-        // Top Clásicos: rating_geek DESC
+        // classics Query: rating_geek DESC
         const classicsQuery = supabase
           .from('games')
           .select('*')
@@ -54,30 +201,51 @@ export function useExploreGames(
           .order('rating_geek', { ascending: false })
           .limit(15)
 
-        // Top 10 de la semana: bgg_rank ASC
-        const top10Query = supabase
-          .from('games')
-          .select('*')
-          .not('bgg_rank', 'is', null)
-          .order('bgg_rank', { ascending: true })
-          .limit(10)
+        // communityRankings Query
+        let commRankingsData: any[] = []
+        if (!USE_MOCKS) {
+          try {
+            const { data, error: comError } = await supabase
+              .from('user_rankings')
+              .select('id, title, mode, user_id, created_at, user:users (username, avatar_url)')
+              .order('created_at', { ascending: false })
+              .limit(10)
+            if (comError) throw comError
+            commRankingsData = data || []
+          } catch (err) {
+            console.warn('Could not query user_rankings from DB, falling back to mocks:', err)
+            commRankingsData = MOCK_COMMUNITY_RANKINGS
+          }
+        } else {
+          commRankingsData = MOCK_COMMUNITY_RANKINGS
+        }
 
-        const [novRes, dosRes, claRes, top10Res] = await Promise.all([
+        // Run other queries in parallel
+        const [novRes, dosRes, claRes] = await Promise.all([
           novedadesQuery,
           paraDosQuery,
-          classicsQuery,
-          top10Query
+          classicsQuery
         ])
 
         if (novRes.error) throw novRes.error
         if (dosRes.error) throw dosRes.error
         if (claRes.error) throw claRes.error
-        if (top10Res.error) throw top10Res.error
+
+        // Fetch Top 10 Week and Month dynamically
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+        const [weekRes, monthRes] = await Promise.all([
+          fetchMostPlayedGames(oneWeekAgo),
+          fetchMostPlayedGames(oneMonthAgo)
+        ])
 
         setNovedades(novRes.data || [])
         setParaDos(dosRes.data || [])
         setClassics(claRes.data || [])
-        setTop10(top10Res.data || [])
+        setTop10(weekRes || [])
+        setTop10Month(monthRes || [])
+        setCommunityRankings(commRankingsData)
       } catch (err: any) {
         console.error('Error fetching carousels:', err)
         setError(err.message || 'Error al cargar carruseles')
@@ -160,7 +328,10 @@ export function useExploreGames(
     paraDos,
     classics,
     top10,
+    top10Month,
+    communityRankings,
     searchResults,
     isFiltering
   }
 }
+export default useExploreGames;

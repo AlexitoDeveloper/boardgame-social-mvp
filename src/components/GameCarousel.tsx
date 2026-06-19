@@ -51,7 +51,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
   if (!games || games.length === 0) return null;
 
   return (
-    <div className="space-y-3 relative group/carousel py-2">
+    <div className="space-y-2 relative group/carousel py-1">
       {/* Title */}
       <h3 className="text-lg font-black tracking-tight px-1 text-foreground">{title}</h3>
 
@@ -104,8 +104,8 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
               const leftClass = isTen
                 ? "left-[-16px] sm:left-[-24px] md:left-[-28px]"
                 : isOne
-                  ? "left-[4px] sm:left-[2px] md:left-[0px]"
-                  : "left-[-6px] sm:left-[-8px] md:left-[-11px]";
+                  ? "left-[20px] sm:left-[18px] md:left-[16px]"
+                  : "left-[12px] sm:left-[10px] md:left-[8px]";
 
               return (
                  <div 
