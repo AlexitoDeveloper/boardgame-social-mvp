@@ -1,9 +1,12 @@
-import { Crown, Sparkles, Check, Layout, Image, Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
+import { Crown, Check, Layout, Image, Eye, EyeOff } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
+import { Tag } from '../ui/tag'
 import { Tabs } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Game } from '../../types'
+import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
 
 interface TopsSettingsProps {
   mode: 'tier' | 'top10';
@@ -36,6 +39,8 @@ export function TopsSettings({
   aspectRatio,
   setAspectRatio,
 }: TopsSettingsProps) {
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
   return (
     <div className="space-y-4">
       {/* Configuration Card */}
@@ -58,11 +63,11 @@ export function TopsSettings({
 
       {/* Premium Pro Simulated Simulator & Options */}
       {!isPremium ? (
-        <Card className="border-border/40 shadow-xl shadow-amber-500/5 bg-card/60 backdrop-blur-2xl overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-primary/5 opacity-70 group-hover:opacity-100 transition-opacity" />
+        <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-emerald-500/5 to-primary/5 opacity-70 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-sm font-extrabold flex items-center gap-1.5 text-amber-400">
-              <Crown className="w-4.5 h-4.5 animate-bounce shrink-0 text-amber-400" /> Generador PRO
+            <CardTitle className="text-sm font-extrabold flex items-center gap-1.5 text-primary">
+              <Crown className="w-4.5 h-4.5 animate-bounce shrink-0 text-primary" /> Generador PRO
             </CardTitle>
             <CardDescription className="text-[11px]">
               Exporta sin marcas de agua, fondos premium y ratios adaptados.
@@ -73,21 +78,27 @@ export function TopsSettings({
               Desbloquea formatos listos para tus redes sociales (1:1, 9:16, 16:9).
             </p>
             <Button
+              variant="premium"
               size="sm"
-              onClick={() => setIsPremium(true)}
-              className="w-full bg-gradient-to-r from-amber-500 to-primary hover:from-amber-600 hover:to-primary/95 text-white font-extrabold text-[10px] h-8 rounded-xl cursor-pointer transition-all active:scale-95"
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="w-full h-8 rounded-xl flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all animate-pulse"
             >
-              <Sparkles className="w-3 h-3 mr-1" /> Activar PRO (Simulado)
+              <Crown className="w-3.5 h-3.5" /> Activar PRO (Simulado)
             </Button>
+            <PremiumUpgradeModal 
+              isOpen={isUpgradeModalOpen}
+              onClose={() => setIsUpgradeModalOpen(false)}
+              onSuccess={() => setIsPremium(true)}
+            />
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-amber-500/20 shadow-xl shadow-amber-500/5 bg-card/60 backdrop-blur-2xl relative">
-          <div className="absolute top-2.5 right-2.5 shrink-0 flex items-center gap-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[8px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider select-none animate-pulse">
+        <Card className="border-primary/20 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl relative">
+          <Tag variant="default" size="xs" className="absolute top-2.5 right-2.5 shrink-0 select-none uppercase tracking-wider">
             <Crown className="w-2.5 h-2.5" /> PRO Activo
-          </div>
+          </Tag>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-extrabold text-amber-400">Opciones PRO</CardTitle>
+            <CardTitle className="text-sm font-extrabold text-primary">Opciones PRO</CardTitle>
             <CardDescription className="text-[11px]">Ajustes de exportación avanzados.</CardDescription>
           </CardHeader>
           <CardContent className="pb-4 space-y-3">
