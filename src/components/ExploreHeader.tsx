@@ -54,7 +54,7 @@ export function ExploreHeader({
 
   return (
     <div className={cn(
-      "sticky top-0 z-30 w-auto -mx-5 px-5 md:-mx-10 md:px-10 bg-background border-b border-border/20 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 transition-shadow duration-200",
+      "sticky top-[-2px] z-30 w-auto -mx-4 px-4 md:-mx-8 md:px-8 bg-background border-b border-border/20 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 transition-shadow duration-200",
       isScrolled && "shadow-md shadow-black/5"
     )}>
       {/* Search Input Row */}

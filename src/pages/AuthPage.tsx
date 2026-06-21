@@ -103,7 +103,7 @@ export function AuthPage() {
           <p className="text-sm text-muted-foreground mt-2">La red social de juegos de mesa</p>
         </div>
 
-        <Card className="border-border/40 bg-card/60 backdrop-blur-2xl shadow-2xl shadow-primary/10">
+        <Card className="glass-panel shadow-2xl rounded-[24px]">
           {/* Tabs */}
           <div className="flex border-b border-border/30">
             {[
@@ -183,7 +183,7 @@ export function AuthPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-primary/40"
+                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
                       />
                     </div>
                     <div className="space-y-2">
@@ -195,12 +195,13 @@ export function AuthPage() {
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-primary/40"
+                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-11 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+                      variant="premium"
+                      className="w-full h-11 font-bold shadow-lg transition-all"
                       disabled={loading}
                     >
                       {loading
@@ -229,7 +230,7 @@ export function AuthPage() {
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-primary/40"
+                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
                       />
                     </div>
                     <div className="space-y-2">
@@ -241,7 +242,7 @@ export function AuthPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-primary/40"
+                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
                       />
                     </div>
                     <div className="space-y-2">
@@ -254,12 +255,13 @@ export function AuthPage() {
                         minLength={6}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-primary/40"
+                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-11 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow"
+                      variant="premium"
+                      className="w-full h-11 font-bold shadow-lg transition-all"
                       disabled={loading}
                     >
                       {loading

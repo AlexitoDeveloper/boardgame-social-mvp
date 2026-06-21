@@ -811,9 +811,14 @@ export function ProfilePage() {
           <h2 className="text-xl font-bold">Perfil no disponible</h2>
           <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar el perfil solicitado.'}</p>
         </div>
-        <Button onClick={() => navigate('/')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
-        </Button>
+        <Button 
+          onClick={() => navigate('/')} 
+          variant="outline" 
+          size="sm" 
+          icon={ArrowLeft} 
+          label="Volver al Tablero" 
+          className="mx-auto cursor-pointer" 
+        />
       </section>
     )
   }
@@ -902,23 +907,23 @@ export function ProfilePage() {
       {/* Header bar (sticky on mobile) */}
       <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={() => navigate(-1)} 
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" /> Atrás
-        </Button>
+          className="cursor-pointer"
+          icon={ArrowLeft}
+          label="Atrás"
+        />
         <div className="flex items-center gap-2">
           {isOwnProfileEditable && (
             <Button
               size="sm"
               variant="outline"
               onClick={handleOpenEdit}
-              className="rounded-xl flex items-center gap-1.5 font-bold text-xs h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-foreground"
-            >
-              <Edit className="w-3.5 h-3.5 text-primary" /> Editar Datos
-            </Button>
+              className="cursor-pointer text-foreground"
+              icon={Edit}
+              label="Editar Datos"
+            />
           )}
           {isOwnProfile ? (
             <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
@@ -933,7 +938,7 @@ export function ProfilePage() {
       </div>
 
       {/* Showcase Profile Card with premium gaming card aesthetic */}
-      <Card className="border-border/30 bg-card shadow-2xl overflow-hidden rounded-3xl relative">
+      <Card className="glass-panel border-border/30 shadow-2xl overflow-hidden rounded-3xl relative">
         {/* Sleek retro-futuristic backdrop glow */}
         <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-br from-primary/15 to-violet-500/5 rounded-full blur-[80px] -z-10" />
         <div className="absolute top-10 left-10 w-28 h-28 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 rounded-full blur-[60px] -z-10" />
@@ -972,7 +977,7 @@ export function ProfilePage() {
                           variant="link"
                           size="sm"
                           onClick={() => setIsDeactivateModalOpen(true)}
-                          className="h-auto p-0 text-[10px] font-extrabold text-muted-foreground hover:text-destructive cursor-pointer hover:no-underline"
+                          className="cursor-pointer text-muted-foreground hover:text-destructive hover:no-underline p-0 h-auto"
                         >
                           (Desactivar)
                         </Button>
@@ -993,10 +998,10 @@ export function ProfilePage() {
                         variant="premium"
                         size="sm"
                         onClick={() => setIsUpgradeModalOpen(true)}
-                        className="h-7 rounded-full shrink-0 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-colors animate-pulse"
-                      >
-                        <Crown className="w-3.5 h-3.5" /> Obtener PRO
-                      </Button>
+                        className="shrink-0 animate-pulse cursor-pointer"
+                        icon={Crown}
+                        label="Obtener PRO"
+                      />
                       <PremiumUpgradeModal 
                         isOpen={isUpgradeModalOpen}
                         onClose={() => setIsUpgradeModalOpen(false)}
@@ -1021,12 +1026,12 @@ export function ProfilePage() {
                   <Button 
                     type="button"
                     variant="ghost"
+                    size="sm"
                     onClick={() => setShowXpHelp(!showXpHelp)}
-                    className="h-6 w-6 p-0 rounded-md hover:bg-muted text-primary transition-colors cursor-pointer [&_svg]:size-3.5 flex items-center justify-center"
+                    className="text-primary cursor-pointer"
                     title="¿Cómo conseguir XP?"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </Button>
+                    icon={Info}
+                  />
                 </span>
                 <span className="text-foreground font-black">{xpCurrent} / {xpRange} XP</span>
               </div>
@@ -1171,7 +1176,7 @@ export function ProfilePage() {
       {/* Stats Dashboard Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Win Rate Card */}
-        <Card className="border-border/30 bg-card/65 backdrop-blur-3xl shadow-lg relative overflow-hidden group rounded-2xl hover:border-rose-500/30 hover:shadow-rose-500/5 transition-all duration-300">
+        <Card className="glass-panel border-border/30 shadow-lg relative overflow-hidden group rounded-2xl hover:border-rose-500/30 hover:shadow-rose-500/5 transition-all duration-300">
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Swords className="w-28 h-28 text-rose-500 stroke-[1.25] rotate-12" />
           </div>
@@ -1197,7 +1202,7 @@ export function ProfilePage() {
         </Card>
 
         {/* Attendance Card */}
-        <Card className="border-border/30 bg-card/65 backdrop-blur-3xl shadow-lg relative overflow-hidden group rounded-2xl hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300">
+        <Card className="glass-panel border-border/30 shadow-lg relative overflow-hidden group rounded-2xl hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300">
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Dices className="w-28 h-28 text-emerald-500 stroke-[1.25] -rotate-12" />
           </div>
@@ -1259,7 +1264,7 @@ export function ProfilePage() {
 
                   return (
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
-                      <div className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all group">
+                      <div className="flex items-center justify-between p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all group border-border/40">
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div className="relative w-12 h-12 shrink-0">
                             <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
@@ -1319,10 +1324,10 @@ export function ProfilePage() {
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
                       <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all hover:shadow-md group ${
                         isWinner 
-                          ? 'border-rose-500/25 bg-rose-500/[0.02] hover:bg-rose-500/[0.04] hover:border-rose-500/40' 
+                          ? 'border-rose-500/25 bg-rose-500/[0.02] hover:bg-rose-500/[0.04] hover:border-rose-500/40 glass-panel shadow-sm' 
                           : !didAttend 
-                            ? 'border-destructive/25 bg-destructive/[0.01] opacity-70 hover:opacity-100 hover:bg-destructive/[0.03]'
-                            : 'border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20'
+                            ? 'border-destructive/25 bg-destructive/[0.01] opacity-70 hover:opacity-100 hover:bg-destructive/[0.03] glass-panel shadow-sm'
+                            : 'border-border/40 hover:bg-muted/40 hover:border-primary/20 glass-panel shadow-sm'
                       }`}>
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div className="relative w-12 h-12 shrink-0">
@@ -1413,9 +1418,7 @@ export function ProfilePage() {
                   {isOwnProfile && (
                     <div className="mt-3">
                       <Link to="/tops">
-                        <Button size="sm" className="rounded-xl text-xs font-bold gap-1">
-                          <Plus className="w-3.5 h-3.5" /> Crear Ranking
-                        </Button>
+                        <Button size="sm" icon={Plus} label="Crear Ranking" className="cursor-pointer" />
                       </Link>
                     </div>
                   )}
@@ -1428,7 +1431,7 @@ export function ProfilePage() {
                     <div 
                       key={ranking.id} 
                       onClick={() => setSelectedRanking(ranking)}
-                      className="p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex justify-between items-center group text-left"
+                      className="p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all cursor-pointer flex justify-between items-center group text-left border-border/40"
                     >
                       <div className="space-y-1.5 flex-1 min-w-0 pr-4">
                         <h4 className="font-extrabold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
@@ -1452,11 +1455,10 @@ export function ProfilePage() {
                               variant="ghost" 
                               size="sm" 
                               onClick={(e) => handleDeleteRanking(e, ranking.id)}
-                              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                               title="Eliminar ranking"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                              icon={Trash2}
+                            />
                           )}
                           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                         </div>
@@ -1486,9 +1488,9 @@ export function ProfilePage() {
                   <Button
                     size="sm"
                     onClick={() => setIsImportModalOpen(true)}
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Importar BGG
-                  </Button>
+                    icon={Plus}
+                    label="Importar BGG"
+                  />
                 </div>
               )}
 
@@ -1512,10 +1514,10 @@ export function ProfilePage() {
                     <Button 
                       size="sm" 
                       onClick={() => setIsImportModalOpen(true)}
-                      className="mt-2"
-                    >
-                      <Plus className="w-3.5 h-3.5" /> Importar Ludoteca
-                    </Button>
+                      className="mt-2 cursor-pointer"
+                      icon={Plus}
+                      label="Importar Ludoteca"
+                    />
                   )}
                 </div>
               ) : (
@@ -1529,10 +1531,10 @@ export function ProfilePage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setIsImportModalOpen(true)}
-                        className="h-8 rounded-xl text-[10px] font-bold gap-1 px-3 border border-border/20 hover:bg-muted/50 text-foreground cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5 text-primary shrink-0" /> Sincronizar BGG
-                      </Button>
+                        className="cursor-pointer"
+                        icon={Download}
+                        label="Sincronizar BGG"
+                      />
                     )}
                   </div>
 
@@ -1541,7 +1543,7 @@ export function ProfilePage() {
                       <Link 
                         key={game.bgg_id} 
                         to={`/juegos/${game.bgg_id}`}
-                        className="group relative bg-card border border-border/40 hover:border-primary/30 rounded-2xl p-3 flex flex-col items-center text-center hover:shadow-md hover:scale-[1.01] transition-all duration-300 overflow-hidden"
+                        className="group relative glass-panel hover:border-primary/35 rounded-2xl p-3 flex flex-col items-center text-center hover:shadow-lg hover:scale-[1.01] transition-all duration-300 overflow-hidden border-border/40"
                       >
                         {/* Trash action button */}
                         {isOwnProfileEditable && (
@@ -1549,11 +1551,10 @@ export function ProfilePage() {
                             type="button"
                             variant="ghost"
                             onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
-                            className="absolute top-2.5 right-2.5 h-7 w-7 p-0 rounded-lg bg-black/75 hover:bg-destructive text-white hover:text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md shadow-black/35 [&_svg]:size-3.5"
+                            className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
                             title="Quitar de mi ludoteca"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                            icon={Trash2}
+                          />
                         )}
                         
                         <div className="w-full aspect-[2/3] rounded-xl overflow-hidden bg-muted/20 border border-border/10 relative flex items-center justify-center shrink-0">
@@ -1636,7 +1637,7 @@ export function ProfilePage() {
                       size="sm"
                       onClick={handleExportModalImage}
                       disabled={exportingRanking}
-                      className="font-bold text-xs h-8 px-2 sm:px-3 rounded-xl flex items-center gap-1.5 cursor-pointer"
+                      className="cursor-pointer font-bold text-xs"
                     >
                       {exportingRanking ? (
                         <>
@@ -1654,7 +1655,7 @@ export function ProfilePage() {
                       size="sm"
                       variant="ghost"
                       onClick={() => setSelectedRanking(null)}
-                      className="h-8 w-8 p-0 rounded-xl border border-white/10 hover:bg-white/10 text-white"
+                      className="border border-white/10 hover:bg-white/10 text-white"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1790,7 +1791,6 @@ export function ProfilePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsEditing(false)}
-                  className="h-8 w-8 p-0 rounded-xl"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -1811,7 +1811,6 @@ export function ProfilePage() {
                     required
                     value={editUsername}
                     onChange={(e) => setEditUsername(e.target.value)}
-                    className="h-10 text-xs font-medium"
                     placeholder="Escribe tu username..."
                   />
                 </div>
@@ -1823,7 +1822,6 @@ export function ProfilePage() {
                     type="text"
                     value={editCity}
                     onChange={(e) => setEditCity(e.target.value)}
-                    className="h-10 text-xs font-medium"
                     placeholder="Escribe tu ciudad..."
                   />
                 </div>
@@ -1862,7 +1860,6 @@ export function ProfilePage() {
                         type="text"
                         value={editAvatarUrl}
                         onChange={(e) => setEditAvatarUrl(e.target.value)}
-                        className="h-9 text-[10px] font-medium"
                         placeholder="URL de imagen o semilla..."
                         disabled={uploadingFile}
                       />
@@ -1881,25 +1878,20 @@ export function ProfilePage() {
                           disabled={uploadingFile}
                           variant="secondary"
                           size="sm"
-                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
-                        >
-                          {uploadingFile ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Camera className="w-3.5 h-3.5" />
-                          )}
-                          Subir Foto
-                        </Button>
+                          className="cursor-pointer"
+                          icon={uploadingFile ? Loader2 : Camera}
+                          label="Subir Foto"
+                        />
                         <Button
                           type="button"
                           onClick={handleRandomAvatar}
                           disabled={uploadingFile}
                           variant="secondary"
                           size="sm"
-                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
-                        >
-                          <Dices className="w-3.5 h-3.5" /> Cambiar Semilla
-                        </Button>
+                          className="cursor-pointer"
+                          icon={Dices}
+                          label="Cambiar Semilla"
+                        />
                       </div>
                     </div>
                   </div>
@@ -1912,16 +1904,18 @@ export function ProfilePage() {
                   <Button
                     type="button"
                     variant="ghost"
+                    size="sm"
                     onClick={() => setIsEditing(false)}
                     disabled={savingProfile || uploadingFile}
-                    className="rounded-xl font-bold text-xs h-9 cursor-pointer"
+                    className="cursor-pointer"
                   >
                     Cancelar
                   </Button>
                   <Button
                     type="submit"
+                    size="sm"
                     disabled={savingProfile || uploadingFile || !editUsername.trim()}
-                    className="rounded-xl font-bold text-xs h-9 px-4 cursor-pointer shadow-sm shadow-primary/25"
+                    className="cursor-pointer shadow-sm"
                   >
                     {savingProfile ? (
                       <>
@@ -1977,7 +1971,6 @@ export function ProfilePage() {
                   required
                   value={bggUsernameInput}
                   onChange={(e) => setBggUsernameInput(e.target.value)}
-                  className="h-10 text-xs font-medium"
                   placeholder="Ej. alex_meeple_99"
                   disabled={importingCollection}
                 />

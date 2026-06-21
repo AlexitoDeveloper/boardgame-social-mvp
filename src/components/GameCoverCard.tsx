@@ -24,12 +24,10 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
   return (
     <Link 
       to={`/juegos/${game.bgg_id}`} 
-      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-xl bg-card border border-border/30 shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30"
+      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-2xl bg-card border border-border/30 shadow-md hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/45 transition-all duration-500 ease-out"
     >
       <motion.div
-        whileHover={{ scale: 1.05 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="absolute inset-0"
+        className="absolute inset-0 w-full h-full"
       >
         {/* Cover Image */}
         {game.image_url ? (
@@ -37,7 +35,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             src={game.image_url}
             alt={title}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:brightness-50"
+            className="absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-[0.4]"
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/30 p-4 text-center">
@@ -46,7 +44,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         )}
 
         {/* Hover Details Overlay */}
-        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/35 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10 select-none">
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10 select-none">
           <div className="space-y-1.5 text-white">
             {/* Badges row */}
             <div className="flex flex-wrap gap-1 items-center">

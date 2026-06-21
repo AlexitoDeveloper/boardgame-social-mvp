@@ -6,7 +6,6 @@ import {
   Bookmark, Trophy, Dices, Crown, Loader2, Plus, Check, Info, Clock
 } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
-import { getGameTitle } from '../lib/gameLocale'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 
@@ -110,16 +109,16 @@ export function GameDetailPage() {
 
   const tabs = [
     { id: 'details', label: 'Ficha Técnica' },
-    { id: 'community', label: 'Comunidad' },
-    { id: 'meetups', label: `Quedadas` },
-    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: 'Expansiones' }] : [])
+    { id: 'community', label: 'Comunidad', count: owners.length > 0 ? owners.length : undefined },
+    { id: 'meetups', label: 'Quedadas', count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
+    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: 'Expansiones', count: expansions.length > 0 ? expansions.length : undefined }] : [])
   ] as const
 
   // Details Tab Content
   const tabDetailsContent = (
     <div className="space-y-6">
       {/* Quick Specs Row */}
-      <div className="grid grid-cols-3 gap-4 p-5 bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl shadow-sm">
+      <div className="grid grid-cols-3 gap-4 p-5 glass-panel rounded-2xl shadow-sm">
         <div className="flex flex-col items-center justify-center text-center p-2">
           <Users className="h-6 w-6 text-primary mb-1.5" />
           <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Jugadores</span>
@@ -140,7 +139,7 @@ export function GameDetailPage() {
       {/* BGG Rankings and Ratings Panel */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* BGG Rank Card */}
-        <div className="bg-card border border-border/30 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden shadow-sm h-36 hover:border-border/60 transition-colors duration-200">
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
           <Trophy className="absolute right-4 top-4 h-12 w-12 text-primary/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Ranking BGG</span>
@@ -154,7 +153,7 @@ export function GameDetailPage() {
         </div>
 
         {/* Rating Card */}
-        <div className="bg-card border border-border/30 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden shadow-sm h-36 hover:border-border/60 transition-colors duration-200">
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
           <Star className="absolute right-4 top-4 h-12 w-12 text-amber-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Puntuación</span>
@@ -169,7 +168,7 @@ export function GameDetailPage() {
         </div>
 
         {/* Complexity Card */}
-        <div className="bg-card border border-border/30 rounded-2xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden shadow-sm h-36 hover:border-border/60 transition-colors duration-200">
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
           <Brain className="absolute right-4 top-4 h-12 w-12 text-rose-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Complejidad</span>
@@ -188,7 +187,7 @@ export function GameDetailPage() {
 
       {/* Complexity Progress Gauge */}
       {complexity > 0 && (
-        <div className="bg-card border border-border/40 rounded-2xl p-5 shadow-sm space-y-3.5">
+        <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-3.5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
@@ -223,7 +222,7 @@ export function GameDetailPage() {
 
       {/* Publishers Info Block */}
       {(game.publisher || game.es_publisher) && (
-        <div className="bg-card border border-border/30 rounded-2xl p-5 space-y-4 shadow-sm">
+        <div className="glass-panel rounded-2xl p-5 space-y-4 shadow-sm">
           <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground border-b border-border/30 pb-2">Distribución & Editoriales</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm font-semibold text-foreground/80">
             {game.publisher && (
@@ -246,7 +245,7 @@ export function GameDetailPage() {
   const tabCommunityContent = (
     <div className="space-y-6">
       {/* Leaderboard layout for community winners */}
-      <div className="bg-card border border-border/40 rounded-2xl p-5 shadow-sm space-y-4">
+      <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
           <Crown className="h-5 w-5 text-amber-500" />
           <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Historial de Victorias</h3>
@@ -302,7 +301,7 @@ export function GameDetailPage() {
       </div>
 
       {/* Local Ludoteca Owners */}
-      <div className="bg-card border border-border/40 rounded-2xl p-5 shadow-sm space-y-4">
+      <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
           <Bookmark className="h-5 w-5 text-primary" />
           <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Ludoteca de la Comunidad</h3>
@@ -393,7 +392,7 @@ export function GameDetailPage() {
             return (
               <div 
                 key={meetup.id} 
-                className="bg-card border border-border/40 hover:border-primary/30 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
+                className="glass-panel hover:border-primary/45 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-start gap-2">
@@ -473,7 +472,7 @@ export function GameDetailPage() {
           })}
         </div>
       ) : (
-        <div className="text-center py-12 text-muted-foreground bg-card border border-border/40 rounded-2xl p-6 space-y-3">
+        <div className="text-center py-12 text-muted-foreground glass-panel rounded-2xl p-6 space-y-3">
           <CalendarDays className="h-10 w-10 text-muted-foreground/30 mx-auto" />
           <div>
             <h4 className="text-xs font-black uppercase text-foreground">No hay partidas agendadas</h4>
@@ -638,27 +637,41 @@ export function GameDetailPage() {
 
   return (
     <div className="relative min-h-screen pb-16 space-y-6">
-      {/* Back navigation button */}
-      <div className="max-w-6xl mx-auto px-4 pt-4">
+      {/* Ambient background blur behind the header */}
+      {game.image_url && (
+        <div className="absolute top-0 inset-x-0 h-[380px] overflow-hidden pointer-events-none select-none z-0 opacity-30">
+          <img
+            src={game.image_url}
+            alt=""
+            className="w-full h-full object-cover filter blur-[40px] scale-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
+        </div>
+      )}
+
+      {/* Header bar (sticky on mobile) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={() => navigate(-1)} 
-          className="rounded-xl flex items-center gap-1.5 h-9 bg-card/65 border border-border/30 text-muted-foreground hover:text-foreground cursor-pointer shadow-sm transition-all hover:bg-muted/50"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Volver</span>
-        </Button>
+          className="cursor-pointer"
+          icon={ArrowLeft}
+          label="Volver"
+        />
+        <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
+          Ficha de Juego
+        </span>
       </div>
 
-      {/* Info Header */}
-      <div className="relative max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 text-center md:text-left">
+      {/* Info Header - Side-by-side flex row on all views */}
+      <div className="relative max-w-6xl mx-auto px-4 flex gap-4 md:gap-8 items-start md:items-end text-left select-text">
         {/* Cover Art */}
         <motion.div 
           initial={{ opacity: 0, y: 15, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4 }}
-          className="relative w-36 sm:w-44 md:w-48 aspect-[2/3] shrink-0 rounded-2xl overflow-hidden shadow-xl border border-border/40 bg-card hover:scale-[1.01] transition-transform duration-300"
+          className="relative w-24 sm:w-36 md:w-48 aspect-[2/3] shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-xl border border-border/40 bg-card hover:scale-[1.01] transition-transform duration-300"
         >
           {game.image_url ? (
             <img 
@@ -672,39 +685,47 @@ export function GameDetailPage() {
             />
           ) : null}
           <div className={`w-full h-full flex items-center justify-center bg-muted/30 ${game.image_url ? 'hidden' : ''}`}>
-            <span className="text-xs font-bold text-muted-foreground text-center p-4">{title}</span>
+            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground text-center p-2">{title}</span>
           </div>
         </motion.div>
 
         {/* Title and metadata */}
-        <div className="flex-1 space-y-3 pb-2 select-text">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+        <div className="flex-grow space-y-2 md:space-y-3 pb-1 md:pb-2 select-text min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             {game.year_published && (
-              <span className="flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2.5 py-1 rounded-lg backdrop-blur-sm shadow-sm">
-                <CalendarDays className="h-3 w-3" />
+              <span className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
+                <CalendarDays className="h-2.5 w-2.5 md:h-3 md:w-3" />
                 {game.year_published}
               </span>
             )}
             {game.has_spanish_edition && (
-              <span className="flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg backdrop-blur-sm shadow-sm">
-                <Globe className="h-3 w-3" />
-                Edición España
+              <span className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
+                <Globe className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                ES
               </span>
             )}
             {game.is_expansion && (
-              <span className="text-[10px] font-extrabold tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg uppercase backdrop-blur-sm shadow-sm">
+              <span className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg uppercase backdrop-blur-sm shadow-sm">
                 Expansión
               </span>
             )}
+            <a 
+              href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm hover:text-primary hover:border-primary/30 transition-colors"
+            >
+              BGG ↗
+            </a>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground drop-shadow-md leading-tight">
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tight text-foreground drop-shadow-md leading-tight break-words">
             {title}
           </h1>
 
           {game.title_es && game.title_es !== game.title && (
-            <p className="text-xs sm:text-sm font-semibold text-muted-foreground">
-              Título original: <span className="italic font-bold text-foreground/80">{game.title}</span>
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">
+              Original: <span className="italic font-bold text-foreground/80">{game.title}</span>
             </p>
           )}
         </div>
