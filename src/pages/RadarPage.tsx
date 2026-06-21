@@ -181,9 +181,7 @@ export function RadarPage() {
           </p>
         </div>
         <Link to="/tablero/new" className="hidden sm:inline-block">
-          <Button className="rounded-xl font-bold shadow-sm flex items-center gap-1.5 h-10 cursor-pointer">
-            <Plus className="w-4 h-4" /> Abrir Mesa
-          </Button>
+          <Button size="sm" icon={Plus} label="Abrir Mesa" className="cursor-pointer" />
         </Link>
       </div>
 
@@ -193,10 +191,10 @@ export function RadarPage() {
         className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
       >
         <Button 
-          className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"
-        >
-          <Plus className="w-6 h-6 text-white" />
-        </Button>
+          size="icon"
+          icon={Plus}
+          className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200 border-0"
+        />
       </Link>
 
       {meetups.length === 0 ? (

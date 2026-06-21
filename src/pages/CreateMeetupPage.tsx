@@ -586,10 +586,10 @@ export function CreateMeetupPage() {
       <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           type="button"
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
+          className="flex-shrink-0 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Volver
         </Button>
@@ -728,7 +728,7 @@ export function CreateMeetupPage() {
                           size="sm" 
                           type="button"
                           onClick={() => setSelectedGames([])}
-                          className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" /> Vaciar
                         </Button>
@@ -759,14 +759,15 @@ export function CreateMeetupPage() {
                                 </div>
                               )}
                               
-                              <button
+                              <Button
                                 type="button"
+                                variant="outline"
                                 onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
-                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-background/90 hover:bg-destructive hover:text-destructive-foreground border border-border rounded-full flex items-center justify-center text-[9px] text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                                className="absolute top-0.5 right-0.5 w-5 h-5 p-0 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
                                 title={`Quitar ${game.title}`}
                               >
                                 <X className="w-2.5 h-2.5" />
-                              </button>
+                              </Button>
                             </motion.div>
                           ))}
                         </AnimatePresence>
@@ -798,7 +799,7 @@ export function CreateMeetupPage() {
                   <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3">
                     <div className="flex justify-between items-center border-b border-border/20 pb-2">
                       <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Juegos de la Sesión</Label>
-                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="rounded-full text-xs h-8 border-border/50 cursor-pointer">
+                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="cursor-pointer">
                         Añadir/Cambiar
                       </Button>
                     </div>
@@ -824,13 +825,15 @@ export function CreateMeetupPage() {
                   {/* Expansions Selector */}
                   {availableExpansions.length > 0 && (
                     <div className="space-y-2 p-4 border border-border/40 rounded-xl bg-card/40 backdrop-blur-sm">
-                      <button
+                      <Button
                         type="button"
+                        variant="link"
+                        size="sm"
                         onClick={() => setShowExpansions(!showExpansions)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                        className="cursor-pointer p-0 h-auto text-primary"
                       >
                         {showExpansions ? '− Ocultar Expansiones' : `+ Añadir Expansiones (${availableExpansions.length} disponibles)`}
-                      </button>
+                      </Button>
                       
                       <AnimatePresence>
                         {showExpansions && (
@@ -880,7 +883,6 @@ export function CreateMeetupPage() {
                     <Input 
                       id="title"
                       placeholder="Ej: Tarde de Eurogames, Campaña Gloomhaven..."
-                      className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required 
@@ -893,7 +895,7 @@ export function CreateMeetupPage() {
                     <Textarea 
                       id="description"
                       placeholder="Explica detalles como el nivel de experiencia requerido, si hay que llevar comida, etc."
-                      className="min-h-[100px] resize-none bg-background/50 focus-visible:ring-primary/40 border-border/50 p-3"
+                      className="min-h-[100px] resize-none"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
@@ -931,7 +933,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="city"
                             placeholder="Ej: Madrid, Barcelona..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={city}
                             onChange={(e) => {
                               setCity(e.target.value)
@@ -972,7 +973,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="location"
                             placeholder="Ej: Café Central, Calle Mayor 5..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             required 
@@ -995,7 +995,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="platform"
                             placeholder="Ej: Board Game Arena, TTS, Discord..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={platform}
                             onChange={(e) => setPlatform(e.target.value)}
                             required 
@@ -1009,7 +1008,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="voiceLink"
                             placeholder="Ej: https://discord.gg/... o meet.google.com/..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={voiceLink}
                             onChange={(e) => setVoiceLink(e.target.value)}
                           />
@@ -1036,7 +1034,6 @@ export function CreateMeetupPage() {
                         type="number" 
                         min="2" 
                         max="50"
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                         value={maxPlayers}
                         onChange={(e) => setMaxPlayers(e.target.value)}
                         required 
@@ -1046,7 +1043,7 @@ export function CreateMeetupPage() {
 
                   {/* Submit Button */}
                   <div className="pt-3">
-                    <Button type="submit" className="w-full h-12 text-md font-bold shadow-xl shadow-primary/20 transition-all hover:shadow-primary/40" disabled={isSubmitting}>
+                    <Button type="submit" variant="premium" className="w-full shadow-lg" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <Loader2 className="w-5 h-5 animate-spin"/> {isEditMode ? 'Guardando cambios...' : 'Abriendo mesa...'}

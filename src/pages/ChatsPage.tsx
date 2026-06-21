@@ -412,7 +412,7 @@ export function ChatsPage() {
               <p className="text-xs text-muted-foreground/85 leading-normal">
                 Únete a una partida activa en el tablero para poder coordinar los detalles del evento con el resto de asistentes.
               </p>
-              <Button onClick={() => navigate('/')} className="rounded-xl font-bold text-xs mt-3 h-8">
+              <Button onClick={() => navigate('/')} size="sm" className="mt-3">
                 Ir al Tablero
               </Button>
             </div>
@@ -480,16 +480,17 @@ export function ChatsPage() {
                           {unreadCount}
                         </span>
                       )}
-                      <button
+                      <Button
+                        variant="ghost"
                         onClick={(e) => {
                           e.stopPropagation()
                           setDeleteTargetMeetup(m)
                         }}
-                        className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
+                        className="p-1 cursor-pointer opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
                         title="Borrar chat"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -512,7 +513,7 @@ export function ChatsPage() {
                   onClick={handleBackToList}
                   variant="ghost" 
                   size="sm" 
-                  className="md:hidden p-0 rounded-full w-8 h-8 flex items-center justify-center hover:bg-muted shrink-0"
+                  className="md:hidden shrink-0 flex items-center justify-center"
                 >
                   <ArrowLeft className="w-4 h-4 text-foreground" />
                 </Button>
@@ -549,11 +550,11 @@ export function ChatsPage() {
                   onClick={() => setDeleteTargetMeetup(activeMeetup)}
                   variant="ghost"
                   size="sm"
-                  className="rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 px-2 sm:px-3 cursor-pointer flex items-center gap-1.5"
+                  className="cursor-pointer flex items-center gap-1.5"
                   title="Borrar chat"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline font-bold text-xs">Borrar chat</span>
+                  <span className="hidden sm:inline">Borrar chat</span>
                 </Button>
               </div>
             </div>
@@ -647,7 +648,8 @@ export function ChatsPage() {
               <Button
                 type="submit"
                 disabled={sending || !messageText.trim()}
-                className="rounded-xl w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer shadow-sm shadow-primary/25 hover:shadow-primary/45 transition-all"
+                size="sm"
+                className="shrink-0 cursor-pointer shadow-sm"
               >
                 {sending ? (
                   <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -700,7 +702,6 @@ export function ChatsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setDeleteTargetMeetup(null)}
-                    className="h-8 w-8 p-0 rounded-xl"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -714,7 +715,7 @@ export function ChatsPage() {
                   <Button
                     onClick={() => handleDeleteConversationConfirm('hide')}
                     disabled={deletingChat}
-                    className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer"
+                    className="w-full cursor-pointer"
                   >
                     Ocultar conversación
                   </Button>
@@ -724,7 +725,7 @@ export function ChatsPage() {
                       onClick={() => handleDeleteConversationConfirm('delete')}
                       disabled={deletingChat}
                       variant="destructive"
-                      className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer shadow-sm shadow-destructive/15"
+                      className="w-full cursor-pointer shadow-sm"
                     >
                       {deletingChat ? (
                         <>
@@ -741,7 +742,7 @@ export function ChatsPage() {
                     onClick={() => setDeleteTargetMeetup(null)}
                     disabled={deletingChat}
                     variant="ghost"
-                    className="rounded-xl font-bold text-xs h-10 w-full cursor-pointer"
+                    className="w-full cursor-pointer"
                   >
                     Cerrar
                   </Button>

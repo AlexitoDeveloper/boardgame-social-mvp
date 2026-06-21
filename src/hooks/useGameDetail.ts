@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { Game, UserProfile, Meetup } from '../types'
+import { Game, Meetup } from '../types'
 import { useAuth } from '../lib/authContext'
 import { USE_MOCKS } from '../lib/config'
 import { MOCK_BGG_GAMES } from '../lib/mockData'
@@ -255,7 +255,7 @@ export function useGameDetail(bggIdStr: string | undefined) {
         }
 
         // 8. Fetch personal collection status & current user profile city
-        if (user) {
+        if (user?.id) {
           try {
             const [ownRes, userRes] = await Promise.all([
               supabase
@@ -334,7 +334,7 @@ export function useGameDetail(bggIdStr: string | undefined) {
     } finally {
       setLoading(false)
     }
-  }, [bggId, user])
+  }, [bggId, user?.id])
 
   const toggleCollection = async () => {
     if (!user) {

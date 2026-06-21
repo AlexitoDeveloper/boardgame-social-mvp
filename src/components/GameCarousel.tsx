@@ -113,7 +113,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
                   className="snap-start shrink-0 relative flex items-end pl-16 sm:pl-20 md:pl-24 select-none w-[200px] sm:w-[245px] md:w-[275px] pb-4"
                 >
                   <span 
-                    className={`absolute ${leftClass} text-[120px] sm:text-[150px] md:text-[180px] bottom-[22px] sm:bottom-[26px] md:bottom-[30px] font-black leading-none select-none z-0 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] transition-all duration-200 flex`}
+                    className={`absolute ${leftClass} text-[120px] sm:text-[150px] md:text-[180px] bottom-[22px] sm:bottom-[26px] md:bottom-[30px] font-black leading-none select-none z-0 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] transition-all duration-200 flex font-inter`}
                   >
                     {rankStr.split('').map((char, charIdx) => (
                       <span
