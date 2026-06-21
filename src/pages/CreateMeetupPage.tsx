@@ -7,7 +7,7 @@ import { Textarea } from '../components/ui/textarea'
 import { Tabs } from '../components/ui/tabs'
 import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Trash2, X } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
@@ -16,6 +16,7 @@ import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
 import { GameSearchBar } from '../components/GameSearchBar'
 import { getGameTitle } from '../lib/gameLocale'
+import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -44,6 +45,8 @@ export function CreateMeetupPage() {
   const isEditMode = Boolean(id)
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const gameIdParam = searchParams.get('gameId') || searchParams.get('game_id')
 
   // Game Search State
   const [searchQuery, setSearchQuery] = useState('')
@@ -59,8 +62,8 @@ export function CreateMeetupPage() {
   const [showExpansions, setShowExpansions] = useState(false)
 
   // Form Fields State
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [title, setTitle] = useState(searchParams.get('title') || '')
+  const [description, setDescription] = useState(searchParams.get('description') || '')
   const [isOnline, setIsOnline] = useState(false)
   const [city, setCity] = useState('')
   const [location, setLocation] = useState('')
@@ -76,6 +79,66 @@ export function CreateMeetupPage() {
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Meetup Limit Check States
+  const [activeMeetupsCount, setActiveMeetupsCount] = useState<number | null>(null)
+  const [isPremiumUser, setIsPremiumUser] = useState<boolean>(false)
+  const [loadingLimit, setLoadingLimit] = useState(true)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  useEffect(() => {
+    async function checkMeetupLimit() {
+      if (!user) {
+        setLoadingLimit(false)
+        return
+      }
+      setLoadingLimit(true)
+      try {
+        const isMock = USE_MOCKS && id?.startsWith('mock-')
+        if (isMock) {
+          setIsPremiumUser(false)
+          setActiveMeetupsCount(0)
+          setLoadingLimit(false)
+          return
+        }
+
+        // 1. Fetch user premium status
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('is_premium')
+          .eq('id', user.id)
+          .single()
+
+        if (userError) throw userError
+        const isPremium = !!userData?.is_premium
+        setIsPremiumUser(isPremium)
+
+        // 2. Count active meetups (non-completed and future date)
+        const { count, error: countError } = await supabase
+          .from('meetups')
+          .select('id', { count: 'exact', head: true })
+          .eq('creator_id', user.id)
+          .eq('completed', false)
+          .gte('date', new Date().toISOString())
+
+        if (countError) throw countError
+        setActiveMeetupsCount(count || 0)
+      } catch (err) {
+        console.warn("Could not check meetup limit from DB, using fallback simulated values:", err)
+        const simulatedPremium = localStorage.getItem('bgs_pro_simulated') === 'true'
+        setIsPremiumUser(simulatedPremium)
+        setActiveMeetupsCount(0)
+      } finally {
+        setLoadingLimit(false)
+      }
+    }
+
+    if (!isEditMode) {
+      checkMeetupLimit()
+    } else {
+      setLoadingLimit(false)
+    }
+  }, [user, isEditMode, id])
 
   // Fetch unique cities from current database on mount
   useEffect(() => {
@@ -148,6 +211,54 @@ export function CreateMeetupPage() {
 
     return () => clearTimeout(delayDebounceFn)
   }, [searchQuery])
+
+  // Load pre-populated game from search params if in creation mode
+  useEffect(() => {
+    if (!gameIdParam || isEditMode) return
+    
+    async function loadGameFromParam() {
+      const bggId = parseInt(gameIdParam!, 10)
+      if (isNaN(bggId)) return
+      
+      setIsImporting(true)
+      setErrorMsg('')
+      try {
+        // 1. Check if the game is in the local database
+        const { data, error } = await supabase
+          .from('games')
+          .select('*')
+          .eq('bgg_id', bggId)
+          .maybeSingle()
+          
+        if (error) throw error
+        
+        if (data) {
+          setSelectedGames([data as Game])
+        } else {
+          // 2. If not, trigger the ingest edge function to load it from BGG
+          console.log(`[Param Load] Ingesting game with BGG ID: ${bggId}...`)
+          const { data: ingestData, error: ingestError } = await supabase.functions.invoke('bgg-ingest', {
+            body: { action: 'ingest', bggIds: [bggId] }
+          })
+          
+          if (ingestError) throw ingestError
+          
+          if (ingestData && ingestData.success && ingestData.games && ingestData.games.length > 0) {
+            setSelectedGames([ingestData.games[0] as Game])
+          } else {
+            throw new Error('No se pudo encontrar el juego en BoardGameGeek.')
+          }
+        }
+      } catch (err: any) {
+        console.error("Error loading pre-populated game:", err)
+        setErrorMsg(`Error al precargar el juego: ${err.message || err}`)
+      } finally {
+        setIsImporting(false)
+      }
+    }
+    
+    loadGameFromParam()
+  }, [gameIdParam, isEditMode])
 
   // Load existing meetup details in Edit Mode
   useEffect(() => {
@@ -452,27 +563,38 @@ export function CreateMeetupPage() {
     }
   }
 
-  // Filter city suggestions based on input
   const suggestions = city.trim()
     ? allCities.filter(c => c.toLowerCase().includes(city.toLowerCase()) && c.toLowerCase() !== city.toLowerCase())
     : []
+
+  const limit = isPremiumUser ? 10 : 5
+  const isLimitExceeded = !isEditMode && activeMeetupsCount !== null && activeMeetupsCount >= limit
+
+  if (loadingLimit) {
+    return (
+      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-muted-foreground animate-pulse font-medium">Comprobando límite de partidas activas...</p>
+      </div>
+    )
+  }
 
   return (
     <section className="space-y-4 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
       {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           type="button"
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 px-3 flex-shrink-0 cursor-pointer"
+          className="flex-shrink-0 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Volver
         </Button>
         <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
-          {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
+          {isEditMode ? 'Editar Mesa' : `Partidas Activas: ${activeMeetupsCount !== null ? activeMeetupsCount : 0}/${limit}`}
         </span>
       </div>
 
@@ -489,8 +611,48 @@ export function CreateMeetupPage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-6 sm:p-6 sm:pt-6">
-            
-            {/* Stepper Wizard Header */}
+            {isLimitExceeded ? (
+              <div className="text-center py-10 px-4 space-y-5">
+                <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto text-destructive border border-destructive/20 animate-pulse">
+                  <Laptop className="w-8 h-8" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-foreground">Límite de Partidas Alcanzado</h3>
+                  <p className="text-xs text-muted-foreground leading-normal max-w-sm mx-auto">
+                    Has alcanzado el límite máximo de <strong>{limit} partidas activas</strong> creadas. Completa o elimina alguna de tus partidas existentes para poder abrir más.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/')}
+                  >
+                    Volver al Tablero
+                  </Button>
+                  {!isPremiumUser && (
+                    <>
+                      <Button 
+                        type="button"
+                        variant="premium"
+                        size="sm"
+                        onClick={() => setIsUpgradeModalOpen(true)}
+                      >
+                        Obtener PRO (Aumentar a 10)
+                      </Button>
+                      <PremiumUpgradeModal 
+                        isOpen={isUpgradeModalOpen}
+                        onClose={() => setIsUpgradeModalOpen(false)}
+                        onSuccess={() => setIsPremiumUser(true)}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Stepper Wizard Header */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-6 border-b border-border/20 pb-5">
               <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${!showDetails ? 'text-primary' : 'text-success/90'}`}>
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
@@ -566,7 +728,7 @@ export function CreateMeetupPage() {
                           size="sm" 
                           type="button"
                           onClick={() => setSelectedGames([])}
-                          className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" /> Vaciar
                         </Button>
@@ -597,14 +759,15 @@ export function CreateMeetupPage() {
                                 </div>
                               )}
                               
-                              <button
+                              <Button
                                 type="button"
+                                variant="outline"
                                 onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
-                                className="absolute top-0.5 right-0.5 w-4 h-4 bg-background/90 hover:bg-destructive hover:text-destructive-foreground border border-border rounded-full flex items-center justify-center text-[9px] text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                                className="absolute top-0.5 right-0.5 w-5 h-5 p-0 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
                                 title={`Quitar ${game.title}`}
                               >
                                 <X className="w-2.5 h-2.5" />
-                              </button>
+                              </Button>
                             </motion.div>
                           ))}
                         </AnimatePresence>
@@ -636,7 +799,7 @@ export function CreateMeetupPage() {
                   <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3">
                     <div className="flex justify-between items-center border-b border-border/20 pb-2">
                       <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Juegos de la Sesión</Label>
-                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="rounded-full text-xs h-8 border-border/50 cursor-pointer">
+                      <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="cursor-pointer">
                         Añadir/Cambiar
                       </Button>
                     </div>
@@ -662,13 +825,15 @@ export function CreateMeetupPage() {
                   {/* Expansions Selector */}
                   {availableExpansions.length > 0 && (
                     <div className="space-y-2 p-4 border border-border/40 rounded-xl bg-card/40 backdrop-blur-sm">
-                      <button
+                      <Button
                         type="button"
+                        variant="link"
+                        size="sm"
                         onClick={() => setShowExpansions(!showExpansions)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
+                        className="cursor-pointer p-0 h-auto text-primary"
                       >
                         {showExpansions ? '− Ocultar Expansiones' : `+ Añadir Expansiones (${availableExpansions.length} disponibles)`}
-                      </button>
+                      </Button>
                       
                       <AnimatePresence>
                         {showExpansions && (
@@ -718,7 +883,6 @@ export function CreateMeetupPage() {
                     <Input 
                       id="title"
                       placeholder="Ej: Tarde de Eurogames, Campaña Gloomhaven..."
-                      className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required 
@@ -731,7 +895,7 @@ export function CreateMeetupPage() {
                     <Textarea 
                       id="description"
                       placeholder="Explica detalles como el nivel de experiencia requerido, si hay que llevar comida, etc."
-                      className="min-h-[100px] resize-none bg-background/50 focus-visible:ring-primary/40 border-border/50 p-3"
+                      className="min-h-[100px] resize-none"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     />
@@ -769,7 +933,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="city"
                             placeholder="Ej: Madrid, Barcelona..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={city}
                             onChange={(e) => {
                               setCity(e.target.value)
@@ -810,7 +973,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="location"
                             placeholder="Ej: Café Central, Calle Mayor 5..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             required 
@@ -833,7 +995,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="platform"
                             placeholder="Ej: Board Game Arena, TTS, Discord..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={platform}
                             onChange={(e) => setPlatform(e.target.value)}
                             required 
@@ -847,7 +1008,6 @@ export function CreateMeetupPage() {
                           <Input 
                             id="voiceLink"
                             placeholder="Ej: https://discord.gg/... o meet.google.com/..."
-                            className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                             value={voiceLink}
                             onChange={(e) => setVoiceLink(e.target.value)}
                           />
@@ -874,7 +1034,6 @@ export function CreateMeetupPage() {
                         type="number" 
                         min="2" 
                         max="50"
-                        className="bg-background/50 focus-visible:ring-primary/40 border-border/50 h-11"
                         value={maxPlayers}
                         onChange={(e) => setMaxPlayers(e.target.value)}
                         required 
@@ -884,7 +1043,7 @@ export function CreateMeetupPage() {
 
                   {/* Submit Button */}
                   <div className="pt-3">
-                    <Button type="submit" className="w-full h-12 text-md font-bold shadow-xl shadow-primary/20 transition-all hover:shadow-primary/40" disabled={isSubmitting}>
+                    <Button type="submit" variant="premium" className="w-full shadow-lg" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <Loader2 className="w-5 h-5 animate-spin"/> {isEditMode ? 'Guardando cambios...' : 'Abriendo mesa...'}
@@ -897,7 +1056,9 @@ export function CreateMeetupPage() {
                 </MotionForm>
               )}
             </AnimatePresence>
-          </CardContent>
+          </>
+        )}
+      </CardContent>
         </Card>
       </MotionDiv>
     </section>

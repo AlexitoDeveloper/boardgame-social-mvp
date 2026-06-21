@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Button } from '../components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { getMockMeetupsForList } from '../lib/mockData'
 import { Link, useNavigate } from 'react-router-dom'
@@ -9,6 +9,7 @@ import { useAuth } from '../lib/authContext'
 import { MeetupCard } from '../components/MeetupCard'
 import { Game, Meetup } from '../types'
 import { USE_MOCKS } from '../lib/config'
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 
 const MotionDiv = motion.div
 
@@ -25,74 +26,104 @@ const itemVars = {
 export function RadarPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const ITEMS_PER_PAGE = 10
   const [meetups, setMeetups] = useState<Meetup[]>([])
-  const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  
+  // Pagination & Infinite Scroll States
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchMeetups() {
-      try {
-        if (USE_MOCKS) {
-          const allMocks = getMockMeetupsForList()
-          // Filter out completed mock meetups
-          const completedMockKey = 'boardgame_social_mock_completed_meetups'
-          const completedMockStr = localStorage.getItem(completedMockKey)
-          const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
-          const activeMocks = allMocks.map(m => {
-            const completedInfo = completedMockData[m.id]
-            if (completedInfo) {
-              return { 
-                ...m, 
-                completed: completedInfo.completed,
-                attended_players: completedInfo.attended_players,
-                attended_guests: completedInfo.attended_guests
-              }
-            }
-            return m
-          }).filter(m => !m.completed)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const isIntersecting = useIntersectionObserver(sentinelRef, { threshold: 0.1 })
 
-          setMeetups(activeMocks)
-          setLoading(false)
-          return
-        }
-
-        const { data, error } = await supabase
-          .from('meetups')
-          .select(`*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
-          .eq('completed', false) // only active/open meetups
-          .gte('date', new Date().toISOString()) // filter out past events
-          .order('date', { ascending: true }) // closest future events first
-
-        if (error) {
-          console.error("Error fetching meetups:", error)
-          setMeetups([])
-        } else {
-          const formatted = (data || []).map((m: any) => {
-            const mg = m.meetup_games || []
-            const mGames = mg.map((item: any) => {
-              if (!item.games) return null
-              return {
-                ...item.games,
-                winner_user_id: item.winner_user_id,
-                winner_guest_id: item.winner_guest_id
-              }
-            }).filter(Boolean) as Game[]
-            return {
-              ...m,
-              games: mGames
-            }
-          })
-          setMeetups(formatted as Meetup[])
-        }
-      } catch (err) {
-        console.error("Unexpected error:", err)
-      } finally {
-        setLoading(false)
-      }
+  const fetchMeetups = async (pageNum: number, isInitial: boolean) => {
+    if (isInitial) {
+      setInitialLoading(true)
+    } else {
+      setLoadingMore(true)
     }
 
-    fetchMeetups()
-  }, [])
+    try {
+      const from = pageNum * ITEMS_PER_PAGE
+      const to = from + ITEMS_PER_PAGE - 1
+
+      if (USE_MOCKS) {
+        const allMocks = getMockMeetupsForList()
+        // Filter out completed mock meetups
+        const completedMockKey = 'boardgame_social_mock_completed_meetups'
+        const completedMockStr = localStorage.getItem(completedMockKey)
+        const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+        const activeMocks = allMocks.map(m => {
+          const completedInfo = completedMockData[m.id]
+          if (completedInfo) {
+            return { 
+              ...m, 
+              completed: completedInfo.completed,
+              attended_players: completedInfo.attended_players,
+              attended_guests: completedInfo.attended_guests
+            }
+          }
+          return m
+        }).filter(m => !m.completed)
+
+        const pageData = activeMocks.slice(from, to + 1)
+        setMeetups(prev => isInitial ? pageData : [...prev, ...pageData])
+        setHasMore(activeMocks.length > from + pageData.length)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('meetups')
+        .select(`*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)`)
+        .eq('completed', false) // only active/open meetups
+        .gte('date', new Date().toISOString()) // filter out past events
+        .order('date', { ascending: true }) // closest future events first
+        .range(from, to)
+
+      if (error) {
+        console.error("Error fetching meetups:", error)
+        setHasMore(false)
+      } else {
+        const formatted = (data || []).map((m: any) => {
+          const mg = m.meetup_games || []
+          const mGames = mg.map((item: any) => {
+            if (!item.games) return null
+            return {
+              ...item.games,
+              winner_user_id: item.winner_user_id,
+              winner_guest_id: item.winner_guest_id
+            }
+          }).filter(Boolean) as Game[]
+          return {
+            ...m,
+            games: mGames
+          }
+        })
+
+        setMeetups(prev => isInitial ? formatted : [...prev, ...formatted])
+        setHasMore(formatted.length === ITEMS_PER_PAGE)
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err)
+      setHasMore(false)
+    } finally {
+      setInitialLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMeetups(page, page === 0)
+  }, [page])
+
+  useEffect(() => {
+    if (isIntersecting && hasMore && !loadingMore && !initialLoading) {
+      setPage(prev => prev + 1)
+    }
+  }, [isIntersecting, hasMore, loadingMore, initialLoading])
 
   const handleJoinLeave = async (meetup: Meetup) => {
     if (!user) {
@@ -131,10 +162,10 @@ export function RadarPage() {
     }
   }
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-4">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
         <p className="text-muted-foreground animate-pulse font-medium">Buscando partidas en el tablero...</p>
       </div>
     )
@@ -150,9 +181,7 @@ export function RadarPage() {
           </p>
         </div>
         <Link to="/tablero/new" className="hidden sm:inline-block">
-          <Button className="rounded-xl font-bold shadow-sm flex items-center gap-1.5 h-10 cursor-pointer">
-            <Plus className="w-4 h-4" /> Abrir Mesa
-          </Button>
+          <Button size="sm" icon={Plus} label="Abrir Mesa" className="cursor-pointer" />
         </Link>
       </div>
 
@@ -162,10 +191,10 @@ export function RadarPage() {
         className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
       >
         <Button 
-          className="rounded-full shadow-lg shadow-primary/20 w-14 h-14 p-0 flex items-center justify-center bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all duration-200 border-0"
-        >
-          <Plus className="w-6 h-6 text-white" />
-        </Button>
+          size="icon"
+          icon={Plus}
+          className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200 border-0"
+        />
       </Link>
 
       {meetups.length === 0 ? (
@@ -188,6 +217,18 @@ export function RadarPage() {
           ))}
         </MotionDiv>
       )}
+
+      {loadingMore && (
+        <div className="flex justify-center items-center py-4">
+          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+        </div>
+      )}
+      {!hasMore && meetups.length > 0 && (
+        <div className="text-center text-xs font-bold text-muted-foreground py-6 select-none">
+          No hay más partidas en el tablero.
+        </div>
+      )}
+      <div ref={sentinelRef} className="h-4 w-full" />
     </section>
   )
 }

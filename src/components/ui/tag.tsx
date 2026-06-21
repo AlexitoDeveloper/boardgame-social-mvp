@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils"
 
 const tagVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[11px] font-bold transition-colors select-none",
+  "inline-flex items-center gap-1.5 border font-bold transition-colors select-none",
   {
     variants: {
       variant: {
@@ -35,9 +35,15 @@ const tagVariants = cva(
         outline:
           "border-border/40 text-foreground bg-transparent",
       },
+      size: {
+        default: "h-6 px-2.5 text-[11px] rounded-lg",
+        sm: "h-5 px-2 text-[9.5px] rounded-md",
+        xs: "h-4.5 px-1.5 text-[8.5px] rounded-md font-extrabold",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )

@@ -14,6 +14,7 @@ interface TabsProps<T extends string> {
   activeTab: T;
   onChange: (id: T) => void;
   className?: string;
+  hideLabelsOnMobile?: boolean;
 }
 
 export function Tabs<T extends string>({
@@ -21,6 +22,7 @@ export function Tabs<T extends string>({
   activeTab,
   onChange,
   className,
+  hideLabelsOnMobile = false,
 }: TabsProps<T>) {
   return (
     <div className={cn("bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 w-full select-none relative z-10", className)}>
@@ -33,7 +35,7 @@ export function Tabs<T extends string>({
             type="button"
             onClick={() => onChange(opt.id)}
             className={cn(
-              "flex-1 py-2 rounded-xl text-xs font-black relative transition-all duration-300 flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer",
+              "flex-1 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-black relative transition-all duration-300 flex items-center justify-center gap-1 sm:gap-1.5 focus:outline-none cursor-pointer",
               isActive ? "text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >
@@ -45,11 +47,11 @@ export function Tabs<T extends string>({
               />
             )}
             <span className="relative z-10 flex items-center justify-center gap-1">
-              {Icon && <Icon className="w-3.5 h-3.5" />}
-              {opt.label}
+              {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
+              <span className={cn(hideLabelsOnMobile && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
-                  "px-1.5 py-0.2 rounded-full text-[9px] font-bold border border-current",
+                  "px-1.5 py-0.2 rounded-full text-[9px] font-bold border border-current shrink-0",
                   isActive ? "bg-primary-foreground/15 border-transparent" : "bg-muted text-muted-foreground border-border/40"
                 )}>
                   {opt.count}

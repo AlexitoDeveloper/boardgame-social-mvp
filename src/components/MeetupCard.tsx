@@ -35,6 +35,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   
   // State for active game index in carousel
   const [activeGameIdx, setActiveGameIdx] = useState(0);
+  const [showFullTitle, setShowFullTitle] = useState(false);
 
   // Get current active game
   const currentGame = gamesList[activeGameIdx] || null;
@@ -42,16 +43,19 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
+    setShowFullTitle(false);
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+    setShowFullTitle(false);
   };
 
   const handleDotClick = (e: React.MouseEvent, idx: number) => {
     e.stopPropagation();
     setActiveGameIdx(idx);
+    setShowFullTitle(false);
   };
 
   const renderJoinButton = () => {
@@ -145,8 +149,20 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
     )
   }
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  };
+
   return (
-    <Card className="overflow-hidden bg-card/85 backdrop-blur-md transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/45 group border border-border/40 flex flex-col relative p-0">
+    <Card 
+      onMouseMove={handleMouseMove}
+      className="overflow-hidden glass-panel spotlight-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/45 group flex flex-col relative p-0"
+    >
       {/* Banner / Showcase de Portada */}
       <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-muted/40 border-b border-border/30 flex items-center justify-center">
         {currentGame?.image_url ? (
@@ -156,14 +172,15 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               <motion.img
                 key={`bg-${currentGame.bgg_id || activeGameIdx}`}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.35 }}
+                animate={{ opacity: 0.4 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 src={currentGame.image_url}
                 alt=""
-                className="w-full h-full object-cover filter blur-2xl scale-125 pointer-events-none select-none absolute inset-0"
+                className="w-full h-full object-cover filter blur-[32px] scale-150 pointer-events-none select-none absolute inset-0 z-0"
               />
             </AnimatePresence>
+            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/20 to-transparent z-10 pointer-events-none opacity-80" />
 
             {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
             <AnimatePresence mode="wait">
@@ -189,14 +206,14 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
                   scale: { duration: 0.3 },
                   x: { type: "spring", stiffness: 300, damping: 30 }
                 }}
-                className={`absolute inset-0 flex items-center justify-center p-4 z-10 touch-pan-y ${
+                className={`absolute inset-0 flex items-center justify-center p-4 z-20 touch-pan-y ${
                   gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
                 }`}
               >
                 <img
                   src={currentGame.image_url}
                   alt={getGameTitle(currentGame) || 'Juego'}
-                  className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.03] transition-transform duration-300 pointer-events-none select-none"
+                  className="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10 group-hover:scale-[1.04] transition-transform duration-300 pointer-events-none select-none"
                 />
               </motion.div>
             </AnimatePresence>
@@ -303,22 +320,38 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               </Tag>
             </div>
           ) : (
-            <div className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
-              <span>Juegos ({gamesList.length}):</span>
-                <span className="text-foreground/90 font-semibold truncate max-w-[120px] md:max-w-[140px]">
-                  {currentGame ? getGameTitle(currentGame) : meetup.game_name}
-                </span>
+            <motion.div layout className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
+              <motion.span layout>Juegos ({gamesList.length}):</motion.span>
+              <motion.span 
+                layout
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFullTitle(!showFullTitle);
+                }}
+                className={`text-foreground/90 font-semibold cursor-pointer select-none ${
+                  showFullTitle 
+                    ? "whitespace-normal break-words max-w-full" 
+                    : "truncate max-w-[120px] md:max-w-[140px]"
+                }`}
+                title={showFullTitle ? "Click para contraer" : "Click para ver completo"}
+              >
+                {currentGame ? getGameTitle(currentGame) : meetup.game_name}
+              </motion.span>
               {currentGame?.is_expansion && (
-                <Tag variant="purple">
-                  Expansión
-                </Tag>
+                <motion.div layout className="inline-flex">
+                  <Tag variant="purple">
+                    Expansión
+                  </Tag>
+                </motion.div>
               )}
               {gamesList.length > 1 && (
-                <Tag variant="secondary-solid">
-                  {activeGameIdx + 1} de {gamesList.length}
-                </Tag>
+                <motion.div layout className="inline-flex">
+                  <Tag variant="secondary-solid">
+                    {activeGameIdx + 1} de {gamesList.length}
+                  </Tag>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Descripción */}

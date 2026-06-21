@@ -2,11 +2,15 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { RadarPage } from './pages/RadarPage'
+import { ExplorePage } from './pages/ExplorePage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
 import { TopsPage } from './pages/TopsPage'
+import { GameDetailPage } from './pages/GameDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ChatsPage } from './pages/ChatsPage'
+import { GroupsPage } from './pages/GroupsPage'
+import { GroupDetailPage } from './pages/GroupDetailPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -26,9 +30,10 @@ function App() {
 
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
-        <Route path="/" element={<RadarPage />} />
-        <Route path="/radar" element={<Navigate to="/" replace />} />
-        <Route path="/tablero" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<ExplorePage />} />
+        <Route path="/juegos/:id" element={<GameDetailPage />} />
+        <Route path="/tablero" element={<RadarPage />} />
+        <Route path="/radar" element={<Navigate to="/tablero" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route
@@ -36,6 +41,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ChatsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos"
+          element={
+            <ProtectedRoute>
+              <GroupsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos/:id"
+          element={
+            <ProtectedRoute>
+              <GroupDetailPage />
             </ProtectedRoute>
           }
         />

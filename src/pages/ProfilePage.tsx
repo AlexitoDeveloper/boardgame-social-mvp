@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { supabase } from '../lib/supabaseClient'
 import { Meetup, UserProfile, Game } from '../types'
@@ -9,6 +9,8 @@ import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { USE_MOCKS } from '../lib/config'
 import { Card, CardContent } from '../components/ui/card'
+import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
+import { PremiumDeactivateModal } from '../components/PremiumDeactivateModal'
 import { toPng } from 'html-to-image'
 import { 
   Crown,
@@ -34,15 +36,24 @@ import {
   Info,
   Edit,
   User,
-  Camera
+  Camera,
+  Check
 } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
+import { Tag } from '../components/ui/tag'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../components/ui/dialog'
 
 const MotionDiv = motion.div
 
@@ -189,6 +200,8 @@ export function ProfilePage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const rankingIdParam = searchParams.get('ranking')
 
   const profileId = id || user?.id || ''
   const isOwnProfile = profileId === user?.id
@@ -364,13 +377,12 @@ export function ProfilePage() {
       }
     }
   }
-
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [meetups, setMeetups] = useState<Meetup[]>([])
   const [stats, setStats] = useState<UserStats>({ played: 0, won: 0, winRate: 0, karma: 100, missed: 0 })
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'rankings'>('upcoming')
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'rankings' | 'collection'>('upcoming')
 
   // Saved Rankings State
   const [savedRankings, setSavedRankings] = useState<any[]>([])
@@ -380,6 +392,26 @@ export function ProfilePage() {
   const exportModalRef = useRef<HTMLDivElement>(null)
   const [showXpHelp, setShowXpHelp] = useState(false)
   const [activeAchId, setActiveAchId] = useState<string>('host')
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
+
+  // Collection State
+  const [collectionGames, setCollectionGames] = useState<Game[]>([])
+  const [loadingCollection, setLoadingCollection] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [bggUsernameInput, setBggUsernameInput] = useState('')
+  const [importingCollection, setImportingCollection] = useState(false)
+  const [importError, setImportError] = useState('')
+  const [importSuccessCount, setImportSuccessCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (rankingIdParam && savedRankings.length > 0) {
+      const found = savedRankings.find(r => r.id === rankingIdParam)
+      if (found) {
+        setSelectedRanking(found)
+      }
+    }
+  }, [rankingIdParam, savedRankings])
 
   useEffect(() => {
     async function loadProfileData() {
@@ -509,7 +541,156 @@ export function ProfilePage() {
     }
 
     loadProfileData()
+
+    const handleProfileUpdate = () => {
+      loadProfileData()
+    }
+    window.addEventListener('profile_update', handleProfileUpdate)
+    return () => {
+      window.removeEventListener('profile_update', handleProfileUpdate)
+    }
   }, [profileId])
+
+  const loadCollection = useCallback(async () => {
+    if (!profileId) return
+    setLoadingCollection(true)
+    
+    if (USE_MOCKS && profileId.startsWith('mock-')) {
+      // Mock mode
+      const mockCollectionKey = `boardgame_social_mock_collection_${profileId}`
+      const cached = localStorage.getItem(mockCollectionKey)
+      if (cached) {
+        setCollectionGames(JSON.parse(cached))
+      } else {
+        if (profileId === 'mock-u1') {
+          const initialMockGames = [
+            { bgg_id: 224517, title: 'Brass: Birmingham', year_published: 2018, image_url: 'https://cf.geekdo-images.com/x3zxztFbRYCgssNZ55ZMnw__micro/img/QDuQwi75tL54enp_8_93K3s97d0=/fit-in/64x64/filters:strip_icc()/pic3490053.jpg' },
+            { bgg_id: 167791, title: 'Terraforming Mars', year_published: 2016, image_url: 'https://cf.geekdo-images.com/yLZJCDgC7y0uJUWSpFd58A__micro/img/z7A4g4dG6NqH2fT0zJc2j6m9V-g=/fit-in/64x64/filters:strip_icc()/pic3536616.png' }
+          ]
+          localStorage.setItem(mockCollectionKey, JSON.stringify(initialMockGames))
+          setCollectionGames(initialMockGames as any)
+        } else {
+          setCollectionGames([])
+        }
+      }
+      setLoadingCollection(false)
+      return
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_collection')
+        .select('game_id, games (*)')
+        .eq('user_id', profileId)
+
+      if (error) throw error
+
+      if (data) {
+        const games = data
+          .map((row: any) => row.games)
+          .filter(Boolean) as Game[]
+        setCollectionGames(games)
+      }
+    } catch (err) {
+      console.error('Error loading collection:', err)
+    } finally {
+      setLoadingCollection(false)
+    }
+  }, [profileId])
+
+  useEffect(() => {
+    loadCollection()
+  }, [loadCollection])
+
+  const handleImportBggCollection = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!bggUsernameInput.trim()) return
+    if (!USE_MOCKS && !user) return
+    
+    setImportingCollection(true)
+    setImportError('')
+    setImportSuccessCount(null)
+
+    if (USE_MOCKS && profileId.startsWith('mock-')) {
+      setTimeout(() => {
+        const dixitGame = { bgg_id: 37111, title: 'Dixit', year_published: 2008, image_url: 'https://cf.geekdo-images.com/39A865b4-B6BE-4b82-9022-7935E5B9FE6C.png' }
+        const catanGame = { bgg_id: 13, title: 'Catan', year_published: 1995, image_url: 'https://cf.geekdo-images.com/40B7E05C-CC71-460B-A5DF-F2803CE10599.png' }
+        
+        setCollectionGames(prev => {
+          const updated = [...prev]
+          if (!updated.some(g => g.bgg_id === dixitGame.bgg_id)) updated.push(dixitGame as any)
+          if (!updated.some(g => g.bgg_id === catanGame.bgg_id)) updated.push(catanGame as any)
+          localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+          return updated
+        })
+        setImportSuccessCount(2)
+        setImportingCollection(false)
+        setTimeout(() => {
+          setIsImportModalOpen(false)
+          setBggUsernameInput('')
+          setImportSuccessCount(null)
+        }, 2000)
+      }, 1500)
+      return
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('bgg-ingest', {
+        body: {
+          action: 'import-collection',
+          username: bggUsernameInput.trim(),
+          userId: user?.id
+        }
+      })
+
+      if (error) throw error
+
+      if (data && data.success) {
+        setImportSuccessCount(data.imported || 0)
+        await loadCollection()
+        setTimeout(() => {
+          setIsImportModalOpen(false)
+          setBggUsernameInput('')
+          setImportSuccessCount(null)
+        }, 2000)
+      } else {
+        throw new Error(data?.error || 'No se pudo completar la importación.')
+      }
+    } catch (err: any) {
+      console.error('Error importing collection from BGG:', err)
+      setImportError(err.message || 'Error al conectar con la API de BoardGameGeek.')
+    } finally {
+      setImportingCollection(false)
+    }
+  }
+
+  const handleRemoveFromCollection = async (e: React.MouseEvent, bggId: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!confirm('¿Quieres quitar este juego de tu ludoteca?')) return
+
+    if (USE_MOCKS && profileId.startsWith('mock-')) {
+      setCollectionGames(prev => {
+        const updated = prev.filter(g => g.bgg_id !== bggId)
+        localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+        return updated
+      })
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_collection')
+        .delete()
+        .eq('user_id', user?.id)
+        .eq('game_id', bggId)
+
+      if (error) throw error
+      setCollectionGames(prev => prev.filter(g => g.bgg_id !== bggId))
+    } catch (err) {
+      console.error('Error removing game from collection:', err)
+    }
+  }
 
   const calculateStats = (userMeetups: Meetup[], userId: string) => {
     const completed = userMeetups.filter(m => m.completed)
@@ -630,15 +811,20 @@ export function ProfilePage() {
           <h2 className="text-xl font-bold">Perfil no disponible</h2>
           <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar el perfil solicitado.'}</p>
         </div>
-        <Button onClick={() => navigate('/')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
-        </Button>
+        <Button 
+          onClick={() => navigate('/')} 
+          variant="outline" 
+          size="sm" 
+          icon={ArrowLeft} 
+          label="Volver al Tablero" 
+          className="mx-auto cursor-pointer" 
+        />
       </section>
     )
   }
 
-  const upcomingMeetups = meetups.filter(m => !m.completed)
-  const completedMeetups = meetups.filter(m => m.completed)
+  const upcomingMeetups = meetups.filter(m => !m.completed && new Date(m.date).getTime() >= Date.now())
+  const completedMeetups = meetups.filter(m => m.completed || new Date(m.date).getTime() < Date.now())
   const organizedCount = meetups.filter(m => m.creator_id === profileId).length
 
   // Gamer Progression Level Formulas
@@ -719,25 +905,25 @@ export function ProfilePage() {
     <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
       {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 bg-background/85 backdrop-blur-md border-b border-border/20 md:relative md:top-auto md:z-10 md:bg-transparent md:backdrop-blur-none md:border-b-0 md:-mx-0 md:px-0 md:py-0">
+      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
           onClick={() => navigate(-1)} 
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" /> Atrás
-        </Button>
+          className="cursor-pointer"
+          icon={ArrowLeft}
+          label="Atrás"
+        />
         <div className="flex items-center gap-2">
           {isOwnProfileEditable && (
             <Button
               size="sm"
               variant="outline"
               onClick={handleOpenEdit}
-              className="rounded-xl flex items-center gap-1.5 font-bold text-xs h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-foreground"
-            >
-              <Edit className="w-3.5 h-3.5 text-primary" /> Editar Datos
-            </Button>
+              className="cursor-pointer text-foreground"
+              icon={Edit}
+              label="Editar Datos"
+            />
           )}
           {isOwnProfile ? (
             <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider">
@@ -752,16 +938,13 @@ export function ProfilePage() {
       </div>
 
       {/* Showcase Profile Card with premium gaming card aesthetic */}
-      <Card className="border-border/30 bg-card shadow-2xl overflow-hidden rounded-3xl relative">
+      <Card className="glass-panel border-border/30 shadow-2xl overflow-hidden rounded-3xl relative">
         {/* Sleek retro-futuristic backdrop glow */}
         <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-br from-primary/15 to-violet-500/5 rounded-full blur-[80px] -z-10" />
         <div className="absolute top-10 left-10 w-28 h-28 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 rounded-full blur-[60px] -z-10" />
 
         {/* Banner backdrop */}
         <div className="h-32 bg-gradient-to-r from-primary/30 via-[#260f38]/20 to-[#0e271a]/30 border-b border-white/5 relative overflow-hidden">
-          <div className="absolute top-3 right-4 flex items-center gap-1.5 text-[10px] font-bold text-white/40 select-none uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" /> Gamer Showcase
-          </div>
         </div>
         
         <CardContent className="p-4 pb-6 sm:p-6 sm:pb-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
@@ -783,6 +966,52 @@ export function ProfilePage() {
             <div>
               <h2 className="text-2xl font-black tracking-tight text-foreground truncate flex items-center justify-center sm:justify-start gap-2">
                 {profile.username}
+                {profile.is_premium ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Tag variant="default" className="shrink-0">
+                      <Crown className="w-3 h-3 shrink-0" /> PRO
+                    </Tag>
+                    {isOwnProfileEditable && (
+                      <>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => setIsDeactivateModalOpen(true)}
+                          className="cursor-pointer text-muted-foreground hover:text-destructive hover:no-underline p-0 h-auto"
+                        >
+                          (Desactivar)
+                        </Button>
+                        <PremiumDeactivateModal
+                          isOpen={isDeactivateModalOpen}
+                          onClose={() => setIsDeactivateModalOpen(false)}
+                          onSuccess={() => {
+                            setProfile(prev => prev ? { ...prev, is_premium: false } : null)
+                          }}
+                        />
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  isOwnProfileEditable && (
+                    <>
+                      <Button
+                        variant="premium"
+                        size="sm"
+                        onClick={() => setIsUpgradeModalOpen(true)}
+                        className="shrink-0 animate-pulse cursor-pointer"
+                        icon={Crown}
+                        label="Obtener PRO"
+                      />
+                      <PremiumUpgradeModal 
+                        isOpen={isUpgradeModalOpen}
+                        onClose={() => setIsUpgradeModalOpen(false)}
+                        onSuccess={() => {
+                          setProfile(prev => prev ? { ...prev, is_premium: true } : null)
+                        }}
+                      />
+                    </>
+                  )
+                )}
               </h2>
               <span className="text-xs font-extrabold text-primary block mt-0.5 tracking-wider uppercase">
                 {playerTitle}
@@ -794,14 +1023,15 @@ export function ProfilePage() {
               <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
                 <span className="flex items-center gap-1">
                   Experiencia del Jugador
-                  <button 
+                  <Button 
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setShowXpHelp(!showXpHelp)}
-                    className="p-0.5 rounded hover:bg-muted text-primary transition-colors cursor-pointer"
+                    className="text-primary cursor-pointer"
                     title="¿Cómo conseguir XP?"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
+                    icon={Info}
+                  />
                 </span>
                 <span className="text-foreground font-black">{xpCurrent} / {xpRange} XP</span>
               </div>
@@ -946,7 +1176,7 @@ export function ProfilePage() {
       {/* Stats Dashboard Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Win Rate Card */}
-        <Card className="border-border/30 bg-card/65 backdrop-blur-3xl shadow-lg relative overflow-hidden group rounded-2xl hover:border-rose-500/30 hover:shadow-rose-500/5 transition-all duration-300">
+        <Card className="glass-panel border-border/30 shadow-lg relative overflow-hidden group rounded-2xl hover:border-rose-500/30 hover:shadow-rose-500/5 transition-all duration-300">
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Swords className="w-28 h-28 text-rose-500 stroke-[1.25] rotate-12" />
           </div>
@@ -972,7 +1202,7 @@ export function ProfilePage() {
         </Card>
 
         {/* Attendance Card */}
-        <Card className="border-border/30 bg-card/65 backdrop-blur-3xl shadow-lg relative overflow-hidden group rounded-2xl hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300">
+        <Card className="glass-panel border-border/30 shadow-lg relative overflow-hidden group rounded-2xl hover:border-emerald-500/30 hover:shadow-emerald-500/5 transition-all duration-300">
           <div className="absolute -right-3 -bottom-5 opacity-10 dark:opacity-[0.06] group-hover:scale-110 group-hover:opacity-15 transition-all duration-500 pointer-events-none">
             <Dices className="w-28 h-28 text-emerald-500 stroke-[1.25] -rotate-12" />
           </div>
@@ -1002,10 +1232,12 @@ export function ProfilePage() {
         options={[
           { id: 'upcoming', label: 'Próximas', icon: CalendarDays, count: upcomingMeetups.length },
           { id: 'completed', label: 'Historial', icon: History, count: completedMeetups.length },
+          { id: 'collection', label: 'Ludoteca', icon: Dices, count: collectionGames.length },
           { id: 'rankings', label: 'Rankings', icon: ListOrdered, count: savedRankings.length }
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
+        hideLabelsOnMobile
       />
 
       {/* Tabs Content Sections */}
@@ -1032,38 +1264,22 @@ export function ProfilePage() {
 
                   return (
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
-                      <div className="flex items-center justify-between p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all group">
+                      <div className="flex items-center justify-between p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all group border-border/40">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          {gamesList.length <= 1 ? (
-                            <div className="w-12 h-12 rounded-xl shrink-0 overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
+                          <div className="relative w-12 h-12 shrink-0">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
                               {mainGame?.image_url ? (
                                 <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                               ) : (
                                 <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                               )}
                             </div>
-                          ) : (
-                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
-                              {gamesList.slice(0, 3).map((game, idx) => (
-                                <div
-                                  key={game.bgg_id}
-                                  style={{ zIndex: 10 - idx }}
-                                  className="w-11 h-11 rounded-lg overflow-hidden bg-background border border-border/45 p-0.5 flex items-center justify-center shadow-sm bg-gradient-to-br from-primary/5 to-primary/10 hover:scale-105 hover:z-20 transition-all duration-200"
-                                >
-                                  {game.image_url ? (
-                                    <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-contain rounded" />
-                                  ) : (
-                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{getGameTitle(game).slice(0, 3)}</div>
-                                  )}
-                                </div>
-                              ))}
-                              {gamesList.length > 3 && (
-                                <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform">
-                                  <span className="text-[8px] font-black text-primary">+{gamesList.length - 3}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            {gamesList.length > 1 && (
+                              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-sm z-10 select-none">
+                                +{gamesList.length - 1}
+                              </div>
+                            )}
+                          </div>
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
@@ -1108,13 +1324,13 @@ export function ProfilePage() {
                     <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
                       <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all hover:shadow-md group ${
                         isWinner 
-                          ? 'border-rose-500/25 bg-rose-500/[0.02] hover:bg-rose-500/[0.04] hover:border-rose-500/40' 
+                          ? 'border-rose-500/25 bg-rose-500/[0.02] hover:bg-rose-500/[0.04] hover:border-rose-500/40 glass-panel shadow-sm' 
                           : !didAttend 
-                            ? 'border-destructive/25 bg-destructive/[0.01] opacity-70 hover:opacity-100 hover:bg-destructive/[0.03]'
-                            : 'border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20'
+                            ? 'border-destructive/25 bg-destructive/[0.01] opacity-70 hover:opacity-100 hover:bg-destructive/[0.03] glass-panel shadow-sm'
+                            : 'border-border/40 hover:bg-muted/40 hover:border-primary/20 glass-panel shadow-sm'
                       }`}>
                         <div className="flex items-center gap-3.5 min-w-0">
-                          {gamesList.length <= 1 ? (
+                          <div className="relative w-12 h-12 shrink-0">
                             <div className={`w-12 h-12 rounded-xl shrink-0 overflow-hidden p-1 flex items-center justify-center transition-all duration-300 ${
                               isWinner 
                                 ? 'bg-rose-500/10 border border-rose-500/20 group-hover:border-rose-500/40' 
@@ -1126,36 +1342,16 @@ export function ProfilePage() {
                                 <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                               )}
                             </div>
-                          ) : (
-                            <div className="flex -space-x-4 hover:-space-x-1.5 transition-all duration-300 items-center shrink-0 pr-1">
-                              {gamesList.slice(0, 3).map((game, idx) => (
-                                <div
-                                  key={game.bgg_id}
-                                  style={{ zIndex: 10 - idx }}
-                                  className={`w-11 h-11 rounded-lg overflow-hidden border p-0.5 flex items-center justify-center shadow-sm hover:scale-105 hover:z-20 transition-all duration-200 ${
-                                    isWinner
-                                      ? 'bg-rose-950/40 border-rose-500/20'
-                                      : 'bg-background border-border/45'
-                                  }`}
-                                >
-                                  {game.image_url ? (
-                                    <img src={game.image_url} alt={game.title} className="w-full h-full object-contain rounded" />
-                                  ) : (
-                                    <div className="text-[8px] text-muted-foreground/60 font-extrabold text-center uppercase">{game.title.slice(0, 3)}</div>
-                                  )}
-                                </div>
-                              ))}
-                              {gamesList.length > 3 && (
-                                <div className={`w-6 h-6 rounded-full border flex items-center justify-center z-0 translate-x-0.5 hover:scale-110 transition-transform ${
-                                  isWinner
-                                    ? 'bg-rose-500/20 border-rose-500/30'
-                                    : 'bg-primary/20 border-primary/30'
-                                }`}>
-                                  <span className={`text-[8px] font-black ${isWinner ? 'text-rose-400' : 'text-primary'}`}>+{gamesList.length - 3}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            {gamesList.length > 1 && (
+                              <div className={`absolute -bottom-1 -right-1 text-[9px] font-black px-1.5 py-0.5 rounded-md border shadow-sm z-10 select-none ${
+                                isWinner
+                                  ? 'bg-rose-500 text-rose-foreground border-rose-950'
+                                  : 'bg-primary text-primary-foreground border-background'
+                              }`}>
+                                +{gamesList.length - 1}
+                              </div>
+                            )}
+                          </div>
                           <div className="min-w-0 text-left space-y-1">
                             <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                             <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
@@ -1171,8 +1367,21 @@ export function ProfilePage() {
                                 </Badge>
                               )}
 
+                              {/* Pending Closure warning badges */}
+                              {!meetup.completed && new Date(meetup.date).getTime() < Date.now() && (
+                                meetup.creator_id === user?.id ? (
+                                  <Badge variant="warning" pulse className="shrink-0">
+                                    ⚠️ PENDIENTE DE CIERRE
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="shrink-0">
+                                    ⏳ Pendiente de reporte
+                                  </Badge>
+                                )
+                              )}
+
                               {/* No attendance badge */}
-                              {!didAttend && (
+                              {meetup.completed && !didAttend && (
                                 <Badge variant="destructive" className="shrink-0">
                                   AUSENTE
                                 </Badge>
@@ -1209,9 +1418,7 @@ export function ProfilePage() {
                   {isOwnProfile && (
                     <div className="mt-3">
                       <Link to="/tops">
-                        <Button size="sm" className="rounded-xl text-xs font-bold gap-1">
-                          <Plus className="w-3.5 h-3.5" /> Crear Ranking
-                        </Button>
+                        <Button size="sm" icon={Plus} label="Crear Ranking" className="cursor-pointer" />
                       </Link>
                     </div>
                   )}
@@ -1224,7 +1431,7 @@ export function ProfilePage() {
                     <div 
                       key={ranking.id} 
                       onClick={() => setSelectedRanking(ranking)}
-                      className="p-4 rounded-2xl border border-border/40 bg-card/45 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex justify-between items-center group text-left"
+                      className="p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all cursor-pointer flex justify-between items-center group text-left border-border/40"
                     >
                       <div className="space-y-1.5 flex-1 min-w-0 pr-4">
                         <h4 className="font-extrabold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
@@ -1248,11 +1455,10 @@ export function ProfilePage() {
                               variant="ghost" 
                               size="sm" 
                               onClick={(e) => handleDeleteRanking(e, ranking.id)}
-                              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                              className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                               title="Eliminar ranking"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                              icon={Trash2}
+                            />
                           )}
                           <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                         </div>
@@ -1261,6 +1467,130 @@ export function ProfilePage() {
                   )
                 })
               )}
+            </MotionDiv>
+          )}
+
+          {activeTab === 'collection' && (
+            <MotionDiv
+              key="collection-tab"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-4 animate-in fade-in-50 duration-300"
+            >
+              {isOwnProfileEditable && collectionGames.length === 0 && (
+                <div className="flex justify-between items-center bg-card/35 backdrop-blur-md border border-border/20 rounded-2xl p-4 shadow-sm hover:border-primary/20 transition-all duration-300">
+                  <div className="text-left space-y-0.5">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Importar Colección BGG</h4>
+                    <p className="text-[10px] text-muted-foreground leading-normal font-semibold">Sincroniza tus juegos de BoardGameGeek al instante.</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsImportModalOpen(true)}
+                    icon={Plus}
+                    label="Importar BGG"
+                  />
+                </div>
+              )}
+
+              {loadingCollection ? (
+                <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground text-sm font-semibold">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  <span>Obteniendo juegos de tu ludoteca...</span>
+                </div>
+              ) : collectionGames.length === 0 ? (
+                <div className="text-center py-12 px-4 bg-muted/10 rounded-2xl border border-dashed border-border/40 space-y-3">
+                  <Dices className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+                  <div>
+                    <p className="text-sm font-bold text-muted-foreground">La ludoteca está vacía.</p>
+                    <p className="text-xs text-muted-foreground/80 mt-1">
+                      {isOwnProfileEditable 
+                        ? 'Agrega juegos desde su ficha técnica o importa tu colección de BGG.' 
+                        : 'Este jugador no ha agregado juegos a su ludoteca todavía.'}
+                    </p>
+                  </div>
+                  {isOwnProfileEditable && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => setIsImportModalOpen(true)}
+                      className="mt-2 cursor-pointer"
+                      icon={Plus}
+                      label="Importar Ludoteca"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                      {collectionGames.length} {collectionGames.length === 1 ? 'juego' : 'juegos'} en la ludoteca
+                    </span>
+                    {isOwnProfileEditable && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsImportModalOpen(true)}
+                        className="cursor-pointer"
+                        icon={Download}
+                        label="Sincronizar BGG"
+                      />
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {collectionGames.map(game => (
+                      <Link 
+                        key={game.bgg_id} 
+                        to={`/juegos/${game.bgg_id}`}
+                        className="group relative glass-panel hover:border-primary/35 rounded-2xl p-3 flex flex-col items-center text-center hover:shadow-lg hover:scale-[1.01] transition-all duration-300 overflow-hidden border-border/40"
+                      >
+                        {/* Trash action button */}
+                        {isOwnProfileEditable && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
+                            className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
+                            title="Quitar de mi ludoteca"
+                            icon={Trash2}
+                          />
+                        )}
+                        
+                        <div className="w-full aspect-[2/3] rounded-xl overflow-hidden bg-muted/20 border border-border/10 relative flex items-center justify-center shrink-0">
+                          {game.image_url ? (
+                            <img 
+                              src={game.image_url} 
+                              alt={game.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`absolute inset-0 flex items-center justify-center p-3 text-xs font-bold text-muted-foreground ${game.image_url ? 'hidden' : ''}`}>
+                            {game.title_es || game.title}
+                          </div>
+                        </div>
+                        <div className="mt-3 w-full px-0.5">
+                          <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
+                            {game.title_es || game.title}
+                          </h4>
+                          <span className="text-[10px] text-muted-foreground font-bold block mt-0.5">
+                            {game.year_published || 'N/A'}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* BGG attribution footer under collection games */}
+              <div className="text-[9px] text-center text-muted-foreground/40 font-semibold select-none pt-4">
+                Datos de ludoteca proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+              </div>
             </MotionDiv>
           )}
         </AnimatePresence>
@@ -1307,7 +1637,7 @@ export function ProfilePage() {
                       size="sm"
                       onClick={handleExportModalImage}
                       disabled={exportingRanking}
-                      className="font-bold text-xs h-8 px-2 sm:px-3 rounded-xl flex items-center gap-1.5 cursor-pointer"
+                      className="cursor-pointer font-bold text-xs"
                     >
                       {exportingRanking ? (
                         <>
@@ -1325,7 +1655,7 @@ export function ProfilePage() {
                       size="sm"
                       variant="ghost"
                       onClick={() => setSelectedRanking(null)}
-                      className="h-8 w-8 p-0 rounded-xl border border-white/10 hover:bg-white/10 text-white"
+                      className="border border-white/10 hover:bg-white/10 text-white"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1461,7 +1791,6 @@ export function ProfilePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsEditing(false)}
-                  className="h-8 w-8 p-0 rounded-xl"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -1482,7 +1811,6 @@ export function ProfilePage() {
                     required
                     value={editUsername}
                     onChange={(e) => setEditUsername(e.target.value)}
-                    className="h-10 text-xs font-medium"
                     placeholder="Escribe tu username..."
                   />
                 </div>
@@ -1494,7 +1822,6 @@ export function ProfilePage() {
                     type="text"
                     value={editCity}
                     onChange={(e) => setEditCity(e.target.value)}
-                    className="h-10 text-xs font-medium"
                     placeholder="Escribe tu ciudad..."
                   />
                 </div>
@@ -1533,7 +1860,6 @@ export function ProfilePage() {
                         type="text"
                         value={editAvatarUrl}
                         onChange={(e) => setEditAvatarUrl(e.target.value)}
-                        className="h-9 text-[10px] font-medium"
                         placeholder="URL de imagen o semilla..."
                         disabled={uploadingFile}
                       />
@@ -1552,25 +1878,20 @@ export function ProfilePage() {
                           disabled={uploadingFile}
                           variant="secondary"
                           size="sm"
-                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
-                        >
-                          {uploadingFile ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Camera className="w-3.5 h-3.5" />
-                          )}
-                          Subir Foto
-                        </Button>
+                          className="cursor-pointer"
+                          icon={uploadingFile ? Loader2 : Camera}
+                          label="Subir Foto"
+                        />
                         <Button
                           type="button"
                           onClick={handleRandomAvatar}
                           disabled={uploadingFile}
                           variant="secondary"
                           size="sm"
-                          className="text-[10px] font-extrabold h-7 rounded-lg px-2 flex items-center gap-1 cursor-pointer"
-                        >
-                          <Dices className="w-3.5 h-3.5" /> Cambiar Semilla
-                        </Button>
+                          className="cursor-pointer"
+                          icon={Dices}
+                          label="Cambiar Semilla"
+                        />
                       </div>
                     </div>
                   </div>
@@ -1583,16 +1904,18 @@ export function ProfilePage() {
                   <Button
                     type="button"
                     variant="ghost"
+                    size="sm"
                     onClick={() => setIsEditing(false)}
                     disabled={savingProfile || uploadingFile}
-                    className="rounded-xl font-bold text-xs h-9 cursor-pointer"
+                    className="cursor-pointer"
                   >
                     Cancelar
                   </Button>
                   <Button
                     type="submit"
+                    size="sm"
                     disabled={savingProfile || uploadingFile || !editUsername.trim()}
-                    className="rounded-xl font-bold text-xs h-9 px-4 cursor-pointer shadow-sm shadow-primary/25"
+                    className="cursor-pointer shadow-sm"
                   >
                     {savingProfile ? (
                       <>
@@ -1609,6 +1932,94 @@ export function ProfilePage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Import BGG Collection Modal */}
+      <Dialog open={isImportModalOpen} onOpenChange={(open) => !importingCollection && setIsImportModalOpen(open)}>
+        <DialogContent className="max-w-md bg-card border-border/50 rounded-3xl p-6 shadow-2xl text-left gap-4">
+          <DialogHeader className="border-b border-border/20 pb-2 flex flex-col space-y-1.5 text-left sm:text-left">
+            <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
+              <Plus className="w-5 h-5 text-primary" /> Importar desde BGG
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground font-semibold">
+              Ingresa tu usuario de BoardGameGeek para sincronizar tus juegos de propiedad.
+            </DialogDescription>
+          </DialogHeader>
+
+          {importError && (
+            <div className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              {importError}
+            </div>
+          )}
+
+          {importSuccessCount !== null ? (
+            <div className="text-center py-6 space-y-2.5 animate-in fade-in duration-300">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto shadow-sm">
+                <Check className="w-5 h-5" />
+              </div>
+              <h4 className="font-extrabold text-sm text-foreground">¡Importación Completada!</h4>
+              <p className="text-xs text-muted-foreground">
+                Se han importado <span className="font-bold text-emerald-500">{importSuccessCount}</span> juegos de propiedad a tu ludoteca.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleImportBggCollection} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <Label htmlFor="bgg-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Usuario de BoardGameGeek</Label>
+                <Input
+                  id="bgg-username"
+                  type="text"
+                  required
+                  value={bggUsernameInput}
+                  onChange={(e) => setBggUsernameInput(e.target.value)}
+                  placeholder="Ej. alex_meeple_99"
+                  disabled={importingCollection}
+                />
+              </div>
+
+              <div className="bg-muted/30 border border-border/20 rounded-2xl p-4 space-y-2.5 text-xs text-muted-foreground font-semibold leading-relaxed">
+                <div className="flex gap-2">
+                  <span className="text-primary shrink-0">ℹ️</span>
+                  <p>
+                    Importaremos únicamente los juegos marcados como de tu propiedad (<strong>"own=1"</strong>) en tu perfil de BGG.
+                  </p>
+                </div>
+                <div className="flex gap-2 border-t border-border/10 pt-2">
+                  <span className="text-amber-500 shrink-0">⚠️</span>
+                  <p>
+                    Si es la primera vez en mucho tiempo que consultas tu perfil en BGG, la API de BGG podría tardar unos instantes en compilar tu colección. Esperaremos de forma segura en segundo plano.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsImportModalOpen(false)}
+                  disabled={importingCollection}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={importingCollection || !bggUsernameInput.trim()}
+                >
+                  {importingCollection ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5 shrink-0" />
+                      Importando colección...
+                    </>
+                  ) : (
+                    'Empezar Importación'
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
     </section>
   )

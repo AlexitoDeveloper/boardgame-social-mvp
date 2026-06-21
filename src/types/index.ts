@@ -6,6 +6,7 @@ export interface UserProfile {
   created_at?: string;
   updated_at?: string;
   is_guest?: boolean; // Identifica si el usuario es un invitado shadow
+  is_premium?: boolean;
 }
 
 export interface Game {
@@ -27,6 +28,10 @@ export interface Game {
   base_game_id?: string | null;
   bgg_base_game_id?: number | null;
   isFromBgg?: boolean;              // Frontend-only flag, not in DB
+  bgg_rank?: number | null;
+  rating_geek?: number | null;
+  rating_average?: number | null;
+  complexity?: number | null;
 }
 
 export interface Meetup {

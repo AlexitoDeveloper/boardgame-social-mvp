@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -10,10 +10,19 @@ import { supabase } from '../../lib/supabaseClient'
 
 const MotionDiv = motion.div
 
-const navItems = [
-  { to: '/', label: 'Tablero', icon: Dices },
+const desktopNavItems = [
+  { to: '/', label: 'Inicio', icon: Home },
+  { to: '/tablero', label: 'Tablero', icon: Dices },
   { to: '/chats', label: 'Chats', icon: MessageSquare },
+  { to: '/grupos', label: 'Grupos', icon: Users },
   { to: '/tops', label: 'Crear Top', icon: ListOrdered },
+]
+
+const mobileNavItems = [
+  { to: '/', label: 'Inicio', icon: Home },
+  { to: '/tablero', label: 'Tablero', icon: Dices },
+  { to: '/chats', label: 'Chats', icon: MessageSquare },
+  { to: '/grupos', label: 'Grupos', icon: Users },
 ]
 
 interface NavItemProps {
@@ -53,7 +62,7 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
           )}
           <div className={cn('relative z-10 flex items-center justify-center', !mobile && 'w-full justify-between')}>
             <div className={cn('flex items-center gap-3', mobile && 'flex-col gap-0 relative')}>
-              {createElement(icon, { className: cn(mobile ? 'h-5 w-5 opacity-90' : 'h-5 w-5') })}
+              {createElement(icon, { 'aria-hidden': true, focusable: false, className: cn(mobile ? 'h-5 w-5 opacity-90' : 'h-5 w-5') })}
               {!mobile && <span>{label}</span>}
               {mobile && badgeCount > 0 && (
                 <span className="absolute top-[-5px] right-[-8px] w-[16px] h-[16px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[8px] font-black shrink-0 border border-card aspect-square">
@@ -183,17 +192,17 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh bg-background selection:bg-primary/30">
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl">
+      <div className="flex min-h-dvh w-full">
 
         {/* ── Desktop sidebar ────────────────────────────────── */}
-        <aside className="hidden w-72 border-r border-border/40 bg-card p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto">
+        <aside className="hidden w-72 glass-panel p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
           <div className="mb-6 pt-safeTop px-2">
             <p className="text-xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">Boardgame Social</p>
             <p className="text-sm font-medium text-primary mt-1">MVP</p>
           </div>
 
           <nav className="space-y-1">
-            {navItems.map((item) => (
+            {desktopNavItems.map((item) => (
               <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
             ))}
           </nav>
@@ -207,7 +216,7 @@ export function AppShell() {
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted/30 transition-colors duration-200"
                 >
                   <Avatar className="h-7 w-7 border border-primary/30">
-                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarImage src={avatarUrl || undefined} alt={username} />
                     <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">{initials}</AvatarFallback>
                   </Avatar>
                   <span className="flex-1 text-left truncate">{username}</span>
@@ -219,42 +228,46 @@ export function AppShell() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -6, scale: 0.97 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 left-0 right-0 bg-card border border-border/50 rounded-xl shadow-lg overflow-hidden z-50"
+                      className="absolute bottom-full mb-2 left-0 right-0 bg-card/95 dark:bg-card/95 border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
                     >
+                          <button
+                            type="button"
+                            onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                          >
+                            <User aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
+                            <span>Mi Perfil</span>
+                          </button>
                       <button
-                        onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
-                      >
-                        <User className="h-4 w-4 text-primary" />
-                        <span>Mi Perfil</span>
-                      </button>
-                      <button
-                        onClick={toggle}
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30"
-                      >
-                        <div className="flex items-center gap-3">
-                          {isDark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
-                          <span>Tema</span>
-                        </div>
-                        <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
-                      </button>
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Cerrar Sesión
-                      </button>
+                            type="button"
+                            onClick={toggle}
+                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30"
+                          >
+                            <div className="flex items-center gap-3">
+                              {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
+                              <span>Tema</span>
+                            </div>
+                            <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30"
+                          >
+                            <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
+                            Cerrar Sesión
+                          </button>
                     </MotionDiv>
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-              <button
-                onClick={() => navigate('/auth')}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors duration-200"
-              >
-                <LogIn className="h-5 w-5 text-primary" />
+                <button
+                  type="button"
+                  onClick={() => navigate('/auth')}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors duration-200"
+                >
+                <LogIn aria-hidden="true" focusable={false} className="h-5 w-5 text-primary" />
                 <span>Iniciar Sesión</span>
               </button>
             )}
@@ -275,19 +288,20 @@ export function AppShell() {
       </div>
 
       {/* ── Mobile bottom nav ──────────────────────────────── */}
-      <nav className="fixed inset-x-0 bottom-[-2px] z-50 border-t border-border/30 bg-card px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-[-2px] z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
-          {navItems.map((item) => (
+          {mobileNavItems.map((item) => (
             <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} mobile />
           ))}
           {user ? (
             <div className="relative flex flex-1 items-center justify-center">
               <button
+                type="button"
                 onClick={() => setShowMobileUserMenu(v => !v)}
                 className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 relative"
               >
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={avatarUrl || undefined} />
+                  <AvatarImage src={avatarUrl || undefined} alt={username} />
                   <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">{initials}</AvatarFallback>
                 </Avatar>
               </button>
@@ -307,7 +321,7 @@ export function AppShell() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full right-2 mb-4 w-48 bg-card border border-border/50 rounded-xl shadow-xl overflow-hidden z-50 divide-y divide-border/30"
+                      className="absolute bottom-full right-2 mb-4 w-48 bg-card/95 dark:bg-card/95 border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-border/25"
                     >
                       <button
                         onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
@@ -315,6 +329,13 @@ export function AppShell() {
                       >
                         <User className="h-4 w-4 text-primary" />
                         <span>Mi Perfil</span>
+                      </button>
+                      <button
+                        onClick={() => { setShowMobileUserMenu(false); navigate('/tops') }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                      >
+                        <ListOrdered className="h-4 w-4 text-primary" />
+                        <span>Crear Rankings</span>
                       </button>
                       <button
                         onClick={toggle}
@@ -339,12 +360,13 @@ export function AppShell() {
               </AnimatePresence>
             </div>
           ) : (
-            <button
-              onClick={() => navigate('/auth')}
-              className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9"
-            >
-              <User className="h-5 w-5 text-primary" />
-            </button>
+                <button
+                type="button"
+                onClick={() => navigate('/auth')}
+                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9"
+              >
+                <User aria-hidden="true" focusable={false} className="h-5 w-5 text-primary" />
+              </button>
           )}
         </div>
       </nav>
