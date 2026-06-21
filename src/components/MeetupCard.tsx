@@ -233,14 +233,14 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/85 hover:bg-background text-foreground flex items-center justify-center border border-border/40 backdrop-blur-sm shadow transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Juego anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/85 hover:bg-background text-foreground flex items-center justify-center border border-border/40 backdrop-blur-sm shadow transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Siguiente juego"
             >
               <ChevronRight className="w-4 h-4" />
@@ -300,7 +300,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <div className="flex items-start justify-between gap-2">
             <h3 
               onClick={() => onNavigate(`/tablero/${meetup.id}`)}
-              className="text-base sm:text-lg font-extrabold leading-snug tracking-tight text-foreground hover:text-primary transition-colors cursor-pointer line-clamp-1 flex items-center gap-2"
+              className="text-base sm:text-lg font-extrabold leading-snug tracking-tight text-foreground hover:text-primary transition-colors cursor-pointer line-clamp-1 flex items-center gap-2 text-pretty"
             >
               {meetup.title || 'Partida de Juego de Mesa'}
               {meetup.completed && (
@@ -356,7 +356,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
 
           {/* Descripción */}
           {meetup.description && (
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-2 pt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-2 pt-1 text-pretty">
               {meetup.description}
             </p>
           )}
