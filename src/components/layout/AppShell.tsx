@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Search } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -10,11 +10,19 @@ import { supabase } from '../../lib/supabaseClient'
 
 const MotionDiv = motion.div
 
-const navItems = [
-  { to: '/', label: 'Explorar', icon: Search },
+const desktopNavItems = [
+  { to: '/', label: 'Inicio', icon: Home },
   { to: '/tablero', label: 'Tablero', icon: Dices },
   { to: '/chats', label: 'Chats', icon: MessageSquare },
+  { to: '/grupos', label: 'Grupos', icon: Users },
   { to: '/tops', label: 'Crear Top', icon: ListOrdered },
+]
+
+const mobileNavItems = [
+  { to: '/', label: 'Inicio', icon: Home },
+  { to: '/tablero', label: 'Tablero', icon: Dices },
+  { to: '/chats', label: 'Chats', icon: MessageSquare },
+  { to: '/grupos', label: 'Grupos', icon: Users },
 ]
 
 interface NavItemProps {
@@ -194,7 +202,7 @@ export function AppShell() {
           </div>
 
           <nav className="space-y-1">
-            {navItems.map((item) => (
+            {desktopNavItems.map((item) => (
               <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
             ))}
           </nav>
@@ -282,7 +290,7 @@ export function AppShell() {
       {/* ── Mobile bottom nav ──────────────────────────────── */}
       <nav className="fixed inset-x-0 bottom-[-2px] z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
-          {navItems.map((item) => (
+          {mobileNavItems.map((item) => (
             <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} mobile />
           ))}
           {user ? (
@@ -321,6 +329,13 @@ export function AppShell() {
                       >
                         <User className="h-4 w-4 text-primary" />
                         <span>Mi Perfil</span>
+                      </button>
+                      <button
+                        onClick={() => { setShowMobileUserMenu(false); navigate('/tops') }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                      >
+                        <ListOrdered className="h-4 w-4 text-primary" />
+                        <span>Crear Rankings</span>
                       </button>
                       <button
                         onClick={toggle}

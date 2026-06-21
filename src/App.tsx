@@ -9,6 +9,8 @@ import { TopsPage } from './pages/TopsPage'
 import { GameDetailPage } from './pages/GameDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ChatsPage } from './pages/ChatsPage'
+import { GroupsPage } from './pages/GroupsPage'
+import { GroupDetailPage } from './pages/GroupDetailPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -39,6 +41,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ChatsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos"
+          element={
+            <ProtectedRoute>
+              <GroupsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grupos/:id"
+          element={
+            <ProtectedRoute>
+              <GroupDetailPage />
             </ProtectedRoute>
           }
         />

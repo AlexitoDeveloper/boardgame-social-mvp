@@ -53,7 +53,7 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
 
         {/* Title */}
         <div className="space-y-1 z-10 flex-1 flex flex-col justify-center mt-2">
-          <h4 className="text-xs sm:text-sm font-black leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors duration-200">
+          <h4 className="text-xs sm:text-sm font-black leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors duration-200 text-pretty">
             {ranking.title || 'Ranking sin título'}
           </h4>
         </div>

@@ -30,7 +30,7 @@ _Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usua
 - [x] **[GRATIS] Dashboard de Exploración (Estilo "Netflix" con carruseles y filtros):** Experiencia premium con carruseles horizontales dinámicos, sección del "TOP 10 de la Semana" con números gigantes en outline, y cabecera pegajosa de filtros avanzados (búsqueda de texto, jugadores, complejidad e idioma) que se contrae automáticamente al hacer scroll para ahorrar espacio en móviles y escritorio.
 - [x] **[GRATIS] Ficha de Juego "Viva" (Detalles + Estadísticas en tiempo real)**
 - [x] **[GRATIS] Acciones Rápidas desde la Ficha (Botón "Organizar Partida")**
-- [ ] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
+- [x] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
 - [ ] **[VIRALIDAD] Resumen de Partida (Exportable a RRSS):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
 - [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego (y sus expansiones).
 - [ ] **[PREMIUM] Estadísticas Avanzadas (Némesis, Radar, etc.):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).

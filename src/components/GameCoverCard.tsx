@@ -29,6 +29,22 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
       <motion.div
         className="absolute inset-0 w-full h-full"
       >
+        {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
+        <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
+          {rating && (
+            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-black text-white shadow-sm border border-amber-400/20">
+              <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
+              {rating}
+            </span>
+          )}
+          {game.has_spanish_edition && (
+            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
+              <Globe className="h-2.5 w-2.5 shrink-0" />
+              ESP
+            </span>
+          )}
+        </div>
+
         {/* Cover Image */}
         {game.image_url ? (
           <img
@@ -46,24 +62,8 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         {/* Hover Details Overlay */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10 select-none">
           <div className="space-y-1.5 text-white">
-            {/* Badges row */}
-            <div className="flex flex-wrap gap-1 items-center">
-              {rating && (
-                <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-black text-white shadow-sm">
-                  <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
-                  {rating}
-                </span>
-              )}
-              {game.has_spanish_edition && (
-                <span className="flex items-center gap-0.5 rounded-md bg-primary/95 px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-sm">
-                  <Globe className="h-2.5 w-2.5 shrink-0" />
-                  ESP
-                </span>
-              )}
-            </div>
-
             {/* Title */}
-            <h4 className="text-xs font-black leading-tight line-clamp-2 tracking-tight group-hover:text-white transition-colors duration-200">
+            <h4 className="text-xs font-black leading-tight line-clamp-2 tracking-tight group-hover:text-white transition-colors duration-200 text-pretty">
               {title}
             </h4>
 
