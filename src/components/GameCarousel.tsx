@@ -61,7 +61,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
         {showLeftArrow && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-black/85 text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-white/10 hover:scale-105 active:scale-95"
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -72,7 +72,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
         {showRightArrow && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 bg-black/60 hover:bg-black/85 text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-white/10 hover:scale-105 active:scale-95"
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-5 w-5" />
@@ -83,17 +83,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
         <div
           ref={containerRef}
           className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
-          style={{
-            scrollbarWidth: 'none', // Firefox
-            msOverflowStyle: 'none', // IE/Edge
-          }}
         >
-          {/* Hide webkit scrollbars inline since we want it completely hidden */}
-          <style>{`
-            .no-scrollbar::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
           {games.map((game, index) => {
             if (variant === 'top10') {
               const isOne = index === 0;

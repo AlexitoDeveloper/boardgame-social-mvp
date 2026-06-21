@@ -62,8 +62,8 @@ export function CreateMeetupPage() {
   const [showExpansions, setShowExpansions] = useState(false)
 
   // Form Fields State
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [title, setTitle] = useState(searchParams.get('title') || '')
+  const [description, setDescription] = useState(searchParams.get('description') || '')
   const [isOnline, setIsOnline] = useState(false)
   const [city, setCity] = useState('')
   const [location, setLocation] = useState('')

@@ -122,5 +122,15 @@
   .spotlight-card:hover::before {
     opacity: 1;
   }
+
+  /* Utility to completely hide scrollbars while preserving scroll functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 }
+
 

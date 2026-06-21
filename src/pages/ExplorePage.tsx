@@ -62,7 +62,7 @@ export function ExplorePage() {
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
-          Explorar
+          Inicio
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Descubre tu próximo juego favorito, ediciones en español y los clásicos más jugados.
@@ -185,17 +185,7 @@ export function ExplorePage() {
                     </h3>
                     <div 
                       className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
-                      style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                      }}
                     >
-                      {/* Hide webkit scrollbars inline */}
-                      <style>{`
-                        .no-scrollbar::-webkit-scrollbar {
-                          display: none;
-                        }
-                      `}</style>
                       {communityRankings.map((ranking) => (
                         <div 
                           key={ranking.id}

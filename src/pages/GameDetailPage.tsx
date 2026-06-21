@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, Star, Users, Brain, Globe, CalendarDays, 
-  Bookmark, Trophy, Dices, Crown, Loader2, Plus, Check, Info, Clock
+  Bookmark, Trophy, Dices, Crown, Loader2, Plus, Check, Info, Clock, Puzzle
 } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
@@ -108,10 +108,10 @@ export function GameDetailPage() {
   const hasExpansionsOrBaseGame = hasBaseGame || hasExpansions
 
   const tabs = [
-    { id: 'details', label: 'Ficha Técnica' },
-    { id: 'community', label: 'Comunidad', count: owners.length > 0 ? owners.length : undefined },
-    { id: 'meetups', label: 'Quedadas', count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
-    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: 'Expansiones', count: expansions.length > 0 ? expansions.length : undefined }] : [])
+    { id: 'details', label: 'Ficha Técnica', icon: Info },
+    { id: 'community', label: 'Comunidad', icon: Users, count: owners.length > 0 ? owners.length : undefined },
+    { id: 'meetups', label: 'Quedadas', icon: CalendarDays, count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
+    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: 'Expansiones', icon: Puzzle, count: expansions.length > 0 ? expansions.length : undefined }] : [])
   ] as const
 
   // Details Tab Content
@@ -244,6 +244,25 @@ export function GameDetailPage() {
   // Community Tab Content
   const tabCommunityContent = (
     <div className="space-y-6">
+      {/* Community Stats Recap Panel */}
+      <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4 relative overflow-hidden">
+        <Dices className="absolute right-[-15px] bottom-[-15px] h-24 w-24 text-primary/5 select-none pointer-events-none rotate-12" />
+        
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-primary/10 border border-primary/20 text-primary rounded-xl shrink-0">
+            <Dices className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[9px] uppercase font-black tracking-widest text-muted-foreground block">
+              Partidas Registradas
+            </span>
+            <h4 className="text-xl font-black text-foreground mt-0.5">
+              {playsCount} {playsCount === 1 ? 'partida jugada' : 'partidas jugadas'} por la comunidad
+            </h4>
+          </div>
+        </div>
+      </div>
+
       {/* Leaderboard layout for community winners */}
       <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
@@ -314,25 +333,29 @@ export function GameDetailPage() {
               return (
                 <div 
                   key={owner.user_id} 
-                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20"
+                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:border-primary/20 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    {owner.avatar_url ? (
-                      <img 
-                        src={owner.avatar_url} 
-                        alt={owner.username} 
-                        className="h-8 w-8 rounded-full object-cover border border-border/40"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-muted border border-border/40 flex items-center justify-center">
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {owner.username.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
+                    <Link to={`/perfil/${owner.user_id}`} className="shrink-0">
+                      {owner.avatar_url ? (
+                        <img 
+                          src={owner.avatar_url} 
+                          alt={owner.username} 
+                          className="h-8 w-8 rounded-full object-cover border border-border/40 hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted border border-border/40 flex items-center justify-center hover:bg-muted/65 transition-colors">
+                          <span className="text-xs font-bold text-muted-foreground">
+                            {owner.username.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </Link>
                     
                     <div className="min-w-0">
-                      <span className="text-sm font-bold text-foreground block truncate">{owner.username}</span>
+                      <Link to={`/perfil/${owner.user_id}`} className="hover:underline hover:text-primary transition-colors">
+                        <span className="text-sm font-bold text-foreground block truncate">{owner.username}</span>
+                      </Link>
                       {owner.city && (
                         <span className="text-[10px] text-muted-foreground font-semibold block truncate">
                           📍 {owner.city}
@@ -341,17 +364,19 @@ export function GameDetailPage() {
                     </div>
                   </div>
 
-                  {isLocal ? (
-                    <span className="text-[9px] font-black uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
-                      Cerca de ti
-                    </span>
-                  ) : (
-                    owner.city && (
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-muted/40 border border-border/10 px-2 py-0.5 rounded-md">
-                        Foráneo
+                  {currentUserCity ? (
+                    isLocal ? (
+                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md shrink-0">
+                        Cerca de ti
                       </span>
+                    ) : (
+                      owner.city && (
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-muted/40 border border-border/10 px-2 py-0.5 rounded-md shrink-0">
+                          Foráneo
+                        </span>
+                      )
                     )
-                  )}
+                  ) : null}
                 </div>
               )
             })}
@@ -495,7 +520,7 @@ export function GameDetailPage() {
   const tabExpansionsContent = (
     <div className="space-y-4">
       <div className="flex items-center gap-2 border-b border-border/40 pb-3">
-        <Trophy className="h-5 w-5 text-amber-500" />
+        <Puzzle className="h-5 w-5 text-amber-500" />
         <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
           {game.is_expansion ? 'Juego Base Requerido' : `Expansiones Disponibles (${expansions.length})`}
         </h3>
@@ -613,25 +638,6 @@ export function GameDetailPage() {
           Al añadir este juego a tu ludoteca, otros meeple de tu ciudad sabrán que lo tienes y te podrán invitar a partidas.
         </p>
       </div>
-
-      {/* Community Stats Recap Panel */}
-      <div className="bg-card border border-border/40 rounded-2xl p-5 shadow-lg space-y-4 relative overflow-hidden">
-        <Dices className="absolute right-[-15px] bottom-[-15px] h-24 w-24 text-primary/5 select-none pointer-events-none rotate-12" />
-        
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-primary/10 border border-primary/20 text-primary rounded-xl shrink-0">
-            <Dices className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-[9px] uppercase font-black tracking-widest text-muted-foreground block">
-              Comunidad
-            </span>
-            <h4 className="text-xl font-black text-foreground mt-0.5">
-              {playsCount} {playsCount === 1 ? 'partida' : 'partidas'} jugadas
-            </h4>
-          </div>
-        </div>
-      </div>
     </div>
   )
 
@@ -736,11 +742,16 @@ export function GameDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions Panel on Mobile */}
+            <div className="lg:hidden">
+              {sidebarContent}
+            </div>
             <Tabs
               options={tabs as any}
               activeTab={activeTab}
               onChange={(tabId) => setActiveTab(tabId as any)}
               className="max-w-xl mb-4"
+              hideLabelsOnMobile
             />
 
             <div className="min-h-[300px]">
@@ -761,7 +772,7 @@ export function GameDetailPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8">
+          <div className="hidden lg:block lg:col-span-1 space-y-6 lg:sticky lg:top-8">
             {sidebarContent}
           </div>
         </div>
