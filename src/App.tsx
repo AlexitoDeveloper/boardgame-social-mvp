@@ -6,6 +6,7 @@ import { ExplorePage } from './pages/ExplorePage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
 import { TopsPage } from './pages/TopsPage'
+import { GameDetailPage } from './pages/GameDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ChatsPage } from './pages/ChatsPage'
 import { useAuth } from './lib/authContext'
@@ -28,6 +29,7 @@ function App() {
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
         <Route path="/" element={<ExplorePage />} />
+        <Route path="/juegos/:id" element={<GameDetailPage />} />
         <Route path="/tablero" element={<RadarPage />} />
         <Route path="/radar" element={<Navigate to="/tablero" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />

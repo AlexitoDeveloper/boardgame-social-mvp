@@ -7,7 +7,7 @@ import { Textarea } from '../components/ui/textarea'
 import { Tabs } from '../components/ui/tabs'
 import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Trash2, X } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
@@ -45,6 +45,8 @@ export function CreateMeetupPage() {
   const isEditMode = Boolean(id)
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const gameIdParam = searchParams.get('gameId') || searchParams.get('game_id')
 
   // Game Search State
   const [searchQuery, setSearchQuery] = useState('')
@@ -209,6 +211,54 @@ export function CreateMeetupPage() {
 
     return () => clearTimeout(delayDebounceFn)
   }, [searchQuery])
+
+  // Load pre-populated game from search params if in creation mode
+  useEffect(() => {
+    if (!gameIdParam || isEditMode) return
+    
+    async function loadGameFromParam() {
+      const bggId = parseInt(gameIdParam!, 10)
+      if (isNaN(bggId)) return
+      
+      setIsImporting(true)
+      setErrorMsg('')
+      try {
+        // 1. Check if the game is in the local database
+        const { data, error } = await supabase
+          .from('games')
+          .select('*')
+          .eq('bgg_id', bggId)
+          .maybeSingle()
+          
+        if (error) throw error
+        
+        if (data) {
+          setSelectedGames([data as Game])
+        } else {
+          // 2. If not, trigger the ingest edge function to load it from BGG
+          console.log(`[Param Load] Ingesting game with BGG ID: ${bggId}...`)
+          const { data: ingestData, error: ingestError } = await supabase.functions.invoke('bgg-ingest', {
+            body: { action: 'ingest', bggIds: [bggId] }
+          })
+          
+          if (ingestError) throw ingestError
+          
+          if (ingestData && ingestData.success && ingestData.games && ingestData.games.length > 0) {
+            setSelectedGames([ingestData.games[0] as Game])
+          } else {
+            throw new Error('No se pudo encontrar el juego en BoardGameGeek.')
+          }
+        }
+      } catch (err: any) {
+        console.error("Error loading pre-populated game:", err)
+        setErrorMsg(`Error al precargar el juego: ${err.message || err}`)
+      } finally {
+        setIsImporting(false)
+      }
+    }
+    
+    loadGameFromParam()
+  }, [gameIdParam, isEditMode])
 
   // Load existing meetup details in Edit Mode
   useEffect(() => {

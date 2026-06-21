@@ -84,6 +84,56 @@ async function fetchBggBatch(ids: number[], bggToken?: string): Promise<string> 
   throw new Error("Failed to fetch from BGG due to retry exhaustion");
 }
 
+async function fetchBggCollection(username: string, bggToken?: string): Promise<string> {
+  const url = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(username)}&own=1`;
+  const maxRetries = 6;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    console.log(`[BGG Collection] Fetching collection for username: "${username}" (Attempt ${attempt}/${maxRetries})...`);
+    
+    try {
+      const headers: Record<string, string> = {
+        "Accept": "application/xml",
+        "User-Agent": "BoardGameSocialMVP/1.0 (Contact: admin@example.com)"
+      };
+      
+      if (bggToken) {
+        headers["Authorization"] = `Bearer ${bggToken}`;
+      }
+
+      const response = await fetch(url, { headers });
+      
+      if (response.status === 202) {
+        console.log("[BGG Collection] Returned 202 (Processing). Retrying in 5 seconds...");
+        await sleep(5000);
+        continue;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`BGG API returned status ${response.status}`);
+      }
+      
+      const text = await response.text();
+      if (
+        text.includes("Please try again later") || 
+        text.includes("generating this collection") || 
+        text.includes("accepted and will be processed")
+      ) {
+        console.log("[BGG Collection] Returned 200/202 with queuing/generating message. Retrying in 5 seconds...");
+        await sleep(5000);
+        continue;
+      }
+      
+      return text;
+    } catch (err: any) {
+      console.warn(`[BGG Collection] Attempt ${attempt} failed: ${err.message}`);
+      if (attempt === maxRetries) throw err;
+      await sleep(2000);
+    }
+  }
+  throw new Error("La API de BoardGameGeek está tardando demasiado en procesar tu colección. Por favor, vuelve a intentarlo en unos instantes.");
+}
+
 async function processAndUploadImage(supabase: any, bggId: number, imageUrl: string): Promise<string | null> {
   if (!imageUrl) return null;
   
@@ -152,6 +202,8 @@ Deno.serve(async (request) => {
     let query = "";
     let bggIds: number[] = [];
     let limit = 10;
+    let bggUsername = "";
+    let userId = "";
 
     if (request.method === "POST") {
       try {
@@ -159,6 +211,8 @@ Deno.serve(async (request) => {
         if (body) {
           action = body.action || null;
           query = body.query || "";
+          bggUsername = body.username || "";
+          userId = body.userId || "";
           if (Array.isArray(body.bggIds)) {
             bggIds = body.bggIds.map(Number).filter((n) => !isNaN(n));
           } else if (typeof body.bggId === "number") {
@@ -171,6 +225,150 @@ Deno.serve(async (request) => {
       } catch (err: any) {
         console.warn("Failed to parse POST body JSON:", err.message);
       }
+    }
+
+    // Handle Import Collection Action
+    if (action === "import-collection") {
+      if (!bggUsername.trim()) {
+        return new Response(JSON.stringify({ error: "Missing username parameter" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      if (!userId.trim()) {
+        return new Response(JSON.stringify({ error: "Missing userId parameter" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      console.log(`[BGG Collection] Importing collection for BGG user: "${bggUsername}" to Supabase user: "${userId}"...`);
+      
+      const xmlText = await fetchBggCollection(bggUsername, bggToken);
+      const jsonObj = xmlParser.parse(xmlText);
+      
+      if (jsonObj.errors?.error?.message) {
+        const errorMsg = jsonObj.errors.error.message;
+        console.error(`[BGG Collection Error] ${errorMsg}`);
+        return new Response(JSON.stringify({ error: `BGG: ${errorMsg}` }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      let items = jsonObj.items?.item;
+
+      if (!items) {
+        console.log(`[BGG Collection] No items found in collection for "${bggUsername}".`);
+        return new Response(JSON.stringify({ success: true, imported: 0, message: "La colección de BGG está vacía o no tiene juegos marcados como propios (own=1)." }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      if (!Array.isArray(items)) {
+        items = [items];
+      }
+
+      console.log(`[BGG Collection] Found ${items.length} items. Processing...`);
+
+      const collectionGames = items.map((item: any) => {
+        const bggId = Number(item["@_objectid"]);
+        const isExpansion = item["@_subtype"] === "boardgameexpansion";
+        
+        let title = "Juego Desconocido";
+        if (item.name) {
+          if (typeof item.name === "object") {
+            title = item.name["#text"] || item.name["@_sortindex"] || "Juego Desconocido";
+          } else {
+            title = String(item.name);
+          }
+        }
+
+        const yearPublished = Number(item.yearpublished) || null;
+        const bggImageUrl = item.image || item.thumbnail || null;
+
+        return {
+          bgg_id: bggId,
+          title,
+          year_published: yearPublished,
+          image_url: bggImageUrl,
+          is_expansion: isExpansion
+        };
+      }).filter(g => !isNaN(g.bgg_id));
+
+      if (collectionGames.length === 0) {
+        return new Response(JSON.stringify({ success: true, imported: 0 }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      const bggIds = collectionGames.map(g => g.bgg_id);
+      const existingBggIds = new Set<number>();
+      const chunkSize = 200;
+
+      for (let i = 0; i < bggIds.length; i += chunkSize) {
+        const chunk = bggIds.slice(i, i + chunkSize);
+        const { data: existingData, error: existingError } = await supabase
+          .from("games")
+          .select("bgg_id")
+          .in("bgg_id", chunk);
+
+        if (existingError) {
+          throw new Error(`Failed to query existing games chunk: ${existingError.message}`);
+        }
+
+        if (existingData) {
+          existingData.forEach((row: any) => existingBggIds.add(row.bgg_id));
+        }
+      }
+
+      console.log(`[BGG Collection] Games already in local cache: ${existingBggIds.size} of ${bggIds.length}`);
+
+      const newGamesData = collectionGames
+        .filter(g => !existingBggIds.has(g.bgg_id))
+        .map(g => ({
+          bgg_id: g.bgg_id,
+          title: g.title,
+          year_published: g.year_published,
+          image_url: g.image_url,
+          is_expansion: g.is_expansion
+        }));
+
+      if (newGamesData.length > 0) {
+        console.log(`[BGG Collection] Inserting ${newGamesData.length} new games to games cache...`);
+        for (let i = 0; i < newGamesData.length; i += chunkSize) {
+          const chunk = newGamesData.slice(i, i + chunkSize);
+          const { error: upsertError } = await supabase
+            .from("games")
+            .upsert(chunk, { onConflict: "bgg_id" });
+
+          if (upsertError) {
+            throw new Error(`Failed to upsert new games chunk: ${upsertError.message}`);
+          }
+        }
+      }
+
+      const collectionInserts = bggIds.map(id => ({
+        user_id: userId,
+        game_id: id
+      }));
+
+      console.log(`[BGG Collection] Saving ${collectionInserts.length} relations to user_collection...`);
+      for (let i = 0; i < collectionInserts.length; i += chunkSize) {
+        const chunk = collectionInserts.slice(i, i + chunkSize);
+        const { error: collInsertError } = await supabase
+          .from("user_collection")
+          .upsert(chunk, { onConflict: "user_id,game_id" });
+
+        if (collInsertError) {
+          throw new Error(`Failed to insert to user_collection: ${collInsertError.message}`);
+        }
+      }
+
+      console.log(`[BGG Collection] Successfully imported ${bggIds.length} games to user's collection.`);
+      return new Response(JSON.stringify({ success: true, imported: bggIds.length }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
     // Handle Search Action

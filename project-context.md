@@ -210,6 +210,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 | 2026-06-12 | Antigravity AI | Actualización | Implementación de Cierre de Partida (asistencia/ganador) y Perfil Básico (Win Rate / Karma). |
 | 2026-06-13 | Antigravity AI | Actualización | Implementación de Modalidad de Partida Online (Presencial/Online, plataforma, enlace de voz). |
 | 2026-06-13 | Antigravity AI | Actualización | Implementación de Sesiones Multijuego (1:N relacion, tabla meetup_games, listado de juegos/Por decidir). |
+| 2026-06-21 | Antigravity AI | Actualización | Implementación de Mi Ludoteca (importador BGG en Edge Function y pestaña perfil) y Atribución Legal de Datos de BGG. |
 
 ---
 
@@ -225,7 +226,7 @@ El desarrollo del proyecto se realizará de forma incremental dividiéndose en l
 
 ### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
 *Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
-- [ ] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
+- [x] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
 - [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Centralizado en una página dedicada con badges de notificaciones.
 - [x] **[GRATIS] Escaparate de Jugador (Perfil Gamificado):** Perfil rediseñado con sistema de experiencia (XP) con desglose de rates, rango de jugador (Novato, Maestro, Leyenda), vitrina de logros interactiva y visualización/descarga de rankings guardados.
 - [x] **[GRATIS] Cierre de Partida e Historial:** Registro de asistencia real, cálculo de karma y ganador en el cierre de meetups (asociado a iconos de espadas de victoria, no coronas).
