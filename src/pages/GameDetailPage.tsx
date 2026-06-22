@@ -672,25 +672,25 @@ export function GameDetailPage() {
 
       {/* Info Header - Side-by-side flex row on all views */}
       <div className="relative max-w-6xl mx-auto px-4 flex gap-4 md:gap-8 items-start md:items-end text-left select-text">
-        {/* Cover Art */}
+        {/* Cover Art - Rendered in natural aspect ratio with responsive height */}
         <motion.div 
           initial={{ opacity: 0, y: 15, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4 }}
-          className="relative w-24 sm:w-36 md:w-48 aspect-[2/3] shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-xl border border-border/40 bg-card hover:scale-[1.01] transition-transform duration-300"
+          className="relative h-28 sm:h-36 md:h-48 shrink-0 rounded-xl md:rounded-2xl shadow-xl border border-border/30 hover:scale-[1.01] transition-transform duration-300 flex items-center justify-center bg-zinc-950/10"
         >
           {game.image_url ? (
             <img 
               src={game.image_url} 
               alt={title} 
-              className="w-full h-full object-cover"
+              className="h-full w-auto object-contain rounded-xl md:rounded-2xl"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
               }}
             />
           ) : null}
-          <div className={`w-full h-full flex items-center justify-center bg-muted/30 ${game.image_url ? 'hidden' : ''}`}>
+          <div className={`h-full w-24 sm:w-32 flex items-center justify-center bg-muted/30 rounded-xl md:rounded-2xl ${game.image_url ? 'hidden' : ''}`}>
             <span className="text-[10px] sm:text-xs font-bold text-muted-foreground text-center p-2">{title}</span>
           </div>
         </motion.div>

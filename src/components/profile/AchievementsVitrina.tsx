@@ -1,13 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Crown, 
-  Swords, 
-  Award, 
-  UserCheck, 
-  Sparkles 
-} from 'lucide-react'
+import { Award } from 'lucide-react'
 import { UserStats } from '../../hooks/useProfile'
+import { AchievementMedallion } from './AchievementMedallion'
 
 const MotionDiv = motion.div
 
@@ -29,7 +24,6 @@ export function AchievementsVitrina({
   stats,
   savedRankingsCount
 }: AchievementsVitrinaProps) {
-  // Define Tiers for each category
   const hostTiers: Tier[] = [
     { req: 1, name: 'Anfitrión Novel', tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
     { req: 3, name: 'Anfitrión Frecuente', tier: 'Plata', color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
@@ -65,7 +59,6 @@ export function AchievementsVitrina({
     { req: 10, name: 'Oráculo de Cartón', tier: 'Platino', color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
-  // Helpers to get current tier
   const getTierInfo = (tiers: Tier[], value: number) => {
     let currentIdx = -1
     for (let i = 0; i < tiers.length; i++) {
@@ -95,7 +88,7 @@ export function AchievementsVitrina({
       id: 'host',
       baseName: 'Anfitrión',
       description: 'Organiza partidas en el tablero.',
-      icon: Crown,
+      currentValue: organizedCount,
       ...getTierInfo(hostTiers, organizedCount),
       unit: 'partidas organizadas',
       reqDesc: 'partidas'
@@ -104,7 +97,7 @@ export function AchievementsVitrina({
       id: 'winner',
       baseName: 'Espada de Victoria',
       description: 'Gana partidas registradas.',
-      icon: Swords,
+      currentValue: stats.won,
       ...getTierInfo(winnerTiers, stats.won),
       unit: 'victorias',
       reqDesc: 'victorias'
@@ -113,7 +106,7 @@ export function AchievementsVitrina({
       id: 'veteran',
       baseName: 'Veterano',
       description: 'Completa partidas jugadas.',
-      icon: Award,
+      currentValue: stats.played,
       ...getTierInfo(veteranTiers, stats.played),
       unit: 'partidas completadas',
       reqDesc: 'partidas'
@@ -122,7 +115,7 @@ export function AchievementsVitrina({
       id: 'reliable',
       baseName: 'Asistencia',
       description: 'Mantén una asistencia impecable.',
-      icon: UserCheck,
+      currentValue: stats.karma,
       ...getReliableInfo(stats.karma, stats.played),
       unit: 'karma de asistencia',
       reqDesc: '% karma'
@@ -131,7 +124,7 @@ export function AchievementsVitrina({
       id: 'critic',
       baseName: 'Crítico',
       description: 'Crea y guarda rankings en tu perfil.',
-      icon: Sparkles,
+      currentValue: savedRankingsCount,
       ...getTierInfo(criticTiers, savedRankingsCount),
       unit: 'rankings creados',
       reqDesc: 'rankings'
@@ -148,7 +141,6 @@ export function AchievementsVitrina({
       </h3>
       <div className="grid grid-cols-5 gap-2.5">
         {achievements.map((ach) => {
-          const Icon = ach.icon
           const isActive = activeAchId === ach.id
           const hasUnlocked = ach.currentTier !== null
 
@@ -162,14 +154,17 @@ export function AchievementsVitrina({
               {/* Achievement Badge Container */}
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
                 hasUnlocked 
-                  ? `bg-gradient-to-br bg-background/80 shadow-md ${ach.currentTier?.color} ${
-                      isActive ? 'ring-2 ring-primary border-primary/40 scale-105' : 'border-white/10 hover:scale-105'
-                    }`
-                  : `bg-zinc-950/30 border-dashed border-border/40 opacity-40 filter grayscale ${
-                      isActive ? 'ring-2 ring-muted border-muted-foreground/40 scale-105' : ''
+                  ? `${isActive ? 'ring-2 ring-primary scale-105 border-primary/45' : 'hover:scale-105 border-white/10'}`
+                  : `bg-zinc-950/20 border-dashed border-border/40 opacity-30 filter grayscale ${
+                      isActive ? 'ring-2 ring-muted scale-105' : ''
                     }`
               }`}>
-                <Icon className={`w-6 h-6 ${hasUnlocked ? '' : 'text-zinc-500'}`} />
+                <AchievementMedallion 
+                  id={ach.id} 
+                  tier={ach.currentTier?.tier || null} 
+                  unlocked={hasUnlocked} 
+                  active={isActive}
+                />
               </div>
               
               {/* Mini label below */}
@@ -202,17 +197,17 @@ export function AchievementsVitrina({
 
           if (activeAch.nextTier) {
             if (activeAch.id === 'reliable') {
-              const nextReliable = activeAch.nextTier as { reqKarma: number; reqPlayed: number; name: string; tier: string }
-              const nextKarma = nextReliable.reqKarma
-              const nextPlayed = nextReliable.reqPlayed
+              const nextTierCast = activeAch.nextTier as { reqKarma: number; reqPlayed: number; name: string; tier: string; color: string }
+              const nextKarma = nextTierCast.reqKarma
+              const nextPlayed = nextTierCast.reqPlayed
               progressPercent = Math.min(100, Math.round((stats.karma / nextKarma) * 50 + (Math.min(stats.played, nextPlayed) / nextPlayed) * 50))
-              nextLevelDesc = `Siguiente nivel: ${nextReliable.name} (${nextReliable.tier})`
+              nextLevelDesc = `Siguiente nivel: ${nextTierCast.name} (${nextTierCast.tier})`
               progressText = `Requiere: Karma >= ${nextKarma}% (Actual: ${stats.karma}%) y ${stats.played}/${nextPlayed} partidas (Actual)`
             } else {
-              const nextStandard = activeAch.nextTier as { req: number; name: string; tier: string }
-              const nextReq = nextStandard.req
+              const nextTierCast = activeAch.nextTier as Tier
+              const nextReq = nextTierCast.req
               progressPercent = Math.min(100, Math.round((activeAch.progressVal / nextReq) * 100))
-              nextLevelDesc = `Siguiente nivel: ${nextStandard.name} (${nextStandard.tier})`
+              nextLevelDesc = `Siguiente nivel: ${nextTierCast.name} (${nextTierCast.tier})`
               progressText = `Progreso: ${activeAch.progressVal} / ${nextReq} ${activeAch.reqDesc}`
             }
           } else if (hasUnlocked) {
@@ -220,7 +215,6 @@ export function AchievementsVitrina({
             nextLevelDesc = '¡Nivel máximo alcanzado! 🏆'
             progressText = `Tienes ${activeAch.progressVal} ${activeAch.unit}`
           } else {
-            // First tier (Bronce) target
             if (activeAch.id === 'reliable') {
               const reliableT = reliableTiers[0]
               progressPercent = Math.min(100, Math.round((stats.karma / reliableT.reqKarma) * 50 + (Math.min(stats.played, reliableT.reqPlayed) / reliableT.reqPlayed) * 50))
@@ -243,20 +237,34 @@ export function AchievementsVitrina({
               transition={{ duration: 0.15 }}
               className="p-3.5 rounded-2xl border bg-muted/20 border-border/30 text-left relative overflow-hidden space-y-2.5"
             >
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[9.5px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
-                  {hasUnlocked ? `🏆 Logro Desbloqueado (${tierLabel})` : '🔒 Logro Bloqueado'}
-                </span>
-                <span className={`text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 ${
-                  hasUnlocked ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
-                </span>
-              </div>
-              
-              <div>
-                <h4 className="font-extrabold text-xs text-foreground">{tierName}</h4>
-                <p className="text-[10px] text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
+              <div className="flex gap-4 items-start">
+                {/* Large Medallion Frame */}
+                <div className="w-16 h-16 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/30 flex items-center justify-center p-0.5">
+                  <AchievementMedallion 
+                    id={activeAch.id} 
+                    tier={activeAch.currentTier?.tier || null} 
+                    unlocked={hasUnlocked} 
+                    active={true}
+                  />
+                </div>
+                
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-[9.5px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
+                      {hasUnlocked ? `🏆 Logro Desbloqueado (${tierLabel})` : '🔒 Logro Bloqueado'}
+                    </span>
+                    <span className={`text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 shrink-0 ${
+                      hasUnlocked ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-extrabold text-xs text-foreground">{tierName}</h4>
+                    <p className="text-[10px] text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
+                  </div>
+                </div>
               </div>
 
               {/* Progress bar towards next tier */}

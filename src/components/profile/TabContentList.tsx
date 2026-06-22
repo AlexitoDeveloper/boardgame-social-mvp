@@ -372,15 +372,24 @@ export function TabContentList({
                       
                       <div className="w-full aspect-[2/3] rounded-xl overflow-hidden bg-muted/20 border border-border/10 relative flex items-center justify-center shrink-0">
                         {game.image_url ? (
-                          <img 
-                            src={game.image_url} 
-                            alt={game.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
+                          <>
+                            {/* Blurred background copy for cropped edges fill */}
+                            <img 
+                              src={game.image_url} 
+                              alt="" 
+                              className="absolute inset-0 w-full h-full object-cover blur-md opacity-35 scale-110 pointer-events-none"
+                            />
+                            {/* Contained front cover artwork */}
+                            <img 
+                              src={game.image_url} 
+                              alt={game.title} 
+                              className="w-full h-full object-contain p-1 relative z-10 rounded-lg transition-transform group-hover:scale-105 duration-300"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          </>
                         ) : null}
                         <div className={`absolute inset-0 flex items-center justify-center p-3 text-xs font-bold text-muted-foreground ${game.image_url ? 'hidden' : ''}`}>
                           {game.title_es || game.title}
