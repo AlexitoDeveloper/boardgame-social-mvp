@@ -47,6 +47,7 @@ import { Badge } from '../components/ui/badge'
 import { Tag } from '../components/ui/tag'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import { Form } from '../components/ui/form'
 import {
   Dialog,
   DialogContent,
@@ -1879,7 +1880,7 @@ export function ProfilePage() {
                 </div>
               )}
 
-              <form onSubmit={handleSaveProfile} className="space-y-4">
+              <Form onSubmit={handleSaveProfile} className="space-y-4">
                 <div className="space-y-1.5 text-left">
                   <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Nombre de Usuario</Label>
                   <Input
@@ -1941,7 +1942,7 @@ export function ProfilePage() {
                         disabled={uploadingFile}
                       />
                       <div className="flex flex-wrap gap-1.5">
-                        <input 
+                        <Input 
                           type="file" 
                           id="avatar-upload" 
                           accept="image/*" 
@@ -2004,7 +2005,7 @@ export function ProfilePage() {
                     )}
                   </Button>
                 </div>
-              </form>
+              </Form>
             </MotionDiv>
           </div>
         )}
@@ -2039,7 +2040,7 @@ export function ProfilePage() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleImportBggCollection} className="space-y-4">
+            <Form onSubmit={handleImportBggCollection} className="space-y-4">
               <div className="space-y-1.5 text-left">
                 <Label htmlFor="bgg-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Usuario de BoardGameGeek</Label>
                 <Input
@@ -2093,7 +2094,7 @@ export function ProfilePage() {
                   )}
                 </Button>
               </div>
-            </form>
+            </Form>
           )}
         </DialogContent>
       </Dialog>

@@ -334,10 +334,11 @@ export function MeetupDetailPage() {
                     <div className="space-y-2">
                       <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">Formato RRSS</span>
                       <div className="grid grid-cols-2 gap-2">
-                        <button
+                        <Button
                           onClick={() => setSelectedRatio('story')}
+                          variant="ghost"
                           className={cn(
-                            "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm",
+                            "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm h-auto hover:bg-transparent",
                             selectedRatio === 'story'
                               ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5"
                               : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
@@ -345,11 +346,12 @@ export function MeetupDetailPage() {
                         >
                           <span className="text-lg">📱</span>
                           <span>Story (9:16)</span>
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => setSelectedRatio('square')}
+                          variant="ghost"
                           className={cn(
-                            "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm",
+                            "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm h-auto hover:bg-transparent",
                             selectedRatio === 'square'
                               ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5"
                               : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
@@ -357,7 +359,7 @@ export function MeetupDetailPage() {
                         >
                           <span className="text-lg">🔳</span>
                           <span>Post (1:1)</span>
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -365,19 +367,20 @@ export function MeetupDetailPage() {
                       <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">Tema de Fondo</span>
                       <div className="grid grid-cols-2 gap-2">
                         {Object.keys(BACKGROUNDS).map((themeKey) => (
-                          <button
+                          <Button
                             key={themeKey}
                             onClick={() => setSelectedTheme(themeKey)}
+                            variant="ghost"
                             className={cn(
-                              "px-3 py-2.5 rounded-xl border text-[11px] font-extrabold capitalize text-left flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm",
+                              "px-3 py-2.5 rounded-xl border text-[11px] font-extrabold capitalize text-left flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm h-auto hover:bg-transparent",
                               selectedTheme === themeKey
-                                ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5"
+                                ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5 shadow-inner"
                                 : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
                             )}
                           >
                             <div className={cn("w-3.5 h-3.5 rounded-full bg-gradient-to-br border border-white/20 shrink-0 transition-transform duration-200", BACKGROUNDS[themeKey], selectedTheme === themeKey && "scale-110")} />
                             <span>{themeKey === 'default' ? 'Esmeralda' : themeKey.replace('-', ' ')}</span>
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>

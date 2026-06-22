@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { Label } from '../components/ui/label'
+import { Form } from '../components/ui/form'
 import { Card, CardContent } from '../components/ui/card'
 import { Loader2, LogIn, UserPlus } from 'lucide-react'
 
@@ -110,12 +111,13 @@ export function AuthPage() {
               { id: 'login' as const,    label: 'Iniciar Sesión', icon: LogIn },
               { id: 'register' as const, label: 'Crear Cuenta',   icon: UserPlus },
             ].map(({ id, label, icon }) => (
-              <button
+              <Button
                 key={id}
                 onClick={() => switchTab(id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-semibold transition-colors duration-200 relative ${
+                variant="ghost"
+                className={`flex-1 rounded-none h-auto hover:bg-transparent flex items-center justify-center gap-2 py-3.5 text-sm font-semibold transition-colors duration-200 relative ${
                   tab === id
-                    ? 'text-primary'
+                    ? 'text-primary hover:text-primary'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -128,7 +130,7 @@ export function AuthPage() {
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -173,7 +175,7 @@ export function AuthPage() {
                   exit="exit"
                   transition={{ duration: 0.25 }}
                 >
-                  <form onSubmit={handleLogin} className="space-y-5">
+                  <Form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-2">
                       <Label htmlFor="login-email" className="font-semibold">Email</Label>
                       <Input
@@ -208,7 +210,7 @@ export function AuthPage() {
                         ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Entrando...</span>
                         : 'Entrar'}
                     </Button>
-                  </form>
+                  </Form>
                 </MotionDiv>
               ) : (
                 <MotionDiv
@@ -220,7 +222,7 @@ export function AuthPage() {
                   exit="exit"
                   transition={{ duration: 0.25 }}
                 >
-                  <form onSubmit={handleRegister} className="space-y-5">
+                  <Form onSubmit={handleRegister} className="space-y-5">
                     <div className="space-y-2">
                       <Label htmlFor="reg-username" className="font-semibold">Nombre de usuario</Label>
                       <Input
@@ -268,7 +270,7 @@ export function AuthPage() {
                         ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Creando cuenta...</span>
                         : 'Crear Cuenta'}
                     </Button>
-                  </form>
+                  </Form>
                 </MotionDiv>
               )}
             </AnimatePresence>

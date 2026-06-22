@@ -15,6 +15,7 @@ Este documento sirve como referencia centralizada para entender de qué trata el
 El proyecto está construido utilizando tecnologías modernas de desarrollo web frontend y backend serverless:
 
 ### Frontend
+
 - **Framework Core**: [React 19](https://react.dev/) + [Vite](https://vite.dev/) (para un entorno de desarrollo ultra-rápido).
 - **Lenguaje**: [TypeScript](https://www.typescriptlang.org/) para tipado estricto y robustez del código.
 - **Enrutado**: [React Router DOM v7](https://reactrouter.com/) para la navegación SPA.
@@ -25,6 +26,7 @@ El proyecto está construido utilizando tecnologías modernas de desarrollo web 
 - **Formularios y Validación**: [React Hook Form](https://react-hook-form.com/) junto con [Zod](https://zod.dev/) para esquemas de validación de datos de entrada.
 
 ### Backend y Base de Datos
+
 - **Backend as a Service (BaaS)**: [Supabase](https://supabase.com/)
   - **Base de Datos**: PostgreSQL.
   - **Autenticación**: Supabase Auth (correo/contraseña, metadatos de usuario).
@@ -76,12 +78,14 @@ boardgame-social-mvp/
 ## 4. Funcionalidades del MVP (Módulos)
 
 ### 4.1. Autenticación (`AuthPage.tsx` / `authContext.tsx`)
+
 - Permite el registro de usuarios y el inicio de sesión a través de Supabase Auth.
 - La sesión se mantiene de manera persistente.
 - Al registrarse, se dispara un trigger en la base de datos (`on_auth_user_created`) que crea un registro correspondiente en la tabla pública `users`, guardando su `username` inicial.
 - Las páginas restringidas (crear quedada) están envueltas en un componente `ProtectedRoute` que redirige a `/auth` si no hay sesión activa.
 
 ### 4.2. Radar Local - Reuniones / Meetups (`RadarPage.tsx` / `MeetupDetailPage.tsx` / `CreateMeetupPage.tsx`)
+
 - **Radar (`RadarPage.tsx`)**: Página de inicio del proyecto (ruta `/`). Buscador y visualizador de quedadas planificadas en el futuro. Filtra por fecha (solo quedadas futuras) e incluye un botón rápido para unirse o abandonar la quedada de forma inmediata.
 - **Detalle de Reunión (`MeetupDetailPage.tsx`)**: Visualización detallada de la quedada que incluye:
   - Información del juego de mesa consultado (jugadores recomendados, tiempo, año, etc.).
@@ -94,6 +98,7 @@ boardgame-social-mvp/
 - **Creación / Edición (`CreateMeetupPage.tsx`)**: Formulario interactivo para crear una nueva quedada o editar una existente. Incluye selección del juego (con búsqueda en la API de BGG), ciudad, ubicación, fecha/hora, límite de jugadores y descripción.
 
 ### 4.3. Soporte de Tema Oscuro (`useTheme.ts`)
+
 - Sistema de tema Dual (Claro / Oscuro) persistido en `localStorage` y sincronizado con las preferencias del sistema operativo del usuario.
 - Agrega/remueve la clase `.dark` del elemento `<html>` para activar las variables de Tailwind CSS correspondientes.
 
@@ -117,25 +122,29 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
    - `year` (integer, opcional).
    - `image_url` (text, opcional).
    - `created_at` / `updated_at`.
- 3. **`meetups`**:
-   - `id` (uuid, clave primaria).
-   - `creator_id` (uuid, clave foránea a `users`).
-   - `game_id` (integer, clave foránea a `games_cache`, **nullable** para compatibilidad retroactiva).
-   - `title` (text, obligatorio).
-   - `description` (text, opcional).
-   - `city` (text, **nullable** para sesiones online).
-   - `location` (text, **nullable** para sesiones online).
-   - `date` (timestamptz, obligatorio).
-   - `max_players` (integer, constraint entre 2 y 50).
-   - `joined_players` (array de uuids, guarda los IDs de los asistentes).
-   - `created_at` / `updated_at`.
-   - *Constraint*: La cantidad de elementos en `joined_players` no puede exceder `max_players`.
- 4. **`meetup_games`**:
-   - `meetup_id` (uuid, clave foránea a `meetups` con borrado en cascada).
-   - `game_id` (integer, clave foránea a `games_cache` con borrado en cascada).
-   - *Clave primaria compuesta*: `(meetup_id, game_id)`.
+3. **`meetups`**:
+
+- `id` (uuid, clave primaria).
+- `creator_id` (uuid, clave foránea a `users`).
+- `game_id` (integer, clave foránea a `games_cache`, **nullable** para compatibilidad retroactiva).
+- `title` (text, obligatorio).
+- `description` (text, opcional).
+- `city` (text, **nullable** para sesiones online).
+- `location` (text, **nullable** para sesiones online).
+- `date` (timestamptz, obligatorio).
+- `max_players` (integer, constraint entre 2 y 50).
+- `joined_players` (array de uuids, guarda los IDs de los asistentes).
+- `created_at` / `updated_at`.
+- _Constraint_: La cantidad de elementos en `joined_players` no puede exceder `max_players`.
+
+4.  **`meetup_games`**:
+
+- `meetup_id` (uuid, clave foránea a `meetups` con borrado en cascada).
+- `game_id` (integer, clave foránea a `games_cache` con borrado en cascada).
+- _Clave primaria compuesta_: `(meetup_id, game_id)`.
 
 ### Políticas RLS (Row Level Security)
+
 - **`users`**: Lectura libre para cualquier usuario. Modificación/eliminación restringida únicamente al propietario del perfil (`id = auth.uid()`).
 - **`games_cache`**: Lectura libre para cualquier usuario. Escritura permitida exclusivamente por el rol de servicio (`service_role`) para que las Edge Functions registren juegos buscados de forma segura.
 - **`meetups`**: Lectura libre. Inserción y eliminación permitidas sólo al creador (`creator_id = auth.uid()`). Actualizaciones permitidas para usuarios autenticados para que puedan sumarse/restarse en la lista de jugadores.
@@ -146,6 +155,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 ## 6. Edge Functions
 
 ### `bgg-search`
+
 - **Ruta**: `supabase/functions/bgg-search/index.ts`
 - **Lógica**:
   1. Recibe un término de búsqueda (`search`).
@@ -160,10 +170,12 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 ## 7. Instrucciones para Desarrollo y Despliegue
 
 ### Requisitos Previos
+
 - Node.js versión 20 o superior.
 - Gestor de paquetes `pnpm` instalado.
 
 ### Configuración del Entorno Local
+
 1. Copiar el archivo `.env.example` como `.env` o `.env.local`:
    ```bash
    cp .env.example .env
@@ -173,6 +185,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
    - `VITE_SUPABASE_ANON_KEY`: API Key pública (anon) del proyecto.
 
 ### Ejecución del Proyecto
+
 1. Instalar dependencias:
    ```bash
    pnpm install
@@ -187,6 +200,7 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
    ```
 
 ### Despliegue de Base de Datos y Funciones
+
 1. Ejecutar el contenido de `supabase/schema.sql` en el SQL Editor de tu panel de Supabase.
 2. Iniciar sesión en la CLI de Supabase y desplegar la Edge Function:
    ```bash
@@ -198,47 +212,16 @@ La base de datos PostgreSQL contiene 3 tablas principales con relaciones definid
 
 ## 8. Historial de Cambios en Contexto
 
-*Cada desarrollador o agente de IA que incorpore, altere o remueva características esenciales del proyecto debe registrar una entrada en esta tabla:*
+_Cada desarrollador o agente de IA que incorpore, altere o remueva características esenciales del proyecto debe registrar una entrada en esta tabla:_
 
-| Fecha | Autor | Tipo de Cambio | Descripción del Cambio / Funcionalidad Modificada |
-| :--- | :--- | :--- | :--- |
-| 2026-06-11 | Antigravity AI | Creación | Creación del documento inicial de contexto del proyecto. |
-| 2026-06-11 | Antigravity AI | Eliminación | Eliminación de las funcionalidades de Reseñas y Perfil público. |
-| 2026-06-11 | Antigravity AI | Actualización | Inclusión del Roadmap de Desarrollo de 3 Fases y reglas de ramificación. |
-| 2026-06-12 | Antigravity AI | Actualización | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3). |
-| 2026-06-12 | Antigravity AI | Actualización | Implementación del Chat Activo por Partida (Realtime) con Supabase Realtime y RLS. |
-| 2026-06-12 | Antigravity AI | Actualización | Implementación de Cierre de Partida (asistencia/ganador) y Perfil Básico (Win Rate / Karma). |
-| 2026-06-13 | Antigravity AI | Actualización | Implementación de Modalidad de Partida Online (Presencial/Online, plataforma, enlace de voz). |
-| 2026-06-13 | Antigravity AI | Actualización | Implementación de Sesiones Multijuego (1:N relacion, tabla meetup_games, listado de juegos/Por decidir). |
-| 2026-06-21 | Antigravity AI | Actualización | Implementación de Mi Ludoteca (importador BGG en Edge Function y pestaña perfil) y Atribución Legal de Datos de BGG. |
-
----
-
-## 9. Roadmap de Desarrollo por Fases
-
-El desarrollo del proyecto se realizará de forma incremental dividiéndose en las siguientes fases:
-
-### FASE 1: VIRALIDAD Y ADQUISICIÓN (Traer gente)
-*Objetivo: Que la app se promocione orgánicamente mediante contenido interactivo y compartible.*
-- [x] **[GRATIS] Generador de "Tops/Tier Lists" Básico:** Pantalla para buscar juegos en la base de datos local (`games`), ordenarlos de forma interactiva y exportar una imagen nativa y estética (con el logo y estilo de la app) lista para compartir en redes.
-- [x] **[GRATIS] Invitados "Shadow":** Permitir que los usuarios reserven plaza en una meetup poniendo solo su nombre, sin necesidad de registro completo inicial. Gestión en tabla `meetup_guests`.
-- [x] **[PREMIUM] Generador de Tops "Pro":** Funcionalidad opcional para exportar las Tier Lists sin marca de agua, con fondos personalizados en alta resolución y formatos adaptados.
-
-### FASE 2: RETENCIÓN Y UTILIDAD (Que se queden)
-*Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a día y construir su identidad.*
-- [x] **[GRATIS] Mi Ludoteca (Importador BGG):** Botón para importar la colección desde BoardGameGeek usando el nombre de usuario de BGG, poblando automáticamente la base de datos personal. Requiere la tabla `user_collection` y manejo del estado síncrono/asíncrono de la API de BGG.
-- [x] **[GRATIS] Chat Activo por Partida:** Canal de mensajes en tiempo real dentro del detalle de cada meetup para la coordinación de los asistentes. Centralizado en una página dedicada con badges de notificaciones.
-- [x] **[GRATIS] Escaparate de Jugador (Perfil Gamificado):** Perfil rediseñado con sistema de experiencia (XP) con desglose de rates, rango de jugador (Novato, Maestro, Leyenda), vitrina de logros interactiva y visualización/descarga de rankings guardados.
-- [x] **[GRATIS] Cierre de Partida e Historial:** Registro de asistencia real, cálculo de karma y ganador en el cierre de meetups (asociado a iconos de espadas de victoria, no coronas).
-- [x] **[GRATIS] Modalidad de Partida "Online":** Selector al crear el evento para elegir entre modalidad presencial u online (Board Game Arena, TTS, etc.), ocultando el campo de ubicación física y añadiendo campos para la plataforma y el enlace de voz (Discord/Meet).
-- [x] **[GRATIS] Sesiones Multijuego:** Transición del modelo "1 partida = 1 juego" a un modelo de "Sesión". Modificación de la tabla de meetups para aceptar un array de juegos (relación 1:N) y adaptación del flujo para permitir decidir el juego en el chat o registrar varios _fillers_ distintos bajo un mismo evento.
-
-### FASE 3: PULIDO Y GAMIFICACIÓN (El Pique Sano)
-*Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usuario final explotando los datos.*
-- [ ] **[GRATIS] Filtros "Matchmaking" Locales:** Buscador avanzado de eventos locales filtrando por categorías y mecánicas en caché.
-- [ ] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
-- [ ] **[VIRALIDAD] Resumen de Partida (Exportable):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
-- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego.
-- [ ] **[PREMIUM] Estadísticas Avanzadas:** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
-
-
+| Fecha      | Autor          | Tipo de Cambio | Descripción del Cambio / Funcionalidad Modificada                                                                    |
+| :--------- | :------------- | :------------- | :------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-11 | Antigravity AI | Creación       | Creación del documento inicial de contexto del proyecto.                                                             |
+| 2026-06-11 | Antigravity AI | Eliminación    | Eliminación de las funcionalidades de Reseñas y Perfil público.                                                      |
+| 2026-06-11 | Antigravity AI | Actualización  | Inclusión del Roadmap de Desarrollo de 3 Fases y reglas de ramificación.                                             |
+| 2026-06-12 | Antigravity AI | Actualización  | Actualización del roadmap (Fase 1 completados, redistribución de tareas en Fase 2 y 3).                              |
+| 2026-06-12 | Antigravity AI | Actualización  | Implementación del Chat Activo por Partida (Realtime) con Supabase Realtime y RLS.                                   |
+| 2026-06-12 | Antigravity AI | Actualización  | Implementación de Cierre de Partida (asistencia/ganador) y Perfil Básico (Win Rate / Karma).                         |
+| 2026-06-13 | Antigravity AI | Actualización  | Implementación de Modalidad de Partida Online (Presencial/Online, plataforma, enlace de voz).                        |
+| 2026-06-13 | Antigravity AI | Actualización  | Implementación de Sesiones Multijuego (1:N relacion, tabla meetup_games, listado de juegos/Por decidir).             |
+| 2026-06-21 | Antigravity AI | Actualización  | Implementación de Mi Ludoteca (importador BGG en Edge Function y pestaña perfil) y Atribución Legal de Datos de BGG. |

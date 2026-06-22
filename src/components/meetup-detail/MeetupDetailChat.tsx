@@ -6,6 +6,7 @@ import { Meetup, UserProfile } from '../../types'
 import { useMeetupChat } from '../../hooks/useMeetupChat'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { Form } from '../ui/form'
 
 interface MeetupDetailChatProps {
   meetupId: string | undefined
@@ -190,7 +191,7 @@ export function MeetupDetailChat({
       {/* Input / Control Area */}
       <div className="p-4 border-t border-border/40 bg-muted/10">
         {isAttendee ? (
-          <form onSubmit={handleSend} className="flex gap-2">
+          <Form onSubmit={handleSend} className="flex gap-2">
             <Input
               type="text"
               value={input}
@@ -212,7 +213,7 @@ export function MeetupDetailChat({
                 <Send className="w-4 h-4" />
               )}
             </Button>
-          </form>
+          </Form>
         ) : (
           <div className="flex items-center gap-3 px-4 py-3 bg-muted/40 backdrop-blur-xs border border-border/30 rounded-2xl text-xs text-muted-foreground justify-center">
             <Lock className="w-4 h-4 text-muted-foreground/75" />

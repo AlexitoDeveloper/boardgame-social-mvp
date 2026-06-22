@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Tag } from '../ui/tag'
+import { Form } from '../ui/form'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
 
@@ -475,7 +476,7 @@ export function MeetupDetailSidebar({
     }
 
     return (
-      <form onSubmit={handleGuestJoinSubmit} className="space-y-3 pt-1">
+      <Form onSubmit={handleGuestJoinSubmit} className="space-y-3 pt-1">
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Sentarse como invitado</label>
           <div className="flex gap-2 flex-col">
@@ -500,7 +501,7 @@ export function MeetupDetailSidebar({
         <p className="text-[10px] text-muted-foreground text-center font-semibold pt-1">
           O si prefieres, <Link to="/auth" className="text-primary hover:underline font-extrabold">inicia sesión</Link> para guardar tus estadísticas.
         </p>
-      </form>
+      </Form>
     )
   }
 

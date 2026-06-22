@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { Form } from '../components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Tag } from '../components/ui/tag'
 import { Meetup, MeetupMessage, Game } from '../types'
@@ -662,7 +663,7 @@ export function ChatsPage() {
             )}
 
             {/* Input area form */}
-            <form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
+            <Form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
               <Input
                 type="text"
                 placeholder="Escribe tu mensaje..."
@@ -683,7 +684,7 @@ export function ChatsPage() {
                   <Send className="w-4 h-4 text-white" />
                 )}
               </Button>
-            </form>
+            </Form>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground/50 space-y-3 p-8">

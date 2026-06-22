@@ -12,7 +12,13 @@ import {
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
-const Form = FormProvider
+const Form = React.forwardRef<
+  HTMLFormElement,
+  React.FormHTMLAttributes<HTMLFormElement>
+>(({ className, ...props }, ref) => (
+  <form ref={ref} className={className} {...props} />
+))
+Form.displayName = "Form"
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -172,4 +178,5 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  FormProvider,
 }
