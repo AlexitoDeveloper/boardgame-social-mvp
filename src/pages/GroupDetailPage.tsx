@@ -233,34 +233,35 @@ export function GroupDetailPage() {
 
   return (
     <section className="space-y-6 pb-20 max-w-6xl mx-auto">
-      {/* Back Button & Admin controls */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate('/grupos')}
-          className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+      {/* Back navigation and admin controls (sticky on mobile with safe-area spacing) */}
+      <div className="sticky top-[-2px] z-30 flex items-center justify-between pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/90 backdrop-blur-md border-b border-border/20 transition-all duration-200">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/grupos')} 
+          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-xs font-bold"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Volver a Grupos</span>
-        </button>
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Volver a Grupos</span><span className="xs:hidden">Volver</span>
+        </Button>
 
         <div className="flex gap-2">
           {isCreator ? (
             <Button
               onClick={handleDelete}
               variant="ghost"
-              className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1"
+              className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <Trash2 className="h-4 w-4" />
-              <span>Eliminar Grupo</span>
+              <span className="hidden xs:inline">Eliminar Grupo</span><span className="xs:hidden">Eliminar</span>
             </Button>
           ) : (
             <Button
               onClick={handleLeave}
               variant="ghost"
-              className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1"
+              className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <LogOut className="h-4 w-4" />
-              <span>Salir del Grupo</span>
+              <span className="hidden xs:inline">Salir del Grupo</span><span className="xs:hidden">Salir</span>
             </Button>
           )}
         </div>

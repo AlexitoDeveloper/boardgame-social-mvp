@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Plus, Users, Loader2, Code, Search, Clipboard, Check } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -20,6 +20,7 @@ const itemVars = {
 
 export function GroupsPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { groups, loading, error, createGroup, joinGroup } = useGroups()
 
   // Search & Filter
@@ -28,6 +29,16 @@ export function GroupsPage() {
   // Modals States
   const [isJoinOpen, setIsJoinOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+
+  // Listen to ?create=true search parameter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('create') === 'true') {
+      setIsCreateOpen(true)
+      // Remove query parameter from URL to prevent reopening on reload
+      navigate('/grupos', { replace: true })
+    }
+  }, [location.search, navigate])
 
   // Join Form State
   const [inviteCode, setInviteCode] = useState('')

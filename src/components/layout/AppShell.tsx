@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Plus, X, Sparkles } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -16,13 +16,6 @@ const desktopNavItems = [
   { to: '/chats', label: 'Chats', icon: MessageSquare },
   { to: '/grupos', label: 'Grupos', icon: Users },
   { to: '/tops', label: 'Crear Top', icon: ListOrdered },
-]
-
-const mobileNavItems = [
-  { to: '/', label: 'Inicio', icon: Home },
-  { to: '/tablero', label: 'Tablero', icon: Dices },
-  { to: '/chats', label: 'Chats', icon: MessageSquare },
-  { to: '/grupos', label: 'Grupos', icon: Users },
 ]
 
 interface NavItemProps {
@@ -90,8 +83,11 @@ export function AppShell() {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false)
   const [unreadChats, setUnreadChats] = useState(0)
+  const [showQuickActions, setShowQuickActions] = useState(false)
 
   const isChatPage = location.pathname.startsWith('/chats')
+  const isProfileActive = location.pathname.startsWith('/perfil')
+  const isGroupsActive = location.pathname.startsWith('/grupos')
 
   // Function to calculate and update unread chats count
   const updateUnreadCount = useCallback(async () => {
@@ -180,6 +176,18 @@ export function AppShell() {
     }
   }, [user, updateUnreadCount])
 
+  // Keyboard escape listener for quick actions modal
+  useEffect(() => {
+    if (!showQuickActions) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowQuickActions(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showQuickActions])
+
   const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Usuario'
   const avatarUrl = user?.user_metadata?.avatar_url || null
   const initials = username.slice(0, 2).toUpperCase()
@@ -228,16 +236,21 @@ export function AppShell() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -6, scale: 0.97 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 left-0 right-0 bg-card/95 dark:bg-card/95 border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                      className="absolute bottom-full mb-2 left-0 right-0 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
                     >
-                          <button
-                            type="button"
-                            onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
-                          >
-                            <User aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
-                            <span>Mi Perfil</span>
-                          </button>
+                           <button
+                             type="button"
+                             onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
+                             className={cn(
+                               "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
+                               isProfileActive 
+                                 ? "bg-primary/10 text-primary font-bold"
+                                 : "hover:bg-muted/30 text-foreground"
+                             )}
+                           >
+                             <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
+                             <span>Mi Perfil</span>
+                           </button>
                       <button
                             type="button"
                             onClick={toggle}
@@ -287,12 +300,26 @@ export function AppShell() {
         </main>
       </div>
 
-      {/* ── Mobile bottom nav ──────────────────────────────── */}
       <nav className="fixed inset-x-0 bottom-[-2px] z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
-          {mobileNavItems.map((item) => (
-            <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} mobile />
-          ))}
+          <NavItem to="/" label="Inicio" icon={Home} mobile />
+          <NavItem to="/tablero" label="Tablero" icon={Dices} mobile />
+
+          {/* Quick Actions mobile center button */}
+          <button
+            type="button"
+            onClick={() => setShowQuickActions(v => !v)}
+            className="flex-grow flex-1 flex flex-col justify-center items-center rounded-xl px-0 py-2 cursor-pointer"
+          >
+            <div className={cn(
+              "w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/25 active:scale-95 transition-all duration-300",
+              showQuickActions && "rotate-45 bg-zinc-700"
+            )}>
+              <Plus className="w-5 h-5 text-white" />
+            </div>
+          </button>
+
+          <NavItem to="/chats" label="Chats" icon={MessageSquare} badgeCount={unreadChats} mobile />
           {user ? (
             <div className="relative flex flex-1 items-center justify-center">
               <button
@@ -314,28 +341,38 @@ export function AppShell() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setShowMobileUserMenu(false)}
-                      className="fixed inset-0 z-40"
+                      className="fixed inset-0 z-40 bg-transparent"
                     />
                     <MotionDiv
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full right-2 mb-4 w-48 bg-card/95 dark:bg-card/95 border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-border/25"
+                      className="absolute bottom-full right-2 mb-4 w-48 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-border/25"
                     >
                       <button
                         onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
+                          isProfileActive 
+                            ? "bg-primary/10 text-primary font-bold"
+                            : "hover:bg-muted/30 text-foreground"
+                        )}
                       >
-                        <User className="h-4 w-4 text-primary" />
+                        <User className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
                         <span>Mi Perfil</span>
                       </button>
                       <button
-                        onClick={() => { setShowMobileUserMenu(false); navigate('/tops') }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                        onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
+                          isGroupsActive 
+                            ? "bg-primary/10 text-primary font-bold"
+                            : "hover:bg-muted/30 text-foreground"
+                        )}
                       >
-                        <ListOrdered className="h-4 w-4 text-primary" />
-                        <span>Crear Rankings</span>
+                        <Users className={cn("h-4 w-4 shrink-0 transition-colors", isGroupsActive ? "text-primary" : "text-muted-foreground")} />
+                        <span>Grupos de Juego</span>
                       </button>
                       <button
                         onClick={toggle}
@@ -370,6 +407,95 @@ export function AppShell() {
           )}
         </div>
       </nav>
+
+      {/* Quick Actions Drawer for Mobile */}
+      <AnimatePresence>
+        {showQuickActions && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm !mt-0"
+          >
+            {/* Click-away backdrop */}
+            <div 
+              onClick={() => setShowQuickActions(false)}
+              className="absolute inset-0 z-0 cursor-pointer"
+            />
+
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative z-10 w-full sm:max-w-sm bg-card dark:bg-card border-t sm:border border-border/40 dark:border-white/10 rounded-t-[24px] sm:rounded-[24px] p-6 shadow-2xl space-y-4 text-left pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+            >
+              <div className="flex justify-between items-center pb-2 border-b border-border/20">
+                <h3 className="text-sm font-black tracking-tight text-foreground uppercase tracking-widest flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Acciones Rápidas
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowQuickActions(false)}
+                  className="p-1 rounded-full hover:bg-muted/30 text-muted-foreground transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2.5">
+                <button
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    navigate('/tablero/new');
+                  }}
+                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <Dices className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-foreground">Organizar Quedada</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Abre una mesa de juego en el tablero.</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    navigate('/tops');
+                  }}
+                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <ListOrdered className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-foreground">Crear Ranking</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Ordena tus juegos favoritos y comparte tu top.</p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowQuickActions(false);
+                    navigate('/grupos?create=true');
+                  }}
+                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-foreground">Crear Grupo</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Fusiona colecciones y vota qué jugar.</p>
+                  </div>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
