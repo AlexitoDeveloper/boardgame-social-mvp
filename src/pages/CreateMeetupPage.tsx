@@ -588,7 +588,7 @@ export function CreateMeetupPage() {
           type="button"
           variant="outline" 
           size="sm" 
-          onClick={() => navigate(isEditMode ? `/tablero/${id}` : '/')} 
+          onClick={isEditMode ? () => navigate(`/tablero/${id}`) : () => navigate(-1)} 
           className="flex-shrink-0 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Volver

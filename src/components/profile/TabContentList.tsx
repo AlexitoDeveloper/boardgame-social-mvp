@@ -9,16 +9,22 @@ import {
   Trash2, 
   Calendar,
   Dices,
-  Download
+  Download,
+  ListOrdered,
+  BarChart2
 } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Meetup, Game } from '../../types'
+import { UserStats } from '../../hooks/useProfile'
+import { StatsDashboard } from './StatsDashboard'
+import { AdvancedStats } from './AdvancedStats'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../ui/accordion'
 
 const MotionDiv = motion.div
 
 interface TabContentListProps {
-  activeTab: 'upcoming' | 'completed' | 'rankings' | 'collection';
+  activeTab: 'upcoming' | 'completed' | 'collection' | 'mas';
   upcomingMeetups: Meetup[];
   completedMeetups: Meetup[];
   collectionGames: Game[];
@@ -28,6 +34,9 @@ interface TabContentListProps {
   isOwnProfile: boolean;
   isOwnProfileEditable: boolean;
   currentUserId: string | undefined;
+  stats: UserStats;
+  meetups: Meetup[];
+  profileId: string;
   handleRemoveFromCollection: (e: React.MouseEvent, bggId: number) => void;
   handleDeleteRanking: (e: React.MouseEvent, rankingId: string) => void;
   setSelectedRanking: (ranking: any) => void;
@@ -45,6 +54,9 @@ export function TabContentList({
   isOwnProfile,
   isOwnProfileEditable,
   currentUserId,
+  stats,
+  meetups,
+  profileId,
   handleRemoveFromCollection,
   handleDeleteRanking,
   setSelectedRanking,
@@ -209,76 +221,95 @@ export function TabContentList({
           </MotionDiv>
         )}
 
-        {activeTab === 'rankings' && (
+        {activeTab === 'mas' && (
           <MotionDiv
-            key="rankings-tab"
+            key="mas-tab"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.2 }}
-            className="space-y-3"
           >
-            {loadingRankings ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-16 w-full bg-muted/20 border border-border/30 rounded-2xl animate-pulse" />
-                ))}
-              </div>
-            ) : savedRankings.length === 0 ? (
-              <div className="text-center py-12 px-4 bg-muted/10 rounded-2xl border border-dashed border-border/40 select-none">
-                <p className="text-sm font-bold text-muted-foreground">No hay rankings guardados en este perfil.</p>
-                {isOwnProfile && (
-                  <div className="mt-3">
-                    <Link to="/tops">
-                      <Button size="sm" icon={Plus} label="Crear Ranking" className="cursor-pointer" />
-                    </Link>
+            <Accordion type="multiple" defaultValue={['estadisticas','rankings']} className="space-y-2">
+              {/* ── Estadísticas ──────────────────────────── */}
+              <AccordionItem value="estadisticas" className="glass-panel rounded-2xl border-border/30 px-4 border">
+                <AccordionTrigger>
+                  <div className="flex items-center gap-2">
+                    <BarChart2 className="w-4 h-4 text-primary shrink-0" />
+                    <span>Estadísticas</span>
                   </div>
-                )}
-              </div>
-            ) : (
-              savedRankings.map((ranking) => {
-                const mode = ranking.mode
-
-                return (
-                  <div 
-                    key={ranking.id} 
-                    onClick={() => setSelectedRanking(ranking)}
-                    className="p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all cursor-pointer flex justify-between items-center group text-left border-border/40"
-                  >
-                    <div className="space-y-1.5 flex-1 min-w-0 pr-4">
-                      <h4 className="font-extrabold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
-                        <span className="truncate">{ranking.title || 'Ranking sin título'}</span>
-                        <Badge variant="primary-soft" className="shrink-0">
-                          {mode === 'tier' ? 'Tier List' : 'Top 10'}
-                        </Badge>
-                      </h4>
-                      
-                      <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-bold">
-                        <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                        <span>Guardado el {new Date(ranking.created_at || Date.now()).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    <StatsDashboard stats={stats} />
+                    <AdvancedStats stats={stats} meetups={meetups} profileId={profileId} />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+              {/* ── Rankings ──────────────────────────────── */}
+              <AccordionItem value="rankings" className="glass-panel rounded-2xl border-border/30 px-4 border">
+                <AccordionTrigger>
+                  <div className="flex items-center gap-2">
+                    <ListOrdered className="w-4 h-4 text-primary shrink-0" />
+                    <span>Rankings</span>
+                    <span className="text-[10px] font-black text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
+                      {savedRankings.length}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3">
+                    {loadingRankings ? (
+                      <div className="space-y-2">
+                        {[...Array(2)].map((_, i) => (
+                          <div key={i} className="h-14 w-full bg-muted/20 border border-border/30 rounded-xl animate-pulse" />
+                        ))}
                       </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="flex items-center gap-1">
+                    ) : savedRankings.length === 0 ? (
+                      <div className="text-center py-8 px-4 bg-muted/10 rounded-xl border border-dashed border-border/40 select-none">
+                        <p className="text-sm font-bold text-muted-foreground">No hay rankings guardados.</p>
                         {isOwnProfile && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={(e) => handleDeleteRanking(e, ranking.id)}
-                            className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            title="Eliminar ranking"
-                            icon={Trash2}
-                          />
+                          <Link to="/tops" className="inline-block mt-3">
+                            <Button size="sm" icon={Plus} label="Crear Ranking" className="cursor-pointer" />
+                          </Link>
                         )}
-                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                       </div>
-                    </div>
+                    ) : (
+                      savedRankings.map((ranking) => (
+                        <div 
+                          key={ranking.id} 
+                          onClick={() => setSelectedRanking(ranking)}
+                          className="p-3 rounded-xl border border-border/30 hover:bg-muted/40 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer flex justify-between items-center group"
+                        >
+                          <div className="space-y-1 flex-1 min-w-0 pr-3">
+                            <h4 className="font-extrabold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
+                              <span className="truncate">{ranking.title || 'Ranking sin título'}</span>
+                              <Badge variant="primary-soft" className="shrink-0 text-[9px]">
+                                {ranking.mode === 'tier' ? 'Tier List' : 'Top 10'}
+                              </Badge>
+                            </h4>
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
+                              <Calendar className="w-3 h-3 text-primary shrink-0" />
+                              {new Date(ranking.created_at || Date.now()).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {isOwnProfile && (
+                              <Button 
+                                variant="ghost" size="sm" 
+                                onClick={(e) => handleDeleteRanking(e, ranking.id)}
+                                className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                title="Eliminar ranking" icon={Trash2}
+                              />
+                            )}
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-all" />
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                )
-              })
-            )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </MotionDiv>
         )}
 

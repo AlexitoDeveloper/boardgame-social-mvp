@@ -33,7 +33,6 @@ function App() {
         <Route path="/" element={<ExplorePage />} />
         <Route path="/juegos/:id" element={<GameDetailPage />} />
         <Route path="/tablero" element={<RadarPage />} />
-        <Route path="/radar" element={<Navigate to="/tablero" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route

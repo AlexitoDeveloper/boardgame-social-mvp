@@ -7,12 +7,11 @@ import { useProfile } from '../hooks/useProfile'
 import { ProfileSkeleton } from '../components/profile/ProfileSkeleton'
 import { ProfileShowcaseCard } from '../components/profile/ProfileShowcaseCard'
 import { AchievementsVitrina } from '../components/profile/AchievementsVitrina'
-import { StatsDashboard } from '../components/profile/StatsDashboard'
 import { TabContentList } from '../components/profile/TabContentList'
 import { EditProfileModal } from '../components/profile/EditProfileModal'
 import { ImportBggModal } from '../components/profile/ImportBggModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
-import { ArrowLeft, Edit, UserX, History, Dices, ListOrdered, CalendarDays } from 'lucide-react'
+import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal } from 'lucide-react'
 
 export function ProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -54,7 +53,7 @@ export function ProfilePage() {
   const [selectedRanking, setSelectedRanking] = useState<any | null>(null)
 
   // Active Tab state
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'rankings' | 'collection'>('upcoming')
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'collection' | 'mas'>('upcoming')
 
   // Set selected ranking if URL param matches
   useEffect(() => {
@@ -134,13 +133,6 @@ export function ProfilePage() {
               label="Editar Datos"
             />
           )}
-          <span className={`text-[10px] font-black uppercase border px-3 py-1 rounded-full tracking-wider ${
-            isOwnProfile 
-              ? 'text-primary bg-primary/10 border-primary/20' 
-              : 'text-muted-foreground bg-muted border-border/40'
-          }`}>
-            {isOwnProfile ? 'Tu Escaparate' : 'Escaparate de Jugador'}
-          </span>
         </div>
       </div>
 
@@ -163,8 +155,6 @@ export function ProfilePage() {
         savedRankingsCount={savedRankings.length}
       />
 
-      {/* Stats Dashboard */}
-      <StatsDashboard stats={stats} />
 
       {/* Navigation Tabs */}
       <Tabs
@@ -172,7 +162,7 @@ export function ProfilePage() {
           { id: 'upcoming', label: 'Próximas', icon: CalendarDays, count: upcomingMeetups.length },
           { id: 'completed', label: 'Historial', icon: History, count: completedMeetups.length },
           { id: 'collection', label: 'Ludoteca', icon: Dices, count: collectionGames.length },
-          { id: 'rankings', label: 'Rankings', icon: ListOrdered, count: savedRankings.length }
+          { id: 'mas', label: 'Más', icon: MoreHorizontal }
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
@@ -191,6 +181,9 @@ export function ProfilePage() {
         isOwnProfile={isOwnProfile}
         isOwnProfileEditable={isOwnProfileEditable}
         currentUserId={user?.id}
+        stats={stats}
+        meetups={meetups}
+        profileId={profileId}
         handleRemoveFromCollection={async (e, bggId) => {
           e.preventDefault()
           e.stopPropagation()
