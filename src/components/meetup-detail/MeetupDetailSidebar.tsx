@@ -15,7 +15,8 @@ import {
   Swords,
   CalendarCheck2,
   CheckSquare,
-  Square
+  Square,
+  Share2
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -40,7 +41,8 @@ interface MeetupDetailSidebarProps {
   guestReservation: { id: string, name: string } | null;
   handleJoinAsGuest: (name: string) => void;
   handleLeaveAsGuest: () => void;
-  handleCompleteMeetup: (gameWinners: Record<number, string | null>, attendedPlayerIds: string[], attendedGuestIds: string[]) => void;
+  handleCompleteMeetup: (gameWinners: Record<number, string | null>, gameWinnersScores: Record<number, string | null>, attendedPlayerIds: string[], attendedGuestIds: string[]) => void;
+  onExportClick?: () => void;
 }
 
 export function MeetupDetailSidebar({ 
@@ -59,7 +61,8 @@ export function MeetupDetailSidebar({
   guestReservation,
   handleJoinAsGuest,
   handleLeaveAsGuest,
-  handleCompleteMeetup
+  handleCompleteMeetup,
+  onExportClick
 }: MeetupDetailSidebarProps) {
   const navigate = useNavigate()
   const [confirmCancel, setConfirmCancel] = useState(false)
@@ -69,6 +72,7 @@ export function MeetupDetailSidebar({
   // Stats and Completion State
   const [isCompleting, setIsCompleting] = useState(false)
   const [gameWinners, setGameWinners] = useState<Record<number, string | null>>({})
+  const [gameWinnersScores, setGameWinnersScores] = useState<Record<number, string | null>>({})
   const [attendedPlayers, setAttendedPlayers] = useState<string[]>([])
   const [attendedGuests, setAttendedGuests] = useState<string[]>([])
 
@@ -78,10 +82,13 @@ export function MeetupDetailSidebar({
       setAttendedGuests(meetup.attended_guests || [])
       
       const initialWinners: Record<number, string | null> = {}
+      const initialScores: Record<number, string | null> = {}
       gamesList.forEach(g => {
         initialWinners[g.bgg_id] = g.winner_user_id || g.winner_guest_id || null
+        initialScores[g.bgg_id] = g.winner_score || null
       })
       setGameWinners(initialWinners)
+      setGameWinnersScores(initialScores)
     } else {
       const registeredIds = attendees.filter(a => !a.is_guest).map(a => a.id)
       const guestIds = attendees.filter(a => a.is_guest).map(a => a.id)
@@ -89,10 +96,13 @@ export function MeetupDetailSidebar({
       setAttendedGuests(guestIds)
       
       const initialWinners: Record<number, string | null> = {}
+      const initialScores: Record<number, string | null> = {}
       gamesList.forEach(g => {
         initialWinners[g.bgg_id] = null
+        initialScores[g.bgg_id] = null
       })
       setGameWinners(initialWinners)
+      setGameWinnersScores(initialScores)
     }
     setIsCompleting(true)
   }
@@ -151,7 +161,7 @@ export function MeetupDetailSidebar({
   }
 
   const handleSubmitComplete = () => {
-    handleCompleteMeetup(gameWinners, attendedPlayers, attendedGuests)
+    handleCompleteMeetup(gameWinners, gameWinnersScores, attendedPlayers, attendedGuests)
     setIsCompleting(false)
   }
 
@@ -198,16 +208,30 @@ export function MeetupDetailSidebar({
                   </div>
                 </div>
                 
-                <div className="shrink-0 max-w-[120px]">
+                <div className="shrink-0 flex flex-col items-end gap-1 max-w-[140px]">
                   {winner ? (
-                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-500 font-bold text-xs">
-                      <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
-                      <span className="truncate max-w-[75px]">{winner.username}</span>
-                    </div>
+                    <>
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-500 font-bold text-xs">
+                        <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
+                        <span className="truncate max-w-[85px]">{winner.username}</span>
+                      </div>
+                      {game.winner_score && (
+                        <span className="text-[10px] font-extrabold text-primary tracking-wide bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md truncate max-w-[120px]">
+                          {game.winner_score}
+                        </span>
+                      )}
+                    </>
                   ) : (
-                    <div className="px-2 py-0.5 rounded-xl border border-border/50 bg-background/50 text-muted-foreground text-xs font-bold text-center">
-                      Empate 🤝
-                    </div>
+                    <>
+                      <div className="px-2 py-0.5 rounded-xl border border-border/50 bg-background/50 text-muted-foreground text-xs font-bold text-center">
+                        Empate 🤝
+                      </div>
+                      {game.winner_score && (
+                        <span className="text-[10px] font-semibold text-muted-foreground tracking-wide truncate max-w-[120px]">
+                          {game.winner_score}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -229,9 +253,20 @@ export function MeetupDetailSidebar({
           </div>
         </div>
 
+        {/* Export summary button */}
+        <div className="pt-2 flex flex-col gap-2">
+          <Button
+            onClick={onExportClick}
+            variant="premium"
+            className="w-full flex items-center justify-center gap-2 cursor-pointer text-white font-extrabold hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98] transition-all duration-300"
+            icon={Share2}
+            label="Exportar Resumen"
+          />
+        </div>
+
         {/* Edit results option for master/creator */}
         {isCreator && (
-          <div className="pt-2 flex justify-center">
+          <div className="pt-1 flex justify-center">
             <Button
               onClick={openCompleteForm}
               variant="ghost"
@@ -336,6 +371,22 @@ export function MeetupDetailSidebar({
                             {gameWinnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current shrink-0 animate-pulse" />}
                           </div>
                         ))}
+                    </div>
+
+                    {/* Winner score input */}
+                    <div className="mt-2 text-left space-y-1">
+                      <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Puntuación / Puntos</label>
+                      <Input
+                        type="text"
+                        placeholder="Ej. 104 pts, 15-12, Coop Win..."
+                        value={gameWinnersScores[game.bgg_id] || ''}
+                        onChange={(e) => setGameWinnersScores(prev => ({
+                          ...prev,
+                          [game.bgg_id]: e.target.value
+                        }))}
+                        className="h-8 text-xs bg-background/40 border-border/30 rounded-lg text-foreground focus:ring-1 focus:ring-primary"
+                        maxLength={35}
+                      />
                     </div>
                   </div>
                 )

@@ -398,7 +398,7 @@ export function TopsCanvas({
             <div className={`absolute top-[30%] left-[20%] w-[40%] h-[40%] ${glow.g3} rounded-full blur-[100px] -z-10 pointer-events-none`} />
 
             {/* Header Branding info inside Image */}
-            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'}`}>
+            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'} w-full`}>
               <div className="flex-1 min-w-0 w-full">
                 <input
                   type="text"
@@ -408,11 +408,6 @@ export function TopsCanvas({
                   className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
                 />
               </div>
-              {(!isPremium || showWatermark) && (
-                <p className="text-[10px] sm:text-xs font-extrabold text-primary tracking-widest uppercase flex items-center gap-1.5 drop-shadow-sm shrink-0 select-none self-end sm:self-auto px-2">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" /> boardgamesocial.app
-                </p>
-              )}
             </div>
 
         {/* Content Renders based on Mode */}

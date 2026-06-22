@@ -138,6 +138,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
               if (!winnerId) return null
               const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
               return isGuest ? winnerId : null
+            })(),
+            winner_score: (() => {
+              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners_scores) return null
+              return thisMeetupCompleted.game_winners_scores[Number(foundGame.bgg_id)] || null
             })()
           }],
           users: {
@@ -162,24 +166,25 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       } else {
         // Query from Supabase
         try {
-           const { data, error } = await supabase
-            .from('meetups')
-            .select('*, users:users!meetups_creator_id_fkey(*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*))')
-            .eq('id', id)
-            .single()
+            const { data, error } = await supabase
+             .from('meetups')
+             .select('*, users:users!meetups_creator_id_fkey(*), meetup_games(game_id, winner_user_id, winner_guest_id, winner_score, games(*))')
+             .eq('id', id)
+             .single()
 
-          if (error) throw error
-          if (!data) throw new Error('Partida no encontrada.')
+           if (error) throw error
+           if (!data) throw new Error('Partida no encontrada.')
 
-          const mg = data.meetup_games || []
-          const mGames = mg.map((item: any) => {
-            if (!item.games) return null
-            return {
-              ...item.games,
-              winner_user_id: item.winner_user_id,
-              winner_guest_id: item.winner_guest_id
-            }
-          }).filter(Boolean) as Game[]
+           const mg = data.meetup_games || []
+           const mGames = mg.map((item: any) => {
+             if (!item.games) return null
+             return {
+               ...item.games,
+               winner_user_id: item.winner_user_id,
+               winner_guest_id: item.winner_guest_id,
+               winner_score: item.winner_score
+             }
+           }).filter(Boolean) as Game[]
           
           const formattedMeetup: Meetup = {
             ...data,
@@ -628,6 +633,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   // Handle Complete Meetup (Close Match and Save stats)
   const handleCompleteMeetup = async (
     gameWinners: Record<number, string | null>, // map of game bgg_id to winnerId
+    gameWinnersScores: Record<number, string | null>, // map of game bgg_id to score
     attendedPlayerIds: string[],
     attendedGuestIds: string[]
   ) => {
@@ -642,6 +648,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       completedMockData[id] = {
         completed: true,
         game_winners: gameWinners,
+        game_winners_scores: gameWinnersScores,
         attended_players: attendedPlayerIds,
         attended_guests: attendedGuestIds
       }
@@ -653,10 +660,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         const updatedGames = (prev.games || []).map(g => {
           const wId = gameWinners[g.bgg_id]
           const isGuest = attendees.find(a => a.id === wId)?.is_guest
+          const score = gameWinnersScores[g.bgg_id] || null
           return {
             ...g,
             winner_user_id: wId && !isGuest ? wId : null,
-            winner_guest_id: wId && isGuest ? wId : null
+            winner_guest_id: wId && isGuest ? wId : null,
+            winner_score: score
           }
         })
         return {
@@ -681,11 +690,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
         if (meetupError) throw meetupError
 
-        // 2. Update each game's winner in meetup_games
+        // 2. Update each game's winner and score in meetup_games
         for (const [bggIdStr, wId] of Object.entries(gameWinners)) {
           const bggId = Number(bggIdStr)
           let winnerUserId: string | null = null
           let winnerGuestId: string | null = null
+          const score = gameWinnersScores[bggId] || null
 
           if (wId) {
             const isGuest = attendees.find(a => a.id === wId)?.is_guest
@@ -700,7 +710,8 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
             .from('meetup_games')
             .update({
               winner_user_id: winnerUserId,
-              winner_guest_id: winnerGuestId
+              winner_guest_id: winnerGuestId,
+              winner_score: score
             })
             .eq('meetup_id', id)
             .eq('game_id', bggId)
@@ -714,10 +725,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           const updatedGames = (prev.games || []).map(g => {
             const wId = gameWinners[g.bgg_id]
             const isGuest = attendees.find(a => a.id === wId)?.is_guest
+            const score = gameWinnersScores[g.bgg_id] || null
             return {
               ...g,
               winner_user_id: wId && !isGuest ? wId : null,
-              winner_guest_id: wId && isGuest ? wId : null
+              winner_guest_id: wId && isGuest ? wId : null,
+              winner_score: score
             }
           })
           return {

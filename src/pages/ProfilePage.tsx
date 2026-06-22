@@ -1693,7 +1693,7 @@ export function ProfilePage() {
           }
 
           return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-0 lg:p-4 bg-black/85 backdrop-blur-md overflow-y-auto !mt-0">
               <MotionDiv 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -1713,7 +1713,8 @@ export function ProfilePage() {
                       size="sm"
                       onClick={handleExportModalImage}
                       disabled={exportingRanking}
-                      className="cursor-pointer font-bold text-xs"
+                      className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
+                      title="Guardar Foto"
                     >
                       {exportingRanking ? (
                         <>
@@ -1852,7 +1853,7 @@ export function ProfilePage() {
       {/* Edit Profile Modal */}
       <AnimatePresence>
         {isEditing && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md !mt-0">
             <MotionDiv
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
