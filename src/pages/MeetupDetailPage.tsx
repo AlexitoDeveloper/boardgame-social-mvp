@@ -75,8 +75,8 @@ export function MeetupDetailPage() {
   return (
     <section className="space-y-6 max-w-4xl mx-auto p-0 pb-6 md:p-4 md:pb-24">
       
-      {/* Back navigation and share toolbar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
+      {/* Back navigation and share toolbar (sticky on mobile with safe-area spacing) */}
+      <div className="sticky top-[-2px] z-30 flex items-center justify-between pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/90 backdrop-blur-md border-b border-border/20 transition-all duration-200">
         <Button 
           variant="ghost" 
           size="sm" 

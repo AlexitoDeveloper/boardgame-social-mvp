@@ -65,7 +65,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                 drag={gamesList.length > 1 ? "x" : false}
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.6}
-                onDragEnd={(event, info) => {
+                onDragEnd={(_, info) => {
                   if (gamesList.length <= 1) return;
                   const swipeThreshold = 50;
                   if (info.offset.x < -swipeThreshold) {
@@ -109,14 +109,14 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
           <>
             <button
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/85 hover:bg-background text-foreground flex items-center justify-center border border-border/40 backdrop-blur-sm shadow transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Juego anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/85 hover:bg-background text-foreground flex items-center justify-center border border-border/40 backdrop-blur-sm shadow transition-all active:scale-90 cursor-pointer opacity-80 hover:opacity-100"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Siguiente juego"
             >
               <ChevronRight className="w-4 h-4" />
@@ -170,7 +170,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
       <div className="p-6 sm:p-8 space-y-4 flex-1">
         
         {/* Título de la partida */}
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground text-pretty">
           {meetup.title || 'Partida de Juego de Mesa'}
         </h1>
         

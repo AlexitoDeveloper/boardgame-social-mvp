@@ -379,12 +379,38 @@ export function ChatsPage() {
     return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
   }
 
+  const renderSidebarSkeleton = () => (
+    <div className="space-y-3 p-3.5 flex-1 overflow-y-auto no-scrollbar">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl border border-border/10 bg-muted/20 animate-pulse">
+          <div className="w-11 h-11 bg-muted/30 rounded-lg shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-1/3 bg-muted/30 rounded" />
+            <div className="h-2.5 w-2/3 bg-muted/30 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
   if (loading && meetups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Cargando tus mensajes...</p>
-      </div>
+      <section className="h-full flex-grow flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+        {/* Left skeleton conversations list */}
+        <div className="w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full">
+          <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
+            <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
+              <MessageSquare className="w-5 h-5 text-primary" /> Chats
+            </h1>
+          </div>
+          {renderSidebarSkeleton()}
+        </div>
+        {/* Right loading placeholder */}
+        <div className="hidden md:flex flex-grow flex-1 h-full min-h-0 flex-col bg-card/10 justify-center items-center text-center text-muted-foreground/60 space-y-3 p-8">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-xs font-semibold animate-pulse">Cargando conversaciones...</p>
+        </div>
+      </section>
     )
   }
 
@@ -395,7 +421,7 @@ export function ChatsPage() {
       <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full ${
         activeMeetupId ? 'hidden md:flex' : 'flex'
       }`}>
-        <div className="px-5 py-4 border-b border-border/30 flex items-center justify-between bg-card shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
+        <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
           <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
             <MessageSquare className="w-5 h-5 text-primary" /> Chats
           </h1>
@@ -507,7 +533,7 @@ export function ChatsPage() {
         {activeMeetup ? (
           <>
             {/* Header toolbar */}
-            <div className="p-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card">
+            <div className="px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card md:pt-4">
               <div className="flex items-center gap-3.5 min-w-0 flex-1">
                 <Button 
                   onClick={handleBackToList}

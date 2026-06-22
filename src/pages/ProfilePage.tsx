@@ -794,13 +794,89 @@ export function ProfilePage() {
     }
   }
 
-  if (loading) {
+  const renderProfileSkeleton = () => {
     return (
-      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Cargando escaparate de jugador...</p>
+      <div className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 animate-pulse">
+        {/* Header bar Skeleton */}
+        <div className="sticky top-[-2px] pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 z-30 flex items-center justify-between -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 border-b border-border/20">
+          <div className="h-9 w-16 bg-muted rounded-xl" />
+          <div className="h-6 w-32 bg-muted rounded-full" />
+        </div>
+
+        {/* Profile Card Skeleton */}
+        <div className="glass-panel border-border/30 rounded-3xl overflow-hidden relative p-4 pb-6 sm:p-6 flex flex-col items-center sm:items-start sm:flex-row gap-5">
+          <div className="w-28 h-28 rounded-full bg-muted border-[6px] border-card -mt-16 sm:mt-0 shrink-0" />
+          <div className="flex-1 w-full space-y-3.5 pt-2 sm:pt-4">
+            <div className="space-y-2 flex flex-col items-center sm:items-start">
+              <div className="h-7 w-48 bg-muted rounded-lg" />
+              <div className="h-4 w-32 bg-muted rounded-md" />
+            </div>
+            {/* Experience bar skeleton */}
+            <div className="space-y-2 p-2.5 rounded-xl border border-border/20 bg-muted/40 w-full">
+              <div className="h-3 w-24 bg-muted rounded" />
+              <div className="h-2 w-full bg-muted rounded-full" />
+            </div>
+            {/* Location & date skeleton */}
+            <div className="flex gap-2 justify-center sm:justify-start">
+              <div className="h-6 w-24 bg-muted rounded-lg" />
+              <div className="h-6 w-32 bg-muted rounded-lg" />
+            </div>
+          </div>
+        </div>
+
+        {/* Achievements Vitrina Skeleton */}
+        <div className="space-y-3">
+          <div className="h-4 w-36 bg-muted rounded" />
+          <div className="grid grid-cols-5 gap-2.5">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex flex-col items-center space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-muted" />
+                <div className="h-2 w-10 bg-muted rounded" />
+                <div className="h-2 w-6 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
+          {/* Achievement detail sub-card skeleton */}
+          <div className="h-20 w-full bg-muted/20 border border-border/30 rounded-2xl p-3.5 space-y-2">
+            <div className="h-3.5 w-24 bg-muted rounded" />
+            <div className="h-3 w-40 bg-muted rounded" />
+          </div>
+        </div>
+
+        {/* Stats Dashboard Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl border border-border/30 bg-muted/20 flex justify-between items-center gap-4">
+            <div className="space-y-2 flex-1">
+              <div className="h-3 w-20 bg-muted rounded" />
+              <div className="h-8 w-16 bg-muted rounded-lg" />
+              <div className="h-3.5 w-32 bg-muted rounded" />
+            </div>
+            <div className="w-16 h-16 rounded-full bg-muted" />
+          </div>
+          <div className="p-4 sm:p-5 rounded-2xl border border-border/30 bg-muted/20 flex justify-between items-center gap-4">
+            <div className="space-y-2 flex-1">
+              <div className="h-3 w-20 bg-muted rounded" />
+              <div className="h-8 w-16 bg-muted rounded-lg" />
+              <div className="h-3.5 w-32 bg-muted rounded" />
+            </div>
+            <div className="w-16 h-16 rounded-full bg-muted" />
+          </div>
+        </div>
+
+        {/* Tabs Skeleton */}
+        <div className="flex border-b border-border/20 gap-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex-1 py-3 flex justify-center">
+              <div className="h-4 w-16 bg-muted rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     )
+  }
+
+  if (loading) {
+    return renderProfileSkeleton()
   }
 
   if (errorMsg || !profile) {
@@ -905,7 +981,7 @@ export function ProfilePage() {
     <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
       
       {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
+      <div className="sticky top-[-2px] pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 z-30 flex items-center justify-between -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           variant="outline" 
           size="sm" 
@@ -1551,7 +1627,7 @@ export function ProfilePage() {
                             type="button"
                             variant="ghost"
                             onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
-                            className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
+                            className="absolute top-2.5 right-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
                             title="Quitar de mi ludoteca"
                             icon={Trash2}
                           />
