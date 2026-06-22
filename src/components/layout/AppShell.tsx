@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Button } from '../ui/button'
 import { supabase } from '../../lib/supabaseClient'
 
 const MotionDiv = motion.div
@@ -219,16 +220,17 @@ export function AppShell() {
           <div className="mt-auto space-y-1 pt-4 border-t border-border/30">
             {user ? (
               <div className="relative">
-                <button
+                <Button
                   onClick={() => setShowUserMenu(v => !v)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted/30 transition-colors duration-200"
+                  variant="ghost"
+                  className="w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted/30 transition-colors duration-200 h-auto"
                 >
-                  <Avatar className="h-7 w-7 border border-primary/30">
+                  <Avatar className="h-7 w-7 border border-primary/30 shrink-0">
                     <AvatarImage src={avatarUrl || undefined} alt={username} />
                     <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">{initials}</AvatarFallback>
                   </Avatar>
                   <span className="flex-1 text-left truncate">{username}</span>
-                </button>
+                </Button>
                 <AnimatePresence>
                   {showUserMenu && (
                     <MotionDiv
@@ -238,51 +240,55 @@ export function AppShell() {
                       transition={{ duration: 0.15 }}
                       className="absolute bottom-full mb-2 left-0 right-0 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
                     >
-                           <button
-                             type="button"
-                             onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
-                             className={cn(
-                               "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
-                               isProfileActive 
-                                 ? "bg-primary/10 text-primary font-bold"
-                                 : "hover:bg-muted/30 text-foreground"
-                             )}
-                           >
-                             <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
-                             <span>Mi Perfil</span>
-                           </button>
-                      <button
-                            type="button"
-                            onClick={toggle}
-                            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30"
-                          >
-                            <div className="flex items-center gap-3">
-                              {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
-                              <span>Tema</span>
-                            </div>
-                            <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleSignOut}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30"
-                          >
-                            <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
-                            Cerrar Sesión
-                          </button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => { setShowUserMenu(false); navigate('/perfil') }}
+                        className={cn(
+                          "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
+                          isProfileActive 
+                            ? "bg-primary/10 text-primary font-bold"
+                            : "hover:bg-muted/30 text-foreground"
+                        )}
+                      >
+                        <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
+                        <span>Mi Perfil</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={toggle}
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30 rounded-none h-auto"
+                      >
+                        <div className="flex items-center gap-3">
+                          {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
+                          <span>Tema</span>
+                        </div>
+                        <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleSignOut}
+                        className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30 rounded-none h-auto"
+                      >
+                        <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
+                        Cerrar Sesión
+                      </Button>
                     </MotionDiv>
                   )}
                 </AnimatePresence>
               </div>
             ) : (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => navigate('/auth')}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors duration-200"
+                  className="w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors duration-200 h-auto"
                 >
-                <LogIn aria-hidden="true" focusable={false} className="h-5 w-5 text-primary" />
+                <LogIn aria-hidden="true" focusable={false} className="h-5 w-5 text-primary shrink-0" />
                 <span>Iniciar Sesión</span>
-              </button>
+              </Button>
             )}
           </div>
 
@@ -306,10 +312,11 @@ export function AppShell() {
           <NavItem to="/tablero" label="Tablero" icon={Dices} mobile />
 
           {/* Quick Actions mobile center button */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => setShowQuickActions(v => !v)}
-            className="flex-grow flex-1 flex flex-col justify-center items-center rounded-xl px-0 py-2 cursor-pointer"
+            className="flex-grow flex-1 flex flex-col justify-center items-center rounded-xl px-0 py-2 cursor-pointer hover:bg-transparent h-auto"
           >
             <div className={cn(
               "w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/25 active:scale-95 transition-all duration-300",
@@ -317,21 +324,22 @@ export function AppShell() {
             )}>
               <Plus className="w-5 h-5 text-white" />
             </div>
-          </button>
+          </Button>
 
           <NavItem to="/chats" label="Chats" icon={MessageSquare} badgeCount={unreadChats} mobile />
           {user ? (
             <div className="relative flex flex-1 items-center justify-center">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setShowMobileUserMenu(v => !v)}
-                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 relative"
+                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 relative hover:bg-transparent p-0"
               >
                 <Avatar className="h-5 w-5">
                   <AvatarImage src={avatarUrl || undefined} alt={username} />
                   <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">{initials}</AvatarFallback>
                 </Avatar>
-              </button>
+              </Button>
               
               <AnimatePresence>
                 {showMobileUserMenu && (
@@ -350,10 +358,11 @@ export function AppShell() {
                       transition={{ duration: 0.15 }}
                       className="absolute bottom-full right-2 mb-4 w-48 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-border/25"
                     >
-                      <button
+                      <Button
                         onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
+                        variant="ghost"
                         className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
+                          "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
                           isProfileActive 
                             ? "bg-primary/10 text-primary font-bold"
                             : "hover:bg-muted/30 text-foreground"
@@ -361,11 +370,12 @@ export function AppShell() {
                       >
                         <User className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
                         <span>Mi Perfil</span>
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
+                        variant="ghost"
                         className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer",
+                          "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
                           isGroupsActive 
                             ? "bg-primary/10 text-primary font-bold"
                             : "hover:bg-muted/30 text-foreground"
@@ -373,37 +383,40 @@ export function AppShell() {
                       >
                         <Users className={cn("h-4 w-4 shrink-0 transition-colors", isGroupsActive ? "text-primary" : "text-muted-foreground")} />
                         <span>Grupos de Juego</span>
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={toggle}
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors"
+                        variant="ghost"
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
                       >
                         <div className="flex items-center gap-3">
                           {isDark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
                           <span>Tema</span>
                         </div>
                         <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => { handleSignOut(); setShowMobileUserMenu(false) }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                        variant="ghost"
+                        className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto"
                       >
                         <LogOut className="h-4 w-4" />
                         Cerrar Sesión
-                      </button>
+                      </Button>
                     </MotionDiv>
                   </>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-                <button
-                type="button"
-                onClick={() => navigate('/auth')}
-                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9"
-              >
-                <User aria-hidden="true" focusable={false} className="h-5 w-5 text-primary" />
-              </button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate('/auth')}
+                  className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 hover:bg-transparent p-0"
+                >
+                  <User aria-hidden="true" focusable={false} className="h-5 w-5 text-primary shrink-0" />
+                </Button>
           )}
         </div>
       </nav>
@@ -434,63 +447,68 @@ export function AppShell() {
                 <h3 className="text-sm font-black tracking-tight text-foreground uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Acciones Rápidas
                 </h3>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowQuickActions(false)}
                   className="p-1 rounded-full hover:bg-muted/30 text-muted-foreground transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
 
               <div className="grid grid-cols-1 gap-2.5">
-                <button
+                <Button
                   onClick={() => {
                     setShowQuickActions(false);
                     navigate('/tablero/new');
                   }}
-                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                  variant="ghost"
+                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
                 >
                   <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <Dices className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 text-left">
                     <h4 className="text-xs font-bold text-foreground">Organizar Quedada</h4>
                     <p className="text-[10px] text-muted-foreground mt-0.5">Abre una mesa de juego en el tablero.</p>
                   </div>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() => {
                     setShowQuickActions(false);
                     navigate('/tops');
                   }}
-                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                  variant="ghost"
+                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
                 >
                   <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <ListOrdered className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 text-left">
                     <h4 className="text-xs font-bold text-foreground">Crear Ranking</h4>
                     <p className="text-[10px] text-muted-foreground mt-0.5">Ordena tus juegos favoritos y comparte tu top.</p>
                   </div>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() => {
                     setShowQuickActions(false);
                     navigate('/grupos?create=true');
                   }}
-                  className="flex items-center gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer"
+                  variant="ghost"
+                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
                 >
                   <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <Users className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 text-left">
                     <h4 className="text-xs font-bold text-foreground">Crear Grupo</h4>
                     <p className="text-[10px] text-muted-foreground mt-0.5">Fusiona colecciones y vota qué jugar.</p>
                   </div>
-                </button>
+                </Button>
               </div>
             </motion.div>
           </motion.div>

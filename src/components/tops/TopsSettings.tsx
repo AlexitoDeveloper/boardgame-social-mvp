@@ -136,16 +136,17 @@ export function TopsSettings({
                 ].map((bg) => {
                   const isSelected = selectedBg === bg.id
                   return (
-                    <button
+                    <Button
                       key={bg.id}
                       onClick={() => setSelectedBg(bg.id)}
                       title={bg.name}
-                      className={`w-5 h-5 rounded-full bg-gradient-to-br ${bg.class} border transition-all relative flex items-center justify-center cursor-pointer ${
+                      variant="ghost"
+                      className={`p-0 min-w-0 min-h-0 w-5 h-5 rounded-full bg-gradient-to-br ${bg.class} border transition-all relative flex items-center justify-center cursor-pointer hover:bg-transparent ${
                         isSelected ? 'border-amber-400 scale-110 shadow shadow-amber-400/50 ring-1 ring-amber-400/50' : 'border-white/10 hover:scale-105'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3 text-amber-400 font-extrabold drop-shadow" />}
-                    </button>
+                    </Button>
                   )
                 })}
               </div>
@@ -157,18 +158,19 @@ export function TopsSettings({
                 <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1 select-none">
                   {showWatermark ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-muted-foreground" />} Marca de Agua
                 </label>
-                <button
+                <Button
                   onClick={() => setShowWatermark(!showWatermark)}
-                  className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  variant="ghost"
+                  className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none p-0 min-h-0 min-w-0 ${
                     showWatermark ? 'bg-primary' : 'bg-zinc-800'
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      showWatermark ? 'translate-x-3' : 'translate-x-0'
+                    className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      showWatermark ? 'translate-x-3.5' : 'translate-x-0'
                     }`}
                   />
-                </button>
+                </Button>
               </div>
 
               {showWatermark && (
@@ -186,7 +188,8 @@ export function TopsSettings({
 
             {/* Revert link */}
             <div className="text-center pt-1.5 border-t border-border/20">
-              <button
+              <Button
+                variant="link"
                 onClick={() => {
                   setIsPremium(false)
                   setShowWatermark(true)
@@ -194,10 +197,10 @@ export function TopsSettings({
                   setSelectedBg('default')
                   setAspectRatio('standard')
                 }}
-                className="text-[9.5px] font-extrabold text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                className="text-[9.5px] font-extrabold text-muted-foreground hover:text-destructive transition-colors cursor-pointer h-auto p-0 hover:no-underline"
               >
                 Desactivar Cuenta PRO
-              </button>
+              </Button>
             </div>
           </CardContent>
         </Card>

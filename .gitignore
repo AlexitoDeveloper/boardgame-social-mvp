@@ -22,7 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.cursorrules
+android/
+dev-dist/
+.agents/
 
 # Environment variables
 .env

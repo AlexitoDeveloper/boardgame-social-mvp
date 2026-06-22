@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trash2, ArrowLeftRight, Sparkles, Plus, Loader2, Download, Bookmark, Check, MoreVertical } from 'lucide-react'
 import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 import { DropdownIconButton } from '../ui/dropdown-icon-button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
@@ -400,12 +401,12 @@ export function TopsCanvas({
             {/* Header Branding info inside Image */}
             <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 border-b border-white/5 ${isLandscape ? 'pb-1.5' : 'pb-3.5'} w-full`}>
               <div className="flex-1 min-w-0 w-full">
-                <input
+                <Input
                   type="text"
                   value={rankingTitle}
                   onChange={(e) => setRankingTitle(e.target.value)}
                   placeholder="Dale un título a tu ranking..."
-                  className={`font-extrabold tracking-tight text-white border-b-2 border-transparent hover:border-b-white/10 focus:border-b-primary focus:ring-0 focus:outline-none bg-transparent px-2 py-1 w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
+                  className={`font-extrabold tracking-tight text-white border-t-0 border-x-0 border-b-2 border-transparent hover:border-b-white/10 focus-visible:border-b-primary focus-visible:ring-0 bg-transparent px-2 py-1 shadow-none focus-visible:bg-transparent h-auto w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
                 />
               </div>
             </div>
@@ -428,11 +429,11 @@ export function TopsCanvas({
                     <div className={`flex flex-col items-center justify-center text-center border-r border-white/10 select-none ${tier.color} shrink-0 ${
                       isLandscape ? 'w-16 p-1' : 'w-24 sm:w-28 p-3'
                     }`}>
-                      <input
+                      <Input
                         type="text"
                         value={tier.name}
                         onChange={(e) => editTierName(tier.id, e.target.value)}
-                        className={`w-full text-center font-extrabold bg-transparent border-0 focus:ring-0 p-0 text-inherit placeholder-current/40 uppercase tracking-wider ${isLandscape ? 'text-xs' : 'text-sm sm:text-base'}`}
+                        className={`w-full text-center font-extrabold bg-transparent border-0 focus-visible:border-0 focus-visible:ring-0 focus-visible:bg-transparent shadow-none h-auto p-0 text-inherit placeholder-current/40 uppercase tracking-wider ${isLandscape ? 'text-xs' : 'text-sm sm:text-base'}`}
                       />
                     </div>
 
@@ -451,14 +452,15 @@ export function TopsCanvas({
                     >
                       {tier.games.length === 0 ? (
                         selectedGameForPlacement ? (
-                          <button
+                          <Button
                             onClick={() => placeInTier(tier.id)}
-                            className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 ${
+                            variant="ghost"
+                            className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 p-0 min-w-0 min-h-0 ${
                               isLandscape ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
                             }`}
                           >
                             <Plus className={isLandscape ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
-                          </button>
+                          </Button>
                         ) : null
                       ) : (
                         <>
@@ -473,14 +475,15 @@ export function TopsCanvas({
                             />
                           ))}
                           {selectedGameForPlacement && (
-                            <button
+                            <Button
                               onClick={() => placeInTier(tier.id)}
-                              className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 ${
+                              variant="ghost"
+                              className={`rounded-lg border border-dashed border-primary/50 bg-primary/5 hover:bg-primary/10 flex items-center justify-center text-primary cursor-pointer animate-pulse shrink-0 p-0 min-w-0 min-h-0 ${
                                 isLandscape ? 'w-10 h-10' : 'w-16 h-16 sm:w-18 sm:h-18'
                               }`}
                             >
                               <Plus className={isLandscape ? 'w-3.5 h-3.5' : 'w-5 h-5'} />
-                            </button>
+                            </Button>
                           )}
                         </>
                       )}

@@ -4,6 +4,7 @@ import { ArrowLeft, Users, Clipboard, Check, Plus, Trash2, LogOut, Crown, Layers
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { Form } from '../components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Card } from '../components/ui/card'
@@ -270,7 +271,7 @@ export function GroupDetailPage() {
       {actionError && (
         <div className="p-4 rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold flex justify-between items-center animate-in fade-in duration-200">
           <span>{actionError}</span>
-          <button onClick={() => setActionError(null)} className="text-xs hover:underline font-bold bg-transparent border-none text-destructive cursor-pointer">Cerrar</button>
+          <Button onClick={() => setActionError(null)} variant="ghost" className="text-xs hover:underline font-bold bg-transparent border-none text-destructive cursor-pointer">Cerrar</Button>
         </div>
       )}
 
@@ -698,7 +699,7 @@ export function GroupDetailPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreatePollSubmit} className="space-y-4">
+          <Form onSubmit={handleCreatePollSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Título de la Encuesta</label>
               <Input
@@ -726,11 +727,11 @@ export function GroupDetailPage() {
 
             <div className="flex items-center justify-between px-1 py-1">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">¿Proponer fecha y hora para la quedada?</label>
-              <input
+              <Input
                 type="checkbox"
                 checked={hasPollDate}
                 onChange={(e) => setHasPollDate(e.target.checked)}
-                className="accent-primary h-4 w-4 rounded border-border cursor-pointer"
+                className="accent-primary h-4 w-4 rounded border-border cursor-pointer flex-none bg-transparent p-0 border-none shadow-none focus-visible:ring-0 focus-visible:border-transparent"
                 disabled={pollLoading}
               />
             </div>
@@ -818,7 +819,7 @@ export function GroupDetailPage() {
                 )}
               </Button>
             </div>
-          </form>
+            </Form>
         </DialogContent>
       </Dialog>
 
