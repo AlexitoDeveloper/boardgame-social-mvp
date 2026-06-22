@@ -4,6 +4,7 @@ import { Plus, Users, Loader2, Code, Search, Clipboard, Check } from 'lucide-rea
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { Form } from '../components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
 import { useGroups } from '../hooks/useGroups'
 import { motion } from 'framer-motion'
@@ -234,10 +235,11 @@ export function GroupsPage() {
                       </div>
 
                       {/* Code button */}
-                      <button
+                      <Button
                         onClick={(e) => handleCopyCode(e, group.invite_code, group.id)}
-                        className="flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10"
+                        className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10"
                         title="Copiar código de invitación"
+                        variant="ghost"
                       >
                         {copiedId === group.id ? (
                           <>
@@ -250,7 +252,7 @@ export function GroupsPage() {
                             <span>{group.invite_code}</span>
                           </>
                         )}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </MotionDiv>
@@ -272,7 +274,7 @@ export function GroupsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleJoinSubmit} className="space-y-4">
+          <Form onSubmit={handleJoinSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Input
                 type="text"
@@ -310,7 +312,7 @@ export function GroupsPage() {
                 )}
               </Button>
             </div>
-          </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
@@ -326,7 +328,7 @@ export function GroupsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateSubmit} className="space-y-4">
+          <Form onSubmit={handleCreateSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
                 Nombre del Grupo
@@ -382,7 +384,7 @@ export function GroupsPage() {
                 )}
               </Button>
             </div>
-          </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </section>

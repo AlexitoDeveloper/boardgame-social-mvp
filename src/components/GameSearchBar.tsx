@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Check, X } from 'lucide-react'
 import { Command, CommandInput, CommandList, CommandItem } from './ui/command'
+import { Button } from './ui/button'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
 import { getGameTitle } from '@/lib/gameLocale'
@@ -62,8 +63,10 @@ export function GameSearchBar({
             <Loader2 className="w-4 h-4 animate-spin text-muted-foreground shrink-0 mr-1.5" />
           )}
           {searchQuery && !isImporting && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => {
                 setSearchQuery('')
                 setGames([])
@@ -72,7 +75,7 @@ export function GameSearchBar({
               title="Limpiar búsqueda"
             >
               <X className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           )}
         </div>
 

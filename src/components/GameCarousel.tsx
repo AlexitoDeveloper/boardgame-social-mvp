@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Game } from '../types'
 import { GameCoverCard } from './GameCoverCard'
+import { Button } from './ui/button'
 
 interface GameCarouselProps {
   games: Game[];
@@ -59,24 +60,28 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
       <div className="relative w-full">
         {/* Left Arrow Button */}
         {showLeftArrow && (
-          <button
+          <Button
             onClick={() => scroll('left')}
+            variant="ghost"
+            size="icon"
             className="absolute left-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-5 w-5" />
-          </button>
+          </Button>
         )}
 
         {/* Right Arrow Button */}
         {showRightArrow && (
-          <button
+          <Button
             onClick={() => scroll('right')}
+            variant="ghost"
+            size="icon"
             className="absolute right-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-5 w-5" />
-          </button>
+          </Button>
         )}
 
         {/* Scroll Container */}

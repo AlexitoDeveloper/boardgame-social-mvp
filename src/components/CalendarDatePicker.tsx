@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Button } from './ui/button'
+import { Select } from './ui/select'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { CalendarDays, ChevronDown } from 'lucide-react'
@@ -66,13 +68,14 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
+          variant="outline"
           className="w-full flex items-center justify-between bg-background/50 hover:bg-background/80 border border-border/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/40 rounded-xl px-4 h-11 text-left text-sm font-medium transition-all cursor-pointer text-foreground"
         >
           <span>{formatDisplayDate(selectedDate)}</span>
           <CalendarDays className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </Button>
       </PopoverTrigger>
       
       <PopoverContent className="w-auto p-0 z-50 bg-card border border-border/50 rounded-2xl shadow-xl backdrop-blur-2xl bg-card/95" align="start">
@@ -95,7 +98,7 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
             <span className="text-xs font-bold text-muted-foreground">Hora:</span>
             <div className="flex items-center gap-2">
               <div className="relative inline-flex items-center">
-                <select
+                <Select
                   value={hour}
                   onChange={(e) => handleTimeChange(e.target.value, String(minute))}
                   className="bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all"
@@ -103,12 +106,12 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
                   {Array.from({ length: 24 }).map((_, i) => (
                     <option key={i} value={i} className="bg-card text-foreground">{String(i).padStart(2, '0')}</option>
                   ))}
-                </select>
+                </Select>
                 <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               </div>
               <span className="text-muted-foreground font-bold">:</span>
               <div className="relative inline-flex items-center">
-                <select
+                <Select
                   value={minute}
                   onChange={(e) => handleTimeChange(String(hour), e.target.value)}
                   className="bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all"
@@ -117,7 +120,7 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
                     const val = i * 5;
                     return <option key={val} value={val} className="bg-card text-foreground">{String(val).padStart(2, '0')}</option>;
                   })}
-                </select>
+                </Select>
                 <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               </div>
             </div>

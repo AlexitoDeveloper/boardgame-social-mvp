@@ -613,12 +613,8 @@ Deno.serve(async (request) => {
 
       console.log(`[Parser] Processing: "${title}" (BGG ID: ${bggId}). Expansion: ${isExpansion}`);
 
-      // Optimize and upload image
-      let finalImageUrl = null;
-      if (bggImageUrl) {
-        finalImageUrl = await processAndUploadImage(supabase, bggId, bggImageUrl);
-        await sleep(500);
-      }
+      // Use BGG CDN URL directly to save Supabase Storage space (1GB Free Tier limit)
+      const finalImageUrl = bggImageUrl;
 
       // Insert into games table
       const { data: upserted, error: insertError } = await supabase

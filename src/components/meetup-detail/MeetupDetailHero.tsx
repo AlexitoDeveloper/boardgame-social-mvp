@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Calendar, MapPin, Laptop, ChevronLeft, ChevronRight, Dices } from 'lucide-react'
 import { Tag } from '../ui/tag'
+import { Button } from '../ui/button'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -69,7 +70,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                   if (gamesList.length <= 1) return;
                   const swipeThreshold = 50;
                   if (info.offset.x < -swipeThreshold) {
-                    setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+                     setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
                   } else if (info.offset.x > swipeThreshold) {
                     setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
                   }
@@ -107,28 +108,31 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         {/* Controles del Carrusel */}
         {gamesList.length > 1 && (
           <>
-            <button
+            <Button
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
+              variant="ghost"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 p-0 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Juego anterior"
             >
               <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
+              variant="ghost"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 p-0 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer"
               aria-label="Siguiente juego"
             >
               <ChevronRight className="w-4 h-4" />
-            </button>
+            </Button>
 
             {/* Puntos de paginación */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 px-2 py-1 rounded-full bg-background/70 backdrop-blur-sm border border-border/30 shadow-sm">
               {gamesList.map((_, idx) => (
-                <button
+                <Button
                   key={idx}
                   onClick={(e) => handleDotClick(e, idx)}
-                  className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${
+                  variant="ghost"
+                  className={`w-1.5 h-1.5 min-w-0 p-0 rounded-full transition-all cursor-pointer hover:bg-transparent ${
                     idx === activeGameIdx ? "bg-primary scale-125" : "bg-muted-foreground/45 hover:bg-muted-foreground/60"
                   }`}
                   aria-label={`Ir al juego ${idx + 1}`}

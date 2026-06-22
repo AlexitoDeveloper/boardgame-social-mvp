@@ -855,11 +855,11 @@ export function CreateMeetupPage() {
                                         : 'border-border/40 bg-background/20 hover:bg-muted/30 hover:border-border/80'
                                     }`}
                                   >
-                                    <input
+                                    <Input
                                       type="checkbox"
                                       checked={isChecked}
                                       onChange={() => handleToggleExpansion(exp)}
-                                      className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer"
+                                      className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer shadow-none focus-visible:ring-0 focus-visible:border-transparent flex-none bg-transparent w-auto"
                                     />
                                     {exp.image_url ? (
                                       <img src={exp.image_url} alt={exp.title} className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0" />
