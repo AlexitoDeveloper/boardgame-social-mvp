@@ -162,12 +162,50 @@ export function RadarPage() {
     }
   }
 
+  // Skeleton loaders for list of meetups
+  const renderSkeletonList = () => (
+    <div className="space-y-5">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div 
+          key={i} 
+          className="w-full rounded-2xl bg-card border border-border/30 shadow-md p-0 overflow-hidden animate-pulse"
+        >
+          {/* Banner skeleton */}
+          <div className="w-full h-44 sm:h-52 bg-muted/20" />
+          {/* Details skeleton */}
+          <div className="p-5 space-y-4">
+            <div className="space-y-2">
+              <div className="h-5 w-3/4 bg-muted/30 rounded-lg" />
+              <div className="h-4 w-1/2 bg-muted/30 rounded-lg" />
+              <div className="h-4 w-5/6 bg-muted/30 rounded-lg pt-1" />
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/25">
+              <div className="h-4 bg-muted/30 rounded-md" />
+              <div className="h-4 bg-muted/30 rounded-md" />
+            </div>
+            <div className="flex gap-2 pt-2 border-t border-border/25">
+              <div className="h-9 flex-1 bg-muted/30 rounded-xl" />
+              <div className="h-9 flex-1 bg-muted/30 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
   if (initialLoading) {
     return (
-      <div className="flex flex-col items-center justify-center mt-20 space-y-4">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Buscando partidas en el tablero...</p>
-      </div>
+      <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Descubre partidas y mesas de juego cerca de ti.
+            </p>
+          </div>
+        </div>
+        {renderSkeletonList()}
+      </section>
     )
   }
 
@@ -185,17 +223,7 @@ export function RadarPage() {
         </Link>
       </div>
 
-      {/* Mobile Floating Action Button (FAB) for opening tables */}
-      <Link 
-        to="/tablero/new" 
-        className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
-      >
-        <Button 
-          size="icon"
-          icon={Plus}
-          className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200 border-0"
-        />
-      </Link>
+
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">

@@ -24,6 +24,7 @@ export interface Game {
   playing_time?: number | null;
   winner_user_id?: string | null;   // Joined from meetup_games context
   winner_guest_id?: string | null;  // Joined from meetup_games context
+  winner_score?: string | null;
   is_expansion?: boolean;
   base_game_id?: string | null;
   bgg_base_game_id?: number | null;
