@@ -31,7 +31,7 @@ _Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usua
 - [x] **[GRATIS] Ficha de Juego "Viva" (Detalles + Estadísticas en tiempo real)**
 - [x] **[GRATIS] Acciones Rápidas desde la Ficha (Botón "Organizar Partida")**
 - [x] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
-- [ ] **[VIRALIDAD] Resumen de Partida (Exportable a RRSS):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
+- [x] **[VIRALIDAD] Resumen de Partida (Exportable a RRSS):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
 - [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego (y sus expansiones).
 - [ ] **[PREMIUM] Estadísticas Avanzadas (Némesis, Radar, etc.):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
 
