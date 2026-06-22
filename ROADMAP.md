@@ -32,8 +32,7 @@ _Objetivo: Cerrar el bucle viral de los eventos y mejorar la experiencia de usua
 - [x] **[GRATIS] Acciones Rápidas desde la Ficha (Botón "Organizar Partida")**
 - [x] **[GRATIS] Ludoteca de Grupo:** Creación de "Grupos de Juego" privados donde la app fusiona virtualmente las colecciones de los miembros para votar a qué jugar en la próxima quedada.
 - [x] **[VIRALIDAD] Resumen de Partida (Exportable a RRSS):** Generación de una imagen automática y visualmente atractiva tras el cierre de la partida con el ganador y la puntuación, lista para compartir en Instagram/TikTok.
-- [ ] **[PREMIUM] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego (y sus expansiones).
-- [ ] **[PREMIUM] Estadísticas Avanzadas (Némesis, Radar, etc.):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
+- [x] **[PREMIUM] Estadísticas Avanzadas (Némesis, Radar, etc.):** Desbloqueo de vistas SQL analíticas ("Némesis" y "Víctimas", Títulos Dinámicos automáticos, y Radar de Estilo de Jugador).
 
 ### FASE 4: EXPANSIÓN B2B
 
@@ -41,3 +40,4 @@ _Objetivo: Convertir la app en la herramienta definitiva del ecosistema de juego
 
 - [ ] **[B2B MONETIZACIÓN] Perfiles Verificados para Tiendas/Asociaciones:** Suscripción mensual para comercios locales. Les permite publicar torneos oficiales, eventos de demostración y enviar notificaciones _push_ a los usuarios de su ciudad.
 - [ ] **[COMUNIDAD] Mercadillo Integrado (Compra/Venta local):** Sección geolocalizada donde los usuarios pueden marcar juegos de su ludoteca como "Vende/Cambia" y hacer _match_ con otros usuarios interesados en su misma zona.
+- [ ] **[OPCIONAL] Cierre de Partida "Pro" y Hojas de Puntuación:** Permite introducir la puntuación exacta de cada jugador en cada categoría usando plantillas específicas por juego (y sus expansiones). Pendiente de validar si encaja en el MVP.
