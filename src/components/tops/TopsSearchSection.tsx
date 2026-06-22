@@ -7,6 +7,7 @@ import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 import { GameSearchBar } from '../GameSearchBar'
 import { getGameTitle } from '../../lib/gameLocale'
+import { cn } from '../../lib/utils'
 
 interface TopsSearchSectionProps {
   searchQuery: string;
@@ -128,7 +129,7 @@ export function TopsSearchSection({
                   const source = e.dataTransfer.getData('source')
                   handleDropOnPool(draggedBggId, source)
                 }}
-                className="flex items-center gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent min-h-[72px] border border-transparent rounded-lg"
+                className="flex items-center gap-3 overflow-x-auto py-2 px-1 no-scrollbar min-h-[72px] border border-transparent rounded-lg"
               >
                 {pool.map((game) => {
                   const isSelected = selectedGameForPlacement?.bgg_id === game.bgg_id
@@ -192,8 +193,10 @@ export function TopsSearchSection({
                             <Button
                               key={t.id}
                               size="sm"
-                              variant="secondary"
-                              className="h-7 px-2.5 text-[10px] font-extrabold hover:bg-primary hover:text-primary-foreground border border-border/60 rounded-md cursor-pointer"
+                              className={cn(
+                                "h-7 px-2.5 text-[10px] font-black border border-white/10 rounded-md cursor-pointer text-white shadow-sm hover:scale-105 active:scale-95 transition-all duration-150",
+                                t.color
+                              )}
                               onClick={() => placeInTier(t.id)}
                             >
                               {t.name}
