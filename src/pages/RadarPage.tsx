@@ -223,17 +223,7 @@ export function RadarPage() {
         </Link>
       </div>
 
-      {/* Mobile Floating Action Button (FAB) for opening tables */}
-      <Link 
-        to="/tablero/new" 
-        className="sm:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] right-4 z-40"
-      >
-        <Button 
-          size="icon"
-          icon={Plus}
-          className="rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-all duration-200 border-0"
-        />
-      </Link>
+
 
       {meetups.length === 0 ? (
         <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">
