@@ -52,13 +52,13 @@ export function useGroupDetail(groupId: string | undefined) {
   const [error, setError] = useState<string | null>(null)
   const isFirstLoad = useRef(true)
 
-  const fetchDetails = useCallback(async () => {
+  const fetchDetails = useCallback(async (showLoading = true) => {
     if (!groupId || !user) {
       setLoading(false)
       return
     }
 
-    if (isFirstLoad.current) {
+    if (showLoading && isFirstLoad.current) {
       setLoading(true)
       isFirstLoad.current = false
     }
@@ -555,8 +555,46 @@ export function useGroupDetail(groupId: string | undefined) {
   }, [groupId])
 
   useEffect(() => {
-    fetchDetails()
+    fetchDetails(true)
   }, [fetchDetails])
+
+  // Realtime subscription for group updates (polls, members, votes, collection)
+  useEffect(() => {
+    if (!groupId || (USE_MOCKS && groupId.startsWith('mock-'))) return
+
+    const channel = supabase
+      .channel(`group_detail_${groupId}_realtime`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'groups', filter: `id=eq.${groupId}` },
+        () => fetchDetails(false)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_members', filter: `group_id=eq.${groupId}` },
+        () => fetchDetails(false)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_polls', filter: `group_id=eq.${groupId}` },
+        () => fetchDetails(false)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_poll_votes' },
+        () => fetchDetails(false)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_collection' },
+        () => fetchDetails(false)
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [groupId, fetchDetails])
 
   return {
     group,

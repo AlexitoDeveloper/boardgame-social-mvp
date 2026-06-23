@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
@@ -42,201 +42,228 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Load meetup details (mock or real)
-  useEffect(() => {
-    async function loadMeetupDetails() {
-      if (!id) return
-      setLoading(true)
-      setErrorMsg('')
-      
-      // Read local guest reservation if any
-      const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
-      if (localReservations) {
-        const parsed = JSON.parse(localReservations)
-        if (parsed[id]) {
-          setGuestReservation(parsed[id])
-        } else {
-          setGuestReservation(null)
-        }
+  const loadMeetupDetails = useCallback(async (showLoading = true) => {
+    if (!id) return
+    if (showLoading) setLoading(true)
+    setErrorMsg('')
+    
+    // Read local guest reservation if any
+    const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+    if (localReservations) {
+      const parsed = JSON.parse(localReservations)
+      if (parsed[id]) {
+        setGuestReservation(parsed[id])
       } else {
         setGuestReservation(null)
       }
+    } else {
+      setGuestReservation(null)
+    }
 
-      const isMock = USE_MOCKS && id.startsWith('mock-')
+    const isMock = USE_MOCKS && id.startsWith('mock-')
+    
+    if (isMock) {
+      // Find in mock meetups
+      const foundMock = MOCK_MEETUPS.find(m => m.id === id)
+
+      if (!foundMock) {
+        setErrorMsg('No se encontró la partida en los datos de demostración.')
+        setLoading(false)
+        return
+      }
+
+      // Find game metadata in mock game catalogue
+      const foundGame = MOCK_BGG_GAMES.find(g => g.name === foundMock.game_name) || {
+        bgg_id: '13',
+        name: foundMock.game_name || 'Juego de mesa',
+        year: 2020,
+        image_url: null,
+        min_players: 2,
+        max_players: 4,
+        playing_time: 60
+      }
+
+      const mockMaxPlayers = id === 'mock-m1' ? 4 : id === 'mock-m2' ? 2 : 6
       
-      if (isMock) {
-        // Find in mock meetups
-        const foundMock = MOCK_MEETUPS.find(m => m.id === id)
+      // Get mock guests from local storage
+      const mockGuestsKey = 'boardgame_social_mock_guests'
+      const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
+      const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+      const meetupMockGuests = allMockGuests[id] || []
+      const formattedMockGuests = meetupMockGuests.map((g: any) => ({
+        id: g.id,
+        username: g.guest_name,
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
+        is_guest: true
+      }))
 
-        if (!foundMock) {
-          setErrorMsg('No se encontró la partida en los datos de demostración.')
-          setLoading(false)
-          return
-        }
+      // Check for completed mock meetups in localStorage
+      const completedMockKey = 'boardgame_social_mock_completed_meetups'
+      const completedMockStr = localStorage.getItem(completedMockKey)
+      const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+      const thisMeetupCompleted = completedMockData[id] || null
 
-        // Find game metadata in mock game catalogue
-        const foundGame = MOCK_BGG_GAMES.find(g => g.name === foundMock.game_name) || {
-          bgg_id: '13',
-          name: foundMock.game_name || 'Juego de mesa',
-          year: 2020,
-          image_url: null,
-          min_players: 2,
-          max_players: 4,
-          playing_time: 60
-        }
+      const mockAttendees = getMockAttendees(id)
+      const combinedMockAttendees = [...mockAttendees, ...formattedMockGuests]
+      const mockJoinedPlayers = combinedMockAttendees.map(a => a.id)
 
-        const mockMaxPlayers = id === 'mock-m1' ? 4 : id === 'mock-m2' ? 2 : 6
+      const formattedMock: Meetup = {
+        id: foundMock.id,
+        title: foundMock.title,
+        description: foundMock.description || '',
+        date: foundMock.date,
+        location: foundMock.is_online ? null : foundMock.location,
+        city: foundMock.is_online ? null : 'Madrid', // valor por defecto para mock
+        max_players: mockMaxPlayers,
+        joined_players: mockJoinedPlayers,
+        games: [{
+          bgg_id: Number(foundGame.bgg_id),
+          title: foundMock.game_name,
+          year_published: foundGame.year,
+          image_url: foundGame.image_url,
+          min_players: foundGame.min_players || 2,
+          max_players: foundGame.max_players || 4,
+          playing_time: foundGame.playing_time || 60,
+          winner_user_id: (() => {
+            if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
+            const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
+            if (!winnerId) return null
+            const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
+            return isGuest ? null : winnerId
+          })(),
+          winner_guest_id: (() => {
+            if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
+            const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
+            if (!winnerId) return null
+            const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
+            return isGuest ? winnerId : null
+          })(),
+          winner_score: (() => {
+            if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners_scores) return null
+            return thisMeetupCompleted.game_winners_scores[Number(foundGame.bgg_id)] || null
+          })()
+        }],
+        users: {
+          id: foundMock.users?.username === 'boardgamer_alex' ? 'mock-u1' : 'mock-u2',
+          username: foundMock.users?.username || 'anónimo',
+          avatar_url: foundMock.users?.avatar_url || null
+        },
+        creator_id: id === 'mock-m1' ? 'mock-u1' : id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
+        game_id: Number(foundGame.bgg_id),
+        completed: thisMeetupCompleted ? thisMeetupCompleted.completed : false,
+        attended_players: thisMeetupCompleted ? thisMeetupCompleted.attended_players : [],
+        attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : [],
+        is_online: foundMock.is_online || false,
+        platform: foundMock.platform || null,
+        voice_link: foundMock.voice_link || null
+      }
+
+      setMeetup(formattedMock)
+      setAttendees(combinedMockAttendees)
+      
+      setLoading(false)
+    } else {
+      // Query from Supabase
+      try {
+          const { data, error } = await supabase
+           .from('meetups')
+           .select('*, users:users!meetups_creator_id_fkey(*), meetup_games(game_id, winner_user_id, winner_guest_id, winner_score, games(*))')
+           .eq('id', id)
+           .single()
+
+         if (error) throw error
+         if (!data) throw new Error('Partida no encontrada.')
+
+         const mg = data.meetup_games || []
+         const mGames = mg.map((item: any) => {
+           if (!item.games) return null
+           return {
+             ...item.games,
+             winner_user_id: item.winner_user_id,
+             winner_guest_id: item.winner_guest_id,
+             winner_score: item.winner_score
+           }
+         }).filter(Boolean) as Game[]
         
-        // Get mock guests from local storage
-        const mockGuestsKey = 'boardgame_social_mock_guests'
-        const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
-        const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
-        const meetupMockGuests = allMockGuests[id] || []
-        const formattedMockGuests = meetupMockGuests.map((g: any) => ({
+        const formattedMeetup: Meetup = {
+          ...data,
+          games: mGames
+        }
+
+        setMeetup(formattedMeetup)
+
+        let sortedRegistered: UserProfile[] = []
+
+        // Fetch attendees profiles
+        if (data.joined_players && data.joined_players.length > 0) {
+          const { data: profiles, error: profilesError } = await supabase
+            .from('users')
+            .select('id, username, avatar_url')
+            .in('id', data.joined_players)
+
+          if (!profilesError && profiles) {
+            // Sort profiles so creator/organizer is first
+            sortedRegistered = [...profiles].sort((a, b) => {
+              if (a.id === data.creator_id) return -1
+              if (b.id === data.creator_id) return 1
+              return 0
+            })
+          }
+        }
+
+        // Fetch guests profiles
+        const { data: guests } = await supabase
+          .from('meetup_guests')
+          .select('id, guest_name, created_at')
+          .eq('meetup_id', id)
+
+        const guestProfiles: UserProfile[] = (guests || []).map(g => ({
           id: g.id,
           username: g.guest_name,
           avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
           is_guest: true
         }))
 
-        // Check for completed mock meetups in localStorage
-        const completedMockKey = 'boardgame_social_mock_completed_meetups'
-        const completedMockStr = localStorage.getItem(completedMockKey)
-        const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
-        const thisMeetupCompleted = completedMockData[id] || null
-
-        const mockAttendees = getMockAttendees(id)
-        const combinedMockAttendees = [...mockAttendees, ...formattedMockGuests]
-        const mockJoinedPlayers = combinedMockAttendees.map(a => a.id)
-
-        const formattedMock: Meetup = {
-          id: foundMock.id,
-          title: foundMock.title,
-          description: foundMock.description || '',
-          date: foundMock.date,
-          location: foundMock.is_online ? null : foundMock.location,
-          city: foundMock.is_online ? null : 'Madrid', // valor por defecto para mock
-          max_players: mockMaxPlayers,
-          joined_players: mockJoinedPlayers,
-          games: [{
-            bgg_id: Number(foundGame.bgg_id),
-            title: foundMock.game_name,
-            year_published: foundGame.year,
-            image_url: foundGame.image_url,
-            min_players: foundGame.min_players || 2,
-            max_players: foundGame.max_players || 4,
-            playing_time: foundGame.playing_time || 60,
-            winner_user_id: (() => {
-              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
-              const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
-              if (!winnerId) return null
-              const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
-              return isGuest ? null : winnerId
-            })(),
-            winner_guest_id: (() => {
-              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners) return null
-              const winnerId = thisMeetupCompleted.game_winners[Number(foundGame.bgg_id)]
-              if (!winnerId) return null
-              const isGuest = combinedMockAttendees.find(a => a.id === winnerId)?.is_guest
-              return isGuest ? winnerId : null
-            })(),
-            winner_score: (() => {
-              if (!thisMeetupCompleted || !thisMeetupCompleted.game_winners_scores) return null
-              return thisMeetupCompleted.game_winners_scores[Number(foundGame.bgg_id)] || null
-            })()
-          }],
-          users: {
-            id: foundMock.users?.username === 'boardgamer_alex' ? 'mock-u1' : 'mock-u2',
-            username: foundMock.users?.username || 'anónimo',
-            avatar_url: foundMock.users?.avatar_url || null
-          },
-          creator_id: id === 'mock-m1' ? 'mock-u1' : id === 'mock-m2' ? 'mock-u3' : 'mock-u2',
-          game_id: Number(foundGame.bgg_id),
-          completed: thisMeetupCompleted ? thisMeetupCompleted.completed : false,
-          attended_players: thisMeetupCompleted ? thisMeetupCompleted.attended_players : [],
-          attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : [],
-          is_online: foundMock.is_online || false,
-          platform: foundMock.platform || null,
-          voice_link: foundMock.voice_link || null
-        }
-
-        setMeetup(formattedMock)
-        setAttendees(combinedMockAttendees)
-        
+        setAttendees([...sortedRegistered, ...guestProfiles])
+      } catch (err: any) {
+        console.error("Error loading meetup detail:", err)
+        setErrorMsg(err.message || 'Error al obtener los detalles de la partida.')
+      } finally {
         setLoading(false)
-      } else {
-        // Query from Supabase
-        try {
-            const { data, error } = await supabase
-             .from('meetups')
-             .select('*, users:users!meetups_creator_id_fkey(*), meetup_games(game_id, winner_user_id, winner_guest_id, winner_score, games(*))')
-             .eq('id', id)
-             .single()
-
-           if (error) throw error
-           if (!data) throw new Error('Partida no encontrada.')
-
-           const mg = data.meetup_games || []
-           const mGames = mg.map((item: any) => {
-             if (!item.games) return null
-             return {
-               ...item.games,
-               winner_user_id: item.winner_user_id,
-               winner_guest_id: item.winner_guest_id,
-               winner_score: item.winner_score
-             }
-           }).filter(Boolean) as Game[]
-          
-          const formattedMeetup: Meetup = {
-            ...data,
-            games: mGames
-          }
-
-          setMeetup(formattedMeetup)
-
-          let sortedRegistered: UserProfile[] = []
-
-          // Fetch attendees profiles
-          if (data.joined_players && data.joined_players.length > 0) {
-            const { data: profiles, error: profilesError } = await supabase
-              .from('users')
-              .select('id, username, avatar_url')
-              .in('id', data.joined_players)
-
-            if (!profilesError && profiles) {
-              // Sort profiles so creator/organizer is first
-              sortedRegistered = [...profiles].sort((a, b) => {
-                if (a.id === data.creator_id) return -1
-                if (b.id === data.creator_id) return 1
-                return 0
-              })
-            }
-          }
-
-          // Fetch guests profiles
-          const { data: guests } = await supabase
-            .from('meetup_guests')
-            .select('id, guest_name, created_at')
-            .eq('meetup_id', id)
-
-          const guestProfiles: UserProfile[] = (guests || []).map(g => ({
-            id: g.id,
-            username: g.guest_name,
-            avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(g.guest_name)}`,
-            is_guest: true
-          }))
-
-          setAttendees([...sortedRegistered, ...guestProfiles])
-        } catch (err: any) {
-          console.error("Error loading meetup detail:", err)
-          setErrorMsg(err.message || 'Error al obtener los detalles de la partida.')
-        } finally {
-          setLoading(false)
-        }
       }
     }
-
-    loadMeetupDetails()
   }, [id])
+
+  useEffect(() => {
+    loadMeetupDetails(true)
+  }, [loadMeetupDetails])
+
+  // Realtime subscription for meetup updates and guest updates
+  useEffect(() => {
+    if (!id || (USE_MOCKS && id.startsWith('mock-'))) return
+
+    const channel = supabase
+      .channel(`meetup_detail_${id}_realtime`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meetups', filter: `id=eq.${id}` },
+        () => {
+          loadMeetupDetails(false) // background reload
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meetup_guests', filter: `meetup_id=eq.${id}` },
+        () => {
+          loadMeetupDetails(false) // background reload
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [id, loadMeetupDetails])
 
   // Countdown timer calculations
   useEffect(() => {

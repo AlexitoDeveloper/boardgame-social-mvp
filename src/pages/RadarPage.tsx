@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Button } from '../components/ui/button'
 import { Plus, Loader2 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getMockMeetupsForList } from '../lib/mockData'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
@@ -193,22 +193,6 @@ export function RadarPage() {
     </div>
   )
 
-  if (initialLoading) {
-    return (
-      <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Descubre partidas y mesas de juego cerca de ti.
-            </p>
-          </div>
-        </div>
-        {renderSkeletonList()}
-      </section>
-    )
-  }
-
   return (
     <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto relative">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
@@ -223,28 +207,51 @@ export function RadarPage() {
         </Link>
       </div>
 
-
-
-      {meetups.length === 0 ? (
-        <div className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60">
-          <p className="text-muted-foreground text-lg mb-1">No hay partidas en el tablero aún.</p>
-          <p className="text-sm text-foreground/60">¡Sé el primero en abrir una mesa!</p>
-        </div>
-      ) : (
-        <MotionDiv variants={containerVars} initial="hidden" animate="show" className="space-y-5">
-          {meetups.map(meetup => (
-            <MotionDiv key={meetup.id} variants={itemVars}>
-              <MeetupCard
-                meetup={meetup}
-                user={user}
-                updatingId={updatingId}
-                onJoinLeave={handleJoinLeave}
-                onNavigate={navigate}
-              />
-            </MotionDiv>
-          ))}
-        </MotionDiv>
-      )}
+      <AnimatePresence mode="wait">
+        {initialLoading ? (
+          <MotionDiv 
+            key="skeleton"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {renderSkeletonList()}
+          </MotionDiv>
+        ) : meetups.length === 0 ? (
+          <MotionDiv 
+            key="empty"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60"
+          >
+            <p className="text-muted-foreground text-lg mb-1">No hay partidas en el tablero aún.</p>
+            <p className="text-sm text-foreground/60">¡Sé el primero en abrir una mesa!</p>
+          </MotionDiv>
+        ) : (
+          <MotionDiv 
+            key="content"
+            variants={containerVars} 
+            initial="hidden" 
+            animate="show" 
+            className="space-y-5"
+          >
+            {meetups.map(meetup => (
+              <MotionDiv key={meetup.id} variants={itemVars}>
+                <MeetupCard
+                  meetup={meetup}
+                  user={user}
+                  updatingId={updatingId}
+                  onJoinLeave={handleJoinLeave}
+                  onNavigate={navigate}
+                />
+              </MotionDiv>
+            ))}
+          </MotionDiv>
+        )}
+      </AnimatePresence>
 
       {loadingMore && (
         <div className="flex justify-center items-center py-4">
