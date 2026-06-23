@@ -256,9 +256,10 @@ export function TopsCanvas({
           <Sparkles className="w-4.5 h-4.5 text-primary animate-pulse" /> Diseña tu lista
         </h2>
         <div className="flex items-center gap-3 ml-auto sm:ml-0 relative">
-          <div className="hidden sm:flex text-xs text-muted-foreground items-center gap-1">
-            <ArrowLeftRight className="w-3.5 h-3.5" />
-            <span>Arrastra o haz clic para colocar</span>
+          <div className="flex text-xs text-muted-foreground items-center gap-1.5 bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10">
+            <ArrowLeftRight className="w-3.5 h-3.5 text-primary shrink-0 animate-pulse" />
+            <span className="hidden sm:inline">Arrastra o haz clic para colocar un juego</span>
+            <span className="inline sm:hidden">Toca un juego de la bandeja para colocarlo</span>
           </div>
           
           {/* Desktop buttons (visible on sm and larger screens) */}

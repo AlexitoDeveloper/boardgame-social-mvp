@@ -236,35 +236,26 @@ export function useGroups() {
     }
 
     // Live Supabase
-    // 1. Find group by code
-    const { data: groupData, error: groupSearchError } = await supabase
-      .from('groups')
-      .select('*')
-      .eq('invite_code', formattedCode)
-      .single()
-
-    if (groupSearchError || !groupData) {
-      throw new Error('Código de invitación no encontrado')
-    }
-
-    // 2. Insert user_id to group_members
-    const { error: joinError } = await supabase
-      .from('group_members')
-      .insert({
-        group_id: groupData.id,
-        user_id: user.id,
-        role: 'member'
-      })
+    // Join using the secure SECURITY DEFINER RPC function
+    const { data: groupData, error: joinError } = await supabase
+      .rpc('join_group_by_invite_code', { p_invite_code: formattedCode })
 
     if (joinError) {
+      if (joinError.code === 'P0002') {
+        throw new Error('Código de invitación no encontrado')
+      }
       if (joinError.code === '23505') {
         throw new Error('Ya eres miembro de este grupo')
       }
-      throw joinError
+      throw new Error(joinError.message || 'Error al unirse al grupo')
+    }
+
+    if (!groupData) {
+      throw new Error('Código de invitación no encontrado')
     }
 
     await fetchGroups()
-    return groupData
+    return groupData as any
   }
 
   useEffect(() => {

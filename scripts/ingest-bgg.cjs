@@ -57,6 +57,58 @@ function isGenericEditionName(name) {
   return genericPatterns.some(pattern => pattern.test(normalized));
 }
 
+const SPANISH_PUBLISHERS = [
+  'tranjis games', 'devir', 'zacatrus', 'ludonova', 'gdm games', 'gdm',
+  'edge entertainment', 'asmodee spain', 'asmodee ibérica', 'asmodee iberica',
+  'gen x games', 'maldito games', 'tcg factory', 'arrakis games', 'eclipse editorial',
+  'doit games', 'mont tàber', 'mont taber', 'brain picnic', 'sd games', 'dmz games',
+  'salt & pepper games', 'looping games', 'primigenio', 'masqueoca', 'ediciones masqueoca',
+  'ludis hispania', 'tiki ediciones', 'perro lopo', 'drakon ideas', 'santiago games',
+  'falomir juegos', 'cefa toys', 'borras', 'juegos borras', 'diset', 'educo', 'mercurio',
+  'mercurio distribuciones'
+];
+
+function getPublisherName(v) {
+  let links = v.link || [];
+  if (!Array.isArray(links)) links = [links];
+  const pubLink = links.find(l => l['@_type'] === 'boardgamepublisher');
+  return pubLink?.['@_value']?.toLowerCase().trim() || null;
+}
+
+function selectBestSpanishVersion(versionItems) {
+  if (!versionItems) return null;
+  const list = Array.isArray(versionItems) ? versionItems : [versionItems];
+
+  // 1. Sort all versions by:
+  //    - Year published (descending)
+  //    - Spanish publisher priority (to resolve ties)
+  const sorted = [...list].sort((a, b) => {
+    const yearA = Number(a.yearpublished?.['@_value'] || 0);
+    const yearB = Number(b.yearpublished?.['@_value'] || 0);
+    if (yearB !== yearA) {
+      return yearB - yearA;
+    }
+
+    const pubA = getPublisherName(a);
+    const pubB = getPublisherName(b);
+    const isPubASpanish = pubA ? SPANISH_PUBLISHERS.some(sp => pubA.includes(sp)) : false;
+    const isPubBSpanish = pubB ? SPANISH_PUBLISHERS.some(sp => pubB.includes(sp)) : false;
+
+    if (isPubASpanish && !isPubBSpanish) return -1;
+    if (!isPubASpanish && isPubBSpanish) return 1;
+
+    return 0;
+  });
+
+  // 2. Find the first version in the sorted list that has Spanish language
+  return sorted.find(v => {
+    let links = v.link;
+    if (!links) return false;
+    if (!Array.isArray(links)) links = [links];
+    return links.some(l => l['@_type'] === 'language' && l['@_value'] === 'Spanish');
+  });
+}
+
 /**
  * Fetch a batch of game IDs from BoardGameGeek XML API2
  */
@@ -200,11 +252,115 @@ async function getNextBggIdsFromCsv(limit) {
   });
 }
 
-async function runIngestion(limit = 10, targetIds = null) {
+/**
+ * Discover recent popular games from BGG XML API2 Hotness AND incremental ID scan
+ */
+async function discoverRecentGames(limit = 30) {
+  const currentYear = new Date().getFullYear();
+  const prevYear = currentYear - 1;
+  const bggToken = process.env.BGG_API_KEY;
+  const idsToIngest = new Set();
+
+  // Mode 1: BGG Hotness Discover
+  const hotnessUrl = 'https://boardgamegeek.com/xmlapi2/hot?type=boardgame';
+  console.log(`[BGG Discovery] Fetching hotness list from BGG API: ${hotnessUrl}...`);
+  try {
+    const headers = {
+      'Accept': 'application/xml',
+      'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)'
+    };
+    if (bggToken) {
+      headers['Authorization'] = `Bearer ${bggToken}`;
+    }
+
+    const response = await fetch(hotnessUrl, { headers });
+    if (!response.ok) throw new Error(`BGG Hotness API status ${response.status}`);
+    
+    const xmlText = await response.text();
+    const jsonObj = xmlParser.parse(xmlText);
+    let items = jsonObj.items?.item;
+    if (items) {
+      if (!Array.isArray(items)) items = [items];
+      items.forEach(item => {
+        const id = Number(item['@_id']);
+        const year = Number(item.yearpublished?.['@_value']);
+        if (!isNaN(id) && year >= prevYear) {
+          idsToIngest.add(id);
+        }
+      });
+    }
+    console.log(`[BGG Discovery] Hotness search found ${idsToIngest.size} games published in ${prevYear}-${currentYear}.`);
+  } catch (err) {
+    console.warn(`[BGG Discovery Warning] Hotness discover failed:`, err.message);
+  }
+
+  // Mode 2: Incremental Chronological Scan starting from MAX(bgg_id)
+  console.log('[BGG Discovery] Running incremental chronological scan...');
+  try {
+    const { data: maxGame, error: maxError } = await supabase
+      .from('games')
+      .select('bgg_id')
+      .order('bgg_id', { ascending: false })
+      .limit(1);
+
+    if (maxError) throw maxError;
+
+    let startId = 460000; // fallback start ID
+    if (maxGame && maxGame.length > 0) {
+      startId = maxGame[0].bgg_id + 1;
+    }
+    
+    // We scan the next 50 IDs in a single batch query
+    const scanIds = Array.from({ length: 50 }, (_, i) => startId + i);
+    console.log(`[BGG Discovery] Scanning BGG IDs from ${scanIds[0]} to ${scanIds[scanIds.length - 1]}...`);
+    
+    const xmlText = await fetchBggBatch(scanIds);
+    const jsonObj = xmlParser.parse(xmlText);
+    let items = jsonObj.items?.item;
+    if (items) {
+      if (!Array.isArray(items)) items = [items];
+      
+      let discoveredCount = 0;
+      items.forEach(item => {
+        const id = Number(item['@_id']);
+        const year = Number(item.yearpublished?.['@_value']);
+        
+        // Check statistics for usersrated
+        const stats = item.statistics?.ratings;
+        const usersRated = stats?.usersrated?.['@_value'] ? Number(stats.usersrated['@_value']) : 0;
+        
+        if (!isNaN(id) && year >= prevYear && usersRated >= 5) {
+          idsToIngest.add(id);
+          discoveredCount++;
+        }
+      });
+      console.log(`[BGG Discovery] Incremental scan found ${discoveredCount} real new games with ratings.`);
+    }
+  } catch (err) {
+    if (err.message && err.message.includes('status 400')) {
+      console.log(`[BGG Discovery] Incremental scan reached the BGG ID limit (future IDs not yet created).`);
+    } else {
+      console.warn(`[BGG Discovery Warning] Incremental scan failed:`, err.message);
+    }
+  }
+
+  const finalIdsList = Array.from(idsToIngest);
+  console.log(`[BGG Discovery] Total unique game IDs to ingest: ${finalIdsList.length}`);
+  return finalIdsList.slice(0, limit);
+}
+
+async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
   console.log('=== starting boardgamegeek catalog ingestion script ===');
   
   let idsToFetch = [];
-  if (targetIds && targetIds.length > 0) {
+  if (useRecent) {
+    console.log('[BGG Discovery] Running in recent releases mode...');
+    idsToFetch = await discoverRecentGames(limit);
+    if (idsToFetch.length === 0) {
+      console.log('[Info] No new games discovered via search page.');
+      return;
+    }
+  } else if (targetIds && targetIds.length > 0) {
     idsToFetch = targetIds;
     console.log(`[CLI] Target IDs specified: ${idsToFetch.join(', ')}`);
   } else {
@@ -346,37 +502,20 @@ async function runIngestion(limit = 10, targetIds = null) {
 
       // Check for Spanish version and specific cover/publisher
       if (item.versions && item.versions.item) {
-        let versionItems = item.versions.item;
-        if (!Array.isArray(versionItems)) {
-          versionItems = [versionItems];
-        }
-        
-        // Reversing versionItems to prioritize the most recent Spanish edition
-        const spanishVersion = [...versionItems].reverse().find(v => {
-          let links = v.link;
-          if (!links) return false;
-          if (!Array.isArray(links)) links = [links];
-          return links.some(l => l['@_type'] === 'language' && l['@_value'] === 'Spanish');
-        });
+        const spanishVersion = selectBestSpanishVersion(item.versions.item);
 
         if (spanishVersion) {
           hasSpanishEdition = true;
 
           // Try to extract Spanish title (does NOT modify title — only sets title_es)
-          let spanishNames = spanishVersion.name;
-          if (spanishNames) {
-            if (!Array.isArray(spanishNames)) {
-              spanishNames = [spanishNames];
-            }
-            const primaryEspName = spanishNames.find(n => n?.['@_type'] === 'primary') || spanishNames[0];
-            const esTitle = primaryEspName?.['@_value'];
-            if (esTitle) {
-              if (!isGenericEditionName(esTitle)) {
-                titleEs = esTitle;
-                console.log(`[Parser] Spanish title: ${titleEs} (original: ${title})`);
-              } else {
-                console.log(`[Parser] Spanish version title "${esTitle}" is generic. Keeping English title: ${title}`);
-              }
+          const canonicalSpanishTitle = spanishVersion.canonicalname?.['@_value'];
+          if (canonicalSpanishTitle?.trim()) {
+            const trimmedTitleEs = canonicalSpanishTitle.trim();
+            if (!isGenericEditionName(trimmedTitleEs)) {
+              titleEs = trimmedTitleEs;
+              console.log(`[Parser] Spanish title (canonical): ${titleEs} (original: ${title})`);
+            } else {
+              console.log(`[Parser] Spanish version title "${trimmedTitleEs}" is generic. Keeping English title: ${title}`);
             }
           }
 
@@ -490,6 +629,8 @@ const batchLimit = limitArg ? Number(limitArg.split('=')[1]) : 10;
 const idsArg = args.find(arg => arg.startsWith('--ids='));
 const targetIds = idsArg ? idsArg.split('=')[1].split(',').map(Number) : null;
 
-runIngestion(batchLimit, targetIds).catch(err => {
+const useRecent = args.includes('--recent');
+
+runIngestion(batchLimit, targetIds, useRecent).catch(err => {
   console.error('[Fatal Error]:', err);
 });

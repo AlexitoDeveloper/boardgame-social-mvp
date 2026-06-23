@@ -395,7 +395,7 @@ export function TabContentList({
                           type="button"
                           variant="ghost"
                           onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
-                          className="absolute top-2.5 right-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer z-10 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
+                          className="absolute top-2.5 right-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer z-30 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
                           title="Quitar de mi ludoteca"
                           icon={Trash2}
                         />

@@ -6,6 +6,7 @@ import { Button } from './ui/button'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
 import { getGameTitle } from '@/lib/gameLocale'
+import { OptimizedImage } from './ui/OptimizedImage'
 
 const MotionDiv = motion.div;
 
@@ -107,11 +108,13 @@ export function GameSearchBar({
                         }}
                       >
                         <div className="flex items-center gap-3 pointer-events-none min-w-0 flex-1">
-                          {g.image_url ? (
-                            <img src={g.image_url} alt={getGameTitle(g)} className="w-10 h-10 rounded object-cover shadow-sm shrink-0" />
-                          ) : (
-                            <div className="w-10 h-10 rounded bg-muted/60 flex items-center justify-center text-xs font-extrabold text-muted-foreground shrink-0">?</div>
-                          )}
+                          <OptimizedImage
+                            src={g.image_url}
+                            alt={getGameTitle(g)}
+                            widthSize={80}
+                            heightSize={80}
+                            className="w-10 h-10 rounded object-cover shadow-sm shrink-0 bg-muted/20"
+                          />
                           <span className="font-semibold text-sm text-left truncate block">
                             {getGameTitle(g)} 
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">

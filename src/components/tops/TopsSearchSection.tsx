@@ -186,15 +186,18 @@ export function TopsSearchSection({
                     </div>
                     
                     <div className="space-y-1.5">
-                      <p className="text-[10px] text-zinc-400 font-semibold">Toca un botón de abajo o haz clic en su destino en el ranking de arriba:</p>
-                      <div className="flex flex-wrap gap-1">
+                      <p className="text-[10px] text-zinc-400 font-semibold">
+                        <span className="hidden sm:inline">Toca un botón de abajo o haz clic en su destino en el ranking de arriba:</span>
+                        <span className="inline sm:hidden">Elige una posición para colocar el juego en el ranking:</span>
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-1">
                         {mode === 'tier' ? (
                           tiers.map(t => (
                             <Button
                               key={t.id}
                               size="sm"
                               className={cn(
-                                "h-7 px-2.5 text-[10px] font-black border border-white/10 rounded-md cursor-pointer text-white shadow-sm hover:scale-105 active:scale-95 transition-all duration-150",
+                                "h-10 px-4 sm:h-7 sm:px-2.5 text-xs sm:text-[10px] font-black border border-white/10 rounded-md cursor-pointer text-white shadow-sm hover:scale-105 active:scale-95 transition-all duration-150",
                                 t.color
                               )}
                               onClick={() => placeInTier(t.id)}
@@ -208,7 +211,7 @@ export function TopsSearchSection({
                               key={num}
                               size="sm"
                               variant="secondary"
-                              className="h-7 w-7 p-0 text-[10px] font-extrabold hover:bg-primary hover:text-primary-foreground border border-border/60 rounded-md cursor-pointer"
+                              className="h-10 w-10 sm:h-7 sm:w-7 p-0 text-xs sm:text-[10px] font-extrabold hover:bg-primary hover:text-primary-foreground border border-border/60 rounded-md cursor-pointer flex items-center justify-center"
                               onClick={() => placeInTop10(num - 1)}
                             >
                               #{num}
@@ -218,7 +221,7 @@ export function TopsSearchSection({
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 px-2 text-[10px] text-muted-foreground hover:bg-muted ml-auto rounded-md cursor-pointer"
+                          className="h-10 px-3 sm:h-7 sm:px-2 text-xs sm:text-[10px] text-muted-foreground hover:bg-muted ml-auto rounded-md cursor-pointer"
                           onClick={() => setSelectedGameForPlacement(null)}
                         >
                           Cancelar

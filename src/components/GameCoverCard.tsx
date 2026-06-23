@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
+import { OptimizedImage } from './ui/OptimizedImage'
 
 interface GameCoverCardProps {
   game: Game;
@@ -48,16 +49,18 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         {game.image_url ? (
           <div className="absolute inset-0 w-full h-full">
             {/* Blurred background copy for cropped edges fill */}
-            <img
+            <OptimizedImage
               src={game.image_url}
               alt=""
+              widthSize={50}
               className="absolute inset-0 h-full w-full object-cover blur-xl opacity-40 scale-110 pointer-events-none transition-all duration-500 group-hover:brightness-[0.3]"
             />
             {/* Contained front cover artwork */}
-            <img
+            <OptimizedImage
               src={game.image_url}
               alt={title}
-              loading="lazy"
+              widthSize={250}
+              fit="contain"
               className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-[0.5]"
             />
           </div>

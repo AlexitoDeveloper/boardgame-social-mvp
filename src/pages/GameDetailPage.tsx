@@ -8,6 +8,7 @@ import {
 import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 
 export function GameDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -40,25 +41,17 @@ export function GameDetailPage() {
   const complexity = game?.complexity || 0
   let complexityLabel = 'Desconocida'
   let complexityColor = 'bg-gray-500'
-  let complexityProgressColor = 'stroke-gray-500'
-  let complexityTextColor = 'text-gray-400'
 
   if (complexity > 0) {
     if (complexity <= 2.2) {
       complexityLabel = 'Familiar / Ligero'
       complexityColor = 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-      complexityProgressColor = 'stroke-emerald-500'
-      complexityTextColor = 'text-emerald-400'
     } else if (complexity <= 3.5) {
       complexityLabel = 'Medio / Intermedio'
       complexityColor = 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-      complexityProgressColor = 'stroke-amber-500'
-      complexityTextColor = 'text-amber-400'
     } else {
       complexityLabel = 'Experto / Pesado'
       complexityColor = 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-      complexityProgressColor = 'stroke-rose-500'
-      complexityTextColor = 'text-rose-400'
     }
   }
 
@@ -540,15 +533,13 @@ export function GameDetailPage() {
             to={`/juegos/${baseGame.bgg_id}`}
             className="flex items-center gap-4 p-3.5 rounded-xl bg-card border border-border/40 hover:border-primary/40 hover:shadow-md transition-all group max-w-md"
           >
-            {baseGame.image_url ? (
-              <img 
-                src={baseGame.image_url} 
-                alt={baseGame.title} 
-                className="w-12 h-16 object-cover rounded-lg border border-border/40 shrink-0 bg-muted/20"
-              />
-            ) : (
-              <div className="w-12 h-16 rounded-lg bg-muted border border-border/40 flex items-center justify-center shrink-0" />
-            )}
+            <OptimizedImage
+              src={baseGame.image_url}
+              alt={baseGame.title}
+              widthSize={80}
+              heightSize={110}
+              className="w-12 h-16 rounded-lg border border-border/40 shrink-0 bg-muted/20"
+            />
             <div className="min-w-0">
               <h5 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {baseGame.title_es || baseGame.title}
@@ -569,15 +560,13 @@ export function GameDetailPage() {
               to={`/juegos/${exp.bgg_id}`}
               className="flex items-center gap-4 p-3.5 rounded-xl bg-card border border-border/40 hover:border-primary/40 hover:shadow-md transition-all group"
             >
-              {exp.image_url ? (
-                <img 
-                  src={exp.image_url} 
-                  alt={exp.title} 
-                  className="w-12 h-16 object-cover rounded-lg border border-border/40 shrink-0 bg-muted/20"
-                />
-              ) : (
-                <div className="w-12 h-16 rounded-lg bg-muted border border-border/40 flex items-center justify-center shrink-0" />
-              )}
+              <OptimizedImage
+                src={exp.image_url}
+                alt={exp.title}
+                widthSize={80}
+                heightSize={110}
+                className="w-12 h-16 rounded-lg border border-border/40 shrink-0 bg-muted/20"
+              />
               <div className="min-w-0 flex-1">
                 <h4 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
                   {exp.title_es || exp.title}
@@ -646,9 +635,10 @@ export function GameDetailPage() {
       {/* Ambient background blur behind the header */}
       {game.image_url && (
         <div className="absolute top-0 inset-x-0 h-[380px] overflow-hidden pointer-events-none select-none z-0 opacity-30">
-          <img
+          <OptimizedImage
             src={game.image_url}
             alt=""
+            widthSize={100}
             className="w-full h-full object-cover filter blur-[40px] scale-125"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
@@ -679,20 +669,13 @@ export function GameDetailPage() {
           transition={{ duration: 0.4 }}
           className="relative h-28 sm:h-36 md:h-48 shrink-0 rounded-xl md:rounded-2xl shadow-xl border border-border/30 hover:scale-[1.01] transition-transform duration-300 flex items-center justify-center bg-zinc-950/10"
         >
-          {game.image_url ? (
-            <img 
-              src={game.image_url} 
-              alt={title} 
-              className="h-full w-auto object-contain rounded-xl md:rounded-2xl"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
-              }}
-            />
-          ) : null}
-          <div className={`h-full w-24 sm:w-32 flex items-center justify-center bg-muted/30 rounded-xl md:rounded-2xl ${game.image_url ? 'hidden' : ''}`}>
-            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground text-center p-2">{title}</span>
-          </div>
+          <OptimizedImage
+            src={game.image_url}
+            alt={title}
+            widthSize={350}
+            fit="contain"
+            className="h-full w-auto object-contain rounded-xl md:rounded-2xl"
+          />
         </motion.div>
 
         {/* Title and metadata */}

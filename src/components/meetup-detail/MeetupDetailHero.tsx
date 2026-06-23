@@ -6,6 +6,7 @@ import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getGameTitle } from '../../lib/gameLocale'
+import { OptimizedImage } from '../ui/OptimizedImage'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup;
@@ -47,16 +48,21 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
           <>
             {/* Fondo difuminado ambiental */}
             <AnimatePresence mode="wait">
-              <motion.img
+              <motion.div
                 key={`bg-${currentGame.bgg_id || activeGameIdx}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.35 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                src={currentGame.image_url}
-                alt=""
-                className="w-full h-full object-cover filter blur-2xl scale-125 pointer-events-none select-none absolute inset-0"
-              />
+                className="w-full h-full pointer-events-none select-none absolute inset-0"
+              >
+                <OptimizedImage
+                  src={currentGame.image_url}
+                  alt=""
+                  widthSize={100}
+                  className="w-full h-full object-cover filter blur-2xl scale-125"
+                />
+              </motion.div>
             </AnimatePresence>
 
             {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
@@ -87,9 +93,11 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                   gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
                 }`}
               >
-                <img
+                <OptimizedImage
                   src={currentGame.image_url}
                   alt={getGameTitle(currentGame) || 'Juego'}
+                  widthSize={400}
+                  fit="contain"
                   className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355 pointer-events-none select-none"
                 />
               </motion.div>

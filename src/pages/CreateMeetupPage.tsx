@@ -9,36 +9,19 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Trash2, X } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
-import { GameSearchBar } from '../components/GameSearchBar'
 import { getGameTitle } from '../lib/gameLocale'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
+import { CityAutocomplete, ESP_CITIES } from '../components/meetup-form/CityAutocomplete'
+import { GameSelectionSection } from '../components/meetup-form/GameSelectionSection'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
-
-const ESP_CITIES = [
-  'Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Zaragoza', 'Málaga', 'Murcia', 
-  'Palma de Mallorca', 'Las Palmas de Gran Canaria', 'Bilbao', 'Alicante', 'Córdoba', 
-  'Valladolid', 'Vigo', 'Gijón', 'L\'Hospitalet de Llobregat', 'Vitoria-Gasteiz', 
-  'A Coruña', 'Granada', 'Elche', 'Oviedo', 'Terrassa', 'Badalona', 'Cartagena', 
-  'Sabadell', 'Jerez de la Frontera', 'Móstoles', 'Santa Cruz de Tenerife', 
-  'Pamplona', 'Almería', 'Alcalá de Henares', 'Fuenlabrada', 'Leganés', 
-  'San Sebastián', 'Getafe', 'Burgos', 'Alcorcón', 'Santander', 'Castelló de la Plana', 
-  'Badajoz', 'Logroño', 'Huelva', 'Salamanca', 'Marbella', 'Lleida', 'Tarragona', 
-  'Dos Hermanas', 'Parla', 'Torrejón de Ardoz', 'Mataró', 'León', 'Algeciras', 
-  'Santa Coloma de Gramenet', 'Cádiz', 'Alcobendas', 'Jaén', 'Ourense', 'Reus', 
-  'Telde', 'Barakaldo', 'Roquetas de Mar', 'Girona', 'Santiago de Compostela', 
-  'Cáceres', 'Lorca', 'San Fernando', 'Las Rozas de Madrid', 'Melilla', 
-  'Sant Cugat del Vallès', 'San Sebastián de los Reyes', 'El Puerto de Santa María', 
-  'Rivas-Vaciamadrid', 'Ceuta', 'Gandía', 'Manresa', 'Ciudad Real', 'Ávila', 
-  'Palencia', 'Segovia', 'Teruel', 'Soria', 'Huesca', 'Cuenca', 'Guadalajara', 
-  'Toledo', 'Zamora', 'Pontevedra', 'Lugo'
-];
 
 export function CreateMeetupPage() {
   const { id } = useParams<{ id: string }>()
@@ -74,7 +57,6 @@ export function CreateMeetupPage() {
 
   // City Autocomplete State
   const [allCities, setAllCities] = useState<string[]>(ESP_CITIES)
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -563,10 +545,6 @@ export function CreateMeetupPage() {
     }
   }
 
-  const suggestions = city.trim()
-    ? allCities.filter(c => c.toLowerCase().includes(city.toLowerCase()) && c.toLowerCase() !== city.toLowerCase())
-    : []
-
   const limit = isPremiumUser ? 10 : 5
   const isLimitExceeded = !isEditMode && activeMeetupsCount !== null && activeMeetupsCount >= limit
 
@@ -686,106 +664,20 @@ export function CreateMeetupPage() {
 
             <AnimatePresence mode="wait">
               {!showDetails ? (
-                <MotionDiv 
-                  key="search-stage"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="space-y-4"
-                >
-                  <div className="space-y-3">
-                    <Label className="text-foreground/80 font-bold text-sm">Busca y añade juegos de mesa a la sesión</Label>
-                    <GameSearchBar
-                      searchQuery={searchQuery}
-                      setSearchQuery={setSearchQuery}
-                      games={games}
-                      setGames={setGames}
-                      isSearching={isSearching}
-                      placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
-                      onSelectGame={handleSelectGame}
-                      isGameDisabled={(game) => selectedGames.some(g => g.bgg_id === game.bgg_id)}
-                      closeOnSelect={false}
-                      onSearchBgg={handleSearchBgg}
-                      isShowingBggResults={isShowingBggResults}
-                      isImporting={isImporting}
-                    />
-
-                    {isImporting && (
-                      <div className="text-primary bg-primary/5 border border-primary/20 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 animate-pulse shadow-sm">
-                        <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
-                        <span>Importando metadatos y portada del juego desde BoardGameGeek. Por favor, espera...</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Shelf (Bandeja de Juegos) */}
-                  <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3 relative z-10">
-                    <div className="flex items-center justify-between mb-2">
-                      <Label className="text-xs text-muted-foreground font-black uppercase tracking-wider block">Juegos en Bandeja ({selectedGames.length})</Label>
-                      {selectedGames.length > 0 && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          type="button"
-                          onClick={() => setSelectedGames([])}
-                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Vaciar
-                        </Button>
-                      )}
-                    </div>
-
-                    {selectedGames.length === 0 ? (
-                      <div className="text-center py-6 border border-dashed border-border/50 rounded-lg bg-background/30 text-muted-foreground text-xs font-semibold">
-                        Los juegos añadidos aparecerán aquí.
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent min-h-[72px] border border-transparent rounded-lg">
-                        <AnimatePresence initial={false}>
-                          {selectedGames.map((game) => (
-                            <motion.div
-                              key={game.bgg_id}
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              layout
-                              className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
-                            >
-                              {game.image_url ? (
-                                <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none" />
-                              ) : (
-                                <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                                  {getGameTitle(game)}
-                                </div>
-                              )}
-                              
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
-                                className="absolute top-0.5 right-0.5 w-5 h-5 p-0 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
-                                title={`Quitar ${game.title}`}
-                              >
-                                <X className="w-2.5 h-2.5" />
-                              </Button>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Continue Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/20">
-                    <Button 
-                      type="button"
-                      onClick={() => setShowDetails(true)}
-                      className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
-                    >
-                      {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego'}
-                    </Button>
-                  </div>
-                </MotionDiv>
+                <GameSelectionSection
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  games={games}
+                  setGames={setGames}
+                  selectedGames={selectedGames}
+                  setSelectedGames={setSelectedGames}
+                  isSearching={isSearching}
+                  isShowingBggResults={isShowingBggResults}
+                  isImporting={isImporting}
+                  handleSelectGame={handleSelectGame}
+                  handleSearchBgg={handleSearchBgg}
+                  onContinue={() => setShowDetails(true)}
+                />
               ) : (
                 <MotionForm 
                   key="form-stage"
@@ -809,7 +701,15 @@ export function CreateMeetupPage() {
                       <div className="flex flex-wrap gap-2">
                         {selectedGames.map(game => (
                           <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
-                            {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
+                            {game.image_url && (
+                              <OptimizedImage
+                                src={game.image_url}
+                                alt={getGameTitle(game)}
+                                widthSize={40}
+                                heightSize={40}
+                                className="w-4 h-4 object-contain rounded"
+                              />
+                            )}
                             <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
                               <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
@@ -862,7 +762,13 @@ export function CreateMeetupPage() {
                                       className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer shadow-none focus-visible:ring-0 focus-visible:border-transparent flex-none bg-transparent w-auto"
                                     />
                                     {exp.image_url ? (
-                                      <img src={exp.image_url} alt={exp.title} className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0" />
+                                      <OptimizedImage
+                                        src={exp.image_url}
+                                        alt={exp.title}
+                                        widthSize={60}
+                                        heightSize={60}
+                                        className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0"
+                                      />
                                     ) : (
                                       <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-[9px] font-extrabold text-muted-foreground shrink-0">?</div>
                                     )}
@@ -925,48 +831,11 @@ export function CreateMeetupPage() {
                         transition={{ duration: 0.2 }}
                         className="grid grid-cols-1 md:grid-cols-2 gap-4"
                       >
-                        {/* City Input with Autocomplete */}
-                        <div className="space-y-1.5 relative">
-                          <Label htmlFor="city" className="font-bold flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
-                          </Label>
-                          <Input 
-                            id="city"
-                            placeholder="Ej: Madrid, Barcelona..."
-                            value={city}
-                            onChange={(e) => {
-                              setCity(e.target.value)
-                              setShowCitySuggestions(true)
-                            }}
-                            onFocus={() => setShowCitySuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                            required 
-                            autoComplete="off"
-                          />
-                          <AnimatePresence>
-                            {showCitySuggestions && suggestions.length > 0 && (
-                              <MotionDiv
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto bg-card border border-border/50 rounded-xl shadow-lg divide-y divide-border/20 custom-scrollbar"
-                              >
-                                {suggestions.slice(0, 8).map((suggestion, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="px-4 py-2 text-sm text-foreground/90 hover:bg-primary/10 cursor-pointer font-medium transition-colors"
-                                    onMouseDown={() => {
-                                      setCity(suggestion)
-                                      setShowCitySuggestions(false)
-                                    }}
-                                  >
-                                    {suggestion}
-                                  </div>
-                                ))}
-                              </MotionDiv>
-                            )}
-                          </AnimatePresence>
-                        </div>
+                        <CityAutocomplete
+                          city={city}
+                          setCity={setCity}
+                          allCities={allCities}
+                        />
 
                         <div className="space-y-1.5">
                           <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>

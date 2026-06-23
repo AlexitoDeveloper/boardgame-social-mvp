@@ -271,7 +271,24 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
         })
         
         setMeetups(formatted as Meetup[])
-        calculateStats(formatted as Meetup[], profileId)
+        
+        const { data: statsData, error: statsError } = await supabase
+          .rpc('get_user_stats', { p_user_id: profileId })
+
+        if (statsError) throw statsError
+
+        if (statsData && statsData.length > 0) {
+          const s = statsData[0]
+          setStats({
+            played: s.played || 0,
+            won: s.won || 0,
+            winRate: s.win_rate || 0,
+            karma: s.karma !== undefined && s.karma !== null ? s.karma : 100,
+            missed: s.missed || 0
+          })
+        } else {
+          setStats({ played: 0, won: 0, winRate: 0, karma: 100, missed: 0 })
+        }
       } catch (err: any) {
         console.error("Error loading profile:", err)
         setErrorMsg(err.message || 'Error al obtener el perfil de usuario.')

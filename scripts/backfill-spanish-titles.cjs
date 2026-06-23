@@ -70,6 +70,58 @@ function isGenericEditionName(name) {
   );
 }
 
+const SPANISH_PUBLISHERS = [
+  'tranjis games', 'devir', 'zacatrus', 'ludonova', 'gdm games', 'gdm',
+  'edge entertainment', 'asmodee spain', 'asmodee ibérica', 'asmodee iberica',
+  'gen x games', 'maldito games', 'tcg factory', 'arrakis games', 'eclipse editorial',
+  'doit games', 'mont tàber', 'mont taber', 'brain picnic', 'sd games', 'dmz games',
+  'salt & pepper games', 'looping games', 'primigenio', 'masqueoca', 'ediciones masqueoca',
+  'ludis hispania', 'tiki ediciones', 'perro lopo', 'drakon ideas', 'santiago games',
+  'falomir juegos', 'cefa toys', 'borras', 'juegos borras', 'diset', 'educo', 'mercurio',
+  'mercurio distribuciones'
+];
+
+function getPublisherName(v) {
+  let links = v.link || [];
+  if (!Array.isArray(links)) links = [links];
+  const pubLink = links.find(l => l['@_type'] === 'boardgamepublisher');
+  return pubLink?.['@_value']?.toLowerCase().trim() || null;
+}
+
+function selectBestSpanishVersion(versionItems) {
+  if (!versionItems) return null;
+  const list = Array.isArray(versionItems) ? versionItems : [versionItems];
+
+  // 1. Sort all versions by:
+  //    - Year published (descending)
+  //    - Spanish publisher priority (to resolve ties)
+  const sorted = [...list].sort((a, b) => {
+    const yearA = Number(a.yearpublished?.['@_value'] || 0);
+    const yearB = Number(b.yearpublished?.['@_value'] || 0);
+    if (yearB !== yearA) {
+      return yearB - yearA;
+    }
+
+    const pubA = getPublisherName(a);
+    const pubB = getPublisherName(b);
+    const isPubASpanish = pubA ? SPANISH_PUBLISHERS.some(sp => pubA.includes(sp)) : false;
+    const isPubBSpanish = pubB ? SPANISH_PUBLISHERS.some(sp => pubB.includes(sp)) : false;
+
+    if (isPubASpanish && !isPubBSpanish) return -1;
+    if (!isPubASpanish && isPubBSpanish) return 1;
+
+    return 0;
+  });
+
+  // 2. Find the first version in the sorted list that has Spanish language
+  return sorted.find(v => {
+    let links = v.link;
+    if (!links) return false;
+    if (!Array.isArray(links)) links = [links];
+    return links.some(l => l['@_type'] === 'language' && l['@_value'] === 'Spanish');
+  });
+}
+
 async function fetchBggBatch(bggIds) {
   const url = `${BGG_API}/thing?id=${bggIds.join(',')}&versions=1`;
   const bggToken = process.env.BGG_API_KEY;
@@ -186,28 +238,14 @@ async function runBackfill(batchSize) {
         const publisher = origPubLink?.['@_value'] ?? null;
 
         // Spanish version data
-        let titleEs = null;
+        let titleEs = titleEnglish; // default to original title to mark as checked if no Spanish edition exists
         let esPublisher = null;
         let hasSpanishEdition = false;
+        let bggImageUrl = item.image || item.thumbnail || null;
 
         const versions = item.versions?.item;
         if (versions) {
-          const versionList = Array.isArray(versions) ? versions : [versions];
-          const spanishVersions = versionList.filter(v => {
-            let links = v.link || [];
-            if (!Array.isArray(links)) links = [links];
-
-            return links.some(
-              l => l?.['@_type'] === 'language' &&
-                l?.['@_value'] === 'Spanish'
-            );
-          });
-
-          const spanishVersion =
-            spanishVersions.sort((a, b) =>
-              Number(b.yearpublished?.['@_value'] || 0) -
-              Number(a.yearpublished?.['@_value'] || 0)
-            )[0];
+          const spanishVersion = selectBestSpanishVersion(versions);
 
           if (spanishVersion) {
             hasSpanishEdition = true;
@@ -217,15 +255,23 @@ async function runBackfill(batchSize) {
               spanishVersion.canonicalname?.['@_value'];
 
             if (canonicalSpanishTitle?.trim()) {
-              titleEs = canonicalSpanishTitle.trim();
-              withSpanish++;
-              console.log(`🇪🇸 ${titleEnglish} → ${titleEs}`);
+              const trimmedTitleEs = canonicalSpanishTitle.trim();
+              if (!isGenericEditionName(trimmedTitleEs)) {
+                titleEs = trimmedTitleEs;
+                withSpanish++;
+                console.log(`🇪🇸 ${titleEnglish} → ${titleEs}`);
+              }
             }
             // Spanish publisher
             let vLinks = spanishVersion.link || [];
             if (!Array.isArray(vLinks)) vLinks = [vLinks];
             const pubLink = vLinks.find(l => l?.['@_type'] === 'boardgamepublisher');
             if (pubLink) esPublisher = pubLink['@_value'] ?? null;
+
+            // Spanish cover image url fallback
+            if (spanishVersion.image || spanishVersion.thumbnail) {
+              bggImageUrl = spanishVersion.image || spanishVersion.thumbnail;
+            }
           }
         }
 
@@ -236,7 +282,8 @@ async function runBackfill(batchSize) {
             title_es: titleEs,       // null if no Spanish edition (marks as "checked")
             publisher,
             es_publisher: esPublisher,
-            has_spanish_edition: hasSpanishEdition
+            has_spanish_edition: hasSpanishEdition,
+            image_url: bggImageUrl
           })
           .eq('bgg_id', bggId);
 
