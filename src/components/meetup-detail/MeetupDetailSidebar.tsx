@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getGameTitle, getGamePublisher } from '../../lib/gameLocale'
+import { OptimizedImage } from '../ui/OptimizedImage'
 import { 
   Clock, 
   Crown, 
   Edit3, 
   Trash2, 
   ExternalLink, 
-  Info,
   AlertTriangle,
   Loader2,
   MessageSquare,
@@ -192,17 +192,13 @@ export function MeetupDetailSidebar({
             return (
               <div key={game.bgg_id} className="p-3 rounded-2xl border border-border/40 bg-muted/20 backdrop-blur-sm flex items-center justify-between gap-3 shadow-sm">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  {game.image_url ? (
-                    <img 
-                      src={game.image_url} 
-                      alt={game.title} 
-                      className="w-10 h-10 rounded-lg object-cover border border-border/20 shrink-0" 
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <Info className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                  )}
+                  <OptimizedImage
+                    src={game.image_url}
+                    alt={game.title}
+                    widthSize={80}
+                    heightSize={80}
+                    className="w-10 h-10 rounded-lg object-cover border border-border/20 shrink-0"
+                  />
                   <div className="min-w-0">
                     <p className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</p>
                     <p className="text-[9px] text-muted-foreground font-semibold">Ganador:</p>
@@ -331,13 +327,13 @@ export function MeetupDetailSidebar({
                 return (
                   <div key={game.bgg_id} className="p-3 rounded-2xl border border-border/40 bg-muted/20 backdrop-blur-sm space-y-2">
                     <div className="flex items-center gap-2.5">
-                      {game.image_url ? (
-                        <img src={game.image_url} alt={game.title} className="w-8 h-8 rounded object-cover border border-border/20 shrink-0" />
-                      ) : (
-                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center shrink-0">
-                          <Info className="w-3.5 h-3.5 text-muted-foreground" />
-                        </div>
-                      )}
+                      <OptimizedImage
+                        src={game.image_url}
+                        alt={game.title}
+                        widthSize={60}
+                        heightSize={60}
+                        className="w-8 h-8 rounded object-cover border border-border/20 shrink-0"
+                      />
                       <span className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</span>
                     </div>
                     
@@ -735,10 +731,12 @@ export function MeetupDetailSidebar({
                 {/* Cover image in card */}
                 {game.image_url && (
                   <div className="w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner">
-                    <img 
-                      src={game.image_url} 
-                      alt={game.title} 
-                      className="max-h-full max-w-full object-contain rounded-lg" 
+                    <OptimizedImage
+                      src={game.image_url}
+                      alt={game.title}
+                      widthSize={250}
+                      fit="contain"
+                      className="max-h-full max-w-full object-contain rounded-lg"
                     />
                   </div>
                 )}

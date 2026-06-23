@@ -16,6 +16,7 @@ import { USE_MOCKS } from '../lib/config'
 import { Game } from '../types'
 import { GameSearchBar } from '../components/GameSearchBar'
 import { getGameTitle } from '../lib/gameLocale'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
 
 const MotionDiv = motion.div;
@@ -751,13 +752,13 @@ export function CreateMeetupPage() {
                               layout
                               className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
                             >
-                              {game.image_url ? (
-                                <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none" />
-                              ) : (
-                                <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                                  {getGameTitle(game)}
-                                </div>
-                              )}
+                              <OptimizedImage
+                                src={game.image_url}
+                                alt={getGameTitle(game)}
+                                widthSize={80}
+                                heightSize={80}
+                                className="w-full h-full object-cover pointer-events-none"
+                              />
                               
                               <Button
                                 type="button"
@@ -809,7 +810,15 @@ export function CreateMeetupPage() {
                       <div className="flex flex-wrap gap-2">
                         {selectedGames.map(game => (
                           <div key={game.bgg_id} className="flex items-center gap-1.5 bg-background/60 border border-border/60 px-2.5 py-1 rounded-lg text-xs font-semibold">
-                            {game.image_url && <img src={game.image_url} className="w-4 h-4 object-contain rounded" />}
+                            {game.image_url && (
+                              <OptimizedImage
+                                src={game.image_url}
+                                alt={getGameTitle(game)}
+                                widthSize={40}
+                                heightSize={40}
+                                className="w-4 h-4 object-contain rounded"
+                              />
+                            )}
                             <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
                               <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
@@ -862,7 +871,13 @@ export function CreateMeetupPage() {
                                       className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer shadow-none focus-visible:ring-0 focus-visible:border-transparent flex-none bg-transparent w-auto"
                                     />
                                     {exp.image_url ? (
-                                      <img src={exp.image_url} alt={exp.title} className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0" />
+                                      <OptimizedImage
+                                        src={exp.image_url}
+                                        alt={exp.title}
+                                        widthSize={60}
+                                        heightSize={60}
+                                        className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0"
+                                      />
                                     ) : (
                                       <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-[9px] font-extrabold text-muted-foreground shrink-0">?</div>
                                     )}

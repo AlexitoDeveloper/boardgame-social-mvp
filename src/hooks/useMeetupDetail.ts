@@ -413,23 +413,17 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       }, 500)
     } else {
       let updatedPlayers: string[] = []
-      if (isJoined) {
-        updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
-      } else {
-        if (attendees.length >= meetup.max_players) {
-          setJoining(false)
-          return
-        }
-        updatedPlayers = [...(meetup.joined_players || []), userId]
-      }
 
       try {
-        const { error: updateError } = await supabase
-          .from('meetups')
-          .update({ joined_players: updatedPlayers })
-          .eq('id', meetup.id)
-
-        if (updateError) throw updateError
+        if (isJoined) {
+          const { error: rpcError } = await supabase.rpc('leave_meetup', { p_meetup_id: meetup.id })
+          if (rpcError) throw rpcError
+          updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
+        } else {
+          const { error: rpcError } = await supabase.rpc('join_meetup', { p_meetup_id: meetup.id })
+          if (rpcError) throw rpcError
+          updatedPlayers = [...(meetup.joined_players || []), userId]
+        }
 
         const { data: profiles, error: profilesError } = await supabase
           .from('users')
@@ -459,8 +453,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           return 0
         })
         setAttendees([...sorted, ...guestProfiles])
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error joining/leaving meetup:', err)
+        setErrorMsg(err.message || 'Error al actualizar tu participación.')
       } finally {
         setJoining(false)
       }
@@ -608,11 +603,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       }, 500)
     } else {
       try {
-        const { error } = await supabase
-          .from('meetup_guests')
-          .delete()
-          .eq('id', reservation.id)
-
+        const { error } = await supabase.rpc('leave_meetup_as_guest', { p_guest_id: reservation.id })
         if (error) throw error
 
         // Remove from reservations in localStorage

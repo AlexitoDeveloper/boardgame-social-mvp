@@ -18,6 +18,7 @@ import { Input } from '../components/ui/input'
 import { Form } from '../components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Tag } from '../components/ui/tag'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { Meetup, MeetupMessage, Game } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -471,11 +472,14 @@ export function ChatsPage() {
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Game cover thumbnail */}
                     <div className="w-11 h-11 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 shadow-sm bg-background/50">
-                      {mGame?.image_url ? (
-                        <img src={mGame.image_url} alt={mGame.title} className="w-full h-full object-contain" />
-                      ) : (
-                        <div className="text-[10px] font-black text-muted-foreground uppercase">{m.game_name?.slice(0, 3) || 'JUE'}</div>
-                      )}
+                      <OptimizedImage
+                        src={mGame?.image_url}
+                        alt={mGame?.title || 'Juego'}
+                        widthSize={80}
+                        heightSize={80}
+                        fit="contain"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1">
@@ -552,11 +556,14 @@ export function ChatsPage() {
                   title="Ver Ficha de Partida"
                 >
                   <div className="w-9 h-9 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 group-hover/info:border-primary/50 transition-colors shadow-sm">
-                    {activeGame?.image_url ? (
-                      <img src={activeGame.image_url} alt={activeGame.title} className="w-full h-full object-contain" />
-                    ) : (
-                      <div className="text-[8px] font-black text-muted-foreground uppercase">{activeMeetup.game_name?.slice(0, 3) || 'JUE'}</div>
-                    )}
+                    <OptimizedImage
+                      src={activeGame?.image_url}
+                      alt={activeGame?.title || 'Juego'}
+                      widthSize={80}
+                      heightSize={80}
+                      fit="contain"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
 
                   <div className="min-w-0 text-left flex-1">

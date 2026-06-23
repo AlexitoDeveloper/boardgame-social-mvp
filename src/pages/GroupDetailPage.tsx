@@ -11,6 +11,7 @@ import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { Tabs } from '../components/ui/tabs'
 import { GameCoverCard } from '../components/GameCoverCard'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { useGroupDetail } from '../hooks/useGroupDetail'
 import { useAuth } from '../lib/authContext'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
@@ -551,13 +552,13 @@ export function GroupDetailPage() {
 
                               {/* Game Cover & name */}
                               <div className="flex items-center gap-3 flex-1 min-w-0 z-10">
-                                <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex items-center justify-center p-0.5 border border-border/30 shrink-0">
-                                  {opt.game.image_url ? (
-                                    <img src={opt.game.image_url} alt={opt.game.title} className="w-full h-full object-cover rounded-md" />
-                                  ) : (
-                                    <span className="text-[8px] font-bold text-center leading-tight">No IMG</span>
-                                  )}
-                                </div>
+                                <OptimizedImage
+                                  src={opt.game.image_url}
+                                  alt={opt.game.title}
+                                  widthSize={80}
+                                  heightSize={80}
+                                  className="w-10 h-10 rounded-lg border border-border/30 shrink-0 bg-muted/20"
+                                />
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="font-extrabold text-sm text-foreground truncate block max-w-[250px]">
