@@ -97,10 +97,10 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
               const rankStr = String(index + 1);
 
               const leftClass = isTen
-                ? "left-[-16px] sm:left-[-24px] md:left-[-28px]"
+                ? "left-[-12px] sm:left-[-14px] md:left-[-8px]"
                 : isOne
-                  ? "left-[20px] sm:left-[18px] md:left-[16px]"
-                  : "left-[12px] sm:left-[10px] md:left-[8px]";
+                  ? "left-[20px] sm:left-[22px] md:left-[30px]"
+                  : "left-[12px] sm:left-[15px] md:left-[22px]";
 
               return (
                  <div 
@@ -108,12 +108,12 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
                   className="snap-start shrink-0 relative flex items-end pl-16 sm:pl-20 md:pl-24 select-none w-[200px] sm:w-[245px] md:w-[275px] pb-4"
                 >
                   <span 
-                    className={`absolute ${leftClass} text-[120px] sm:text-[150px] md:text-[180px] bottom-[22px] sm:bottom-[26px] md:bottom-[30px] font-black leading-none select-none z-0 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] transition-all duration-200 flex font-inter`}
+                    className={`absolute ${leftClass} text-[120px] sm:text-[150px] md:text-[180px] bottom-[22px] sm:bottom-[26px] md:bottom-[30px] font-black leading-none select-none z-0 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)] transition-all duration-200 flex font-sans`}
                   >
                     {rankStr.split('').map((char, charIdx) => (
                       <span
                         key={charIdx}
-                        className={charIdx > 0 ? "relative ml-[-0.18em] sm:ml-[-0.22em] md:ml-[-0.25em] z-10" : "relative z-0"}
+                        className={charIdx > 0 ? "relative ml-[-0.18em] sm:ml-[-0.22em] md:ml-[-0.25em] z-10 font-sans font-black" : "relative z-0 font-sans font-black"}
                         style={{
                           WebkitTextStroke: '2.5px hsl(var(--foreground))',
                           color: 'hsl(var(--background))',
