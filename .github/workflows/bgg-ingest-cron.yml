@@ -1,0 +1,36 @@
+name: Daily BGG Catalog Ingestion
+
+on:
+  schedule:
+    # Runs everyday at 03:00 AM UTC (approx. 05:00 AM Spanish local time)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allows manual trigger of ingestion from the Actions tab
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run BGG Ingestion Script
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          BGG_API_KEY: ${{ secrets.BGG_API_KEY }} # Optional, if you have one configured
+        run: node scripts/ingest-bgg.cjs --recent --limit=25

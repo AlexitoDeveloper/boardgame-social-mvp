@@ -7,6 +7,8 @@ import { CommunityRankingCard } from '../components/CommunityRankingCard'
 import { Library } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
+import { FeaturedGameHero } from '../components/FeaturedGameHero'
+import { ActiveMeetupsCarousel } from '../components/ActiveMeetupsCarousel'
 
 export function ExplorePage() {
   const [search, setSearchChange] = useState('')
@@ -25,7 +27,9 @@ export function ExplorePage() {
     top10Month,
     communityRankings,
     searchResults,
-    isFiltering
+    isFiltering,
+    featuredGame,
+    activeMeetups
   } = useExploreGames(search, playerFilter, complexityFilter, spanishOnly)
 
   // Skeleton loaders for grids
@@ -149,6 +153,19 @@ export function ExplorePage() {
                   transition={{ duration: 0.2 }}
                   className="space-y-5"
                 >
+                  {/* Hero / Featured Game Skeleton */}
+                  <div className="w-full h-48 rounded-3xl bg-muted/40 animate-pulse border border-border/10 shrink-0" />
+
+                  {/* Active Meetups Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-5 w-40 bg-muted/40 animate-pulse rounded-lg" />
+                    <div className="w-full flex gap-4 overflow-x-hidden py-1">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-28 w-64 rounded-2xl bg-muted/40 animate-pulse border border-border/10 shrink-0" />
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Top 10 Week Skeleton */}
                   <div className="space-y-3">
                     <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
@@ -196,6 +213,14 @@ export function ExplorePage() {
                   transition={{ duration: 0.25 }}
                   className="space-y-5"
                 >
+                  {/* Juego Recomendado del Día */}
+                  {featuredGame && <FeaturedGameHero game={featuredGame} />}
+
+                  {/* Mesas Abiertas */}
+                  {activeMeetups && activeMeetups.length > 0 && (
+                    <ActiveMeetupsCarousel meetups={activeMeetups} />
+                  )}
+
                   {/* Top 10 Weekly (Played count based) */}
                   <GameCarousel games={top10} title="🏆 TOP 10 de la Semana (Más Jugados)" variant="top10" />
 

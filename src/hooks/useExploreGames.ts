@@ -2,6 +2,32 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Game } from '../types'
 import { USE_MOCKS } from '../lib/config'
+import { getMockMeetupsForList } from '../lib/mockData'
+
+function pseudoRandom(seed: number): number {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function seedShuffle<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  let m = shuffled.length, t, i;
+  while (m) {
+    i = Math.floor(pseudoRandom(seed + m) * m--);
+    t = shuffled[m];
+    shuffled[m] = shuffled[i];
+    shuffled[i] = t;
+  }
+  return shuffled;
+}
+
+function getDayOfYearSeed(): number {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), 0, 0)
+  const diff = now.getTime() - start.getTime()
+  const oneDay = 1000 * 60 * 60 * 24
+  return Math.floor(diff / oneDay)
+}
 
 // Mock data fallbacks for community rankings
 const MOCK_COMMUNITY_RANKINGS = [
@@ -83,6 +109,8 @@ export function useExploreGames(
   const [top10, setTop10] = useState<Game[]>([])
   const [top10Month, setTop10Month] = useState<Game[]>([])
   const [communityRankings, setCommunityRankings] = useState<any[]>([])
+  const [featuredGame, setFeaturedGame] = useState<Game | null>(null)
+  const [activeMeetups, setActiveMeetups] = useState<any[]>([])
 
   // Search grid results state
   const [searchResults, setSearchResults] = useState<Game[]>([])
@@ -101,7 +129,7 @@ export function useExploreGames(
           .select('*')
           .eq('has_spanish_edition', true)
           .order('year_published', { ascending: false })
-          .limit(15)
+          .limit(35)
 
         // paraDos Query: min_players <= 2, max_players >= 2
         const paraDosQuery = supabase
@@ -110,7 +138,7 @@ export function useExploreGames(
           .lte('min_players', 2)
           .gte('max_players', 2)
           .order('bgg_rank', { ascending: true, nullsFirst: false })
-          .limit(15)
+          .limit(35)
 
         // classics Query: rating_geek DESC
         const classicsQuery = supabase
@@ -118,7 +146,7 @@ export function useExploreGames(
           .select('*')
           .not('rating_geek', 'is', null)
           .order('rating_geek', { ascending: false })
-          .limit(15)
+          .limit(35)
 
         // communityRankings Query
         let commRankingsData: any[] = []
@@ -137,6 +165,50 @@ export function useExploreGames(
           }
         } else {
           commRankingsData = MOCK_COMMUNITY_RANKINGS
+        }
+
+        // activeMeetups Query
+        let activeMeetupsData: any[] = []
+        if (USE_MOCKS) {
+          const allMocks = getMockMeetupsForList()
+          const completedMockKey = 'boardgame_social_mock_completed_meetups'
+          const completedMockStr = localStorage.getItem(completedMockKey)
+          const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
+          activeMeetupsData = allMocks.map(m => {
+            const completedInfo = completedMockData[m.id]
+            if (completedInfo) {
+              return { 
+                ...m, 
+                completed: completedInfo.completed,
+                attended_players: completedInfo.attended_players,
+                attended_guests: completedInfo.attended_guests
+              }
+            }
+            return m
+          }).filter(m => !m.completed)
+        } else {
+          try {
+            const { data, error: meetError } = await supabase
+              .from('meetups')
+              .select('*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, games(*))')
+              .eq('completed', false)
+              .gte('date', new Date().toISOString())
+              .order('date', { ascending: true })
+              .limit(5)
+              
+            if (meetError) throw meetError
+            
+            activeMeetupsData = (data || []).map((m: any) => {
+              const mg = m.meetup_games || []
+              const mGames = mg.map((item: any) => item.games).filter(Boolean) as Game[]
+              return {
+                ...m,
+                games: mGames
+              }
+            })
+          } catch (err) {
+            console.warn('Could not query active meetups:', err)
+          }
         }
 
         // Run other queries in parallel
@@ -159,12 +231,29 @@ export function useExploreGames(
           fetchMostPlayedGames(oneMonthAgo)
         ])
 
-        setNovedades(novRes.data || [])
-        setParaDos(dosRes.data || [])
-        setClassics(claRes.data || [])
+        // Daily seeds
+        const daySeed = getDayOfYearSeed()
+
+        // 1. Recommended Game of the Day (select from classics pool)
+        let recommendedOfTheDay: Game | null = null
+        if (claRes.data && claRes.data.length > 0) {
+          const featuredPool = claRes.data.slice(0, 15)
+          recommendedOfTheDay = featuredPool[daySeed % featuredPool.length]
+        }
+
+        // 2. Shuffle categories deterministically using daily seed
+        const shuffledNovedades = seedShuffle(novRes.data || [], daySeed).slice(0, 15)
+        const shuffledParaDos = seedShuffle(dosRes.data || [], daySeed + 1).slice(0, 15)
+        const shuffledClassics = seedShuffle(claRes.data || [], daySeed + 2).slice(0, 15)
+
+        setNovedades(shuffledNovedades)
+        setParaDos(shuffledParaDos)
+        setClassics(shuffledClassics)
         setTop10(weekRes || [])
         setTop10Month(monthRes || [])
         setCommunityRankings(commRankingsData)
+        setFeaturedGame(recommendedOfTheDay)
+        setActiveMeetups(activeMeetupsData)
       } catch (err: any) {
         console.error('Error fetching carousels:', err)
         setError(err.message || 'Error al cargar carruseles')
@@ -250,7 +339,9 @@ export function useExploreGames(
     top10Month,
     communityRankings,
     searchResults,
-    isFiltering
+    isFiltering,
+    featuredGame,
+    activeMeetups
   }
 }
 export default useExploreGames;

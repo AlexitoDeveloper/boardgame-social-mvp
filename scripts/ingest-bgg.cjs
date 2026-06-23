@@ -252,11 +252,115 @@ async function getNextBggIdsFromCsv(limit) {
   });
 }
 
-async function runIngestion(limit = 10, targetIds = null) {
+/**
+ * Discover recent popular games from BGG XML API2 Hotness AND incremental ID scan
+ */
+async function discoverRecentGames(limit = 30) {
+  const currentYear = new Date().getFullYear();
+  const prevYear = currentYear - 1;
+  const bggToken = process.env.BGG_API_KEY;
+  const idsToIngest = new Set();
+
+  // Mode 1: BGG Hotness Discover
+  const hotnessUrl = 'https://boardgamegeek.com/xmlapi2/hot?type=boardgame';
+  console.log(`[BGG Discovery] Fetching hotness list from BGG API: ${hotnessUrl}...`);
+  try {
+    const headers = {
+      'Accept': 'application/xml',
+      'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)'
+    };
+    if (bggToken) {
+      headers['Authorization'] = `Bearer ${bggToken}`;
+    }
+
+    const response = await fetch(hotnessUrl, { headers });
+    if (!response.ok) throw new Error(`BGG Hotness API status ${response.status}`);
+    
+    const xmlText = await response.text();
+    const jsonObj = xmlParser.parse(xmlText);
+    let items = jsonObj.items?.item;
+    if (items) {
+      if (!Array.isArray(items)) items = [items];
+      items.forEach(item => {
+        const id = Number(item['@_id']);
+        const year = Number(item.yearpublished?.['@_value']);
+        if (!isNaN(id) && year >= prevYear) {
+          idsToIngest.add(id);
+        }
+      });
+    }
+    console.log(`[BGG Discovery] Hotness search found ${idsToIngest.size} games published in ${prevYear}-${currentYear}.`);
+  } catch (err) {
+    console.warn(`[BGG Discovery Warning] Hotness discover failed:`, err.message);
+  }
+
+  // Mode 2: Incremental Chronological Scan starting from MAX(bgg_id)
+  console.log('[BGG Discovery] Running incremental chronological scan...');
+  try {
+    const { data: maxGame, error: maxError } = await supabase
+      .from('games')
+      .select('bgg_id')
+      .order('bgg_id', { ascending: false })
+      .limit(1);
+
+    if (maxError) throw maxError;
+
+    let startId = 460000; // fallback start ID
+    if (maxGame && maxGame.length > 0) {
+      startId = maxGame[0].bgg_id + 1;
+    }
+    
+    // We scan the next 50 IDs in a single batch query
+    const scanIds = Array.from({ length: 50 }, (_, i) => startId + i);
+    console.log(`[BGG Discovery] Scanning BGG IDs from ${scanIds[0]} to ${scanIds[scanIds.length - 1]}...`);
+    
+    const xmlText = await fetchBggBatch(scanIds);
+    const jsonObj = xmlParser.parse(xmlText);
+    let items = jsonObj.items?.item;
+    if (items) {
+      if (!Array.isArray(items)) items = [items];
+      
+      let discoveredCount = 0;
+      items.forEach(item => {
+        const id = Number(item['@_id']);
+        const year = Number(item.yearpublished?.['@_value']);
+        
+        // Check statistics for usersrated
+        const stats = item.statistics?.ratings;
+        const usersRated = stats?.usersrated?.['@_value'] ? Number(stats.usersrated['@_value']) : 0;
+        
+        if (!isNaN(id) && year >= prevYear && usersRated >= 5) {
+          idsToIngest.add(id);
+          discoveredCount++;
+        }
+      });
+      console.log(`[BGG Discovery] Incremental scan found ${discoveredCount} real new games with ratings.`);
+    }
+  } catch (err) {
+    if (err.message && err.message.includes('status 400')) {
+      console.log(`[BGG Discovery] Incremental scan reached the BGG ID limit (future IDs not yet created).`);
+    } else {
+      console.warn(`[BGG Discovery Warning] Incremental scan failed:`, err.message);
+    }
+  }
+
+  const finalIdsList = Array.from(idsToIngest);
+  console.log(`[BGG Discovery] Total unique game IDs to ingest: ${finalIdsList.length}`);
+  return finalIdsList.slice(0, limit);
+}
+
+async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
   console.log('=== starting boardgamegeek catalog ingestion script ===');
   
   let idsToFetch = [];
-  if (targetIds && targetIds.length > 0) {
+  if (useRecent) {
+    console.log('[BGG Discovery] Running in recent releases mode...');
+    idsToFetch = await discoverRecentGames(limit);
+    if (idsToFetch.length === 0) {
+      console.log('[Info] No new games discovered via search page.');
+      return;
+    }
+  } else if (targetIds && targetIds.length > 0) {
     idsToFetch = targetIds;
     console.log(`[CLI] Target IDs specified: ${idsToFetch.join(', ')}`);
   } else {
@@ -525,6 +629,8 @@ const batchLimit = limitArg ? Number(limitArg.split('=')[1]) : 10;
 const idsArg = args.find(arg => arg.startsWith('--ids='));
 const targetIds = idsArg ? idsArg.split('=')[1].split(',').map(Number) : null;
 
-runIngestion(batchLimit, targetIds).catch(err => {
+const useRecent = args.includes('--recent');
+
+runIngestion(batchLimit, targetIds, useRecent).catch(err => {
   console.error('[Fatal Error]:', err);
 });
