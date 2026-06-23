@@ -4,7 +4,9 @@ import { Select } from './ui/select'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { CalendarDays, ChevronDown } from 'lucide-react'
-import { es } from 'date-fns/locale'
+import { es, enUS } from 'date-fns/locale'
+import { useAuth } from '../lib/authContext'
+import { formatDate } from '../lib/dateLocale'
 
 interface CalendarDatePickerProps {
   value?: string;
@@ -12,6 +14,7 @@ interface CalendarDatePickerProps {
 }
 
 export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps) {
+  const { language } = useAuth()
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     if (value) return new Date(value);
     const tomorrow = new Date();
@@ -44,14 +47,14 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
   };
 
   const formatDisplayDate = (date: Date) => {
-    if (!date) return 'Seleccionar fecha y hora...';
-    return date.toLocaleDateString('es-ES', {
+    if (!date) return language === 'es' ? 'Seleccionar fecha y hora...' : 'Select date and time...';
+    return formatDate(date, {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    });
+    }, language);
   };
 
   // Sync selectedDate with initial state on first mount
@@ -88,7 +91,7 @@ export function CalendarDatePicker({ value, onChange }: CalendarDatePickerProps)
             captionLayout="dropdown"
             startMonth={new Date(currentYear, 0)}
             endMonth={new Date(currentYear + 10, 11)}
-            locale={es}
+            locale={language === 'es' ? es : enUS}
             weekStartsOn={1}
             disabled={{ before: today }}
           />

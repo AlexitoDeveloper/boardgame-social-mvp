@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { Calendar, Layers, ListOrdered } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Badge } from './ui/badge'
+import { useAuth } from '../lib/authContext'
+import { formatDate } from '../lib/dateLocale'
 
 interface CommunityRanking {
   id: string;
@@ -21,6 +23,7 @@ interface CommunityRankingCardProps {
 }
 
 export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
+  const { language } = useAuth()
   const username = ranking.user?.username || 'Usuario'
   const avatarUrl = ranking.user?.avatar_url || undefined
   const modeLabel = ranking.mode === 'tier' ? 'Tier List' : 'Top 10'
@@ -73,7 +76,7 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
               {username}
             </span>
             <span className="text-[8px] text-zinc-500 font-medium">
-              {new Date(ranking.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+              {formatDate(ranking.created_at, { day: 'numeric', month: 'short' }, language)}
             </span>
           </div>
         </div>

@@ -7,6 +7,8 @@ import { useMeetupChat } from '../../hooks/useMeetupChat'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Form } from '../ui/form'
+import { useAuth } from '../../lib/authContext'
+import { formatTime as formatTimeLocale } from '../../lib/dateLocale'
 
 interface MeetupDetailChatProps {
   meetupId: string | undefined
@@ -23,6 +25,7 @@ export function MeetupDetailChat({
   meetup,
   attendees
 }: MeetupDetailChatProps) {
+  const { language } = useAuth()
   const { messages, loading, error, sendMessage, isAttendee } = useMeetupChat(
     meetupId,
     currentUser,
@@ -72,8 +75,7 @@ export function MeetupDetailChat({
   // Format timestamp (e.g. 14:35)
   const formatTime = (isoString: string) => {
     try {
-      const date = new Date(isoString)
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return formatTimeLocale(isoString, { hour: '2-digit', minute: '2-digit' }, language)
     } catch {
       return ''
     }

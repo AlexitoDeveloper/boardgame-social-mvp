@@ -6,6 +6,7 @@ import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Game } from '../../types'
 import { getGameTitle } from '../../lib/gameLocale'
+import { useAuth } from '../../lib/authContext'
 
 const MotionDiv = motion.div
 
@@ -38,6 +39,7 @@ export function GameSelectionSection({
   handleSearchBgg,
   onContinue
 }: GameSelectionSectionProps) {
+  const { language } = useAuth()
   return (
     <MotionDiv
       key="game-stage"
@@ -117,7 +119,7 @@ export function GameSelectionSection({
                   >
                     <OptimizedImage
                       src={game.image_url}
-                      alt={getGameTitle(game)}
+                      alt={getGameTitle(game, language)}
                       widthSize={80}
                       heightSize={80}
                       className="w-full h-full object-cover pointer-events-none"

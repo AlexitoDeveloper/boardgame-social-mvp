@@ -4,12 +4,15 @@ import { Card } from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Tag } from './ui/tag'
 import { getGameTitle } from '../lib/gameLocale'
+import { useAuth } from '../lib/authContext'
+import { formatDate } from '../lib/dateLocale'
 
 interface ActiveMeetupsCarouselProps {
   meetups: any[];
 }
 
 export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
+  const { language } = useAuth()
   if (!meetups || meetups.length === 0) return null
 
   return (
@@ -33,7 +36,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
           
           const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
           const primaryGame = gamesList[0] || null
-          const gameTitle = primaryGame ? getGameTitle(primaryGame) : (meetup.game_name || 'Por decidir')
+          const gameTitle = primaryGame ? getGameTitle(primaryGame, language) : (meetup.game_name || 'Por decidir')
           const coverUrl = primaryGame?.image_url || null
 
           return (
@@ -93,12 +96,12 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span className="truncate">
-                        {new Date(meetup.date).toLocaleDateString('es-ES', { 
+                        {formatDate(meetup.date, { 
                           day: 'numeric', 
                           month: 'short',
                           hour: '2-digit', 
                           minute: '2-digit' 
-                        })}
+                        }, language)}
                       </span>
                     </div>
 

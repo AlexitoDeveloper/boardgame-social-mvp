@@ -13,6 +13,8 @@ import { Button } from '../ui/button'
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
 import { PremiumDeactivateModal } from '../PremiumDeactivateModal'
 import { UserProfile } from '../../types'
+import { useAuth } from '../../lib/authContext'
+import { formatDate } from '../../lib/dateLocale'
 
 const MotionDiv = motion.div
 
@@ -39,6 +41,7 @@ export function ProfileShowcaseCard({
   xpProgress,
   setProfile
 }: ProfileShowcaseCardProps) {
+  const { language } = useAuth()
   const [showXpHelp, setShowXpHelp] = useState(false)
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
@@ -187,7 +190,7 @@ export function ProfileShowcaseCard({
             )}
             <span className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-lg border border-border/40 text-foreground/80 shadow-sm">
               <Calendar className="w-3.5 h-3.5 text-primary shrink-0" /> {(() => {
-                const dStr = new Date(profile.created_at || Date.now()).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                const dStr = formatDate(profile.created_at || Date.now(), { month: 'long', year: 'numeric' }, language);
                 return dStr.charAt(0).toUpperCase() + dStr.slice(1);
               })()}
             </span>

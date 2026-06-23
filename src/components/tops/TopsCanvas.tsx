@@ -7,6 +7,7 @@ import { DropdownIconButton } from '../ui/dropdown-icon-button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 import { getGameTitle } from '../../lib/gameLocale'
+import { useAuth } from '../../lib/authContext'
 
 interface TierGameItemProps {
   game: Game;
@@ -23,6 +24,7 @@ function TierGameItem({
   returnTierGameToPool,
   isLandscape = false,
 }: TierGameItemProps) {
+  const { language } = useAuth()
   const [hasError, setHasError] = useState(false)
   const imageSize = isLandscape ? 60 : 150
   const proxiedUrl = game.image_url ? `https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=${imageSize}&h=${imageSize}&fit=cover` : null
@@ -42,7 +44,7 @@ function TierGameItem({
       {proxiedUrl && !hasError ? (
         <img 
           src={proxiedUrl} 
-          alt={getGameTitle(game)} 
+          alt={getGameTitle(game, language)} 
           className="w-full h-full object-cover group-hover:opacity-35 transition-opacity" 
           crossOrigin="anonymous"
           onError={() => setHasError(true)}
@@ -54,7 +56,7 @@ function TierGameItem({
         <div className={`absolute inset-0 flex items-center justify-center p-1 font-bold text-center text-white bg-black/70 transition-colors line-clamp-3 leading-tight ${
           isLandscape ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'
         }`}>
-          {getGameTitle(game)}
+          {getGameTitle(game, language)}
         </div>
       ) : (
         /* Hover cover showing trash icon and label instead of name covering it */
@@ -82,6 +84,7 @@ function Top10GameItem({
   returnTop10GameToPool,
   isLandscape = false,
 }: Top10GameItemProps) {
+  const { language } = useAuth()
   const [hasError, setHasError] = useState(false)
   const imageSize = isLandscape ? 32 : 100
   const proxiedUrl = game.image_url ? `https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=${imageSize}&h=${imageSize}&fit=cover` : null
@@ -101,19 +104,19 @@ function Top10GameItem({
           {proxiedUrl && !hasError ? (
             <img 
               src={proxiedUrl} 
-              alt={getGameTitle(game)} 
+              alt={getGameTitle(game, language)} 
               className="w-full h-full object-cover" 
               crossOrigin="anonymous"
               onError={() => setHasError(true)}
             />
           ) : (
             <span className="text-[8px] font-bold text-center text-zinc-400 p-0.5 line-clamp-2 leading-tight">
-              {getGameTitle(game)}
+              {getGameTitle(game, language)}
             </span>
           )}
         </div>
         <div className="min-w-0">
-          <p className={`font-semibold text-zinc-100 truncate ${isLandscape ? 'text-xs' : 'text-sm'}`}>{getGameTitle(game)}</p>
+          <p className={`font-semibold text-zinc-100 truncate ${isLandscape ? 'text-xs' : 'text-sm'}`}>{getGameTitle(game, language)}</p>
           {!isLandscape && <p className="text-xs text-zinc-500">{game.year_published || 'Año desc.'}</p>}
         </div>
       </div>
@@ -527,7 +530,7 @@ export function TopsCanvas({
                       }`}
                     >
                       {/* Number badge */}
-                      <div className={`rounded-lg flex items-center justify-center font-extrabold border shrink-0 ${
+                      <div className={`rounded-lg flex items-center justify-center font-sans font-extrabold border shrink-0 ${
                         isLandscape ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'
                       } ${
                         game 

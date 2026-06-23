@@ -4,6 +4,8 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { GroupMember } from '../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
+import { useAuth } from '../../lib/authContext'
+import { formatDate } from '../../lib/dateLocale'
 
 interface GroupMembersTabProps {
   members: GroupMember[];
@@ -20,6 +22,7 @@ export function GroupMembersTab({
   isAdmin,
   handleKick
 }: GroupMembersTabProps) {
+  const { language } = useAuth()
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
       <h3 className="text-lg font-black tracking-tight text-foreground">Participantes del Grupo</h3>
@@ -56,7 +59,7 @@ export function GroupMembersTab({
                     )}
                   </div>
                   <p className="text-[10px] text-muted-foreground font-semibold mt-1">
-                    Miembro desde el {new Date(member.joined_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    Miembro desde el {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                   </p>
                 </div>
               </div>

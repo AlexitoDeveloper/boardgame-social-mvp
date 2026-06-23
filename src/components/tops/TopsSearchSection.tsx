@@ -8,6 +8,7 @@ import { Tier } from '../../hooks/useTops'
 import { GameSearchBar } from '../GameSearchBar'
 import { getGameTitle } from '../../lib/gameLocale'
 import { cn } from '../../lib/utils'
+import { useAuth } from '../../lib/authContext'
 
 interface TopsSearchSectionProps {
   searchQuery: string;
@@ -54,6 +55,7 @@ export function TopsSearchSection({
   handleDropOnPool,
   mode,
 }: TopsSearchSectionProps) {
+  const { language } = useAuth()
 
 
   return (
@@ -146,10 +148,10 @@ export function TopsSearchSection({
                       }`}
                     >
                       {game.image_url ? (
-                        <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
+                        <img src={game.image_url} alt={getGameTitle(game, language)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
                       ) : (
                         <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                          {getGameTitle(game)}
+                          {getGameTitle(game, language)}
                         </div>
                       )}
                       {isSelected && (
@@ -173,7 +175,7 @@ export function TopsSearchSection({
                   >
                     <div className="flex items-center justify-between text-xs border-b border-border/20 pb-2">
                       <span className="font-semibold text-foreground truncate max-w-[200px]">
-                        Colocar: <span className="text-primary font-extrabold">{getGameTitle(selectedGameForPlacement)}</span>
+                        Colocar: <span className="text-primary font-extrabold">{getGameTitle(selectedGameForPlacement, language)}</span>
                       </span>
                       <Button 
                         variant="ghost" 

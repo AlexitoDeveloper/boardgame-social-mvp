@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Plus, X, Sparkles } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Plus, X, Sparkles, Languages } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -77,7 +77,7 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
 }
 
 export function AppShell() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, language, setLanguage } = useAuth()
   const { isDark, toggle } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
@@ -269,6 +269,18 @@ export function AppShell() {
                       <Button
                         type="button"
                         variant="ghost"
+                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30 rounded-none h-auto"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
+                          <span>Idioma</span>
+                        </div>
+                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? 'Español' : 'English'}</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
                         onClick={handleSignOut}
                         className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30 rounded-none h-auto"
                       >
@@ -396,9 +408,20 @@ export function AppShell() {
                         <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
                       </Button>
                       <Button
+                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                        variant="ghost"
+                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto border-t border-border/30"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Languages className="h-4 w-4 text-primary" />
+                          <span>Idioma</span>
+                        </div>
+                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? 'Español' : 'English'}</span>
+                      </Button>
+                      <Button
                         onClick={() => { handleSignOut(); setShowMobileUserMenu(false) }}
                         variant="ghost"
-                        className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto"
+                        className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto border-t border-border/30"
                       >
                         <LogOut className="h-4 w-4" />
                         Cerrar Sesión

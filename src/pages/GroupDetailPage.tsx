@@ -13,24 +13,26 @@ import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { GroupLudotecaTab } from '../components/group-detail/GroupLudotecaTab'
 import { GroupPollsTab } from '../components/group-detail/GroupPollsTab'
 import { GroupMembersTab } from '../components/group-detail/GroupMembersTab'
+import { AppLanguage } from '../lib/gameLocale'
+import { formatDate } from '../lib/dateLocale'
 
-function formatMeetupDate(dateStr: string) {
+function formatMeetupDate(dateStr: string, lang: AppLanguage = 'es') {
   try {
     if (dateStr.length === 10 && dateStr.includes('-') && !dateStr.includes('T')) {
       const [year, month, day] = dateStr.split('-').map(Number)
       const date = new Date(year, month - 1, day)
-      return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      return formatDate(date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }, lang)
     }
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) return dateStr
-    return date.toLocaleDateString('es-ES', { 
+    return formatDate(date, { 
       weekday: 'long', 
       day: 'numeric', 
       month: 'long', 
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })
+    }, lang)
   } catch {
     return dateStr
   }
@@ -38,7 +40,7 @@ function formatMeetupDate(dateStr: string) {
 
 export function GroupDetailPage() {
   const { id: groupId } = useParams<{ id: string }>()
-  const { user } = useAuth()
+  const { user, language } = useAuth()
   const navigate = useNavigate()
 
   const {
@@ -349,7 +351,7 @@ export function GroupDetailPage() {
             polls={polls}
             isAdmin={isAdmin}
             user={user}
-            formatMeetupDate={formatMeetupDate}
+            formatMeetupDate={(d) => formatMeetupDate(d, language)}
             triggerConfirm={triggerConfirm}
             closePoll={closePoll}
             voteGame={voteGame}

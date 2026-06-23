@@ -8,6 +8,8 @@ import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getGameTitle } from '../lib/gameLocale'
+import { useAuth } from '../lib/authContext'
+import { formatDate } from '../lib/dateLocale'
 
 interface MeetupCardProps {
   meetup: Meetup;
@@ -18,6 +20,7 @@ interface MeetupCardProps {
 }
 
 export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }: MeetupCardProps) {
+  const { language } = useAuth()
   const userId = user?.id
   const isJoined = userId ? meetup.joined_players?.includes(userId) : false
   const isCreator = meetup.creator_id === userId
@@ -212,7 +215,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               >
                 <img
                   src={currentGame.image_url}
-                  alt={getGameTitle(currentGame) || 'Juego'}
+                  alt={getGameTitle(currentGame, language) || 'Juego'}
                   className="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10 group-hover:scale-[1.04] transition-transform duration-300 pointer-events-none select-none"
                 />
               </motion.div>
@@ -340,7 +343,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
                 }`}
                 title={showFullTitle ? "Click para contraer" : "Click para ver completo"}
               >
-                {currentGame ? getGameTitle(currentGame) : meetup.game_name}
+                {currentGame ? getGameTitle(currentGame, language) : meetup.game_name}
               </motion.span>
               {currentGame?.is_expansion && (
                 <motion.div layout className="inline-flex">
@@ -372,13 +375,13 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <div className="flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-primary shrink-0" />
             <span className="truncate">
-              {new Date(meetup.date || meetup.created_at || '').toLocaleDateString('es-ES', { 
+              {formatDate(meetup.date || meetup.created_at || '', { 
                 day: 'numeric', 
                 month: 'short', 
                 year: 'numeric',
                 hour: '2-digit', 
                 minute: '2-digit' 
-              })}
+              }, language)}
             </span>
           </div>
           <div className="flex items-center gap-2">

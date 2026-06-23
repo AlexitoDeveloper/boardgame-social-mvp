@@ -4,15 +4,17 @@ import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 import { Game } from '../types'
 import { getGameTitle } from '../lib/gameLocale'
+import { useAuth } from '../lib/authContext'
 
 interface FeaturedGameHeroProps {
   game: Game | null;
 }
 
 export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
+  const { language } = useAuth()
   if (!game) return null
 
-  const displayTitle = getGameTitle(game)
+  const displayTitle = getGameTitle(game, language)
   const isSpanish = game.has_spanish_edition || !!game.title_es
   
   // Format complexity (averageweight) to 1 decimal place or show placeholder

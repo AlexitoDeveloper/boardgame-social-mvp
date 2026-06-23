@@ -7,6 +7,7 @@ import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
 import { getGameTitle } from '@/lib/gameLocale'
 import { OptimizedImage } from './ui/OptimizedImage'
+import { useAuth } from '../lib/authContext'
 
 const MotionDiv = motion.div;
 
@@ -39,6 +40,7 @@ export function GameSearchBar({
   isShowingBggResults = false,
   isImporting = false
 }: GameSearchBarProps) {
+  const { language } = useAuth()
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   useClickOutside(
@@ -110,13 +112,13 @@ export function GameSearchBar({
                         <div className="flex items-center gap-3 pointer-events-none min-w-0 flex-1">
                           <OptimizedImage
                             src={g.image_url}
-                            alt={getGameTitle(g)}
+                            alt={getGameTitle(g, language)}
                             widthSize={80}
                             heightSize={80}
                             className="w-10 h-10 rounded object-cover shadow-sm shrink-0 bg-muted/20"
                           />
                           <span className="font-semibold text-sm text-left truncate block">
-                            {getGameTitle(g)} 
+                            {getGameTitle(g, language)} 
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
                               {g.year_published || 'Año desc.'}
                               {g.is_expansion && (

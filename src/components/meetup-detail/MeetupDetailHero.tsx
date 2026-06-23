@@ -6,6 +6,8 @@ import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getGameTitle } from '../../lib/gameLocale'
+import { useAuth } from '../../lib/authContext'
+import { formatDate } from '../../lib/dateLocale'
 import { OptimizedImage } from '../ui/OptimizedImage'
 
 interface MeetupDetailHeroProps {
@@ -16,6 +18,7 @@ interface MeetupDetailHeroProps {
 }
 
 export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: MeetupDetailHeroProps) {
+  const { language } = useAuth()
   const gamesList = meetup.games || [];
   
   // State for active game index in carousel
@@ -95,7 +98,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
               >
                 <OptimizedImage
                   src={currentGame.image_url}
-                  alt={getGameTitle(currentGame) || 'Juego'}
+                  alt={getGameTitle(currentGame, language) || 'Juego'}
                   widthSize={400}
                   fit="contain"
                   className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355 pointer-events-none select-none"
@@ -205,7 +208,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                   variant={idx === activeGameIdx ? "default" : "secondary"}
                   className="cursor-pointer transition-all hover:scale-105 active:scale-95"
                 >
-                  {getGameTitle(g)}
+                  {getGameTitle(g, language)}
                 </Tag>
               ))}
             </div>
@@ -216,14 +219,14 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold text-muted-foreground pt-3 border-t border-border/30">
           <span className="flex items-center gap-2">
             <Calendar className="h-4.5 w-4.5 text-primary shrink-0" />
-            {new Date(meetup.date).toLocaleDateString('es-ES', { 
+            {formatDate(meetup.date, { 
               weekday: 'long', 
               day: 'numeric', 
               month: 'long', 
               year: 'numeric', 
               hour: '2-digit', 
               minute: '2-digit' 
-            })}
+            }, language)}
           </span>
           {meetup.is_online ? (
             <span className="flex items-center gap-2">

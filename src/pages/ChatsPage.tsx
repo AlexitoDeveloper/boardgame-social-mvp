@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
+import { formatDate, formatTime as formatTimeLocale } from '../lib/dateLocale'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { USE_MOCKS } from '../lib/config'
 import { 
@@ -26,7 +27,7 @@ const MotionDiv = motion.div
 
 
 export function ChatsPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, language } = useAuth()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlMeetupId = searchParams.get('id')
@@ -366,8 +367,7 @@ export function ChatsPage() {
 
   // Format message timestamps
   const formatTime = (isoString: string) => {
-    const d = new Date(isoString)
-    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    return formatTimeLocale(isoString, { hour: '2-digit', minute: '2-digit' }, language)
   }
 
   const formatDateLabel = (isoString: string) => {
@@ -376,9 +376,9 @@ export function ChatsPage() {
     const yesterday = new Date(today)
     yesterday.setDate(today.getDate() - 1)
 
-    if (d.toDateString() === today.toDateString()) return 'Hoy'
-    if (d.toDateString() === yesterday.toDateString()) return 'Ayer'
-    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+    if (d.toDateString() === today.toDateString()) return language === 'es' ? 'Hoy' : 'Today'
+    if (d.toDateString() === yesterday.toDateString()) return language === 'es' ? 'Ayer' : 'Yesterday'
+    return formatDate(isoString, { day: 'numeric', month: 'short' }, language)
   }
 
   const renderSidebarSkeleton = () => (
@@ -573,7 +573,7 @@ export function ChatsPage() {
                     </h2>
                     <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
                       <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                      {new Date(activeMeetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      {formatDate(activeMeetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
                     </p>
                   </div>
                 </div>

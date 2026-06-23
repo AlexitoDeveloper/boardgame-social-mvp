@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getGameTitle, getGamePublisher } from '../../lib/gameLocale'
+import { useAuth } from '../../lib/authContext'
 import { OptimizedImage } from '../ui/OptimizedImage'
 import { 
   Clock, 
@@ -65,6 +66,7 @@ export function MeetupDetailSidebar({
   handleCompleteMeetup,
   onExportClick
 }: MeetupDetailSidebarProps) {
+  const { language } = useAuth()
   const navigate = useNavigate()
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [guestName, setGuestName] = useState('')
@@ -194,13 +196,13 @@ export function MeetupDetailSidebar({
                 <div className="flex items-center gap-2.5 min-w-0">
                   <OptimizedImage
                     src={game.image_url}
-                    alt={game.title}
+                    alt={getGameTitle(game, language)}
                     widthSize={80}
                     heightSize={80}
                     className="w-10 h-10 rounded-lg object-cover border border-border/20 shrink-0"
                   />
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</p>
+                    <p className="text-xs font-black text-foreground truncate">{getGameTitle(game, language)}</p>
                     <p className="text-[9px] text-muted-foreground font-semibold">Ganador:</p>
                   </div>
                 </div>
@@ -329,12 +331,12 @@ export function MeetupDetailSidebar({
                     <div className="flex items-center gap-2.5">
                       <OptimizedImage
                         src={game.image_url}
-                        alt={game.title}
+                        alt={getGameTitle(game, language)}
                         widthSize={60}
                         heightSize={60}
                         className="w-8 h-8 rounded object-cover border border-border/20 shrink-0"
                       />
-                      <span className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</span>
+                      <span className="text-xs font-black text-foreground truncate">{getGameTitle(game, language)}</span>
                     </div>
                     
                     <div className="grid grid-cols-1 gap-1">
@@ -707,7 +709,7 @@ export function MeetupDetailSidebar({
               <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
-                    {getGameTitle(game)}
+                    {getGameTitle(game, language)}
                   </CardTitle>
                   {game.is_expansion && (
                     <Tag variant="purple" className="shrink-0 text-[9px] px-1 py-0 shadow-sm">
@@ -733,7 +735,7 @@ export function MeetupDetailSidebar({
                   <div className="w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner">
                     <OptimizedImage
                       src={game.image_url}
-                      alt={game.title}
+                      alt={getGameTitle(game, language)}
                       widthSize={250}
                       fit="contain"
                       className="max-h-full max-w-full object-contain rounded-lg"
@@ -760,10 +762,10 @@ export function MeetupDetailSidebar({
                 </div>
 
                 {/* Editorial Info */}
-                {getGamePublisher(game) && (
+                {getGamePublisher(game, language) && (
                   <div className="px-3 py-2 rounded-xl bg-muted/20 border border-border/15 text-center">
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Editorial</p>
-                    <p className="text-xs font-extrabold text-foreground mt-0.5">{getGamePublisher(game)}</p>
+                    <p className="text-xs font-extrabold text-foreground mt-0.5">{getGamePublisher(game, language)}</p>
                   </div>
                 )}
               </CardContent>

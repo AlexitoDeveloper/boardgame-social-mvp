@@ -18,6 +18,7 @@ import {
 import { toPng } from 'html-to-image'
 import { cn } from '../lib/utils'
 import { getGameTitle } from '../lib/gameLocale'
+import { formatDate } from '../lib/dateLocale'
 import { AnimatePresence, motion } from 'framer-motion'
 
 // Import subcomponents
@@ -73,7 +74,7 @@ const GLOWS: Record<string, { g1: string; g2: string; g3: string }> = {
 export function MeetupDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, language } = useAuth()
 
   const {
     meetup,
@@ -450,7 +451,7 @@ export function MeetupDetailPage() {
                                       )}
                                       <div className="min-w-0 text-left font-inter">
                                         <h5 className="font-extrabold text-white truncate text-[11px] sm:text-xs">
-                                          {getGameTitle(game)}
+                                          {getGameTitle(game, language)}
                                         </h5>
                                         <span className="text-[8px] text-zinc-400 font-bold block mt-0.5">
                                           {game.year_published || 'N/A'}
@@ -496,7 +497,7 @@ export function MeetupDetailPage() {
                       <div className="border-t border-white/10 pt-3 flex items-center justify-between text-[10px] text-zinc-300 font-bold select-none shrink-0">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span>Mesa jugada el {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })} • Boardgame Social</span>
+                          <span>Mesa jugada el {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, language)} • Boardgame Social</span>
                         </span>
                         <span className="font-extrabold text-white">#BoardgameSocial</span>
                       </div>
@@ -558,7 +559,7 @@ export function MeetupDetailPage() {
                                         )}
                                         <div className="min-w-0 text-left font-inter">
                                           <h5 className="font-black text-white truncate text-xl">
-                                            {getGameTitle(game)}
+                                            {getGameTitle(game, language)}
                                           </h5>
                                           <span className="text-xs text-zinc-400 font-bold block mt-1">
                                             {game.year_published || 'N/A'}
@@ -604,7 +605,7 @@ export function MeetupDetailPage() {
                         <div className="border-t border-white/15 pt-6 flex items-center justify-between text-xs text-zinc-300 font-bold select-none font-inter">
                           <span className="flex items-center gap-2.5">
                             <Calendar className="w-5 h-5 text-primary shrink-0" />
-                            <span>Mesa jugada el {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} • Boardgame Social</span>
+                            <span>Mesa jugada el {formatDate(meetup.date, { day: 'numeric', month: 'long', year: 'numeric' }, language)} • Boardgame Social</span>
                           </span>
                           <span className="font-extrabold text-sm text-white">#BoardgameSocial</span>
                         </div>

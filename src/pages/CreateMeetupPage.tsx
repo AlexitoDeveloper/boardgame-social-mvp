@@ -26,7 +26,7 @@ const MotionForm = motion.form;
 export function CreateMeetupPage() {
   const { id } = useParams<{ id: string }>()
   const isEditMode = Boolean(id)
-  const { user } = useAuth()
+  const { user, language } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const gameIdParam = searchParams.get('gameId') || searchParams.get('game_id')
@@ -704,13 +704,13 @@ export function CreateMeetupPage() {
                             {game.image_url && (
                               <OptimizedImage
                                 src={game.image_url}
-                                alt={getGameTitle(game)}
+                                alt={getGameTitle(game, language)}
                                 widthSize={40}
                                 heightSize={40}
                                 className="w-4 h-4 object-contain rounded"
                               />
                             )}
-                            <span>{getGameTitle(game)}</span>
+                            <span>{getGameTitle(game, language)}</span>
                             {game.is_expansion && (
                               <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
                                 Expansión

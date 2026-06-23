@@ -9,8 +9,11 @@ import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
+import { useAuth } from '../lib/authContext'
+import { formatDate } from '../lib/dateLocale'
 
 export function GameDetailPage() {
+  const { language } = useAuth()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const {
@@ -455,13 +458,13 @@ export function GameDetailPage() {
                     <p className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span>
-                        {dateObj.toLocaleDateString('es-ES', { 
+                        {formatDate(dateObj, { 
                           weekday: 'short', 
                           day: '2-digit', 
                           month: 'short',
                           hour: '2-digit',
                           minute: '2-digit'
-                        })}
+                        }, language)}
                       </span>
                     </p>
                     {meetup.is_online ? (

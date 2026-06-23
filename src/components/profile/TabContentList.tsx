@@ -20,6 +20,9 @@ import { UserStats } from '../../hooks/useProfile'
 import { StatsDashboard } from './StatsDashboard'
 import { AdvancedStats } from './AdvancedStats'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../ui/accordion'
+import { useAuth } from '../../lib/authContext'
+import { getGameTitle } from '../../lib/gameLocale'
+import { formatDate } from '../../lib/dateLocale'
 
 const MotionDiv = motion.div
 
@@ -63,6 +66,8 @@ export function TabContentList({
   setIsImportModalOpen
 }: TabContentListProps) {
 
+  const { language } = useAuth()
+
   return (
     <div className="space-y-4">
       <AnimatePresence mode="wait">
@@ -92,7 +97,7 @@ export function TabContentList({
                         <div className="relative w-12 h-12 shrink-0">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
                             {mainGame?.image_url ? (
-                              <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              <img src={mainGame.image_url} alt={getGameTitle(mainGame, language)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                             ) : (
                               <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                             )}
@@ -107,7 +112,7 @@ export function TabContentList({
                           <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                           <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
                             <CalendarDays className="w-3.5 h-3.5 text-primary shrink-0" />
-                            {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            {formatDate(meetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
                           </span>
                         </div>
                       </div>
@@ -160,7 +165,7 @@ export function TabContentList({
                               : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
                           }`}>
                             {mainGame?.image_url ? (
-                              <img src={mainGame.image_url} alt={mainGame.title} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              <img src={mainGame.image_url} alt={getGameTitle(mainGame, language)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                             ) : (
                               <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                             )}
@@ -180,7 +185,7 @@ export function TabContentList({
                           <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
                             <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
                               <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                              {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                             </span>
                             
                             {/* Winner Badge using Swords Icon */}
@@ -289,7 +294,7 @@ export function TabContentList({
                             </h4>
                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
                               <Calendar className="w-3 h-3 text-primary shrink-0" />
-                              {new Date(ranking.created_at || Date.now()).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              {formatDate(ranking.created_at || Date.now(), { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                             </div>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
@@ -413,7 +418,7 @@ export function TabContentList({
                             {/* Contained front cover artwork */}
                             <img 
                               src={game.image_url} 
-                              alt={game.title} 
+                              alt={getGameTitle(game, language)} 
                               className="w-full h-full object-contain p-1 relative z-10 rounded-lg transition-transform group-hover:scale-105 duration-300"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -423,12 +428,12 @@ export function TabContentList({
                           </>
                         ) : null}
                         <div className={`absolute inset-0 flex items-center justify-center p-3 text-xs font-bold text-muted-foreground ${game.image_url ? 'hidden' : ''}`}>
-                          {game.title_es || game.title}
+                          {getGameTitle(game, language)}
                         </div>
                       </div>
                       <div className="mt-3 w-full px-0.5 text-center">
                         <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
-                          {game.title_es || game.title}
+                          {getGameTitle(game, language)}
                         </h4>
                         <span className="text-[10px] text-muted-foreground font-bold block mt-0.5">
                           {game.year_published || 'N/A'}

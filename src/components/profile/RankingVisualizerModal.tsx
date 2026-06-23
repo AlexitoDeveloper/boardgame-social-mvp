@@ -4,6 +4,7 @@ import { Sparkles, Download, Loader2, X } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { Button } from '../ui/button'
 import { getGameTitle } from '../../lib/gameLocale'
+import { useAuth } from '../../lib/authContext'
 
 const MotionDiv = motion.div
 
@@ -64,6 +65,7 @@ export function RankingVisualizerModal({
   selectedRanking,
   onClose
 }: RankingVisualizerModalProps) {
+  const { language } = useAuth()
   const exportModalRef = useRef<HTMLDivElement>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -209,13 +211,13 @@ export function RankingVisualizerModal({
                               {g.image_url ? (
                                 <img 
                                   src={`https://images.weserv.nl/?url=${encodeURIComponent(g.image_url)}&w=65&h=65&fit=cover`} 
-                                  alt={g.title} 
+                                  alt={getGameTitle(g, language)} 
                                   className="h-full w-full object-cover" 
                                   crossOrigin="anonymous"
                                 />
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center p-0.5 text-[8px] font-black text-center bg-black/60 text-white">
-                                  {g.title}
+                                  {getGameTitle(g, language)}
                                 </div>
                               )}
                             </div>
@@ -231,7 +233,7 @@ export function RankingVisualizerModal({
                         key={idx}
                         className={`flex items-center ${isLandscape ? 'gap-1.5 p-1' : 'gap-2.5 p-2'} rounded-xl border border-white/5 bg-white/5`}
                       >
-                        <div className={`rounded-lg flex items-center justify-center font-extrabold border shrink-0 bg-primary/20 border-primary/35 text-primary ${
+                        <div className={`rounded-lg flex items-center justify-center font-sans font-extrabold border shrink-0 bg-primary/20 border-primary/35 text-primary ${
                           isLandscape ? 'w-5 h-5 text-[10px]' : 'w-7 h-7 text-xs'
                         }`}>
                           {idx + 1}
@@ -242,16 +244,16 @@ export function RankingVisualizerModal({
                               {game.image_url ? (
                                 <img 
                                   src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=40&h=40&fit=cover`} 
-                                  alt={game.title} 
+                                  alt={getGameTitle(game, language)} 
                                   className="w-full h-full object-cover" 
                                   crossOrigin="anonymous"
                                 />
                               ) : (
-                                <span className="text-[7px] text-zinc-500 font-extrabold">{game.title.slice(0,2)}</span>
+                                <span className="text-[7px] text-zinc-500 font-extrabold">{getGameTitle(game, language).slice(0,2)}</span>
                               )}
                             </div>
                             <span className="font-extrabold text-zinc-100 truncate text-[11px] sm:text-xs">
-                              {getGameTitle(game)}
+                              {getGameTitle(game, language)}
                             </span>
                           </div>
                         ) : (
