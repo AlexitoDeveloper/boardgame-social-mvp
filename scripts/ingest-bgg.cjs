@@ -57,6 +57,58 @@ function isGenericEditionName(name) {
   return genericPatterns.some(pattern => pattern.test(normalized));
 }
 
+const SPANISH_PUBLISHERS = [
+  'tranjis games', 'devir', 'zacatrus', 'ludonova', 'gdm games', 'gdm',
+  'edge entertainment', 'asmodee spain', 'asmodee ibérica', 'asmodee iberica',
+  'gen x games', 'maldito games', 'tcg factory', 'arrakis games', 'eclipse editorial',
+  'doit games', 'mont tàber', 'mont taber', 'brain picnic', 'sd games', 'dmz games',
+  'salt & pepper games', 'looping games', 'primigenio', 'masqueoca', 'ediciones masqueoca',
+  'ludis hispania', 'tiki ediciones', 'perro lopo', 'drakon ideas', 'santiago games',
+  'falomir juegos', 'cefa toys', 'borras', 'juegos borras', 'diset', 'educo', 'mercurio',
+  'mercurio distribuciones'
+];
+
+function getPublisherName(v) {
+  let links = v.link || [];
+  if (!Array.isArray(links)) links = [links];
+  const pubLink = links.find(l => l['@_type'] === 'boardgamepublisher');
+  return pubLink?.['@_value']?.toLowerCase().trim() || null;
+}
+
+function selectBestSpanishVersion(versionItems) {
+  if (!versionItems) return null;
+  const list = Array.isArray(versionItems) ? versionItems : [versionItems];
+
+  // 1. Sort all versions by:
+  //    - Year published (descending)
+  //    - Spanish publisher priority (to resolve ties)
+  const sorted = [...list].sort((a, b) => {
+    const yearA = Number(a.yearpublished?.['@_value'] || 0);
+    const yearB = Number(b.yearpublished?.['@_value'] || 0);
+    if (yearB !== yearA) {
+      return yearB - yearA;
+    }
+
+    const pubA = getPublisherName(a);
+    const pubB = getPublisherName(b);
+    const isPubASpanish = pubA ? SPANISH_PUBLISHERS.some(sp => pubA.includes(sp)) : false;
+    const isPubBSpanish = pubB ? SPANISH_PUBLISHERS.some(sp => pubB.includes(sp)) : false;
+
+    if (isPubASpanish && !isPubBSpanish) return -1;
+    if (!isPubASpanish && isPubBSpanish) return 1;
+
+    return 0;
+  });
+
+  // 2. Find the first version in the sorted list that has Spanish language
+  return sorted.find(v => {
+    let links = v.link;
+    if (!links) return false;
+    if (!Array.isArray(links)) links = [links];
+    return links.some(l => l['@_type'] === 'language' && l['@_value'] === 'Spanish');
+  });
+}
+
 /**
  * Fetch a batch of game IDs from BoardGameGeek XML API2
  */
@@ -346,37 +398,20 @@ async function runIngestion(limit = 10, targetIds = null) {
 
       // Check for Spanish version and specific cover/publisher
       if (item.versions && item.versions.item) {
-        let versionItems = item.versions.item;
-        if (!Array.isArray(versionItems)) {
-          versionItems = [versionItems];
-        }
-        
-        // Reversing versionItems to prioritize the most recent Spanish edition
-        const spanishVersion = [...versionItems].reverse().find(v => {
-          let links = v.link;
-          if (!links) return false;
-          if (!Array.isArray(links)) links = [links];
-          return links.some(l => l['@_type'] === 'language' && l['@_value'] === 'Spanish');
-        });
+        const spanishVersion = selectBestSpanishVersion(item.versions.item);
 
         if (spanishVersion) {
           hasSpanishEdition = true;
 
           // Try to extract Spanish title (does NOT modify title — only sets title_es)
-          let spanishNames = spanishVersion.name;
-          if (spanishNames) {
-            if (!Array.isArray(spanishNames)) {
-              spanishNames = [spanishNames];
-            }
-            const primaryEspName = spanishNames.find(n => n?.['@_type'] === 'primary') || spanishNames[0];
-            const esTitle = primaryEspName?.['@_value'];
-            if (esTitle) {
-              if (!isGenericEditionName(esTitle)) {
-                titleEs = esTitle;
-                console.log(`[Parser] Spanish title: ${titleEs} (original: ${title})`);
-              } else {
-                console.log(`[Parser] Spanish version title "${esTitle}" is generic. Keeping English title: ${title}`);
-              }
+          const canonicalSpanishTitle = spanishVersion.canonicalname?.['@_value'];
+          if (canonicalSpanishTitle?.trim()) {
+            const trimmedTitleEs = canonicalSpanishTitle.trim();
+            if (!isGenericEditionName(trimmedTitleEs)) {
+              titleEs = trimmedTitleEs;
+              console.log(`[Parser] Spanish title (canonical): ${titleEs} (original: ${title})`);
+            } else {
+              console.log(`[Parser] Spanish version title "${trimmedTitleEs}" is generic. Keeping English title: ${title}`);
             }
           }
 
