@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { supabase } from './supabaseClient'
 import { User, Session } from '@supabase/supabase-js'
 import { AppLanguage } from './gameLocale'
+import i18n from './i18n'
 
 interface AuthContextType {
   user: User | null;
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = async (lang: AppLanguage) => {
     setLanguageState(lang)
+    i18n.changeLanguage(lang)
     if (user) {
       try {
         await supabase
@@ -44,7 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single()
 
         if (data?.language) {
-          setLanguageState(data.language as AppLanguage)
+          const dbLang = data.language as AppLanguage
+          setLanguageState(dbLang)
+          i18n.changeLanguage(dbLang)
         }
       } catch (err) {
         console.error('Error syncing language from database:', err)
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         syncUserLanguage(session.user.id)
       } else {
         setLanguageState('es')
+        i18n.changeLanguage('es')
       }
     })
 

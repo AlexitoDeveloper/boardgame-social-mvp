@@ -15,6 +15,8 @@ import { GroupPollsTab } from '../components/group-detail/GroupPollsTab'
 import { GroupMembersTab } from '../components/group-detail/GroupMembersTab'
 import { AppLanguage } from '../lib/gameLocale'
 import { formatDate } from '../lib/dateLocale'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../hooks/useGameLocale'
 
 function formatMeetupDate(dateStr: string, lang: AppLanguage = 'es') {
   try {
@@ -40,7 +42,10 @@ function formatMeetupDate(dateStr: string, lang: AppLanguage = 'es') {
 
 export function GroupDetailPage() {
   const { id: groupId } = useParams<{ id: string }>()
-  const { user, language } = useAuth()
+  const { t, i18n } = useTranslation()
+  const { getGameTitle } = useGameLocale()
+  const { user } = useAuth()
+  const language = i18n.language as any
   const navigate = useNavigate()
 
   const {
@@ -100,7 +105,7 @@ export function GroupDetailPage() {
     title: string,
     description: string,
     onConfirm: () => void,
-    confirmText = 'Confirmar',
+    confirmText = t('groups.confirmText'),
     isDestructive = false
   ) => {
     setConfirmConfig({
@@ -117,7 +122,7 @@ export function GroupDetailPage() {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-2">
         <Loader2 className="h-8 w-8 text-primary animate-spin" />
-        <p className="text-xs text-muted-foreground font-bold">Cargando detalles del grupo...</p>
+        <p className="text-xs text-muted-foreground font-bold">{t('groups.loadingGroupDetails')}</p>
       </div>
     )
   }
@@ -126,10 +131,10 @@ export function GroupDetailPage() {
     return (
       <div className="text-center py-20 space-y-4 max-w-md mx-auto">
         <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">
-          {error || 'Grupo no encontrado.'}
+          {error || t('groups.groupNotFound')}
         </div>
         <Button onClick={() => navigate('/grupos')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="h-4 w-4" /> Volver a Grupos
+          <ArrowLeft className="h-4 w-4" /> {t('groups.backToGroups')}
         </Button>
       </div>
     )
@@ -146,53 +151,53 @@ export function GroupDetailPage() {
 
   const handleLeave = () => {
     triggerConfirm(
-      '¿Salir del Grupo?',
-      '¿Seguro que quieres salir de este grupo? Su ludoteca ya no estará fusionada con la del resto de miembros.',
+      t('groups.leaveGroupConfirmTitle'),
+      t('groups.leaveGroupConfirmDesc'),
       async () => {
         setActionError(null)
         try {
           await leaveGroup()
           navigate('/grupos')
         } catch (err: any) {
-          setActionError(err.message || 'Error al abandonar el grupo.')
+          setActionError(err.message || t('groups.leaveGroup'))
         }
       },
-      'Salir del grupo',
+      t('groups.leaveGroup'),
       true
     )
   }
 
   const handleDelete = () => {
     triggerConfirm(
-      '¿Eliminar Grupo?',
-      '¿Seguro que quieres ELIMINAR este grupo? Esta acción es irreversible y borrará permanentemente todas las encuestas, miembros y registros de votación.',
+      t('groups.deleteGroupConfirmTitle'),
+      t('groups.deleteGroupConfirmDesc'),
       async () => {
         setActionError(null)
         try {
           await deleteGroup()
           navigate('/grupos')
         } catch (err: any) {
-          setActionError(err.message || 'Error al eliminar el grupo.')
+          setActionError(err.message || t('groups.deleteGroup'))
         }
       },
-      'Eliminar permanentemente',
+      t('groups.deleteGroup'),
       true
     )
   }
 
   const handleKick = (targetUserId: string, username: string) => {
     triggerConfirm(
-      '¿Expulsar Miembro?',
-      `¿Seguro que quieres expulsar a ${username} del grupo? Sus juegos ya no estarán incluidos en la ludoteca compartida.`,
+      t('groups.kickMemberConfirmTitle'),
+      t('groups.kickMemberConfirmDesc', { username }),
       async () => {
         setActionError(null)
         try {
           await kickMember(targetUserId)
         } catch (err: any) {
-          setActionError(err.message || 'Error al expulsar al miembro.')
+          setActionError(err.message || t('groups.kick'))
         }
       },
-      'Expulsar',
+      t('groups.kick'),
       true
     )
   }
@@ -201,7 +206,7 @@ export function GroupDetailPage() {
     e.preventDefault()
     if (!pollTitle.trim()) return
     if (selectedGameIds.length === 0) {
-      setPollError('Debes nominar al menos un juego de la ludoteca compartida.')
+      setPollError(t('groups.pollErrorNoGames'))
       return
     }
 
@@ -215,7 +220,7 @@ export function GroupDetailPage() {
       setPollDate('')
       setSelectedGameIds([])
     } catch (err: any) {
-      setPollError(err.message || 'Error al crear la encuesta.')
+      setPollError(err.message || t('groups.pollErrorCreate'))
     } finally {
       setPollLoading(false)
     }
@@ -243,7 +248,7 @@ export function GroupDetailPage() {
           onClick={() => navigate('/grupos')} 
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-xs font-bold"
         >
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Volver a Grupos</span><span className="xs:hidden">Volver</span>
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('groups.backToGroups')}</span><span className="xs:hidden">{t('common.back')}</span>
         </Button>
 
         <div className="flex gap-2">
@@ -254,7 +259,7 @@ export function GroupDetailPage() {
               className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="hidden xs:inline">Eliminar Grupo</span><span className="xs:hidden">Eliminar</span>
+              <span className="hidden xs:inline">{t('groups.deleteGroup')}</span><span className="xs:hidden">{t('common.remove')}</span>
             </Button>
           ) : (
             <Button
@@ -263,7 +268,7 @@ export function GroupDetailPage() {
               className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden xs:inline">Salir del Grupo</span><span className="xs:hidden">Salir</span>
+              <span className="hidden xs:inline">{t('groups.leaveGroup')}</span><span className="xs:hidden">{t('common.leave')}</span>
             </Button>
           )}
         </div>
@@ -272,7 +277,7 @@ export function GroupDetailPage() {
       {actionError && (
         <div className="p-4 rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold flex justify-between items-center animate-in fade-in duration-200">
           <span>{actionError}</span>
-          <Button onClick={() => setActionError(null)} variant="ghost" className="text-xs hover:underline font-bold bg-transparent border-none text-destructive cursor-pointer">Cerrar</Button>
+          <Button onClick={() => setActionError(null)} variant="ghost" className="text-xs hover:underline font-bold bg-transparent border-none text-destructive cursor-pointer">{t('groups.close')}</Button>
         </div>
       )}
 
@@ -287,22 +292,22 @@ export function GroupDetailPage() {
               <span>{group.name}</span>
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {group.description || 'Este grupo privado no tiene descripción lúdica establecida.'}
+              {group.description || t('groups.defaultGroupDesc')}
             </p>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold pt-2">
             <Users className="h-4 w-4 text-primary shrink-0" />
-            <span>{members.length} {members.length === 1 ? 'miembro activo' : 'miembros activos'}</span>
+            <span>{members.length} {members.length === 1 ? t('groups.memberActive') : t('groups.membersActive')}</span>
           </div>
         </div>
 
         {/* Invite Code card */}
         <div className="p-6 rounded-2xl bg-primary/5 border border-primary/15 shadow-sm flex flex-col justify-between space-y-4">
           <div className="space-y-1">
-            <h4 className="text-xs font-black uppercase text-primary tracking-widest">Código de Invitación</h4>
+            <h4 className="text-xs font-black uppercase text-primary tracking-widest">{t('groups.inviteCode')}</h4>
             <p className="text-[10px] text-muted-foreground font-semibold leading-normal">
-              Comparte este código con tus amigos para que puedan unirse y fusionar su ludoteca.
+              {t('groups.inviteCodeDesc')}
             </p>
           </div>
 
@@ -315,7 +320,7 @@ export function GroupDetailPage() {
               onClick={handleCopyCode}
               variant={copied ? 'default' : 'outline'}
               className="rounded-xl h-11 px-3.5 shrink-0"
-              title="Copiar código"
+              title={t('groups.copyCode')}
             >
               {copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
             </Button>
@@ -326,9 +331,9 @@ export function GroupDetailPage() {
       {/* Tabs Selector */}
       <Tabs
         options={[
-          { id: 'ludoteca', label: 'Ludoteca Compartida', icon: Layers, count: mergedCollection.length },
-          { id: 'polls', label: 'Quedadas y Votos', icon: Calendar, count: polls.length },
-          { id: 'members', label: 'Miembros', icon: Users, count: members.length }
+          { id: 'ludoteca', label: t('groups.sharedLudoteca'), icon: Layers, count: mergedCollection.length },
+          { id: 'polls', label: t('groups.meetupsAndVotes'), icon: Calendar, count: polls.length },
+          { id: 'members', label: t('groups.members'), icon: Users, count: members.length }
         ]}
         activeTab={activeTab}
         onChange={(tab) => setActiveTab(tab)}
@@ -367,7 +372,7 @@ export function GroupDetailPage() {
               setHasPollDate(false)
             }}
             onCreateMeetupRedirect={(pollTitle, gameId, gameTitle) => {
-              navigate(`/tablero/new?game_id=${gameId}&title=${encodeURIComponent(`Quedada: ${pollTitle}`)}&description=${encodeURIComponent(`Quedada del grupo para jugar a ${gameTitle}.`)}`)
+              navigate(`/tablero/new?game_id=${gameId}&title=${encodeURIComponent(`${t('groups.pollsTitle')}: ${pollTitle}`)}&description=${encodeURIComponent(t('groups.groupMeetupRedirectDesc', { gameTitle }))}`)
             }}
           />
         )}
@@ -388,19 +393,19 @@ export function GroupDetailPage() {
         <DialogContent className="max-w-md bg-card border-border/50 rounded-[24px] p-6 shadow-2xl text-left gap-4">
           <DialogHeader className="border-b border-border/25 pb-2">
             <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" /> Abrir Votación
+              <Calendar className="w-5 h-5 text-primary" /> {t('groups.openPollTitle')}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground font-semibold">
-              Elige los juegos candidatos de la ludoteca compartida para que los miembros elijan su favorito.
+              {t('groups.openPollDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <Form onSubmit={handleCreatePollSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Título de la Encuesta</label>
+              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollTitleLabel')}</label>
               <Input
                 type="text"
-                placeholder="Ej. Quedada del Sábado"
+                placeholder={t('groups.pollTitlePlaceholder')}
                 value={pollTitle}
                 onChange={(e) => setPollTitle(e.target.value)}
                 maxLength={45}
@@ -410,9 +415,9 @@ export function GroupDetailPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Instrucciones / Notas</label>
+              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDescLabel')}</label>
               <Textarea
-                placeholder="Ej. Votad qué eurogame os apetece más jugar. Empezaremos sobre las 17:00..."
+                placeholder={t('groups.pollDescPlaceholder')}
                 value={pollDesc}
                 onChange={(e) => setPollDesc(e.target.value)}
                 className="resize-none h-16 text-xs"
@@ -422,7 +427,7 @@ export function GroupDetailPage() {
             </div>
 
             <div className="flex items-center justify-between px-1 py-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">¿Proponer fecha y hora para la quedada?</label>
+              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">{t('groups.proposeMeetupDate')}</label>
               <Input
                 type="checkbox"
                 checked={hasPollDate}
@@ -434,7 +439,7 @@ export function GroupDetailPage() {
 
             {hasPollDate && (
               <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-200">
-                <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">Fecha y Hora Propuesta</label>
+                <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDateLabel')}</label>
                 <CalendarDatePicker value={pollDate} onChange={setPollDate} />
               </div>
             )}
@@ -442,13 +447,13 @@ export function GroupDetailPage() {
             {/* Selection list of games */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
-                Nominar Juegos de la Ludoteca ({selectedGameIds.length} seleccionados)
+                {t('groups.nominateGamesLabel', { count: selectedGameIds.length })}
               </label>
               <div className="relative mb-2">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                 <Input
                   type="text"
-                  placeholder="Buscar juego para nominar..."
+                  placeholder={t('groups.searchGameNominatePlaceholder')}
                   value={pollGameSearch}
                   onChange={(e) => setPollGameSearch(e.target.value)}
                   className="pl-8 h-8 text-xs rounded-lg bg-background/80"
@@ -457,7 +462,7 @@ export function GroupDetailPage() {
               </div>
               <div className="border border-border/30 rounded-xl bg-background/50 max-h-40 overflow-y-auto p-2.5 space-y-1.5 divide-y divide-border/10">
                 {mergedCollection.length === 0 ? (
-                  <p className="text-center text-xs text-muted-foreground py-6">Importa juegos a la ludoteca para poder nominarlos.</p>
+                  <p className="text-center text-xs text-muted-foreground py-6">{t('groups.emptyMergedNominate')}</p>
                 ) : (
                   (() => {
                     const filteredCollectionForPoll = mergedCollection.filter(item =>
@@ -465,7 +470,7 @@ export function GroupDetailPage() {
                       (item.game.title_es && item.game.title_es.toLowerCase().includes(pollGameSearch.toLowerCase()))
                     )
                     if (filteredCollectionForPoll.length === 0) {
-                      return <p className="text-center text-xs text-muted-foreground py-4">No se encontraron juegos que coincidan.</p>
+                      return <p className="text-center text-xs text-muted-foreground py-4">{t('groups.noGamesMatched')}</p>
                     }
                     return filteredCollectionForPoll.map((item) => {
                       const isSelected = selectedGameIds.includes(item.game.bgg_id)
@@ -479,7 +484,7 @@ export function GroupDetailPage() {
                         >
                           <CheckSquare className={`h-4 w-4 shrink-0 transition-colors ${isSelected ? 'text-primary' : 'text-muted-foreground/30'}`} />
                           <span className="text-xs font-bold text-foreground truncate flex-1 leading-none pt-0.5">
-                            {item.game.title_es || item.game.title}
+                            {getGameTitle(item.game)}
                           </span>
                         </div>
                       )
@@ -501,7 +506,7 @@ export function GroupDetailPage() {
                 className="rounded-xl font-bold text-xs"
                 disabled={pollLoading}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -511,7 +516,7 @@ export function GroupDetailPage() {
                 {pollLoading ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <span>Lanzar encuesta</span>
+                  <span>{t('groups.launchPoll')}</span>
                 )}
               </Button>
             </div>
@@ -538,7 +543,7 @@ export function GroupDetailPage() {
               onClick={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
               className="rounded-xl font-bold text-xs"
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"

@@ -7,8 +7,8 @@ import { MapPin, CalendarDays, Users, Loader2, Laptop, Dices, ChevronLeft, Chevr
 import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getGameTitle } from '../lib/gameLocale'
-import { useAuth } from '../lib/authContext'
+import { useGameLocale } from '../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 import { formatDate } from '../lib/dateLocale'
 
 interface MeetupCardProps {
@@ -20,7 +20,8 @@ interface MeetupCardProps {
 }
 
 export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }: MeetupCardProps) {
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle, language } = useGameLocale()
   const userId = user?.id
   const isJoined = userId ? meetup.joined_players?.includes(userId) : false
   const isCreator = meetup.creator_id === userId
@@ -59,9 +60,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
     e.stopPropagation();
     setActiveGameIdx(idx);
     setShowFullTitle(false);
-  };
-
-  const renderJoinButton = () => {
+  };  const renderJoinButton = () => {
     if (meetup.completed) {
       return (
         <Button 
@@ -70,7 +69,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           size="sm" 
           className="flex-1 select-none rounded-xl font-bold h-9"
         >
-          Finalizada
+          {t('common.completed')}
         </Button>
       )
     }
@@ -83,7 +82,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           size="sm" 
           className="flex-1 h-9 rounded-xl font-bold"
         >
-          Apuntarse
+          {t('common.join')}
         </Button>
       )
     }
@@ -96,7 +95,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           size="sm" 
           className="flex-1 h-9 rounded-xl font-bold"
         >
-          Master
+          {t('common.hostAbbr')}
         </Button>
       )
     }
@@ -122,7 +121,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           size="sm" 
           className="flex-1 h-9 rounded-xl font-bold"
         >
-          Salirse
+          {t('common.leave')}
         </Button>
       )
     }
@@ -135,7 +134,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           size="sm" 
           className="flex-1 h-9 rounded-xl font-bold"
         >
-          Completo
+          {t('common.full')}
         </Button>
       )
     }
@@ -147,11 +146,10 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         size="sm" 
         className="flex-1 h-9 rounded-xl font-bold"
       >
-        Apuntarse
+        {t('common.join')}
       </Button>
     )
   }
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -215,7 +213,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               >
                 <img
                   src={currentGame.image_url}
-                  alt={getGameTitle(currentGame, language) || 'Juego'}
+                  alt={getGameTitle(currentGame) || t('common.game')}
                   className="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10 group-hover:scale-[1.04] transition-transform duration-300 pointer-events-none select-none"
                 />
               </motion.div>
@@ -227,7 +225,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
             <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-2 shadow-inner">
               {meetup.is_online ? <Laptop className="w-8 h-8" /> : <Dices className="w-8 h-8" />}
             </div>
-            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">Mesa en el Tablero</span>
+            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">{t('meetup.tableOnBoard')}</span>
           </div>
         )}
 
@@ -239,7 +237,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               variant="ghost"
               size="icon"
               className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer p-0"
-              aria-label="Juego anterior"
+              aria-label={t('common.back')}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -248,7 +246,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               variant="ghost"
               size="icon"
               className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer p-0"
-              aria-label="Siguiente juego"
+              aria-label={t('common.next')}
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -263,7 +261,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
                   className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer p-0 min-w-0 min-h-0 bg-muted-foreground/45 ${
                     idx === activeGameIdx ? "bg-primary scale-125" : "hover:bg-muted-foreground/60"
                   }`}
-                  aria-label={`Ir al juego ${idx + 1}`}
+                  aria-label={`${t('common.game')} ${idx + 1}`}
                 />
               ))}
             </div>
@@ -275,11 +273,11 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <Tag variant="default-solid" className="shadow-md">
             {meetup.is_online ? (
               <>
-                <Laptop className="w-3.5 h-3.5 text-primary-foreground" /> Online
+                <Laptop className="w-3.5 h-3.5 text-primary-foreground" /> {t('common.online')}
               </>
             ) : (
               <>
-                <MapPin className="w-3.5 h-3.5 text-primary-foreground" /> Presencial
+                <MapPin className="w-3.5 h-3.5 text-primary-foreground" /> {t('common.inPerson')}
               </>
             )}
           </Tag>
@@ -291,11 +289,11 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
             variant="secondary-solid"
             className="shadow-md"
           >
-            <Users className="w-3.5 h-3.5" /> {totalAttendees} / {meetup.max_players} plazas
+            <Users className="w-3.5 h-3.5" /> {totalAttendees} / {meetup.max_players} {t('common.spotsText')}
           </Tag>
           {isLastSpot && !meetup.completed && (
             <Tag variant="warning-solid" pulse className="shadow-md">
-              Última plaza
+              {t('common.lastSpot')}
             </Tag>
           )}
         </div>
@@ -310,10 +308,10 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               onClick={() => onNavigate(`/tablero/${meetup.id}`)}
               className="text-base sm:text-lg font-extrabold leading-snug tracking-tight text-foreground hover:text-primary transition-colors cursor-pointer line-clamp-1 flex items-center gap-2 text-pretty"
             >
-              {meetup.title || 'Partida de Juego de Mesa'}
+              {meetup.title || t('meetup.defaultMeetupTitle')}
               {meetup.completed && (
                 <Tag variant="success-solid">
-                  Completada
+                  {t('common.completed')}
                 </Tag>
               )}
             </h3>
@@ -322,14 +320,14 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           {/* Información del juego */}
           {gamesList.length === 0 ? (
             <div className="text-[11px] font-bold text-amber-500 tracking-wide flex items-center gap-1.5">
-              <span>Juego:</span>
+              <span>{t('common.game')}:</span>
               <Tag variant="warning-solid">
-                Por decidir en chat
+                {t('create.noGamesSelected')}
               </Tag>
             </div>
           ) : (
             <motion.div layout className="text-xs font-bold text-primary tracking-wide flex flex-wrap items-center gap-1.5">
-              <motion.span layout>Juegos ({gamesList.length}):</motion.span>
+              <motion.span layout>{t('create.sessionGames')} ({gamesList.length}):</motion.span>
               <motion.span 
                 layout
                 onClick={(e) => {
@@ -341,21 +339,21 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
                     ? "whitespace-normal break-words max-w-full" 
                     : "truncate max-w-[120px] md:max-w-[140px]"
                 }`}
-                title={showFullTitle ? "Click para contraer" : "Click para ver completo"}
+                title={showFullTitle ? t('common.clickToCollapse') : t('common.clickToExpand')}
               >
-                {currentGame ? getGameTitle(currentGame, language) : meetup.game_name}
+                {currentGame ? getGameTitle(currentGame) : meetup.game_name}
               </motion.span>
               {currentGame?.is_expansion && (
                 <motion.div layout className="inline-flex">
                   <Tag variant="purple">
-                    Expansión
+                    {t('common.expansion')}
                   </Tag>
                 </motion.div>
               )}
               {gamesList.length > 1 && (
                 <motion.div layout className="inline-flex">
                   <Tag variant="secondary-solid">
-                    {activeGameIdx + 1} de {gamesList.length}
+                    {activeGameIdx + 1} {t('common.of')} {gamesList.length}
                   </Tag>
                 </motion.div>
               )}
@@ -388,12 +386,12 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
             {meetup.is_online ? (
               <>
                 <Laptop className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate">Online • {meetup.platform || 'Por definir'}</span>
+                <span className="truncate">{t('common.online')} • {meetup.platform || t('common.toDecide')}</span>
               </>
             ) : (
               <>
                 <MapPin className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate">{meetup.location || 'Ubicación por definir'}</span>
+                <span className="truncate">{meetup.location || t('common.toDecide')}</span>
               </>
             )}
           </div>
@@ -412,9 +410,9 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-[9px] text-muted-foreground/80 font-medium leading-none mb-0.5">Anfitrión</span>
+              <span className="text-[9px] text-muted-foreground/80 font-medium leading-none mb-0.5">{t('common.host')}</span>
               <span className="text-xs font-extrabold text-foreground group-hover/creator:text-primary transition-colors leading-none">
-                {meetup.users?.username || 'anónimo'}
+                {meetup.users?.username || t('common.anonymous')}
               </span>
             </div>
           </div>
@@ -428,7 +426,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
             size="sm" 
             className="flex-1 h-9 rounded-xl font-bold transition-all duration-200"
           >
-            Ver Detalles
+            {t('common.details')}
           </Button>
           {renderJoinButton()}
         </div>

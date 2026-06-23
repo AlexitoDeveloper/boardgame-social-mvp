@@ -4,8 +4,8 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { GroupMember } from '../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
-import { useAuth } from '../../lib/authContext'
 import { formatDate } from '../../lib/dateLocale'
+import { useTranslation } from 'react-i18next'
 
 interface GroupMembersTabProps {
   members: GroupMember[];
@@ -22,10 +22,11 @@ export function GroupMembersTab({
   isAdmin,
   handleKick
 }: GroupMembersTabProps) {
-  const { language } = useAuth()
+  const { t, i18n } = useTranslation()
+  const language = i18n.language as any
   return (
     <div className="space-y-4 animate-in fade-in duration-200">
-      <h3 className="text-lg font-black tracking-tight text-foreground">Participantes del Grupo</h3>
+      <h3 className="text-lg font-black tracking-tight text-foreground">{t('groups.participants')}</h3>
 
       <div className="bg-card/65 border border-border/30 rounded-2xl shadow-sm overflow-hidden divide-y divide-border/20">
         {members.map((member) => {
@@ -49,17 +50,17 @@ export function GroupMembersTab({
                     </span>
                     {isMe && (
                       <Badge variant="secondary" className="text-[8px] px-1.5 py-0.5 leading-none">
-                        Tú
+                        {t('common.you')}
                       </Badge>
                     )}
                     {isMemberCreator && (
                       <Badge variant="warning" className="text-[8px] px-1.5 py-0.5 leading-none flex items-center gap-0.5">
-                        <Crown className="w-2.5 h-2.5 fill-amber-500" /> Creador
+                        <Crown className="w-2.5 h-2.5 fill-amber-500" /> {t('common.creator')}
                       </Badge>
                     )}
                   </div>
                   <p className="text-[10px] text-muted-foreground font-semibold mt-1">
-                    Miembro desde el {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
+                    {t('groups.memberSince')} {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                   </p>
                 </div>
               </div>
@@ -71,7 +72,7 @@ export function GroupMembersTab({
                   variant="ghost"
                   className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-[10px] h-8 px-2.5"
                 >
-                  Expulsar
+                  {t('common.kick')}
                 </Button>
               )}
             </div>

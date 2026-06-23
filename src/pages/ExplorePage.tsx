@@ -9,8 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
 import { FeaturedGameHero } from '../components/FeaturedGameHero'
 import { ActiveMeetupsCarousel } from '../components/ActiveMeetupsCarousel'
+import { useTranslation } from 'react-i18next'
 
 export function ExplorePage() {
+  const { t } = useTranslation()
   const [search, setSearchChange] = useState('')
   const [playerFilter, setPlayerFilterChange] = useState('')
   const [complexityFilter, setComplexityFilterChange] = useState('')
@@ -66,10 +68,10 @@ export function ExplorePage() {
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
-          Inicio
+          {t('nav.home')}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Descubre tu próximo juego favorito, ediciones en español y los clásicos más jugados.
+          {t('explore.exploreSubtitle')}
         </p>
       </div>
 
@@ -87,7 +89,7 @@ export function ExplorePage() {
 
       {error && (
         <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">
-          Hubo un problema al cargar los juegos: {error}
+          {t('meetup.errorTitle')}: {error}
         </div>
       )}
 
@@ -97,7 +99,7 @@ export function ExplorePage() {
           /* Search Grid View */
           <div>
             <h2 className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">
-              Resultados de Búsqueda ({searchResults.length})
+              {t('explore.searchTitle', { count: searchResults.length })}
             </h2>
 
             <AnimatePresence mode="wait">
@@ -121,8 +123,8 @@ export function ExplorePage() {
                   className="text-center py-24 border border-dashed border-border/60 rounded-2xl bg-muted/10"
                 >
                   <Library className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-muted-foreground font-bold text-base">No encontramos juegos que coincidan.</p>
-                  <p className="text-xs text-foreground/50 mt-1">Prueba a cambiar los filtros o tu búsqueda de texto.</p>
+                  <p className="text-muted-foreground font-bold text-base">{t('explore.noSearchResultsTitle')}</p>
+                  <p className="text-xs text-foreground/50 mt-1">{t('explore.noSearchResultsDesc')}</p>
                 </motion.div>
               ) : (
                 <motion.div
@@ -222,22 +224,22 @@ export function ExplorePage() {
                   )}
 
                   {/* Top 10 Weekly (Played count based) */}
-                  <GameCarousel games={top10} title="🏆 TOP 10 de la Semana (Más Jugados)" variant="top10" />
+                  <GameCarousel games={top10} title={t('explore.top10Week')} variant="top10" />
 
                   {/* Novedades */}
-                  <GameCarousel games={novedades} title="🇪🇸 Novedades en España" />
+                  <GameCarousel games={novedades} title={t('explore.newSpain')} />
 
                   {/* Juegos para 2 */}
-                  <GameCarousel games={paraDos} title="👥 Juegos para 2 Jugadores" />
+                  <GameCarousel games={paraDos} title={t('explore.for2Players')} />
 
                   {/* Top 10 Monthly (Played count based) */}
-                  <GameCarousel games={top10Month} title="🔥 TOP 10 del Mes (Favoritos del Tablero)" variant="top10" />
+                  <GameCarousel games={top10Month} title={t('explore.top10Month')} variant="top10" />
 
                   {/* Community Rankings (Created by users) */}
                   {communityRankings.length > 0 && (
                     <div className="space-y-3 py-2">
                       <h3 className="text-lg font-black tracking-tight px-1 text-foreground">
-                        ✨ Rankings de la Comunidad
+                        {t('explore.communityRankingsTitle')}
                       </h3>
                       <div 
                         className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
@@ -255,7 +257,7 @@ export function ExplorePage() {
                   )}
 
                   {/* Classics */}
-                  <GameCarousel games={classics} title="🎖️ Clásicos de BGG" />
+                  <GameCarousel games={classics} title={t('explore.classicsBgg')} />
                 </motion.div>
               )}
             </AnimatePresence>

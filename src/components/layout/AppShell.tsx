@@ -8,15 +8,16 @@ import { useTheme } from '../../lib/useTheme'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
 import { supabase } from '../../lib/supabaseClient'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
 const desktopNavItems = [
-  { to: '/', label: 'Inicio', icon: Home },
-  { to: '/tablero', label: 'Tablero', icon: Dices },
-  { to: '/chats', label: 'Chats', icon: MessageSquare },
-  { to: '/grupos', label: 'Grupos', icon: Users },
-  { to: '/tops', label: 'Crear Top', icon: ListOrdered },
+  { to: '/', labelKey: 'nav.home', icon: Home },
+  { to: '/tablero', labelKey: 'nav.board', icon: Dices },
+  { to: '/chats', labelKey: 'nav.chats', icon: MessageSquare },
+  { to: '/grupos', labelKey: 'nav.groups', icon: Users },
+  { to: '/tops', labelKey: 'nav.tops', icon: ListOrdered },
 ]
 
 interface NavItemProps {
@@ -78,6 +79,7 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
 
 export function AppShell() {
   const { user, signOut, language, setLanguage } = useAuth()
+  const { t } = useTranslation()
   const { isDark, toggle } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
@@ -212,7 +214,7 @@ export function AppShell() {
 
           <nav className="space-y-1">
             {desktopNavItems.map((item) => (
-              <NavItem key={item.to} to={item.to} label={item.label} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
+              <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
             ))}
           </nav>
 
@@ -252,7 +254,7 @@ export function AppShell() {
                         )}
                       >
                         <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
-                        <span>Mi Perfil</span>
+                        <span>{t('nav.profile')}</span>
                       </Button>
                       <Button
                         type="button"
@@ -262,9 +264,9 @@ export function AppShell() {
                       >
                         <div className="flex items-center gap-3">
                           {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
-                          <span>Tema</span>
+                          <span>{t('nav.theme')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
+                        <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
                       </Button>
                       <Button
                         type="button"
@@ -274,9 +276,9 @@ export function AppShell() {
                       >
                         <div className="flex items-center gap-3">
                           <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
-                          <span>Idioma</span>
+                          <span>{t('nav.changeLang')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? 'Español' : 'English'}</span>
+                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
                       </Button>
                       <Button
                         type="button"
@@ -285,7 +287,7 @@ export function AppShell() {
                         className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors border-t border-border/30 rounded-none h-auto"
                       >
                         <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
-                        Cerrar Sesión
+                        {t('nav.signOut')}
                       </Button>
                     </MotionDiv>
                   )}
@@ -299,7 +301,7 @@ export function AppShell() {
                   className="w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors duration-200 h-auto"
                 >
                 <LogIn aria-hidden="true" focusable={false} className="h-5 w-5 text-primary shrink-0" />
-                <span>Iniciar Sesión</span>
+                <span>{t('nav.signIn')}</span>
               </Button>
             )}
           </div>
@@ -320,8 +322,8 @@ export function AppShell() {
 
       <nav className="fixed inset-x-0 bottom-[-2px] z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-between gap-1">
-          <NavItem to="/" label="Inicio" icon={Home} mobile />
-          <NavItem to="/tablero" label="Tablero" icon={Dices} mobile />
+          <NavItem to="/" label={t('nav.home')} icon={Home} mobile />
+          <NavItem to="/tablero" label={t('nav.board')} icon={Dices} mobile />
 
           {/* Quick Actions mobile center button */}
           <Button
@@ -338,7 +340,7 @@ export function AppShell() {
             </div>
           </Button>
 
-          <NavItem to="/chats" label="Chats" icon={MessageSquare} badgeCount={unreadChats} mobile />
+          <NavItem to="/chats" label={t('nav.chats')} icon={MessageSquare} badgeCount={unreadChats} mobile />
           {user ? (
             <div className="relative flex flex-1 items-center justify-center">
               <Button
@@ -381,20 +383,20 @@ export function AppShell() {
                         )}
                       >
                         <User className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
-                        <span>Mi Perfil</span>
+                        <span>{t('nav.profile')}</span>
                       </Button>
                       <Button
                         onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
                         variant="ghost"
                         className={cn(
-                          "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
+                           "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
                           isGroupsActive 
                             ? "bg-primary/10 text-primary font-bold"
                             : "hover:bg-muted/30 text-foreground"
                         )}
                       >
                         <Users className={cn("h-4 w-4 shrink-0 transition-colors", isGroupsActive ? "text-primary" : "text-muted-foreground")} />
-                        <span>Grupos de Juego</span>
+                        <span>{t('nav.groups')}</span>
                       </Button>
                       <Button
                         onClick={toggle}
@@ -403,9 +405,9 @@ export function AppShell() {
                       >
                         <div className="flex items-center gap-3">
                           {isDark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
-                          <span>Tema</span>
+                          <span>{t('nav.theme')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px]">{isDark ? 'OSCURO' : 'CLARO'}</span>
+                        <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
                       </Button>
                       <Button
                         onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
@@ -414,9 +416,9 @@ export function AppShell() {
                       >
                         <div className="flex items-center gap-3">
                           <Languages className="h-4 w-4 text-primary" />
-                          <span>Idioma</span>
+                          <span>{t('nav.changeLang')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? 'Español' : 'English'}</span>
+                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
                       </Button>
                       <Button
                         onClick={() => { handleSignOut(); setShowMobileUserMenu(false) }}
@@ -424,7 +426,7 @@ export function AppShell() {
                         className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto border-t border-border/30"
                       >
                         <LogOut className="h-4 w-4" />
-                        Cerrar Sesión
+                        {t('nav.signOut')}
                       </Button>
                     </MotionDiv>
                   </>
@@ -468,7 +470,7 @@ export function AppShell() {
             >
               <div className="flex justify-between items-center pb-2 border-b border-border/20">
                 <h3 className="text-sm font-black tracking-tight text-foreground uppercase tracking-widest flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Acciones Rápidas
+                  <Sparkles className="w-4 h-4 text-primary animate-pulse" /> {t('nav.quickActions')}
                 </h3>
                 <Button
                   type="button"
@@ -494,8 +496,8 @@ export function AppShell() {
                     <Dices className="w-5 h-5" />
                   </div>
                   <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">Organizar Quedada</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Abre una mesa de juego en el tablero.</p>
+                    <h4 className="text-xs font-bold text-foreground">{t('nav.createMeetup')}</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createMeetupDesc')}</p>
                   </div>
                 </Button>
 
@@ -511,8 +513,8 @@ export function AppShell() {
                     <ListOrdered className="w-5 h-5" />
                   </div>
                   <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">Crear Ranking</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Ordena tus juegos favoritos y comparte tu top.</p>
+                    <h4 className="text-xs font-bold text-foreground">{t('profile.stats.createRanking')}</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createRankingDesc')}</p>
                   </div>
                 </Button>
 
@@ -528,8 +530,8 @@ export function AppShell() {
                     <Users className="w-5 h-5" />
                   </div>
                   <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">Crear Grupo</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">Fusiona colecciones y vota qué jugar.</p>
+                    <h4 className="text-xs font-bold text-foreground">{t('nav.createGroup')}</h4>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createGroupDesc')}</p>
                   </div>
                 </Button>
               </div>

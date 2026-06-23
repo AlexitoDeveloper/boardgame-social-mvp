@@ -6,9 +6,9 @@ import { Button } from '../ui/button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
 import { GameSearchBar } from '../GameSearchBar'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useGameLocale } from '../../hooks/useGameLocale'
 import { cn } from '../../lib/utils'
-import { useAuth } from '../../lib/authContext'
+import { useTranslation } from 'react-i18next'
 
 interface TopsSearchSectionProps {
   searchQuery: string;
@@ -55,17 +55,18 @@ export function TopsSearchSection({
   handleDropOnPool,
   mode,
 }: TopsSearchSectionProps) {
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
 
 
   return (
     <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl overflow-visible relative z-20">
       <CardHeader className="pb-3">
         <CardTitle className="text-md font-bold flex items-center gap-2">
-          <Search className="w-4 h-4 text-primary" /> Buscador y Bandeja de Juegos
+          <Search className="w-4 h-4 text-primary" /> {t('tops.searchAndShelfTitle')}
         </CardTitle>
         <CardDescription className="text-xs">
-          Busca juegos para añadirlos a tu bandeja y colócalos arrastrándolos o haciendo clic en el ranking superior.
+          {t('tops.searchAndShelfDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 relative">
@@ -75,7 +76,7 @@ export function TopsSearchSection({
           games={searchResults}
           setGames={setSearchResults}
           isSearching={isSearching}
-          placeholder="Ej. Catan, Brass, Carcassonne..."
+          placeholder={t('create.searchPlaceholder')}
           onSelectGame={addToPool}
           isGameDisabled={(game) => 
             pool.some(g => g.bgg_id === game.bgg_id) || 
@@ -95,7 +96,7 @@ export function TopsSearchSection({
         {/* Shelf (Bandeja de Preparación) directly below input inside same container */}
         <div className="pt-2 border-t border-border/20 relative z-10">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-extrabold text-foreground/80">Juegos en Bandeja ({pool.length})</span>
+            <span className="text-xs font-extrabold text-foreground/80">{t('create.shelfTitle')} ({pool.length})</span>
             {pool.length > 0 && (
               <Button 
                 variant="ghost" 
@@ -103,7 +104,7 @@ export function TopsSearchSection({
                 onClick={handleClearPool}
                 className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
               >
-                <Trash2 className="w-3 h-3" /> Vaciar
+                <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </Button>
             )}
           </div>
@@ -119,7 +120,7 @@ export function TopsSearchSection({
               }}
               className="text-center py-6 border border-dashed border-border/40 rounded-xl bg-background/25 text-muted-foreground text-xs font-semibold"
             >
-              Los juegos añadidos aparecerán aquí.
+              {t('create.shelfEmpty')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -148,10 +149,10 @@ export function TopsSearchSection({
                       }`}
                     >
                       {game.image_url ? (
-                        <img src={game.image_url} alt={getGameTitle(game, language)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
+                        <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
                       ) : (
                         <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
-                          {getGameTitle(game, language)}
+                          {getGameTitle(game)}
                         </div>
                       )}
                       {isSelected && (
@@ -175,7 +176,7 @@ export function TopsSearchSection({
                   >
                     <div className="flex items-center justify-between text-xs border-b border-border/20 pb-2">
                       <span className="font-semibold text-foreground truncate max-w-[200px]">
-                        Colocar: <span className="text-primary font-extrabold">{getGameTitle(selectedGameForPlacement, language)}</span>
+                        {t('tops.placeHint')} <span className="text-primary font-extrabold">{getGameTitle(selectedGameForPlacement)}</span>
                       </span>
                       <Button 
                         variant="ghost" 
@@ -183,14 +184,14 @@ export function TopsSearchSection({
                         onClick={() => removeFromPool(selectedGameForPlacement.bgg_id)}
                         className="h-6 text-[10px] text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer px-2"
                       >
-                        Quitar
+                        {t('common.remove')}
                       </Button>
                     </div>
                     
                     <div className="space-y-1.5">
                       <p className="text-[10px] text-zinc-400 font-semibold">
-                        <span className="hidden sm:inline">Toca un botón de abajo o haz clic en su destino en el ranking de arriba:</span>
-                        <span className="inline sm:hidden">Elige una posición para colocar el juego en el ranking:</span>
+                        <span className="hidden sm:inline">{t('tops.placementHintLandscape')}</span>
+                        <span className="inline sm:hidden">{t('tops.placementHintPortrait')}</span>
                       </p>
                       <div className="flex flex-wrap gap-1.5 sm:gap-1">
                         {mode === 'tier' ? (
@@ -226,7 +227,7 @@ export function TopsSearchSection({
                           className="h-10 px-3 sm:h-7 sm:px-2 text-xs sm:text-[10px] text-muted-foreground hover:bg-muted ml-auto rounded-md cursor-pointer"
                           onClick={() => setSelectedGameForPlacement(null)}
                         >
-                          Cancelar
+                          {t('common.cancel')}
                         </Button>
                       </div>
                     </div>

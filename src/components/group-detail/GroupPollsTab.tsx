@@ -6,6 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar'
 import { OptimizedImage } from '../ui/OptimizedImage'
 import { GroupPoll } from '../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../../hooks/useGameLocale'
 
 interface GroupPollsTabProps {
   polls: GroupPoll[];
@@ -38,13 +40,15 @@ export function GroupPollsTab({
   openNewPollModal,
   onCreateMeetupRedirect
 }: GroupPollsTabProps) {
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header / Create Poll */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-black tracking-tight text-foreground">Encuestas de Quedadas</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Vota los juegos candidatos para organizar la próxima mesa de juego.</p>
+          <h3 className="text-lg font-black tracking-tight text-foreground">{t('groups.pollsTitle')}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('groups.pollsSubtitle')}</p>
         </div>
 
         {isAdmin && (
@@ -53,7 +57,7 @@ export function GroupPollsTab({
             className="rounded-xl flex items-center gap-1.5 font-bold text-xs h-9 shadow-sm"
           >
             <Plus className="h-4 w-4" />
-            <span>Nueva Encuesta</span>
+            <span>{t('groups.newPoll')}</span>
           </Button>
         )}
       </div>
@@ -61,9 +65,9 @@ export function GroupPollsTab({
       {polls.length === 0 ? (
         <div className="text-center py-20 border border-dashed border-border/50 rounded-2xl bg-muted/15 max-w-md mx-auto space-y-3">
           <Calendar className="h-10 w-10 text-muted-foreground/30 mx-auto" />
-          <p className="text-muted-foreground font-bold text-sm">No hay encuestas activas</p>
+          <p className="text-muted-foreground font-bold text-sm">{t('groups.noPolls')}</p>
           <p className="text-xs text-foreground/50 px-6 max-w-sm mx-auto leading-normal">
-            Crea una encuesta para nominar varios juegos de la ludoteca compartida y comenzar las votaciones.
+            {t('groups.noPollsDesc')}
           </p>
         </div>
       ) : (
@@ -93,7 +97,7 @@ export function GroupPollsTab({
                         {poll.title}
                       </h4>
                       <Badge variant={poll.status === 'open' ? 'success' : 'secondary'}>
-                        {poll.status === 'open' ? 'Activa' : 'Cerrada'}
+                        {poll.status === 'open' ? t('groups.active') : t('groups.closed')}
                       </Badge>
                     </div>
                     {poll.description && (
@@ -102,7 +106,7 @@ export function GroupPollsTab({
                     {poll.meetup_date && (
                       <div className="flex items-center gap-1.5 text-xs text-primary font-bold mt-1 bg-primary/10 dark:bg-primary/20 px-2.5 py-1 rounded-lg w-fit">
                         <Calendar className="h-3.5 w-3.5" />
-                        <span>Fecha propuesta: {formatMeetupDate(poll.meetup_date)}</span>
+                        <span>{t('groups.proposedDate', { date: formatMeetupDate(poll.meetup_date) })}</span>
                       </div>
                     )}
                   </div>
@@ -113,17 +117,17 @@ export function GroupPollsTab({
                       <Button
                         onClick={() => {
                           triggerConfirm(
-                            '¿Cerrar Votación?',
-                            '¿Seguro que quieres cerrar la votación y declarar el juego ganador? Los miembros ya no podrán votar más.',
+                            t('groups.closePollConfirmTitle'),
+                            t('groups.closePollConfirmDesc'),
                             async () => {
                               setActionError(null)
                               try {
                                 await closePoll(poll.id)
                               } catch (err: any) {
-                                setActionError(err.message || 'Error al cerrar la encuesta.')
+                                setActionError(err.message || 'Error.')
                               }
                             },
-                            'Cerrar Votación',
+                            t('groups.closePoll'),
                             false
                           )
                         }}
@@ -131,7 +135,7 @@ export function GroupPollsTab({
                         size="sm"
                         className="rounded-xl text-[10px] font-black uppercase tracking-wider h-8 cursor-pointer"
                       >
-                        Cerrar Votación
+                        {t('groups.closePoll')}
                       </Button>
                     )}
 
@@ -141,17 +145,17 @@ export function GroupPollsTab({
                           <Button
                             onClick={() => {
                               const firstWinner = poll.options.find(o => o.game_id === winningGameIds[0])?.game
-                              const winnerTitle = firstWinner?.title_es || firstWinner?.title || 'Juego Ganador'
+                              const winnerTitle = firstWinner ? getGameTitle(firstWinner) : 'Juego Ganador'
                               onCreateMeetupRedirect(poll.title, winningGameIds[0], winnerTitle)
                             }}
                             size="sm"
                             className="rounded-xl text-[10px] font-black uppercase tracking-wider h-8 shadow-sm flex items-center gap-1"
                           >
                             <Sparkles className="h-3 w-3" />
-                            <span>Crear Mesa</span>
+                            <span>{t('groups.createTable')}</span>
                           </Button>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground font-extrabold uppercase">Sin ganadores (0 votos)</span>
+                          <span className="text-[10px] text-muted-foreground font-extrabold uppercase">{t('groups.noWinners')}</span>
                         )}
                       </div>
                     )}
@@ -198,17 +202,17 @@ export function GroupPollsTab({
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-extrabold text-sm text-foreground truncate block max-w-[250px]">
-                                {opt.game.title_es || opt.game.title}
+                                {getGameTitle(opt.game)}
                               </span>
                               {isWinner && (
                                 <Badge variant="warning" className="text-[8px] px-1.5 py-0.5">
-                                  <Crown className="h-2 w-2 fill-amber-500" /> Ganador
+                                  <Crown className="h-2 w-2 fill-amber-500" /> {t('groups.winner')}
                                 </Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-1 mt-0.5">
                               <span className="text-[10px] text-muted-foreground font-semibold">
-                                {totalVotes} {totalVotes === 1 ? 'voto' : 'votos'}
+                                {totalVotes} {totalVotes === 1 ? t('groups.vote_one') : t('groups.vote_other')}
                               </span>
                               {totalVotes > 0 && (
                                 <>
@@ -245,10 +249,10 @@ export function GroupPollsTab({
                             {hasVoted ? (
                               <>
                                 <Check className="h-3.5 w-3.5" />
-                                <span>Votado</span>
+                                <span>{t('groups.voted')}</span>
                               </>
                             ) : (
-                              <span>Votar</span>
+                              <span>{t('groups.vote')}</span>
                             )}
                           </Button>
                         )}

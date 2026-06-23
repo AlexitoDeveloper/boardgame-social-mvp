@@ -3,18 +3,19 @@ import { Sparkles, Plus, Star, Users, Hourglass, BarChart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 import { Game } from '../types'
-import { getGameTitle } from '../lib/gameLocale'
-import { useAuth } from '../lib/authContext'
+import { useGameLocale } from '../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 
 interface FeaturedGameHeroProps {
   game: Game | null;
 }
 
 export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle, getGamePublisher } = useGameLocale()
   if (!game) return null
 
-  const displayTitle = getGameTitle(game, language)
+  const displayTitle = getGameTitle(game)
   const isSpanish = game.has_spanish_edition || !!game.title_es
   
   // Format complexity (averageweight) to 1 decimal place or show placeholder
@@ -58,7 +59,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           {/* Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-[10px] sm:text-xs font-black uppercase tracking-wider select-none animate-pulse">
             <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
-            <span>Recomendación del Día</span>
+            <span>{t('explore.recommendedTitle')}</span>
           </div>
 
           {/* Title */}
@@ -75,11 +76,11 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-400">
             {isSpanish && (
               <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-extrabold uppercase text-[10px]">
-                Edición en Español
+                {t('explore.spanishEdition')}
               </span>
             )}
-            {game.es_publisher && (
-              <span className="text-zinc-500">Editado por {game.es_publisher}</span>
+            {getGamePublisher(game) && (
+              <span className="text-zinc-500">{t('explore.editedBy', { publisher: getGamePublisher(game) })}</span>
             )}
           </div>
         </div>
@@ -89,7 +90,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
             <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">BGG Rating</span>
+              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.rating')}</span>
               <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">{formattedRating}</span>
             </div>
           </div>
@@ -97,7 +98,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
             <Users className="w-4 h-4 text-primary shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">Jugadores</span>
+              <span className="text-[10px] text-zinc-500 leading-none">{t('common.players')}</span>
               <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">
                 {game.min_players === game.max_players 
                   ? game.min_players 
@@ -109,9 +110,9 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
             <Hourglass className="w-4 h-4 text-teal-400 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">Duración</span>
+              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.duration')}</span>
               <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">
-                {game.playing_time ? `${game.playing_time}'` : 'N/A'}
+                {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}
               </span>
             </div>
           </div>
@@ -119,7 +120,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
             <BarChart className="w-4 h-4 text-purple-400 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">Dificultad</span>
+              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.difficulty')}</span>
               <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-[10px] text-zinc-500">/5</span></span>
             </div>
           </div>
@@ -130,12 +131,12 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="shrink-0">
             <Button size="sm" className="font-bold cursor-pointer rounded-xl h-10 px-5 flex items-center gap-1.5 shadow-lg shadow-primary/10 hover:shadow-primary/20">
               <Plus className="w-4.5 h-4.5" />
-              <span>Abrir Mesa</span>
+              <span>{t('common.hostTable')}</span>
             </Button>
           </Link>
           <Link to={`/juegos/${game.bgg_id}`} className="shrink-0">
             <Button size="sm" variant="outline" className="font-semibold cursor-pointer rounded-xl h-10 px-5 border-white/10 bg-white/5 hover:bg-white/10">
-              Ver Detalles
+              {t('common.details')}
             </Button>
           </Link>
         </div>

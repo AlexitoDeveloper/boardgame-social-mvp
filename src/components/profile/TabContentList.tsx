@@ -20,8 +20,8 @@ import { UserStats } from '../../hooks/useProfile'
 import { StatsDashboard } from './StatsDashboard'
 import { AdvancedStats } from './AdvancedStats'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../ui/accordion'
-import { useAuth } from '../../lib/authContext'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useGameLocale } from '../../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../lib/dateLocale'
 
 const MotionDiv = motion.div
@@ -66,7 +66,8 @@ export function TabContentList({
   setIsImportModalOpen
 }: TabContentListProps) {
 
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle, language } = useGameLocale()
 
   return (
     <div className="space-y-4">
@@ -82,8 +83,8 @@ export function TabContentList({
           >
             {upcomingMeetups.length === 0 ? (
               <div className="text-center py-12 px-4 bg-muted/10 rounded-2xl border border-dashed border-border/40 select-none">
-                <p className="text-sm font-bold text-muted-foreground">No hay partidas programadas.</p>
-                {isOwnProfile && <p className="text-xs text-muted-foreground/80 mt-1">Busca mesas abiertas en el tablero para unerte.</p>}
+                <p className="text-sm font-bold text-muted-foreground">{t('profile.upcomingEmpty')}</p>
+                {isOwnProfile && <p className="text-xs text-muted-foreground/80 mt-1">{t('profile.upcomingEmptyDesc')}</p>}
               </div>
             ) : (
               upcomingMeetups.map(meetup => {
@@ -97,7 +98,7 @@ export function TabContentList({
                         <div className="relative w-12 h-12 shrink-0">
                           <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:border-primary/30 transition-all duration-300">
                             {mainGame?.image_url ? (
-                              <img src={mainGame.image_url} alt={getGameTitle(mainGame, language)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              <img src={mainGame.image_url} alt={getGameTitle(mainGame)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                             ) : (
                               <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                             )}
@@ -117,7 +118,7 @@ export function TabContentList({
                         </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className="text-[10px] font-black text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">Ver Mesa</span>
+                        <span className="text-[10px] font-black text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">{t('profile.verMesa')}</span>
                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                       </div>
                     </div>
@@ -139,7 +140,7 @@ export function TabContentList({
           >
             {completedMeetups.length === 0 ? (
               <div className="text-center py-12 px-4 bg-muted/10 rounded-2xl border border-dashed border-border/40 select-none">
-                <p className="text-sm font-bold text-muted-foreground">Aún no hay partidas completadas en el historial.</p>
+                <p className="text-sm font-bold text-muted-foreground">{t('profile.historyEmpty')}</p>
               </div>
             ) : (
               completedMeetups.map(meetup => {
@@ -165,7 +166,7 @@ export function TabContentList({
                               : 'bg-background/60 border border-border/20 group-hover:border-primary/30'
                           }`}>
                             {mainGame?.image_url ? (
-                              <img src={mainGame.image_url} alt={getGameTitle(mainGame, language)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
+                              <img src={mainGame.image_url} alt={getGameTitle(mainGame)} className="w-full h-full object-contain rounded-lg transition-transform group-hover:scale-105 duration-300" />
                             ) : (
                               <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                             )}
@@ -191,7 +192,7 @@ export function TabContentList({
                             {/* Winner Badge using Swords Icon */}
                             {isWinner && (
                               <Badge variant="destructive" className="flex items-center gap-0.5 shrink-0">
-                                <Swords className="w-2.5 h-2.5 fill-current" /> GANADO
+                                <Swords className="w-2.5 h-2.5 fill-current" /> {t('common.won')}
                               </Badge>
                             )}
 
@@ -199,11 +200,11 @@ export function TabContentList({
                             {!meetup.completed && new Date(meetup.date).getTime() < Date.now() && (
                               meetup.creator_id === currentUserId ? (
                                 <Badge variant="warning" pulse className="shrink-0">
-                                  ⚠️ PENDIENTE DE CIERRE
+                                  {t('profile.pendingClosure')}
                                 </Badge>
                               ) : (
                                 <Badge variant="outline" className="shrink-0">
-                                  ⏳ Pendiente de reporte
+                                  {t('profile.pendingReport')}
                                 </Badge>
                               )
                             )}
@@ -211,7 +212,7 @@ export function TabContentList({
                             {/* No attendance badge */}
                             {meetup.completed && !didAttend && (
                               <Badge variant="destructive" className="shrink-0">
-                                AUSENTE
+                                {t('profile.absent')}
                               </Badge>
                             )}
                           </div>
@@ -240,7 +241,7 @@ export function TabContentList({
                 <AccordionTrigger>
                   <div className="flex items-center gap-2">
                     <BarChart2 className="w-4 h-4 text-primary shrink-0" />
-                    <span>Estadísticas</span>
+                    <span>{t('profile.stats.title')}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -255,7 +256,7 @@ export function TabContentList({
                 <AccordionTrigger>
                   <div className="flex items-center gap-2">
                     <ListOrdered className="w-4 h-4 text-primary shrink-0" />
-                    <span>Rankings</span>
+                    <span>{t('profile.stats.rankings')}</span>
                     <span className="text-[10px] font-black text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
                       {savedRankings.length}
                     </span>
@@ -271,10 +272,10 @@ export function TabContentList({
                       </div>
                     ) : savedRankings.length === 0 ? (
                       <div className="text-center py-8 px-4 bg-muted/10 rounded-xl border border-dashed border-border/40 select-none">
-                        <p className="text-sm font-bold text-muted-foreground">No hay rankings guardados.</p>
+                        <p className="text-sm font-bold text-muted-foreground">{t('profile.stats.noRankings')}</p>
                         {isOwnProfile && (
                           <Link to="/tops" className="inline-block mt-3">
-                            <Button size="sm" icon={Plus} label="Crear Ranking" className="cursor-pointer" />
+                            <Button size="sm" icon={Plus} label={t('profile.stats.createRanking')} className="cursor-pointer" />
                           </Link>
                         )}
                       </div>
@@ -287,7 +288,7 @@ export function TabContentList({
                         >
                           <div className="space-y-1 flex-1 min-w-0 pr-3">
                             <h4 className="font-extrabold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
-                              <span className="truncate">{ranking.title || 'Ranking sin título'}</span>
+                              <span className="truncate">{ranking.title || t('tops.untitled')}</span>
                               <Badge variant="primary-soft" className="shrink-0 text-[9px]">
                                 {ranking.mode === 'tier' ? 'Tier List' : 'Top 10'}
                               </Badge>
@@ -303,7 +304,7 @@ export function TabContentList({
                                 variant="ghost" size="sm" 
                                 onClick={(e) => handleDeleteRanking(e, ranking.id)}
                                 className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                title="Eliminar ranking" icon={Trash2}
+                                title={t('tops.deleteRanking')} icon={Trash2}
                               />
                             )}
                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-all" />
@@ -330,14 +331,14 @@ export function TabContentList({
             {isOwnProfileEditable && collectionGames.length === 0 && (
               <div className="flex justify-between items-center bg-card/35 backdrop-blur-md border border-border/20 rounded-2xl p-4 shadow-sm hover:border-primary/20 transition-all duration-300">
                 <div className="text-left space-y-0.5">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Importar Colección BGG</h4>
-                  <p className="text-[10px] text-muted-foreground leading-normal font-semibold">Sincroniza tus juegos de BoardGameGeek al instante.</p>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t('profile.collection.importBgg')}</h4>
+                  <p className="text-[10px] text-muted-foreground leading-normal font-semibold">{t('profile.collection.importBggDesc')}</p>
                 </div>
                 <Button
                   size="sm"
                   onClick={() => setIsImportModalOpen(true)}
                   icon={Plus}
-                  label="Importar BGG"
+                  label={t('profile.collection.importButton')}
                 />
               </div>
             )}
@@ -352,11 +353,11 @@ export function TabContentList({
               <div className="text-center py-12 px-4 bg-muted/10 rounded-2xl border border-dashed border-border/40 space-y-3 select-none">
                 <Dices className="w-10 h-10 text-muted-foreground/30 mx-auto" />
                 <div>
-                  <p className="text-sm font-bold text-muted-foreground">La ludoteca está vacía.</p>
+                  <p className="text-sm font-bold text-muted-foreground">{t('profile.collection.emptyTitle')}</p>
                   <p className="text-xs text-muted-foreground/80 mt-1">
                     {isOwnProfileEditable 
-                      ? 'Agrega juegos desde su ficha técnica o importa tu colección de BGG.' 
-                      : 'Este jugador no ha agregado juegos a su ludoteca todavía.'}
+                      ? t('profile.collection.emptyDescOwn') 
+                      : t('profile.collection.emptyDescOther')}
                   </p>
                 </div>
                 {isOwnProfileEditable && (
@@ -365,7 +366,7 @@ export function TabContentList({
                     onClick={() => setIsImportModalOpen(true)}
                     className="mt-2 cursor-pointer"
                     icon={Plus}
-                    label="Importar Ludoteca"
+                    label={t('profile.collection.importLudoteca')}
                   />
                 )}
               </div>
@@ -373,7 +374,7 @@ export function TabContentList({
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1 select-none">
                   <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                    {collectionGames.length} {collectionGames.length === 1 ? 'juego' : 'juegos'} en la ludoteca
+                    {collectionGames.length} {collectionGames.length === 1 ? t('profile.collection.gameCount') : t('profile.collection.gamesCount')}
                   </span>
                   {isOwnProfileEditable && (
                     <Button
@@ -382,7 +383,7 @@ export function TabContentList({
                       onClick={() => setIsImportModalOpen(true)}
                       className="cursor-pointer"
                       icon={Download}
-                      label="Sincronizar BGG"
+                      label={t('profile.collection.syncButton')}
                     />
                   )}
                 </div>
@@ -401,7 +402,7 @@ export function TabContentList({
                           variant="ghost"
                           onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
                           className="absolute top-2.5 right-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer z-30 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
-                          title="Quitar de mi ludoteca"
+                          title={t('profile.collection.removeFromCollection')}
                           icon={Trash2}
                         />
                       )}
@@ -418,7 +419,7 @@ export function TabContentList({
                             {/* Contained front cover artwork */}
                             <img 
                               src={game.image_url} 
-                              alt={getGameTitle(game, language)} 
+                              alt={getGameTitle(game)} 
                               className="w-full h-full object-contain p-1 relative z-10 rounded-lg transition-transform group-hover:scale-105 duration-300"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -428,12 +429,12 @@ export function TabContentList({
                           </>
                         ) : null}
                         <div className={`absolute inset-0 flex items-center justify-center p-3 text-xs font-bold text-muted-foreground ${game.image_url ? 'hidden' : ''}`}>
-                          {getGameTitle(game, language)}
+                          {getGameTitle(game)}
                         </div>
                       </div>
                       <div className="mt-3 w-full px-0.5 text-center">
                         <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
-                          {getGameTitle(game, language)}
+                          {getGameTitle(game)}
                         </h4>
                         <span className="text-[10px] text-muted-foreground font-bold block mt-0.5">
                           {game.year_published || 'N/A'}

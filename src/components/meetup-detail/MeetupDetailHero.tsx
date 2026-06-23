@@ -5,8 +5,7 @@ import { Button } from '../ui/button'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getGameTitle } from '../../lib/gameLocale'
-import { useAuth } from '../../lib/authContext'
+import { useGameLocale } from '../../hooks/useGameLocale'
 import { formatDate } from '../../lib/dateLocale'
 import { OptimizedImage } from '../ui/OptimizedImage'
 
@@ -18,7 +17,7 @@ interface MeetupDetailHeroProps {
 }
 
 export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: MeetupDetailHeroProps) {
-  const { language } = useAuth()
+  const { getGameTitle, language } = useGameLocale()
   const gamesList = meetup.games || [];
   
   // State for active game index in carousel
@@ -98,7 +97,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
               >
                 <OptimizedImage
                   src={currentGame.image_url}
-                  alt={getGameTitle(currentGame, language) || 'Juego'}
+                  alt={getGameTitle(currentGame) || 'Juego'}
                   widthSize={400}
                   fit="contain"
                   className="max-h-full max-w-full object-contain rounded-lg shadow-xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-355 pointer-events-none select-none"
@@ -208,7 +207,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                   variant={idx === activeGameIdx ? "default" : "secondary"}
                   className="cursor-pointer transition-all hover:scale-105 active:scale-95"
                 >
-                  {getGameTitle(g, language)}
+                  {getGameTitle(g)}
                 </Tag>
               ))}
             </div>

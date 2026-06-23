@@ -13,7 +13,8 @@ import { Button } from '../ui/button'
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
 import { PremiumDeactivateModal } from '../PremiumDeactivateModal'
 import { UserProfile } from '../../types'
-import { useAuth } from '../../lib/authContext'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../../hooks/useGameLocale'
 import { formatDate } from '../../lib/dateLocale'
 
 const MotionDiv = motion.div
@@ -41,7 +42,8 @@ export function ProfileShowcaseCard({
   xpProgress,
   setProfile
 }: ProfileShowcaseCardProps) {
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { language } = useGameLocale()
   const [showXpHelp, setShowXpHelp] = useState(false)
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
@@ -87,7 +89,7 @@ export function ProfileShowcaseCard({
                         onClick={() => setIsDeactivateModalOpen(true)}
                         className="cursor-pointer text-muted-foreground hover:text-destructive hover:no-underline p-0 h-auto font-bold text-xs"
                       >
-                        (Desactivar)
+                        ({t('profile.deactivate')})
                       </Button>
                       <PremiumDeactivateModal
                         isOpen={isDeactivateModalOpen}
@@ -108,7 +110,7 @@ export function ProfileShowcaseCard({
                       onClick={() => setIsUpgradeModalOpen(true)}
                       className="shrink-0 animate-pulse cursor-pointer"
                       icon={Crown}
-                      label="Obtener PRO"
+                      label={t('profile.upgradeProShort')}
                     />
                     <PremiumUpgradeModal 
                       isOpen={isUpgradeModalOpen}
@@ -130,8 +132,8 @@ export function ProfileShowcaseCard({
           <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20 relative">
             <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
               <span className="flex items-center gap-1">
-                Experiencia del Jugador
-                <span title="¿Cómo conseguir XP?" className="inline-flex">
+                {t('profile.xpTitle')}
+                <span title={t('profile.xpHelpTitle')} className="inline-flex">
                   <Info 
                     onClick={() => setShowXpHelp(!showXpHelp)}
                     className="w-3.5 h-3.5 text-primary hover:text-primary/80 cursor-pointer transition-colors shrink-0"
@@ -147,7 +149,7 @@ export function ProfileShowcaseCard({
               />
             </div>
             <span className="text-[8.5px] text-muted-foreground/80 block leading-none font-semibold">
-              ¡Total acumulado de {totalXp} XP de partidas, victorias y tops!
+              {t('profile.xpTotalDesc', { count: totalXp })}
             </span>
 
             <AnimatePresence>
@@ -161,19 +163,19 @@ export function ProfileShowcaseCard({
                 >
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[9px] text-zinc-300 font-extrabold select-none">
                     <div className="flex items-center justify-between">
-                      <span>🎲 Partida Jugada:</span>
+                      <span>🎲 {t('profile.xpRules.meetup')}:</span>
                       <span className="text-emerald-400 font-black">+100 XP</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>⚔️ Victoria:</span>
+                      <span>⚔️ {t('profile.xpRules.win')}:</span>
                       <span className="text-rose-400 font-black">+250 XP</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>👑 Partida Master:</span>
+                      <span>👑 {t('profile.xpRules.master')}:</span>
                       <span className="text-amber-400 font-black">+150 XP</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>✨ Ranking Creado:</span>
+                      <span>✨ {t('profile.xpRules.ranking')}:</span>
                       <span className="text-cyan-400 font-black">+200 XP</span>
                     </div>
                   </div>

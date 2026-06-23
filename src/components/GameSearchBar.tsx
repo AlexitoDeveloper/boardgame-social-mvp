@@ -5,9 +5,9 @@ import { Command, CommandInput, CommandList, CommandItem } from './ui/command'
 import { Button } from './ui/button'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
-import { getGameTitle } from '@/lib/gameLocale'
+import { useGameLocale } from '../hooks/useGameLocale'
 import { OptimizedImage } from './ui/OptimizedImage'
-import { useAuth } from '../lib/authContext'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div;
 
@@ -33,14 +33,15 @@ export function GameSearchBar({
   setGames,
   isSearching,
   onSelectGame,
-  placeholder = "Buscar juego...",
+  placeholder,
   isGameDisabled,
   closeOnSelect = true,
   onSearchBgg,
   isShowingBggResults = false,
   isImporting = false
 }: GameSearchBarProps) {
-  const { language } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   useClickOutside(
@@ -55,7 +56,7 @@ export function GameSearchBar({
         <div className="relative border border-border/50 rounded-xl bg-background/50 overflow-hidden flex items-center pr-3">
           <div className="flex-1">
             <CommandInput 
-              placeholder={isImporting ? "Importando juego..." : placeholder} 
+              placeholder={isImporting ? t('create.importing') : (placeholder || t('create.searchPlaceholderShort'))} 
               value={searchQuery}
               onValueChange={setSearchQuery}
               disabled={isImporting}
@@ -75,7 +76,7 @@ export function GameSearchBar({
                 setGames([])
               }}
               className="p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              title="Limpiar búsqueda"
+              title={t('create.clearSearch')}
             >
               <X className="w-3.5 h-3.5" />
             </Button>
@@ -112,18 +113,18 @@ export function GameSearchBar({
                         <div className="flex items-center gap-3 pointer-events-none min-w-0 flex-1">
                           <OptimizedImage
                             src={g.image_url}
-                            alt={getGameTitle(g, language)}
+                            alt={getGameTitle(g)}
                             widthSize={80}
                             heightSize={80}
                             className="w-10 h-10 rounded object-cover shadow-sm shrink-0 bg-muted/20"
                           />
                           <span className="font-semibold text-sm text-left truncate block">
-                            {getGameTitle(g, language)} 
+                            {getGameTitle(g)} 
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
-                              {g.year_published || 'Año desc.'}
+                              {g.year_published || t('common.yearUnknown')}
                               {g.is_expansion && (
                                 <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
-                                  Expansión
+                                  {t('common.expansion')}
                                 </span>
                               )}
                               {g.isFromBgg && (
@@ -157,9 +158,9 @@ export function GameSearchBar({
                           🔍
                         </div>
                         <span className="text-xs text-left truncate block font-extrabold text-primary">
-                          ¿No encuentras el juego?
+                          {t('create.notFoundBgg')}
                           <span className="text-muted-foreground font-normal block mt-0.5">
-                            Buscar "{searchQuery}" en BoardGameGeek
+                            {t('create.searchBggFor', { query: searchQuery })}
                           </span>
                         </span>
                       </div>
