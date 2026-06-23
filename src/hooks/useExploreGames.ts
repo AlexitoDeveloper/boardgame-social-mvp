@@ -47,90 +47,9 @@ async function fetchMostPlayedGames(timeLimitIso: string | null): Promise<Game[]
       throw new Error('Using mock mode')
     }
 
-    // 1. Query meetup_games joined with meetups date
-    let query = supabase
-      .from('meetup_games')
-      .select(`
-        game_id,
-        meetup:meetups!inner (
-          date
-        )
-      `)
-
-    if (timeLimitIso) {
-      query = query.gte('meetups.date', timeLimitIso)
-    }
-
-    const { data: playsData, error: playsError } = await query
-    if (playsError) throw playsError
-
-    // 2. Count plays per game_id
-    const counts: Record<number, number> = {}
-    if (playsData) {
-      playsData.forEach((row: any) => {
-        const id = row.game_id
-        if (id) {
-          counts[id] = (counts[id] || 0) + 1
-        }
-      })
-    }
-
-    // Sort by count descending
-    let sortedIds = Object.keys(counts)
-      .map(Number)
-      .sort((a, b) => counts[b] - counts[a])
-
-    // If we have less than 10 games, pad with overall most played games (without date constraint)
-    if (sortedIds.length < 10 && timeLimitIso) {
-      const overallGames = await fetchMostPlayedGames(null)
-      const overallBggIds = overallGames.map(g => g.bgg_id)
-      for (const id of overallBggIds) {
-        if (!sortedIds.includes(id)) {
-          sortedIds.push(id)
-        }
-        if (sortedIds.length >= 10) break
-      }
-    }
-
-    // If still less than 10 games, pad with BGG top rank games
-    if (sortedIds.length < 10) {
-      const { data: bggData } = await supabase
-        .from('games')
-        .select('bgg_id')
-        .not('bgg_rank', 'is', null)
-        .order('bgg_rank', { ascending: true })
-        .limit(20)
-
-      if (bggData) {
-        for (const row of bggData) {
-          if (!sortedIds.includes(row.bgg_id)) {
-            sortedIds.push(row.bgg_id)
-          }
-          if (sortedIds.length >= 10) break
-        }
-      }
-    }
-
-    const top10Ids = sortedIds.slice(0, 10)
-    if (top10Ids.length === 0) return []
-
-    // 3. Fetch full Game objects
-    const { data: gamesData, error: gamesError } = await supabase
-      .from('games')
-      .select('*')
-      .in('bgg_id', top10Ids)
-
-    if (gamesError) throw gamesError
-
-    // Sort gamesData to match top10Ids order
-    const gamesMap = new Map<number, Game>()
-    if (gamesData) {
-      gamesData.forEach((g: Game) => gamesMap.set(g.bgg_id, g))
-    }
-
-    return top10Ids
-      .map(id => gamesMap.get(id))
-      .filter((g): g is Game => !!g)
+    const { data, error } = await supabase.rpc('get_most_played_games', { p_time_limit_iso: timeLimitIso })
+    if (error) throw error
+    return (data || []) as Game[]
   } catch (err) {
     // Return BGG top rank games as absolute fallback
     try {
@@ -140,7 +59,7 @@ async function fetchMostPlayedGames(timeLimitIso: string | null): Promise<Game[]
         .not('bgg_rank', 'is', null)
         .order('bgg_rank', { ascending: true })
         .limit(10)
-      return data || []
+      return (data || []) as Game[]
     } catch {
       return []
     }
