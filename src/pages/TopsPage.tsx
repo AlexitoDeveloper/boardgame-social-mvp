@@ -3,8 +3,10 @@ import { useTops } from '../hooks/useTops'
 import { TopsCanvas } from '../components/tops/TopsCanvas'
 import { TopsSettings } from '../components/tops/TopsSettings'
 import { TopsSearchSection } from '../components/tops/TopsSearchSection'
+import { useTranslation } from 'react-i18next'
 
 export function TopsPage() {
+  const { t } = useTranslation()
   const tops = useTops()
 
   return (
@@ -13,10 +15,10 @@ export function TopsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-            <ListOrdered className="text-primary w-8 h-8" /> Generador de Rankings
+            <ListOrdered className="text-primary w-8 h-8" /> {t('tops.topsTitle')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Ordena tus juegos preferidos y genera una imagen premium para compartir en tus redes sociales.
+            {t('tops.topsDesc')}
           </p>
         </div>
       </div>

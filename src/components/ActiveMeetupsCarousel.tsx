@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom'
-import { CalendarDays, MapPin, Users, Flame, Laptop } from 'lucide-react'
+import { CalendarDays, MapPin, Flame, Laptop } from 'lucide-react'
 import { Card } from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Tag } from './ui/tag'
-import { getGameTitle } from '../lib/gameLocale'
+import { useGameLocale } from '../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
+import { formatDate } from '../lib/dateLocale'
 
 interface ActiveMeetupsCarouselProps {
   meetups: any[];
 }
 
 export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
+  const { t, i18n } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   if (!meetups || meetups.length === 0) return null
 
   return (
@@ -17,10 +21,10 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
       <div className="flex items-center gap-2 px-1">
         <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
         <h3 className="text-lg font-black tracking-tight text-foreground">
-          Mesas Abiertas en tu Zona
+          {t('explore.liveMeetups')}
         </h3>
         <span className="text-[10px] sm:text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
-          En Directo
+          {t('explore.live')}
         </span>
       </div>
 
@@ -33,7 +37,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
           
           const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
           const primaryGame = gamesList[0] || null
-          const gameTitle = primaryGame ? getGameTitle(primaryGame) : (meetup.game_name || 'Por decidir')
+          const gameTitle = primaryGame ? getGameTitle(primaryGame) : (meetup.game_name || t('common.toDecide'))
           const coverUrl = primaryGame?.image_url || null
 
           return (
@@ -60,20 +64,20 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Avatar className="w-5 h-5 border border-border">
-                          <AvatarImage src={meetup.users?.avatar_url || meetup.creator?.avatar_url || undefined} />
+                           <AvatarImage src={meetup.users?.avatar_url || meetup.creator?.avatar_url || undefined} />
                           <AvatarFallback className="text-[8px] bg-primary/10 text-primary font-bold">
                             {(meetup.users?.username || meetup.creator?.username)?.slice(0,2)?.toUpperCase() || 'H'}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-[10px] font-extrabold text-foreground/80 truncate">
-                          {meetup.users?.username || meetup.creator?.username || 'anónimo'}
+                          {meetup.users?.username || meetup.creator?.username || t('common.anonymous')}
                         </span>
                       </div>
                       <Tag 
                         variant={isFull ? "secondary-solid" : "default-solid"} 
                         className="text-[9px] py-0 px-1.5 h-4.5 font-bold uppercase tracking-wider shrink-0"
                       >
-                        {isFull ? 'Completo' : `${totalAttendees}/${meetup.max_players} pl.`}
+                        {isFull ? t('common.full') : t('common.spotsCount', { current: totalAttendees, max: meetup.max_players })}
                       </Tag>
                     </div>
 
@@ -93,12 +97,12 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span className="truncate">
-                        {new Date(meetup.date).toLocaleDateString('es-ES', { 
+                        {formatDate(meetup.date, { 
                           day: 'numeric', 
                           month: 'short',
                           hour: '2-digit', 
                           minute: '2-digit' 
-                        })}
+                        }, i18n.language as any)}
                       </span>
                     </div>
 
@@ -111,7 +115,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                       ) : (
                         <>
                           <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span className="truncate">{meetup.city} • {meetup.location || 'Por definir'}</span>
+                          <span className="truncate">{meetup.city} • {meetup.location || t('common.toDecide')}</span>
                         </>
                       )}
                     </div>

@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Download, Loader2, X } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { Button } from '../ui/button'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useGameLocale } from '../../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -64,6 +65,8 @@ export function RankingVisualizerModal({
   selectedRanking,
   onClose
 }: RankingVisualizerModalProps) {
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   const exportModalRef = useRef<HTMLDivElement>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -132,7 +135,7 @@ export function RankingVisualizerModal({
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary animate-pulse" />
               <h3 className="font-extrabold text-sm text-white truncate max-w-xs sm:max-w-md">
-                Escaparate: {selectedRanking.title}
+                {t('profile.escaparate')}: {selectedRanking.title}
               </h3>
             </div>
             <div className="flex items-center gap-2">
@@ -141,17 +144,17 @@ export function RankingVisualizerModal({
                 onClick={handleExportModalImage}
                 disabled={exporting}
                 className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
-                title="Guardar Foto"
+                title={t('common.savePhoto')}
               >
                 {exporting ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                    <span className="hidden sm:inline">Generando...</span>
+                    <span className="hidden sm:inline">{t('common.generating')}</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden sm:inline">Guardar Foto</span>
+                    <span className="hidden sm:inline">{t('common.savePhoto')}</span>
                   </>
                 )}
               </Button>
@@ -209,13 +212,13 @@ export function RankingVisualizerModal({
                               {g.image_url ? (
                                 <img 
                                   src={`https://images.weserv.nl/?url=${encodeURIComponent(g.image_url)}&w=65&h=65&fit=cover`} 
-                                  alt={g.title} 
+                                  alt={getGameTitle(g)} 
                                   className="h-full w-full object-cover" 
                                   crossOrigin="anonymous"
                                 />
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center p-0.5 text-[8px] font-black text-center bg-black/60 text-white">
-                                  {g.title}
+                                  {getGameTitle(g)}
                                 </div>
                               )}
                             </div>
@@ -231,7 +234,7 @@ export function RankingVisualizerModal({
                         key={idx}
                         className={`flex items-center ${isLandscape ? 'gap-1.5 p-1' : 'gap-2.5 p-2'} rounded-xl border border-white/5 bg-white/5`}
                       >
-                        <div className={`rounded-lg flex items-center justify-center font-extrabold border shrink-0 bg-primary/20 border-primary/35 text-primary ${
+                        <div className={`rounded-lg flex items-center justify-center font-sans font-extrabold border shrink-0 bg-primary/20 border-primary/35 text-primary ${
                           isLandscape ? 'w-5 h-5 text-[10px]' : 'w-7 h-7 text-xs'
                         }`}>
                           {idx + 1}
@@ -242,12 +245,12 @@ export function RankingVisualizerModal({
                               {game.image_url ? (
                                 <img 
                                   src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=40&h=40&fit=cover`} 
-                                  alt={game.title} 
+                                  alt={getGameTitle(game)} 
                                   className="w-full h-full object-cover" 
                                   crossOrigin="anonymous"
                                 />
                               ) : (
-                                <span className="text-[7px] text-zinc-500 font-extrabold">{game.title.slice(0,2)}</span>
+                                <span className="text-[7px] text-zinc-500 font-extrabold">{getGameTitle(game).slice(0,2)}</span>
                               )}
                             </div>
                             <span className="font-extrabold text-zinc-100 truncate text-[11px] sm:text-xs">
@@ -255,7 +258,7 @@ export function RankingVisualizerModal({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-zinc-650 font-bold italic">Vacante</span>
+                          <span className="text-[10px] text-zinc-650 font-bold italic">{t('tops.vacant')}</span>
                         )}
                       </div>
                     ))}
@@ -265,7 +268,7 @@ export function RankingVisualizerModal({
 
               {/* Footer watermark details inside canvas */}
               <div className="border-t border-white/5 pt-2 flex items-center justify-between text-[9px] text-zinc-400">
-                <span>Perfiles y Mesas Abiertas</span>
+                <span>{t('tops.watermarkLabelBottom')}</span>
                 <span className="font-extrabold text-white">#BoardgameSocial</span>
               </div>
 

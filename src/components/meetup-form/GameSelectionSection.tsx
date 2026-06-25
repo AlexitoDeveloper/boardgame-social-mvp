@@ -5,7 +5,8 @@ import { OptimizedImage } from '../ui/OptimizedImage'
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Game } from '../../types'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../../hooks/useGameLocale'
 
 const MotionDiv = motion.div
 
@@ -38,6 +39,8 @@ export function GameSelectionSection({
   handleSearchBgg,
   onContinue
 }: GameSelectionSectionProps) {
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   return (
     <MotionDiv
       key="game-stage"
@@ -48,10 +51,10 @@ export function GameSelectionSection({
     >
       <div className="space-y-2">
         <h3 className="text-lg font-black tracking-tight text-foreground">
-          1. ¿A qué vais a jugar?
+          {t('create.step1')}
         </h3>
         <p className="text-xs text-zinc-400 font-semibold leading-relaxed">
-          Busca y añade los juegos que se jugarán en la partida. Si no está en nuestro catálogo local, puedes buscarlo en BoardGameGeek al vuelo.
+          {t('create.step1Desc')}
         </p>
       </div>
 
@@ -63,7 +66,7 @@ export function GameSelectionSection({
             games={games}
             setGames={setGames}
             isSearching={isSearching}
-            placeholder="Buscar juego (ej: Catan, Brass, Terraforming...)"
+            placeholder={t('create.searchPlaceholder')}
             onSelectGame={handleSelectGame}
             isGameDisabled={(game) => selectedGames.some(g => g.bgg_id === game.bgg_id)}
             closeOnSelect={false}
@@ -75,7 +78,7 @@ export function GameSelectionSection({
           {isImporting && (
             <div className="mt-3 text-primary bg-primary/5 border border-primary/20 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 animate-pulse shadow-sm">
               <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
-              <span>Importando metadatos y portada del juego desde BoardGameGeek. Por favor, espera...</span>
+              <span>{t('create.importingBgg')}</span>
             </div>
           )}
         </div>
@@ -84,7 +87,7 @@ export function GameSelectionSection({
         <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3 relative z-10">
           <div className="flex items-center justify-between mb-2">
             <Label className="text-xs text-muted-foreground font-black uppercase tracking-wider block">
-              Juegos en Bandeja ({selectedGames.length})
+              {t('create.shelfTitle')} ({selectedGames.length})
             </Label>
             {selectedGames.length > 0 && (
               <Button 
@@ -94,14 +97,14 @@ export function GameSelectionSection({
                 onClick={() => setSelectedGames([])}
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Vaciar
+                <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
               </Button>
             )}
           </div>
 
           {selectedGames.length === 0 ? (
             <div className="text-center py-6 border border-dashed border-border/50 rounded-lg bg-background/30 text-muted-foreground text-xs font-semibold">
-              Los juegos añadidos aparecerán aquí.
+              {t('create.shelfEmpty')}
             </div>
           ) : (
             <div className="flex items-center gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent min-h-[72px] border border-transparent rounded-lg">
@@ -128,7 +131,7 @@ export function GameSelectionSection({
                       variant="outline"
                       onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
                       className="absolute top-0.5 right-0.5 w-5 h-5 p-0 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
-                      title={`Quitar ${game.title}`}
+                      title={`${t('common.remove')} ${game.title}`}
                     >
                       <X className="w-2.5 h-2.5" />
                     </Button>
@@ -146,7 +149,7 @@ export function GameSelectionSection({
             onClick={onContinue}
             className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
           >
-            {selectedGames.length > 0 ? 'Continuar con estos juegos' : 'Continuar sin juego'}
+            {selectedGames.length > 0 ? t('create.continueWithGames') : t('create.continueWithoutGame')}
           </Button>
         </div>
       </div>

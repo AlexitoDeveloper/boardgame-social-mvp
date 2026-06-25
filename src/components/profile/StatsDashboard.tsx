@@ -1,6 +1,7 @@
 import { Swords, Dices } from 'lucide-react'
 import { Card, CardContent } from '../ui/card'
 import { UserStats } from '../../hooks/useProfile'
+import { useTranslation } from 'react-i18next'
 
 interface StatsDashboardProps {
   stats: UserStats;
@@ -55,10 +56,11 @@ function CircularProgress({
 }
 
 export function StatsDashboard({ stats }: StatsDashboardProps) {
+  const { t } = useTranslation()
   const getKarmaInfo = (val: number) => {
-    if (val >= 90) return { color: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/10', circleColor: 'text-emerald-500', label: 'Confiable' }
-    if (val >= 70) return { color: 'text-amber-500 border-amber-500/20 bg-amber-500/10', circleColor: 'text-amber-500', label: 'Frecuente' }
-    return { color: 'text-destructive border-destructive/20 bg-destructive/10', circleColor: 'text-destructive', label: 'Ausente habitual' }
+    if (val >= 90) return { color: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/10', circleColor: 'text-emerald-500', label: t('profile.statsKarmaReliable') }
+    if (val >= 70) return { color: 'text-amber-500 border-amber-500/20 bg-amber-500/10', circleColor: 'text-amber-500', label: t('profile.statsKarmaFrequent') }
+    return { color: 'text-destructive border-destructive/20 bg-destructive/10', circleColor: 'text-destructive', label: t('profile.statsKarmaAbsent') }
   }
 
   const karmaInfo = getKarmaInfo(stats.karma)
@@ -72,12 +74,12 @@ export function StatsDashboard({ stats }: StatsDashboardProps) {
         </div>
         <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5 min-w-0 text-left">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Tasa de Victoria</span>
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsWinRate')}</span>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-black tracking-tight text-foreground">{stats.winRate}%</span>
             </div>
             <p className="text-[10px] text-muted-foreground font-bold leading-normal truncate">
-              {stats.won} victorias de {stats.played} partidas
+              {t('profile.statsWinRateDetail', { won: stats.won, played: stats.played })}
             </p>
           </div>
           
@@ -98,12 +100,12 @@ export function StatsDashboard({ stats }: StatsDashboardProps) {
         </div>
         <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5 min-w-0 text-left">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">Asistencia Real</span>
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsAttendance')}</span>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-black tracking-tight text-foreground">{stats.karma}%</span>
             </div>
             <p className="text-[10px] text-muted-foreground font-bold leading-normal truncate">
-              {stats.played} jugadas | {stats.missed} ausencias
+              {t('profile.statsAttendanceDetail', { played: stats.played, missed: stats.missed })}
             </p>
           </div>
           

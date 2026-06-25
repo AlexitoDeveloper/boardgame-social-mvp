@@ -2,29 +2,8 @@ import { Game } from '../types'
 
 /**
  * Supported UI languages.
- * Currently only 'es' is active; 'en' is wired up for future use.
  */
 export type AppLanguage = 'es' | 'en'
-
-const LANGUAGE_KEY = 'boardgame_social_language'
-
-/**
- * Returns the currently active language from localStorage.
- * Defaults to 'es'.
- */
-export function getLanguage(): AppLanguage {
-  const stored = localStorage.getItem(LANGUAGE_KEY)
-  if (stored === 'en' || stored === 'es') return stored
-  return 'es'
-}
-
-/**
- * Persists the user's language choice in localStorage.
- */
-export function setLanguage(lang: AppLanguage): void {
-  localStorage.setItem(LANGUAGE_KEY, lang)
-  window.dispatchEvent(new CustomEvent('language_change', { detail: { lang } }))
-}
 
 /**
  * Returns the appropriate display title for a game based on the active language.
@@ -37,10 +16,9 @@ export function setLanguage(lang: AppLanguage): void {
  *
  * Usage:
  *   import { getGameTitle } from '../lib/gameLocale'
- *   <span>{getGameTitle(game)}</span>
+ *   <span>{getGameTitle(game, language)}</span>
  */
-export function getGameTitle(game: Game): string {
-  const lang = getLanguage()
+export function getGameTitle(game: Game, lang: AppLanguage = 'es'): string {
   if (lang === 'es') {
     return game.title_es || game.title
   }
@@ -55,9 +33,12 @@ export function getGameTitle(game: Game): string {
  * - 'en': returns `game.publisher` (the original publisher).
  *
  * Returns null when no publisher data is available for the selected language.
+ *
+ * Usage:
+ *   import { getGamePublisher } from '../lib/gameLocale'
+ *   <span>{getGamePublisher(game, language)}</span>
  */
-export function getGamePublisher(game: Game): string | null {
-  const lang = getLanguage()
+export function getGamePublisher(game: Game, lang: AppLanguage = 'es'): string | null {
   if (lang === 'es') {
     return game.es_publisher ?? game.publisher ?? null
   }

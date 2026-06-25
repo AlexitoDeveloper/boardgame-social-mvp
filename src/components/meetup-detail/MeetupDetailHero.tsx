@@ -5,8 +5,10 @@ import { Button } from '../ui/button'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useGameLocale } from '../../hooks/useGameLocale'
+import { formatDate } from '../../lib/dateLocale'
 import { OptimizedImage } from '../ui/OptimizedImage'
+import { useTranslation } from 'react-i18next'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup;
@@ -16,6 +18,8 @@ interface MeetupDetailHeroProps {
 }
 
 export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: MeetupDetailHeroProps) {
+  const { getGameTitle, language } = useGameLocale()
+  const { t } = useTranslation()
   const gamesList = meetup.games || [];
   
   // State for active game index in carousel
@@ -189,14 +193,14 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         {/* Lista de juegos interactiva */}
         {gamesList.length === 0 ? (
           <div className="text-sm font-bold text-amber-500 tracking-wide flex items-center gap-1.5 pt-1">
-            <span>Juegos:</span> 
+            <span>{t('meetup.gamesLabel')}</span> 
             <Tag variant="warning-solid" className="shadow-sm">
-              Por decidir en el chat
+              {t('meetup.toDecideInChat')}
             </Tag>
           </div>
         ) : (
           <div className="text-xs sm:text-sm font-bold text-primary tracking-wide flex flex-wrap items-center gap-2 pt-1">
-            <span>Juegos en mesa ({gamesList.length}):</span> 
+            <span>{t('meetup.gamesOnTable', { count: gamesList.length })}</span> 
             <div className="flex flex-wrap gap-1.5">
               {gamesList.map((g, idx) => (
                 <Tag
@@ -216,19 +220,19 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold text-muted-foreground pt-3 border-t border-border/30">
           <span className="flex items-center gap-2">
             <Calendar className="h-4.5 w-4.5 text-primary shrink-0" />
-            {new Date(meetup.date).toLocaleDateString('es-ES', { 
+            {formatDate(meetup.date, { 
               weekday: 'long', 
               day: 'numeric', 
               month: 'long', 
               year: 'numeric', 
               hour: '2-digit', 
               minute: '2-digit' 
-            })}
+            }, language)}
           </span>
           {meetup.is_online ? (
             <span className="flex items-center gap-2">
               <Laptop className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span>Partida Online • {meetup.platform || 'BGA / TTS'}</span>
+              <span>{ t('meetup.onlineMatch', { platform: meetup.platform || 'BGA / TTS' }) }</span>
             </span>
           ) : (
             <a 

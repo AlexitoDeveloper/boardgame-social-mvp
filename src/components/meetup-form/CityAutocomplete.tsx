@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div;
 
@@ -34,6 +35,7 @@ interface CityAutocompleteProps {
 
 export function CityAutocomplete({ city, setCity, required = true, allCities = ESP_CITIES }: CityAutocompleteProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const { t } = useTranslation()
 
   const suggestions = city.trim()
     ? allCities.filter(c => c.toLowerCase().includes(city.toLowerCase()) && c.toLowerCase() !== city.toLowerCase())
@@ -42,11 +44,11 @@ export function CityAutocomplete({ city, setCity, required = true, allCities = E
   return (
     <div className="space-y-1.5 relative w-full">
       <Label htmlFor="city" className="font-bold flex items-center gap-1">
-        <MapPin className="w-3.5 h-3.5 text-primary" /> Ciudad
+        <MapPin className="w-3.5 h-3.5 text-primary" /> {t('create.cityLabel')}
       </Label>
       <Input 
         id="city"
-        placeholder="Ej: Madrid, Barcelona..."
+        placeholder={t('create.cityPlaceholder')}
         value={city}
         onChange={(e) => {
           setCity(e.target.value)

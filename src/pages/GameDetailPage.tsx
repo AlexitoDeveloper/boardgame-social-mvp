@@ -2,15 +2,21 @@ import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  ArrowLeft, Star, Users, Brain, Globe, CalendarDays, 
-  Bookmark, Trophy, Dices, Crown, Loader2, Plus, Check, Info, Clock, Puzzle
+  ArrowLeft, Star, Users, Globe, CalendarDays, 
+  Bookmark, Trophy, Dices, Crown, Loader2, Plus, Check, Info, Hourglass, BarChart, Puzzle
 } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
+import { formatDate } from '../lib/dateLocale'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../hooks/useGameLocale'
 
 export function GameDetailPage() {
+  const { t, i18n } = useTranslation()
+  const { getGameTitle } = useGameLocale()
+  const language = i18n.language as any
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const {
@@ -31,26 +37,25 @@ export function GameDetailPage() {
 
   const [activeTab, setActiveTab] = useState<'details' | 'community' | 'meetups' | 'expansions'>('details')
 
-  const title = game ? (game.title_es || game.title) : ''
+  const title = game ? getGameTitle(game) : ''
 
   // Format ratings
   const avgRating = game?.rating_average ? game.rating_average.toFixed(1) : 'N/A'
   const geekRating = game?.rating_geek ? game.rating_geek.toFixed(1) : 'N/A'
   
-  // Complexity description and HSL color matching
   const complexity = game?.complexity || 0
-  let complexityLabel = 'Desconocida'
+  let complexityLabel = t('gameDetail.unknown')
   let complexityColor = 'bg-gray-500'
 
   if (complexity > 0) {
     if (complexity <= 2.2) {
-      complexityLabel = 'Familiar / Ligero'
+      complexityLabel = t('gameDetail.lightLabel')
       complexityColor = 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
     } else if (complexity <= 3.5) {
-      complexityLabel = 'Medio / Intermedio'
+      complexityLabel = t('gameDetail.mediumLabel')
       complexityColor = 'bg-amber-500/10 border-amber-500/20 text-amber-400'
     } else {
-      complexityLabel = 'Experto / Pesado'
+      complexityLabel = t('gameDetail.heavyLabel')
       complexityColor = 'bg-rose-500/10 border-rose-500/20 text-rose-400'
     }
   }
@@ -58,8 +63,8 @@ export function GameDetailPage() {
   // Players display
   const players = game?.min_players && game?.max_players
     ? game.min_players === game.max_players
-      ? `${game.min_players} jugadores`
-      : `${game.min_players}-${game.max_players} jugadores`
+      ? `${game.min_players}`
+      : `${game.min_players}-${game.max_players}`
     : 'N/A'
 
   if (loading) {
@@ -67,8 +72,8 @@ export function GameDetailPage() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="h-10 w-10 text-primary animate-spin" />
         <div className="text-center">
-          <h3 className="text-lg font-black tracking-tight text-foreground">Cargando Ficha de Juego</h3>
-          <p className="text-sm text-muted-foreground">Importando metadatos y estadísticas de BGG al vuelo...</p>
+          <h3 className="text-lg font-black tracking-tight text-foreground">{t('gameDetail.loadingTitle')}</h3>
+          <p className="text-sm text-muted-foreground">{t('gameDetail.loadingDesc')}</p>
         </div>
       </div>
     )
@@ -81,15 +86,15 @@ export function GameDetailPage() {
           <Info className="h-6 w-6" />
         </div>
         <div>
-          <h3 className="text-xl font-black tracking-tight text-foreground">¡Oops! Juego no encontrado</h3>
+          <h3 className="text-xl font-black tracking-tight text-foreground">{t('gameDetail.notFoundTitle')}</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            {error || 'No hemos podido cargar los detalles de este juego en este momento.'}
+            {error || t('gameDetail.notFoundDesc')}
           </p>
         </div>
         <Link to="/">
           <Button variant="outline" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Volver a Explorar
+            {t('gameDetail.backToExplore')}
           </Button>
         </Link>
       </div>
@@ -101,10 +106,10 @@ export function GameDetailPage() {
   const hasExpansionsOrBaseGame = hasBaseGame || hasExpansions
 
   const tabs = [
-    { id: 'details', label: 'Ficha Técnica', icon: Info },
-    { id: 'community', label: 'Comunidad', icon: Users, count: owners.length > 0 ? owners.length : undefined },
-    { id: 'meetups', label: 'Quedadas', icon: CalendarDays, count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
-    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: 'Expansiones', icon: Puzzle, count: expansions.length > 0 ? expansions.length : undefined }] : [])
+    { id: 'details', label: t('gameDetail.technicalSheet'), icon: Info },
+    { id: 'community', label: t('gameDetail.community'), icon: Users, count: owners.length > 0 ? owners.length : undefined },
+    { id: 'meetups', label: t('gameDetail.meetups'), icon: CalendarDays, count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
+    ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: t('gameDetail.expansions'), icon: Puzzle, count: expansions.length > 0 ? expansions.length : undefined }] : [])
   ] as const
 
   // Details Tab Content
@@ -114,17 +119,17 @@ export function GameDetailPage() {
       <div className="grid grid-cols-3 gap-4 p-5 glass-panel rounded-2xl shadow-sm">
         <div className="flex flex-col items-center justify-center text-center p-2">
           <Users className="h-6 w-6 text-primary mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Jugadores</span>
+          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('common.players')}</span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{players}</span>
         </div>
         <div className="flex flex-col items-center justify-center text-center p-2 border-x border-border/30">
-          <Clock className="h-6 w-6 text-primary mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Tiempo</span>
-          <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{game.playing_time ? `${game.playing_time} min` : 'N/A'}</span>
+          <Hourglass className="h-6 w-6 text-teal-400 mb-1.5" />
+          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('explore.duration')}</span>
+          <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}</span>
         </div>
         <div className="flex flex-col items-center justify-center text-center p-2">
-          <Brain className="h-6 w-6 text-primary mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Complejidad</span>
+          <BarChart className="h-6 w-6 text-purple-400 mb-1.5" />
+          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('explore.difficulty')}</span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{complexity > 0 ? `${complexity.toFixed(1)}/5` : 'N/A'}</span>
         </div>
       </div>
@@ -135,13 +140,13 @@ export function GameDetailPage() {
         <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
           <Trophy className="absolute right-4 top-4 h-12 w-12 text-primary/10 select-none pointer-events-none" />
           <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Ranking BGG</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('gameDetail.bggRank')}</span>
             <h3 className="text-3xl font-black tracking-tight text-foreground">
               {game.bgg_rank ? `#${game.bgg_rank}` : 'N/A'}
             </h3>
           </div>
           <p className="text-[11px] text-muted-foreground/75 leading-normal">
-            Clasificación global oficial.
+            {t('gameDetail.globalRankDesc')}
           </p>
         </div>
 
@@ -149,7 +154,7 @@ export function GameDetailPage() {
         <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
           <Star className="absolute right-4 top-4 h-12 w-12 text-amber-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Puntuación</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('explore.rating')}</span>
             <div className="flex items-baseline gap-1">
               <h3 className="text-3xl font-black tracking-tight text-foreground">{avgRating}</h3>
               <span className="text-xs text-muted-foreground/70 font-semibold">/10</span>
@@ -162,9 +167,9 @@ export function GameDetailPage() {
 
         {/* Complexity Card */}
         <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
-          <Brain className="absolute right-4 top-4 h-12 w-12 text-rose-500/10 select-none pointer-events-none" />
+          <BarChart className="absolute right-4 top-4 h-12 w-12 text-purple-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Complejidad</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('explore.difficulty')}</span>
             <div className="flex items-baseline gap-1">
               <h3 className="text-3xl font-black tracking-tight text-foreground">
                 {complexity > 0 ? `${complexity.toFixed(1)}` : 'N/A'}
@@ -183,8 +188,8 @@ export function GameDetailPage() {
         <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-3.5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-primary" />
-              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Perfil de Dificultad</h4>
+              <BarChart className="h-5 w-5 text-primary" />
+              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t('gameDetail.difficultyProfile')}</h4>
             </div>
             <span className={`text-xs font-extrabold uppercase px-2 py-0.5 rounded-md border ${complexityColor}`}>
               {complexityLabel}
@@ -201,14 +206,17 @@ export function GameDetailPage() {
               />
             </div>
             <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
-              <span>Ligero (0)</span>
-              <span>Medio (2.5)</span>
-              <span>Pesado (5)</span>
+              <span>{t('gameDetail.light')} (0)</span>
+              <span>{t('gameDetail.medium')} (2.5)</span>
+              <span>{t('gameDetail.heavy')} (5)</span>
             </div>
           </div>
 
           <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-            Este juego tiene una calificación de dificultad de <span className="font-extrabold text-foreground">{complexity.toFixed(2)} sobre 5</span> en BoardGameGeek, lo que indica que requiere un nivel de atención <span className="font-bold lowercase">{complexityLabel.split(' / ')[1]}</span> para aprender y dominar sus reglas.
+            {t('gameDetail.difficultyDescription', { 
+              complexity: complexity.toFixed(2), 
+              label: complexity <= 2.2 ? t('gameDetail.light') : complexity <= 3.5 ? t('gameDetail.medium') : t('gameDetail.heavy') 
+            })}
           </p>
         </div>
       )}
@@ -216,16 +224,16 @@ export function GameDetailPage() {
       {/* Publishers Info Block */}
       {(game.publisher || game.es_publisher) && (
         <div className="glass-panel rounded-2xl p-5 space-y-4 shadow-sm">
-          <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground border-b border-border/30 pb-2">Distribución & Editoriales</h4>
+          <h4 className="text-xs font-black uppercase tracking-wider text-muted-foreground border-b border-border/30 pb-2">{t('gameDetail.distributionPublishers')}</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm font-semibold text-foreground/80">
             {game.publisher && (
               <p>
-                Editorial internacional: <span className="font-bold text-foreground block mt-1">{game.publisher}</span>
+                {t('gameDetail.intlPublisher')}: <span className="font-bold text-foreground block mt-1">{game.publisher}</span>
               </p>
             )}
             {game.es_publisher && (
               <p>
-                Distribución en España: <span className="font-bold text-primary block mt-1">{game.es_publisher}</span>
+                {t('gameDetail.spainPublisher')}: <span className="font-bold text-primary block mt-1">{game.es_publisher}</span>
               </p>
             )}
           </div>
@@ -247,10 +255,10 @@ export function GameDetailPage() {
           </div>
           <div>
             <span className="text-[9px] uppercase font-black tracking-widest text-muted-foreground block">
-              Partidas Registradas
+              {t('gameDetail.registeredPlays')}
             </span>
             <h4 className="text-xl font-black text-foreground mt-0.5">
-              {playsCount} {playsCount === 1 ? 'partida jugada' : 'partidas jugadas'} por la comunidad
+              {playsCount} {playsCount === 1 ? t('gameDetail.communityPlay') : t('gameDetail.communityPlays')}
             </h4>
           </div>
         </div>
@@ -260,7 +268,7 @@ export function GameDetailPage() {
       <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
           <Crown className="h-5 w-5 text-amber-500" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Historial de Victorias</h3>
+          <h3 className="text-xs font-black uppercase tracking-wider text-foreground">{t('gameDetail.victoryHistory')}</h3>
         </div>
 
         {winnersLog.length > 0 ? (
@@ -298,7 +306,7 @@ export function GameDetailPage() {
                 </div>
                 
                 <span className="text-xs font-extrabold bg-muted text-foreground px-2.5 py-1 rounded-lg">
-                  {winner.wins} {winner.wins === 1 ? 'victoria' : 'victorias'}
+                  {winner.wins} {winner.wins === 1 ? t('gameDetail.victory') : t('gameDetail.victorias')}
                 </span>
               </div>
             ))}
@@ -306,8 +314,8 @@ export function GameDetailPage() {
         ) : (
           <div className="text-center py-8 text-muted-foreground space-y-2">
             <Crown className="h-8 w-8 text-muted-foreground/30 mx-auto" />
-            <p className="text-xs font-medium">Ningún usuario ha registrado victorias aún.</p>
-            <p className="text-[11px] text-muted-foreground/75">¡Completa partidas en un meetup para inaugurar la vitrina!</p>
+            <p className="text-xs font-medium">{t('gameDetail.noWinsTitle')}</p>
+            <p className="text-[11px] text-muted-foreground/75">{t('gameDetail.noWinsDesc')}</p>
           </div>
         )}
       </div>
@@ -316,7 +324,7 @@ export function GameDetailPage() {
       <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
           <Bookmark className="h-5 w-5 text-primary" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Ludoteca de la Comunidad</h3>
+          <h3 className="text-xs font-black uppercase tracking-wider text-foreground">{t('gameDetail.communityLudoteca')}</h3>
         </div>
 
         {owners.length > 0 ? (
@@ -360,12 +368,12 @@ export function GameDetailPage() {
                   {currentUserCity ? (
                     isLocal ? (
                       <span className="text-[9px] font-black uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md shrink-0">
-                        Cerca de ti
+                        {t('gameDetail.nearby')}
                       </span>
                     ) : (
                       owner.city && (
                         <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-muted/40 border border-border/10 px-2 py-0.5 rounded-md shrink-0">
-                          Foráneo
+                          {t('gameDetail.foreign')}
                         </span>
                       )
                     )
@@ -377,8 +385,8 @@ export function GameDetailPage() {
         ) : (
           <div className="text-center py-8 text-muted-foreground space-y-2">
             <Bookmark className="h-8 w-8 text-muted-foreground/30 mx-auto" />
-            <p className="text-xs font-medium">Nadie tiene este juego en su ludoteca todavía.</p>
-            <p className="text-[11px] text-muted-foreground/75">Agrégalo a tu perfil utilizando el botón lateral.</p>
+            <p className="text-xs font-medium">{t('gameDetail.emptyLudotecaTitle')}</p>
+            <p className="text-[11px] text-muted-foreground/75">{t('gameDetail.emptyLudotecaDesc')}</p>
           </div>
         )}
       </div>
@@ -392,12 +400,12 @@ export function GameDetailPage() {
         <div className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
           <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-            Partidas Programadas
+            {t('gameDetail.upcomingPlays')}
           </h3>
         </div>
         
         <span className="text-xs font-extrabold text-muted-foreground">
-          {upcomingMeetups?.length || 0} {upcomingMeetups?.length === 1 ? 'partida' : 'partidas'}
+          {upcomingMeetups?.length || 0} {upcomingMeetups?.length === 1 ? t('common.game').toLowerCase() : t('gameDetail.meetups').toLowerCase()}
         </span>
       </div>
 
@@ -429,14 +437,14 @@ export function GameDetailPage() {
                         </div>
                       )}
                       <span className="text-[11px] font-bold text-muted-foreground">
-                        Organiza {meetup.users?.username}
+                        {t('gameDetail.organizedBy', { username: meetup.users?.username })}
                       </span>
                     </div>
 
                     <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
                       isFull ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                     }`}>
-                      {isFull ? 'Completo' : 'Libre'}
+                      {isFull ? t('common.full') : t('common.free')}
                     </span>
                   </div>
 
@@ -455,13 +463,13 @@ export function GameDetailPage() {
                     <p className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span>
-                        {dateObj.toLocaleDateString('es-ES', { 
+                        {formatDate(dateObj, { 
                           weekday: 'short', 
                           day: '2-digit', 
                           month: 'short',
                           hour: '2-digit',
                           minute: '2-digit'
-                        })}
+                        }, language)}
                       </span>
                     </p>
                     {meetup.is_online ? (
@@ -481,7 +489,7 @@ export function GameDetailPage() {
                 <div className="mt-4 pt-3 border-t border-border/30">
                   <Link to={`/tablero/${meetup.id}`} className="block">
                     <Button variant="outline" size="sm" className="w-full text-[11px] gap-1 h-8 rounded-xl font-black">
-                      Ver Detalles Mesa
+                      {t('gameDetail.viewMeetupDetails')}
                     </Button>
                   </Link>
                 </div>
@@ -493,15 +501,15 @@ export function GameDetailPage() {
         <div className="text-center py-12 text-muted-foreground glass-panel rounded-2xl p-6 space-y-3">
           <CalendarDays className="h-10 w-10 text-muted-foreground/30 mx-auto" />
           <div>
-            <h4 className="text-xs font-black uppercase text-foreground">No hay partidas agendadas</h4>
+            <h4 className="text-xs font-black uppercase text-foreground">{t('gameDetail.noScheduledPlaysTitle')}</h4>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-normal">
-              Nadie ha organizado partidas para este juego todavía. ¡Toma la iniciativa y organiza la primera!
+              {t('gameDetail.noScheduledPlaysDesc')}
             </p>
           </div>
           <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="inline-block mt-2">
             <Button size="sm" className="font-black gap-1.5 px-4 h-9">
               <Plus className="h-4 w-4" />
-              Crear Nueva Mesa
+              {t('gameDetail.createNewMeetup')}
             </Button>
           </Link>
         </div>
@@ -515,7 +523,7 @@ export function GameDetailPage() {
       <div className="flex items-center gap-2 border-b border-border/40 pb-3">
         <Puzzle className="h-5 w-5 text-amber-500" />
         <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-          {game.is_expansion ? 'Juego Base Requerido' : `Expansiones Disponibles (${expansions.length})`}
+          {game.is_expansion ? t('gameDetail.baseGameRequired') : t('gameDetail.availableExpansions', { count: expansions.length })}
         </h3>
       </div>
 
@@ -523,10 +531,10 @@ export function GameDetailPage() {
         <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-5 space-y-3 shadow-sm">
           <div className="flex items-center gap-2 text-amber-500">
             <Info className="h-5 w-5" />
-            <h4 className="text-xs font-black uppercase tracking-wider">Requiere Juego Base</h4>
+            <h4 className="text-xs font-black uppercase tracking-wider">{t('gameDetail.requiresBaseGameTitle')}</h4>
           </div>
           <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
-            Esta es una expansión y necesitas el juego base original para poder jugarlo. Visita la ficha técnica original:
+            {t('gameDetail.requiresBaseGameDesc')}
           </p>
           
           <Link 
@@ -542,10 +550,10 @@ export function GameDetailPage() {
             />
             <div className="min-w-0">
               <h5 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                {baseGame.title_es || baseGame.title}
+                {getGameTitle(baseGame)}
               </h5>
               <p className="text-[10px] text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
-                Juego Base • {baseGame.year_published || 'N/A'}
+                {t('gameDetail.baseGame')} • {baseGame.year_published || 'N/A'}
               </p>
             </div>
           </Link>
@@ -569,10 +577,10 @@ export function GameDetailPage() {
               />
               <div className="min-w-0 flex-1">
                 <h4 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
-                  {exp.title_es || exp.title}
+                  {getGameTitle(exp)}
                 </h4>
                 <p className="text-[10px] text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
-                  Expansión • {exp.year_published || 'N/A'}
+                  {t('gameDetail.expansion')} • {exp.year_published || 'N/A'}
                 </p>
               </div>
             </Link>
@@ -588,7 +596,7 @@ export function GameDetailPage() {
       {/* Quick Actions Panel */}
       <div className="bg-card border border-border/40 rounded-2xl p-5 shadow-lg space-y-4">
         <h3 className="text-xs font-black uppercase tracking-wider text-foreground border-b border-border/40 pb-3">
-          Acciones Rápidas
+          {t('gameDetail.actionsTitle')}
         </h3>
         
         <div className="flex flex-col gap-3">
@@ -596,7 +604,7 @@ export function GameDetailPage() {
           <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="w-full">
             <Button className="w-full font-black tracking-tight gap-2 py-6 rounded-xl shadow-md cursor-pointer bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/95 hover:to-emerald-500 hover:shadow-lg transition-all duration-300">
               <CalendarDays className="h-4.5 w-4.5" />
-              Organizar Mesa
+              {t('gameDetail.organizeMeetup')}
             </Button>
           </Link>
 
@@ -612,19 +620,19 @@ export function GameDetailPage() {
             ) : isInCollection ? (
               <>
                 <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-                En mi Ludoteca
+                {t('gameDetail.inLudoteca')}
               </>
             ) : (
               <>
                 <Plus className="h-4 w-4 shrink-0 text-muted-foreground" />
-                Añadir a mi Ludoteca
+                {t('gameDetail.addToLudoteca')}
               </>
             )}
           </Button>
         </div>
 
         <p className="text-[10px] text-muted-foreground font-medium leading-relaxed text-center pt-2">
-          Al añadir este juego a tu ludoteca, otros meeple de tu ciudad sabrán que lo tienes y te podrán invitar a partidas.
+          {t('gameDetail.collectionTip')}
         </p>
       </div>
     </div>
@@ -653,10 +661,10 @@ export function GameDetailPage() {
           onClick={() => navigate(-1)} 
           className="cursor-pointer"
           icon={ArrowLeft}
-          label="Volver"
+          label={t('common.back')}
         />
         <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
-          Ficha de Juego
+          {t('gameDetail.technicalSheet')}
         </span>
       </div>
 
@@ -695,7 +703,7 @@ export function GameDetailPage() {
             )}
             {game.is_expansion && (
               <span className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg uppercase backdrop-blur-sm shadow-sm">
-                Expansión
+                {t('gameDetail.expansion')}
               </span>
             )}
             <a 
@@ -712,9 +720,9 @@ export function GameDetailPage() {
             {title}
           </h1>
 
-          {game.title_es && game.title_es !== game.title && (
+          {language === 'es' && game.title_es && game.title_es !== game.title && (
             <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">
-              Original: <span className="italic font-bold text-foreground/80">{game.title}</span>
+              {t('gameDetail.originalTitle')}: <span className="italic font-bold text-foreground/80">{game.title}</span>
             </p>
           )}
         </div>
@@ -762,7 +770,7 @@ export function GameDetailPage() {
 
         {/* BGG Legal Disclaimer */}
         <div className="text-[10px] text-center text-muted-foreground/45 font-semibold select-none pt-12 border-t border-border/10 mt-8">
-          Datos de juegos proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+          {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
         </div>
       </div>
     </div>
