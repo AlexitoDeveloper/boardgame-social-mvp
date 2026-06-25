@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart'
 import { Meetup, UserProfile } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
+import { useTranslation } from 'react-i18next'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,73 +18,32 @@ interface AdvancedStatsProps {
 
 // ─── Dynamic Title Logic ───────────────────────────────────────────────────────
 
-const DYNAMIC_TITLES = [
-  {
-    id: 'legend',
-    label: '👑 La Leyenda',
-    description: 'Más de 20 victorias. Simplemente, dominante.',
-    color: 'from-amber-500 to-yellow-400',
-    border: 'border-amber-500/30',
-    bg: 'bg-amber-500/10',
-    check: (stats: UserStats) => stats.won >= 20,
-  },
-  {
-    id: 'conqueror',
-    label: '⚔️ El Conquistador',
-    description: 'Tasa de victoria superior al 60%.',
-    color: 'from-rose-500 to-red-400',
-    border: 'border-rose-500/30',
-    bg: 'bg-rose-500/10',
-    check: (stats: UserStats) => stats.winRate >= 60 && stats.played >= 5,
-  },
-  {
-    id: 'eternal',
-    label: '🎲 El Eterno',
-    description: 'Más de 15 partidas jugadas. Siempre en la mesa.',
-    color: 'from-violet-500 to-purple-400',
-    border: 'border-violet-500/30',
-    bg: 'bg-violet-500/10',
-    check: (stats: UserStats) => stats.played >= 15,
-  },
-  {
-    id: 'ghost',
-    label: '👻 El Fantasma',
-    description: 'Karma por debajo del 50%. Desaparece en el momento crítico.',
-    color: 'from-slate-500 to-gray-400',
-    border: 'border-slate-500/30',
-    bg: 'bg-slate-500/10',
-    check: (stats: UserStats) => stats.karma < 50 && stats.missed >= 3,
-  },
-  {
-    id: 'social',
-    label: '🤝 El Social',
-    description: 'Mucha asistencia, pocas victorias. El alma de las partidas.',
-    color: 'from-emerald-500 to-teal-400',
-    border: 'border-emerald-500/30',
-    bg: 'bg-emerald-500/10',
-    check: (stats: UserStats) => stats.karma >= 80 && stats.winRate < 20 && stats.played >= 5,
-  },
-  {
-    id: 'rookie',
-    label: '🌱 El Novato',
-    description: 'Menos de 5 partidas. Bienvenido al mundo del cartón.',
-    color: 'from-lime-500 to-green-400',
-    border: 'border-lime-500/30',
-    bg: 'bg-lime-500/10',
-    check: (stats: UserStats) => stats.played < 5,
-  },
+type TitleId = 'legend' | 'conqueror' | 'eternal' | 'ghost' | 'social' | 'rookie'
+
+const TITLE_CONFIGS: {
+  id: TitleId
+  emoji: string
+  color: string
+  border: string
+  bg: string
+  check: (stats: UserStats) => boolean
+}[] = [
+  { id: 'legend',    emoji: '👑', color: 'from-amber-500 to-yellow-400',   border: 'border-amber-500/30',   bg: 'bg-amber-500/10',   check: (s) => s.won >= 20 },
+  { id: 'conqueror', emoji: '⚔️', color: 'from-rose-500 to-red-400',       border: 'border-rose-500/30',    bg: 'bg-rose-500/10',    check: (s) => s.winRate >= 60 && s.played >= 5 },
+  { id: 'eternal',   emoji: '🎲', color: 'from-violet-500 to-purple-400',  border: 'border-violet-500/30',  bg: 'bg-violet-500/10',  check: (s) => s.played >= 15 },
+  { id: 'ghost',     emoji: '👻', color: 'from-slate-500 to-gray-400',     border: 'border-slate-500/30',   bg: 'bg-slate-500/10',   check: (s) => s.karma < 50 && s.missed >= 3 },
+  { id: 'social',    emoji: '🤝', color: 'from-emerald-500 to-teal-400',   border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', check: (s) => s.karma >= 80 && s.winRate < 20 && s.played >= 5 },
+  { id: 'rookie',    emoji: '🌱', color: 'from-lime-500 to-green-400',     border: 'border-lime-500/30',    bg: 'bg-lime-500/10',    check: (s) => s.played < 5 },
 ]
 
-function getDynamicTitle(stats: UserStats) {
-  return DYNAMIC_TITLES.find(t => t.check(stats)) ?? DYNAMIC_TITLES[DYNAMIC_TITLES.length - 1]
+function getDynamicTitleId(stats: UserStats): TitleId {
+  return TITLE_CONFIGS.find(c => c.check(stats))?.id ?? 'rookie'
 }
 
 // ─── Nemesis / Victim Calculation ─────────────────────────────────────────────
 
 function calcNemesisAndVictim(meetups: Meetup[], profileId: string) {
-  // Losses map: opponentId -> number of times they beat us
   const lossesFrom: Record<string, { username: string; avatar_url: string | null; count: number }> = {}
-  // Wins map: opponentId -> number of times we beat them
   const winsOver: Record<string, { username: string; avatar_url: string | null; count: number }> = {}
 
   const completedAttended = meetups.filter(
@@ -98,16 +58,13 @@ function calcNemesisAndVictim(meetups: Meetup[], profileId: string) {
       const winnerId = game.winner_user_id
       if (!winnerId) continue
 
-      // We lost to this person
       if (winnerId !== profileId && allAttendees.includes(profileId)) {
         if (!lossesFrom[winnerId]) {
-          // We'll fill username later if possible from meetup users
           lossesFrom[winnerId] = { username: winnerId.slice(0, 8), avatar_url: null, count: 0 }
         }
         lossesFrom[winnerId].count++
       }
 
-      // We beat them
       if (winnerId === profileId) {
         for (const opponentId of allAttendees) {
           if (opponentId === profileId) continue
@@ -131,49 +88,34 @@ function calcNemesisAndVictim(meetups: Meetup[], profileId: string) {
   return { nemesis, victim }
 }
 
-// ─── Radar Data Calculation ────────────────────────────────────────────────────
-
-function calcRadarData(stats: UserStats, meetups: Meetup[], profileId: string) {
-  const completedAttended = meetups.filter(
-    m => m.completed && m.attended_players?.includes(profileId)
-  )
-  const organized = meetups.filter(m => m.creator_id === profileId).length
-
-  // Asistencia (0-100): karma directo
-  const asistencia = Math.min(100, stats.karma)
-
-  // Victoria (0-100): win rate
-  const victoria = Math.min(100, stats.winRate)
-
-  // Experiencia (0-100): partidas jugadas escaladas a 20 como tope
-  const experiencia = Math.min(100, Math.round((stats.played / 20) * 100))
-
-  // Organización (0-100): meetups organizados escalados a 10 como tope
-  const organizacion = Math.min(100, Math.round((organized / 10) * 100))
-
-  // Variedad (0-100): juegos únicos jugados escalados a 15 como tope
-  const uniqueGames = new Set<number>()
-  completedAttended.forEach(m => (m.games || []).forEach(g => uniqueGames.add(g.bgg_id)))
-  const variedad = Math.min(100, Math.round((uniqueGames.size / 15) * 100))
-
-  return [
-    { axis: 'Victoria', value: victoria },
-    { axis: 'Asistencia', value: asistencia },
-    { axis: 'Experiencia', value: experiencia },
-    { axis: 'Organización', value: organizacion },
-    { axis: 'Variedad', value: variedad },
-  ]
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps) {
-  const dynamicTitle = useMemo(() => getDynamicTitle(stats), [stats])
+  const { t } = useTranslation()
+
+  const titleId = useMemo(() => getDynamicTitleId(stats), [stats])
+  const titleConfig = TITLE_CONFIGS.find(c => c.id === titleId)!
   const { nemesis, victim } = useMemo(() => calcNemesisAndVictim(meetups, profileId), [meetups, profileId])
-  const radarData = useMemo(() => calcRadarData(stats, meetups, profileId), [stats, meetups, profileId])
+
+  const radarData = useMemo(() => {
+    const completedAttended = meetups.filter(
+      m => m.completed && m.attended_players?.includes(profileId)
+    )
+    const organized = meetups.filter(m => m.creator_id === profileId).length
+    const uniqueGames = new Set<number>()
+    completedAttended.forEach(m => (m.games || []).forEach(g => uniqueGames.add(g.bgg_id)))
+
+    return [
+      { axis: t('profile.advancedStats.axisWin'),          value: Math.min(100, stats.winRate) },
+      { axis: t('profile.advancedStats.axisAttendance'),   value: Math.min(100, stats.karma) },
+      { axis: t('profile.advancedStats.axisExperience'),   value: Math.min(100, Math.round((stats.played / 20) * 100)) },
+      { axis: t('profile.advancedStats.axisOrganization'), value: Math.min(100, Math.round((organized / 10) * 100)) },
+      { axis: t('profile.advancedStats.axisVariety'),      value: Math.min(100, Math.round((uniqueGames.size / 15) * 100)) },
+    ]
+  }, [stats, meetups, profileId, t])
 
   const chartConfig = {
-    value: { label: 'Puntuación', color: 'hsl(var(--primary))' },
+    value: { label: t('profile.advancedStats.radarScore'), color: 'hsl(var(--primary))' },
   }
 
   const hasEnoughData = stats.played >= 3
@@ -184,28 +126,28 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
       <div className="flex items-center gap-2 px-1">
         <Flame className="w-4 h-4 text-primary" />
         <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-          Estadísticas Avanzadas
+          {t('profile.advancedStats.sectionTitle')}
         </h2>
       </div>
 
       {/* 1. Dynamic Title */}
-      <Card className={`border ${dynamicTitle.border} ${dynamicTitle.bg} rounded-2xl shadow-lg overflow-hidden relative`}>
+      <Card className={`border ${titleConfig.border} ${titleConfig.bg} rounded-2xl shadow-lg overflow-hidden relative`}>
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <div className={`w-full h-full bg-gradient-to-br ${dynamicTitle.color}`} />
+          <div className={`w-full h-full bg-gradient-to-br ${titleConfig.color}`} />
         </div>
         <CardContent className="p-4 flex items-center gap-4 relative z-10">
-          <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${dynamicTitle.color} flex items-center justify-center shadow-lg text-xl`}>
-            {dynamicTitle.label.split(' ')[0]}
+          <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${titleConfig.color} flex items-center justify-center shadow-lg text-xl`}>
+            {titleConfig.emoji}
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
-              Tu Título
+              {t('profile.advancedStats.yourTitle')}
             </p>
             <p className="text-sm font-black text-foreground leading-tight">
-              {dynamicTitle.label.split(' ').slice(1).join(' ')}
+              {t(`profile.advancedStats.title_${titleId}_label`)}
             </p>
             <p className="text-[10px] text-muted-foreground font-medium mt-0.5 leading-normal">
-              {dynamicTitle.description}
+              {t(`profile.advancedStats.title_${titleId}_desc`)}
             </p>
           </div>
         </CardContent>
@@ -218,7 +160,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           <CardContent className="p-4 space-y-2.5">
             <div className="flex items-center gap-1.5">
               <Skull className="w-3.5 h-3.5 text-rose-500" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Tu Némesis</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">{t('profile.advancedStats.nemesisLabel')}</span>
             </div>
             {nemesis ? (
               <div className="space-y-1.5">
@@ -230,12 +172,12 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{nemesis.username}</p>
-                <p className="text-[9px] text-rose-500 font-bold text-center">{nemesis.count}× te ganó</p>
+                <p className="text-[9px] text-rose-500 font-bold text-center">{t('profile.advancedStats.nemesisBeat', { count: nemesis.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">
                 <p className="text-[10px] text-muted-foreground font-medium leading-normal">
-                  {hasEnoughData ? 'Aún no tienes némesis 🛡️' : 'Juega más partidas'}
+                  {hasEnoughData ? t('profile.advancedStats.noNemesis') : t('profile.advancedStats.playMoreGames')}
                 </p>
               </div>
             )}
@@ -247,7 +189,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           <CardContent className="p-4 space-y-2.5">
             <div className="flex items-center gap-1.5">
               <Crown className="w-3.5 h-3.5 text-amber-500 fill-current" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">Tu Víctima</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">{t('profile.advancedStats.victimLabel')}</span>
             </div>
             {victim ? (
               <div className="space-y-1.5">
@@ -259,12 +201,12 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{victim.username}</p>
-                <p className="text-[9px] text-amber-500 font-bold text-center">{victim.count}× ganaste</p>
+                <p className="text-[9px] text-amber-500 font-bold text-center">{t('profile.advancedStats.victimBeat', { count: victim.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">
                 <p className="text-[10px] text-muted-foreground font-medium leading-normal">
-                  {hasEnoughData ? 'Aún no tienes víctima ⚔️' : 'Juega más partidas'}
+                  {hasEnoughData ? t('profile.advancedStats.noVictim') : t('profile.advancedStats.playMoreGames')}
                 </p>
               </div>
             )}
@@ -277,7 +219,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
         <CardHeader className="p-4 pb-0">
           <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-primary" />
-            Radar de Estilo de Jugador
+            {t('profile.advancedStats.radarTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-2">
@@ -301,7 +243,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   content={
                     <ChartTooltipContent
                       indicator="dot"
-                      formatter={(value) => [`${value}%`, 'Puntuación']}
+                      formatter={(value) => [`${value}%`, t('profile.advancedStats.radarScore')]}
                     />
                   }
                 />
@@ -319,10 +261,10 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
             <div className="h-[160px] flex flex-col items-center justify-center gap-2 text-center">
               <Swords className="w-8 h-8 text-muted-foreground/40" />
               <p className="text-[11px] text-muted-foreground font-medium">
-                Necesitas al menos 3 partidas completadas para ver tu radar.
+                {t('profile.advancedStats.radarNeedsData')}
               </p>
               <p className="text-[10px] text-muted-foreground/60 font-medium">
-                Llevas {stats.played} de 3.
+                {t('profile.advancedStats.radarProgress', { played: stats.played })}
               </p>
             </div>
           )}

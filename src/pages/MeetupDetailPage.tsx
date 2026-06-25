@@ -17,8 +17,10 @@ import {
 } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { cn } from '../lib/utils'
-import { getGameTitle } from '../lib/gameLocale'
+import { useGameLocale } from '../hooks/useGameLocale'
+import { formatDate } from '../lib/dateLocale'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 // Import subcomponents
 import { MeetupDetailHero } from '../components/meetup-detail/MeetupDetailHero'
@@ -74,6 +76,8 @@ export function MeetupDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t, i18n } = useTranslation()
+  const { getGameTitle } = useGameLocale()
 
   const {
     meetup,
@@ -103,7 +107,7 @@ export function MeetupDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-4">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Cargando detalles de la partida...</p>
+        <p className="text-muted-foreground animate-pulse font-medium">{t('meetup.loadingDetails')}</p>
       </div>
     )
   }
@@ -113,11 +117,11 @@ export function MeetupDetailPage() {
       <section className="space-y-4 max-w-xl mx-auto p-4 text-center">
         <div className="text-destructive bg-destructive/10 px-4 py-6 rounded-2xl border border-destructive/20 space-y-3">
           <Info className="w-10 h-10 mx-auto text-destructive" />
-          <h2 className="text-xl font-bold">¡Vaya! Algo salió mal</h2>
-          <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar la partida solicitada.'}</p>
+          <h2 className="text-xl font-bold">{t('meetup.errorTitle')}</h2>
+          <p className="text-sm font-medium text-foreground/80">{errorMsg || t('meetup.errorDesc')}</p>
         </div>
         <Button onClick={() => navigate('/')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="w-4 h-4" /> Volver al Tablero
+          <ArrowLeft className="w-4 h-4" /> {t('meetup.backToBoard')}
         </Button>
       </section>
     )
@@ -141,7 +145,7 @@ export function MeetupDetailPage() {
           onClick={() => navigate('/')} 
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">Volver al Tablero</span><span className="xs:hidden">Volver</span>
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('meetup.backToBoard')}</span><span className="xs:hidden">{t('common.back')}</span>
         </Button>
         
         <Button
@@ -153,12 +157,12 @@ export function MeetupDetailPage() {
           {copySuccess ? (
             <>
               <Check className="w-4 h-4 text-success" />
-              <span className="text-success font-semibold">¡Copiado!</span>
+              <span className="text-success font-semibold">{t('common.copied')}</span>
             </>
           ) : (
             <>
               <Share2 className="w-4 h-4 text-primary" />
-              <span>Compartir</span>
+              <span>{t('common.share')}</span>
             </>
           )}
         </Button>
@@ -232,7 +236,7 @@ export function MeetupDetailPage() {
 
       {/* Legal Attribution */}
       <div className="text-center pt-8 text-[11px] text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">
-        Datos de juegos proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+        {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
       </div>
 
       {/* Exportable Match Summary Modal */}
@@ -291,7 +295,7 @@ export function MeetupDetailPage() {
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                     <h3 className="font-extrabold text-sm text-white truncate max-w-[150px] sm:max-w-md">
-                      Exportar Resumen
+                      {t('meetup.exportSummary')}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">
@@ -301,17 +305,17 @@ export function MeetupDetailPage() {
                       onClick={handleExportImage}
                       disabled={exporting}
                       className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
-                      title="Guardar Foto"
+                      title={t('common.savePhoto')}
                     >
                       {exporting ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                          <span className="hidden sm:inline">Generando...</span>
+                          <span className="hidden sm:inline">{t('common.generating')}</span>
                         </>
                       ) : (
                         <>
                           <Download className="w-3.5 h-3.5 shrink-0" />
-                          <span className="hidden sm:inline">Guardar Foto</span>
+                          <span className="hidden sm:inline">{t('common.savePhoto')}</span>
                         </>
                       )}
                     </Button>
@@ -332,7 +336,7 @@ export function MeetupDetailPage() {
                   {/* Left Column: Settings (ordered second on mobile) */}
                   <div className="md:col-span-2 space-y-5 text-left order-2 md:order-1">
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">Formato RRSS</span>
+                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.socialFormat')}</span>
                       <div className="grid grid-cols-2 gap-2">
                         <Button
                           onClick={() => setSelectedRatio('story')}
@@ -364,7 +368,7 @@ export function MeetupDetailPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">Tema de Fondo</span>
+                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.backgroundTheme')}</span>
                       <div className="grid grid-cols-2 gap-2">
                         {Object.keys(BACKGROUNDS).map((themeKey) => (
                           <Button
@@ -379,7 +383,7 @@ export function MeetupDetailPage() {
                             )}
                           >
                             <div className={cn("w-3.5 h-3.5 rounded-full bg-gradient-to-br border border-white/20 shrink-0 transition-transform duration-200", BACKGROUNDS[themeKey], selectedTheme === themeKey && "scale-110")} />
-                            <span>{themeKey === 'default' ? 'Esmeralda' : themeKey.replace('-', ' ')}</span>
+                            <span>{themeKey === 'default' ? t('profile.defaultBg') : t(`profile.${themeKey.replace(/-([a-z])/g, g => g[1].toUpperCase())}Bg`)}</span>
                           </Button>
                         ))}
                       </div>
@@ -387,10 +391,10 @@ export function MeetupDetailPage() {
                     
                     <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-1.5 font-semibold">
                       <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
-                        💡 Consejos para compartir
+                        {t('meetup.tipsTitle')}
                       </p>
                       <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-                        El formato <strong>Story (9:16)</strong> está especialmente optimizado para Instagram y TikTok Stories. La imagen se generará en alta definición con un fondo gamificado y traslúcido para atraer la atención.
+                        {t('meetup.tipsDesc')}
                       </p>
                     </div>
                   </div>
@@ -413,7 +417,7 @@ export function MeetupDetailPage() {
                       {/* Preview Canvas Header */}
                       <div className="flex justify-between items-center border-b border-white/10 pb-3 w-full shrink-0">
                         <div className="text-left min-w-0 flex-1">
-                          <span className="text-[8px] font-black text-primary uppercase tracking-widest block mb-0.5">RESUMEN DE PARTIDA</span>
+                          <span className="text-[8px] font-black text-primary uppercase tracking-widest block mb-0.5">{t('meetup.summaryLabel')}</span>
                           <h4 className="font-black text-white leading-tight truncate text-sm sm:text-base w-full">
                             {meetup.title}
                           </h4>
@@ -474,7 +478,7 @@ export function MeetupDetailPage() {
                                       ) : (
                                         <>
                                           <span className="border border-white/10 bg-white/5 text-zinc-300 font-extrabold uppercase tracking-wide px-1.5 py-0.5 text-[8.5px] rounded-md">
-                                            Empate / Coop 🤝
+                                            {t('meetup.draw')}
                                           </span>
                                           {game.winner_score && (
                                             <span className="font-black bg-white/10 text-zinc-300 border border-white/10 shrink-0 text-[8.5px] px-1.5 py-0.5 rounded-md">
@@ -496,7 +500,7 @@ export function MeetupDetailPage() {
                       <div className="border-t border-white/10 pt-3 flex items-center justify-between text-[10px] text-zinc-300 font-bold select-none shrink-0">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span>Mesa jugada el {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })} • Boardgame Social</span>
+                          <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, i18n.language as any)} • Boardgame Social</span>
                         </span>
                         <span className="font-extrabold text-white">#BoardgameSocial</span>
                       </div>
@@ -521,7 +525,7 @@ export function MeetupDetailPage() {
                         {/* High-res Header */}
                         <div className="flex justify-between items-center border-b border-white/15 pb-6 w-full">
                           <div className="text-left font-inter min-w-0 flex-1">
-                            <span className="text-sm font-black text-primary uppercase tracking-widest block mb-1.5">RESUMEN DE PARTIDA</span>
+                            <span className="text-sm font-black text-primary uppercase tracking-widest block mb-1.5">{t('meetup.summaryLabel')}</span>
                             <h4 className="font-black text-white leading-tight truncate text-4xl w-full">
                               {meetup.title}
                             </h4>
@@ -582,7 +586,7 @@ export function MeetupDetailPage() {
                                         ) : (
                                           <>
                                             <span className="border border-white/10 bg-white/5 text-zinc-300 font-extrabold uppercase tracking-wide px-3.5 py-1.5 text-sm rounded-xl">
-                                              Empate / Coop 🤝
+                                              {t('meetup.draw')}
                                             </span>
                                             {game.winner_score && (
                                               <span className="font-black bg-white/10 text-zinc-300 border border-white/10 shrink-0 text-sm px-3.5 py-1.5 rounded-xl">
@@ -604,7 +608,7 @@ export function MeetupDetailPage() {
                         <div className="border-t border-white/15 pt-6 flex items-center justify-between text-xs text-zinc-300 font-bold select-none font-inter">
                           <span className="flex items-center gap-2.5">
                             <Calendar className="w-5 h-5 text-primary shrink-0" />
-                            <span>Mesa jugada el {new Date(meetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} • Boardgame Social</span>
+                            <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'long', year: 'numeric' }, i18n.language as any)} • Boardgame Social</span>
                           </span>
                           <span className="font-extrabold text-sm text-white">#BoardgameSocial</span>
                         </div>

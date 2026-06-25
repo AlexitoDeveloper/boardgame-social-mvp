@@ -11,6 +11,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Form } from '../ui/form'
+import { useTranslation } from 'react-i18next'
 
 interface ImportBggModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export function ImportBggModal({
   setImportSuccessCount,
   onImport
 }: ImportBggModalProps) {
+  const { t } = useTranslation()
   const [bggUsernameInput, setBggUsernameInput] = useState('')
 
   useEffect(() => {
@@ -58,10 +60,10 @@ export function ImportBggModal({
       <DialogContent className="max-w-md bg-card border-border/50 rounded-3xl p-6 shadow-2xl text-left gap-4">
         <DialogHeader className="border-b border-border/20 pb-2 flex flex-col space-y-1.5 text-left sm:text-left">
           <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-            <Plus className="w-5 h-5 text-primary" /> Importar desde BGG
+            <Plus className="w-5 h-5 text-primary" /> {t('profile.bggImport.title')}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground font-semibold">
-            Ingresa tu usuario de BoardGameGeek para sincronizar tus juegos de propiedad.
+            {t('profile.bggImport.desc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -76,22 +78,22 @@ export function ImportBggModal({
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto shadow-sm">
               <Check className="w-5 h-5" />
             </div>
-            <h4 className="font-extrabold text-sm text-foreground">¡Importación Completada!</h4>
+            <h4 className="font-extrabold text-sm text-foreground">{t('profile.bggImport.successTitle')}</h4>
             <p className="text-xs text-muted-foreground">
-              Se han importado <span className="font-bold text-emerald-500">{importSuccessCount}</span> juegos de propiedad a tu ludoteca.
+              {t('profile.bggImport.successDesc', { count: importSuccessCount })}
             </p>
           </div>
         ) : (
           <Form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5 text-left">
-              <Label htmlFor="bgg-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Usuario de BoardGameGeek</Label>
+              <Label htmlFor="bgg-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.bggImport.label')}</Label>
               <Input
                 id="bgg-username"
                 type="text"
                 required
                 value={bggUsernameInput}
                 onChange={(e) => setBggUsernameInput(e.target.value)}
-                placeholder="Ej. alex_meeple_99"
+                placeholder={t('profile.bggImport.placeholder')}
                 disabled={importingCollection}
               />
             </div>
@@ -100,13 +102,13 @@ export function ImportBggModal({
               <div className="flex gap-2">
                 <span className="text-primary shrink-0">ℹ️</span>
                 <p>
-                  Importaremos únicamente los juegos marcados como de tu propiedad (<strong>"own=1"</strong>) en tu perfil de BGG.
+                  {t('profile.bggImport.infoOwned')}
                 </p>
               </div>
               <div className="flex gap-2 border-t border-border/10 pt-2">
                 <span className="text-amber-500 shrink-0">⚠️</span>
                 <p>
-                  Si es la primera vez en mucho tiempo que consultas tu perfil en BGG, la API de BGG podría tardar unos instantes en compilar tu colección. Esperaremos de forma segura en segundo plano.
+                  {t('profile.bggImport.infoDelay')}
                 </p>
               </div>
             </div>
@@ -119,7 +121,7 @@ export function ImportBggModal({
                 onClick={() => onOpenChange(false)}
                 disabled={importingCollection}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -129,10 +131,10 @@ export function ImportBggModal({
                 {importingCollection ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5 shrink-0" />
-                    Importando colección...
+                    {t('profile.bggImport.importing')}
                   </>
                 ) : (
-                  'Empezar Importación'
+                  t('profile.bggImport.start')
                 )}
               </Button>
             </div>

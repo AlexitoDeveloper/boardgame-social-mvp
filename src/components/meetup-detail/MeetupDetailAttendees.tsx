@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { UserProfile } from '../../types'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -25,6 +26,7 @@ export function MeetupDetailAttendees({
   userId, 
   guestReservationId 
 }: MeetupDetailAttendeesProps) {
+  const { t } = useTranslation()
   
   const renderEmptySlots = () => {
     const slotsToRender = Math.min(3, spotsRemaining)
@@ -38,7 +40,7 @@ export function MeetupDetailAttendees({
         <div className="w-9 h-9 rounded-full border border-dashed border-border/50 flex items-center justify-center text-xs font-bold text-muted-foreground/30">
           ?
         </div>
-        <span className="text-xs font-bold tracking-wide uppercase">Vacante</span>
+        <span className="text-xs font-bold tracking-wide uppercase">{t('meetup.vacantSpot')}</span>
       </div>
     ))
   }
@@ -47,13 +49,13 @@ export function MeetupDetailAttendees({
     <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-lg">
       <CardHeader className="p-4 sm:p-6 pb-3 border-b border-border/20 flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">Asistentes</CardTitle>
+          <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">{t('meetup.attendeesTitle')}</CardTitle>
           <CardDescription className="text-xs font-semibold text-muted-foreground mt-0.5">
-            {attendees.length} de {maxPlayers} jugadores en la mesa
+            {t('meetup.attendeesCount', { current: attendees.length, max: maxPlayers })}
           </CardDescription>
         </div>
         <Tag variant="default">
-          {spotsRemaining} plazas libres
+          {t('meetup.spotsLeft', { count: spotsRemaining })}
         </Tag>
       </CardHeader>
       
@@ -74,10 +76,10 @@ export function MeetupDetailAttendees({
                   </Avatar>
                   <div className="min-w-0 text-left">
                     <span className="text-sm font-bold block text-foreground truncate group-hover:text-primary transition-colors">
-                      {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">(Tú)</span>}
+                      {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">({t('meetup.you')})</span>}
                     </span>
                     <span className="text-[10px] text-muted-foreground font-medium block">
-                      {isUserOrganizer ? 'Organiza la partida' : attendee.is_guest ? 'Invitado temporal' : 'Jugador'}
+                      {isUserOrganizer ? t('meetup.organizer') : attendee.is_guest ? t('meetup.tempGuest') : t('meetup.player')}
                     </span>
                   </div>
                 </div>
@@ -110,7 +112,7 @@ export function MeetupDetailAttendees({
 
                   {attendee.is_guest && !isUserOrganizer && (
                     <Tag variant="secondary" className="shrink-0">
-                      Invitado
+                      {t('common.guest')}
                     </Tag>
                   )}
                 </MotionDiv>

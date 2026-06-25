@@ -7,6 +7,8 @@ import { useMeetupChat } from '../../hooks/useMeetupChat'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Form } from '../ui/form'
+import { useTranslation } from 'react-i18next'
+import { formatTime as formatTimeLocale } from '../../lib/dateLocale'
 
 interface MeetupDetailChatProps {
   meetupId: string | undefined
@@ -23,6 +25,7 @@ export function MeetupDetailChat({
   meetup,
   attendees
 }: MeetupDetailChatProps) {
+  const { t, i18n } = useTranslation()
   const { messages, loading, error, sendMessage, isAttendee } = useMeetupChat(
     meetupId,
     currentUser,
@@ -72,8 +75,7 @@ export function MeetupDetailChat({
   // Format timestamp (e.g. 14:35)
   const formatTime = (isoString: string) => {
     try {
-      const date = new Date(isoString)
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return formatTimeLocale(isoString, { hour: '2-digit', minute: '2-digit' }, i18n.language as any)
     } catch {
       return ''
     }
@@ -95,7 +97,7 @@ export function MeetupDetailChat({
             <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-foreground">Chat de la Mesa</h3>
+            <h3 className="font-bold text-foreground">{t('meetup.chatTitle')}</h3>
           </div>  
         </div>
       </div>
@@ -108,7 +110,7 @@ export function MeetupDetailChat({
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full space-y-3">
             <Loader2 className="w-6 h-6 text-primary animate-spin" />
-            <p className="text-xs text-muted-foreground animate-pulse">Cargando conversación...</p>
+            <p className="text-xs text-muted-foreground animate-pulse">{t('meetup.chatLoading')}</p>
           </div>
         ) : error ? (
           <div className="text-center p-4 text-destructive bg-destructive/10 rounded-2xl border border-destructive/20 text-xs">
@@ -120,9 +122,9 @@ export function MeetupDetailChat({
               <MessageSquare className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground/80">No hay mensajes todavía</p>
+              <p className="text-sm font-semibold text-foreground/80">{t('meetup.chatEmptyTitle')}</p>
               <p className="text-xs text-muted-foreground max-w-[200px] mx-auto mt-1">
-                ¡Sé el primero en saludar y organizar el punto de encuentro!
+                {t('meetup.chatEmptyDesc')}
               </p>
             </div>
           </div>
@@ -196,7 +198,7 @@ export function MeetupDetailChat({
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe un mensaje..."
+              placeholder={t('meetup.chatPlaceholder')}
               maxLength={500}
               className="flex-1"
               disabled={sending}
@@ -217,7 +219,7 @@ export function MeetupDetailChat({
         ) : (
           <div className="flex items-center gap-3 px-4 py-3 bg-muted/40 backdrop-blur-xs border border-border/30 rounded-2xl text-xs text-muted-foreground justify-center">
             <Lock className="w-4 h-4 text-muted-foreground/75" />
-            <span>Únete a esta partida para poder leer e interactuar en el chat.</span>
+            <span>{t('meetup.joinToReadChat')}</span>
           </div>
         )}
       </div>

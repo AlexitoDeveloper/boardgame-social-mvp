@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Award } from 'lucide-react'
 import { UserStats } from '../../hooks/useProfile'
 import { AchievementMedallion } from './AchievementMedallion'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -24,39 +25,41 @@ export function AchievementsVitrina({
   stats,
   savedRankingsCount
 }: AchievementsVitrinaProps) {
+  const { t } = useTranslation()
+
   const hostTiers: Tier[] = [
-    { req: 1, name: 'Anfitrión Novel', tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3, name: 'Anfitrión Frecuente', tier: 'Plata', color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 8, name: 'Gran Anfitrión', tier: 'Oro', color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 15, name: 'Señor del Tablero', tier: 'Platino', color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
+    { req: 1,  name: t('profile.achievements.host_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
+    { req: 3,  name: t('profile.achievements.host_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
+    { req: 8,  name: t('profile.achievements.host_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
+    { req: 15, name: t('profile.achievements.host_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
   const winnerTiers: Tier[] = [
-    { req: 1, name: 'Primera Sangre', tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3, name: 'Campeón de la Tarde', tier: 'Plata', color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 8, name: 'Espada de Victoria', tier: 'Oro', color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 15, name: 'Gran Conquistador', tier: 'Platino', color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
+    { req: 1,  name: t('profile.achievements.winner_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
+    { req: 3,  name: t('profile.achievements.winner_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
+    { req: 8,  name: t('profile.achievements.winner_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
+    { req: 15, name: t('profile.achievements.winner_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
   const veteranTiers: Tier[] = [
-    { req: 1, name: 'Novato Iniciado', tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 5, name: 'Veterano Lúdico', tier: 'Plata', color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 15, name: 'Meeple de Acero', tier: 'Oro', color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 30, name: 'Devorador de Reglas', tier: 'Platino', color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
+    { req: 1,  name: t('profile.achievements.veteran_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
+    { req: 5,  name: t('profile.achievements.veteran_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
+    { req: 15, name: t('profile.achievements.veteran_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
+    { req: 30, name: t('profile.achievements.veteran_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
   const reliableTiers = [
-    { reqKarma: 80, reqPlayed: 1, name: 'Formal', tier: 'Bronce' as const, color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { reqKarma: 90, reqPlayed: 3, name: 'Karma de Acero', tier: 'Plata' as const, color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { reqKarma: 95, reqPlayed: 8, name: 'Asistente de Honor', tier: 'Oro' as const, color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { reqKarma: 100, reqPlayed: 15, name: 'Reloj Suizo', tier: 'Platino' as const, color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
+    { reqKarma: 80,  reqPlayed: 1,  name: t('profile.achievements.reliable_bronze'),   tier: 'Bronce' as const, color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
+    { reqKarma: 90,  reqPlayed: 3,  name: t('profile.achievements.reliable_silver'),   tier: 'Plata'  as const, color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
+    { reqKarma: 95,  reqPlayed: 8,  name: t('profile.achievements.reliable_gold'),     tier: 'Oro'    as const, color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
+    { reqKarma: 100, reqPlayed: 15, name: t('profile.achievements.reliable_platinum'), tier: 'Platino'as const, color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
   const criticTiers: Tier[] = [
-    { req: 1, name: 'Opinólogo', tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3, name: 'Crítico de la BGG', tier: 'Plata', color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 6, name: 'Curador de Culto', tier: 'Oro', color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 10, name: 'Oráculo de Cartón', tier: 'Platino', color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
+    { req: 1,  name: t('profile.achievements.critic_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
+    { req: 3,  name: t('profile.achievements.critic_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
+    { req: 6,  name: t('profile.achievements.critic_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
+    { req: 10, name: t('profile.achievements.critic_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
   ]
 
   const getTierInfo = (tiers: Tier[], value: number) => {
@@ -86,48 +89,48 @@ export function AchievementsVitrina({
   const achievements = [
     {
       id: 'host',
-      baseName: 'Anfitrión',
-      description: 'Organiza partidas en el tablero.',
+      baseName: t('profile.achievements.hostTitle'),
+      description: t('profile.achievements.hostDesc'),
       currentValue: organizedCount,
       ...getTierInfo(hostTiers, organizedCount),
-      unit: 'partidas organizadas',
-      reqDesc: 'partidas'
+      unit: t('profile.achievements.hostUnit'),
+      reqDesc: t('profile.achievements.hostReq')
     },
     {
       id: 'winner',
-      baseName: 'Espada de Victoria',
-      description: 'Gana partidas registradas.',
+      baseName: t('profile.achievements.winnerTitle'),
+      description: t('profile.achievements.winnerDesc'),
       currentValue: stats.won,
       ...getTierInfo(winnerTiers, stats.won),
-      unit: 'victorias',
-      reqDesc: 'victorias'
+      unit: t('profile.achievements.winnerUnit'),
+      reqDesc: t('profile.achievements.winnerReq')
     },
     {
       id: 'veteran',
-      baseName: 'Veterano',
-      description: 'Completa partidas jugadas.',
+      baseName: t('profile.achievements.veteranTitle'),
+      description: t('profile.achievements.veteranDesc'),
       currentValue: stats.played,
       ...getTierInfo(veteranTiers, stats.played),
-      unit: 'partidas completadas',
-      reqDesc: 'partidas'
+      unit: t('profile.achievements.veteranUnit'),
+      reqDesc: t('profile.achievements.veteranReq')
     },
     {
       id: 'reliable',
-      baseName: 'Asistencia',
-      description: 'Mantén una asistencia impecable.',
+      baseName: t('profile.achievements.reliableTitle'),
+      description: t('profile.achievements.reliableDesc'),
       currentValue: stats.karma,
       ...getReliableInfo(stats.karma, stats.played),
-      unit: 'karma de asistencia',
-      reqDesc: '% karma'
+      unit: t('profile.achievements.reliableUnit'),
+      reqDesc: t('profile.achievements.reliableReq')
     },
     {
       id: 'critic',
-      baseName: 'Crítico',
-      description: 'Crea y guarda rankings en tu perfil.',
+      baseName: t('profile.achievements.criticTitle'),
+      description: t('profile.achievements.criticDesc'),
       currentValue: savedRankingsCount,
       ...getTierInfo(criticTiers, savedRankingsCount),
-      unit: 'rankings creados',
-      reqDesc: 'rankings'
+      unit: t('profile.achievements.criticUnit'),
+      reqDesc: t('profile.achievements.criticReq')
     }
   ]
 
@@ -137,7 +140,7 @@ export function AchievementsVitrina({
   return (
     <div className="space-y-3">
       <h3 className="text-xs font-extrabold uppercase text-muted-foreground tracking-widest flex items-center gap-1.5 select-none text-left">
-        <Award className="w-4 h-4 text-primary" /> Vitrina de Logros
+        <Award className="w-4 h-4 text-primary" /> {t('profile.achievements.title')}
       </h3>
       <div className="grid grid-cols-5 gap-2.5">
         {achievements.map((ach) => {
@@ -173,7 +176,7 @@ export function AchievementsVitrina({
                   ? isActive ? 'text-primary font-black' : 'text-foreground font-black'
                   : 'text-zinc-500'
               }`}>
-                {hasUnlocked ? ach.currentTier?.name : 'Bloqueado'}
+                {hasUnlocked ? ach.currentTier?.name : t('profile.achievements.lockedBadge')}
               </span>
               
               <span className="text-[7.5px] font-semibold text-muted-foreground/80 scale-90">
@@ -188,8 +191,10 @@ export function AchievementsVitrina({
       <AnimatePresence mode="wait">
         {activeAch && (() => {
           const hasUnlocked = activeAch.currentTier !== null
-          const tierName = activeAch.currentTier ? activeAch.currentTier.name : `Bloqueado (${activeAch.baseName})`
-          const tierLabel = activeAch.currentTier ? activeAch.currentTier.tier : 'Ninguno'
+          const tierName = activeAch.currentTier
+            ? activeAch.currentTier.name
+            : `${t('profile.achievements.lockedBadge')} (${activeAch.baseName})`
+          const tierLabel = activeAch.currentTier ? activeAch.currentTier.tier : t('profile.achievements.lockedBadge')
           
           let nextLevelDesc = ''
           let progressPercent = 0
@@ -201,30 +206,30 @@ export function AchievementsVitrina({
               const nextKarma = nextTierCast.reqKarma
               const nextPlayed = nextTierCast.reqPlayed
               progressPercent = Math.min(100, Math.round((stats.karma / nextKarma) * 50 + (Math.min(stats.played, nextPlayed) / nextPlayed) * 50))
-              nextLevelDesc = `Siguiente nivel: ${nextTierCast.name} (${nextTierCast.tier})`
-              progressText = `Requiere: Karma >= ${nextKarma}% (Actual: ${stats.karma}%) y ${stats.played}/${nextPlayed} partidas (Actual)`
+              nextLevelDesc = t('profile.achievements.nextLevel', { name: nextTierCast.name, tier: nextTierCast.tier })
+              progressText = t('profile.achievements.reqKarma', { karma: nextKarma, current: stats.karma, played: stats.played, target: nextPlayed })
             } else {
               const nextTierCast = activeAch.nextTier as Tier
               const nextReq = nextTierCast.req
               progressPercent = Math.min(100, Math.round((activeAch.progressVal / nextReq) * 100))
-              nextLevelDesc = `Siguiente nivel: ${nextTierCast.name} (${nextTierCast.tier})`
-              progressText = `Progreso: ${activeAch.progressVal} / ${nextReq} ${activeAch.reqDesc}`
+              nextLevelDesc = t('profile.achievements.nextLevel', { name: nextTierCast.name, tier: nextTierCast.tier })
+              progressText = t('profile.achievements.progress', { current: activeAch.progressVal, target: nextReq, unit: activeAch.reqDesc })
             }
           } else if (hasUnlocked) {
             progressPercent = 100
-            nextLevelDesc = '¡Nivel máximo alcanzado! 🏆'
-            progressText = `Tienes ${activeAch.progressVal} ${activeAch.unit}`
+            nextLevelDesc = t('profile.achievements.maxLevel')
+            progressText = t('profile.achievements.havePoints', { current: activeAch.progressVal, unit: activeAch.unit })
           } else {
             if (activeAch.id === 'reliable') {
               const reliableT = reliableTiers[0]
               progressPercent = Math.min(100, Math.round((stats.karma / reliableT.reqKarma) * 50 + (Math.min(stats.played, reliableT.reqPlayed) / reliableT.reqPlayed) * 50))
-              nextLevelDesc = `Desbloquear Bronce: ${reliableT.name}`
-              progressText = `Requiere: Karma >= ${reliableT.reqKarma}% (Actual: ${stats.karma}%) y ${stats.played}/${reliableT.reqPlayed} partidas (Actual)`
+              nextLevelDesc = t('profile.achievements.unlockBronze', { name: reliableT.name })
+              progressText = t('profile.achievements.reqKarma', { karma: reliableT.reqKarma, current: stats.karma, played: stats.played, target: reliableT.reqPlayed })
             } else {
               const firstReq = activeAch.targetVal
               progressPercent = Math.min(100, Math.round((activeAch.progressVal / firstReq) * 100))
-              nextLevelDesc = `Desbloquear Bronce: ${activeAch.baseName} Novel`
-              progressText = `Progreso: ${activeAch.progressVal} / ${firstReq} ${activeAch.reqDesc}`
+              nextLevelDesc = t('profile.achievements.unlockBronze', { name: `${activeAch.baseName} ${t('profile.achievements.novelSuffix')}` })
+              progressText = t('profile.achievements.progress', { current: activeAch.progressVal, target: firstReq, unit: activeAch.reqDesc })
             }
           }
 
@@ -251,7 +256,9 @@ export function AchievementsVitrina({
                 <div className="flex-1 space-y-1.5 min-w-0">
                   <div className="flex justify-between items-center gap-2">
                     <span className="text-[9.5px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
-                      {hasUnlocked ? `🏆 Logro Desbloqueado (${tierLabel})` : '🔒 Logro Bloqueado'}
+                      {hasUnlocked
+                        ? t('profile.achievements.unlockedTitle', { tier: tierLabel })
+                        : t('profile.achievements.lockedTitle')}
                     </span>
                     <span className={`text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 shrink-0 ${
                       hasUnlocked ? 'text-primary' : 'text-muted-foreground'

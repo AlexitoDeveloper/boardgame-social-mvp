@@ -24,6 +24,8 @@ export function Tabs<T extends string>({
   className,
   hideLabelsOnMobile = false,
 }: TabsProps<T>) {
+  const layoutId = `tabs-pill-${options.map(o => o.id).join('-')}`
+
   return (
     <div className={cn("bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 w-full select-none relative z-10", className)}>
       {options.map((opt) => {
@@ -41,7 +43,7 @@ export function Tabs<T extends string>({
           >
             {isActive && (
               <motion.div
-                layoutId="active-tabs-pill"
+                layoutId={layoutId}
                 className="absolute inset-0 bg-primary rounded-xl -z-10"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />

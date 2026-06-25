@@ -3,13 +3,15 @@ import { motion } from 'framer-motion'
 import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
 import { OptimizedImage } from './ui/OptimizedImage'
+import { useGameLocale } from '../hooks/useGameLocale'
 
 interface GameCoverCardProps {
   game: Game;
 }
 
 export function GameCoverCard({ game }: GameCoverCardProps) {
-  const title = game.title_es || game.title;
+  const { getGameTitle } = useGameLocale()
+  const title = getGameTitle(game)
   
   // Try rating_geek first, then rating_average
   const rating = game.rating_geek 

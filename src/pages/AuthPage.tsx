@@ -9,6 +9,7 @@ import { Label } from '../components/ui/label'
 import { Form } from '../components/ui/form'
 import { Card, CardContent } from '../components/ui/card'
 import { Loader2, LogIn, UserPlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -19,6 +20,7 @@ const tabVars = {
 }
 
 export function AuthPage() {
+  const { t } = useTranslation()
   const [tab, setTab]             = useState<'login' | 'register'>('login')
   const [tabDir, setTabDir]       = useState(1)
   const [email, setEmail]         = useState('')
@@ -44,7 +46,7 @@ export function AuthPage() {
     setLoading(false)
     if (error) {
       setErrorMsg(error.message === 'Invalid login credentials'
-        ? 'Email o contraseña incorrectos.'
+        ? t('auth.errorInvalidCredentials')
         : error.message)
     } else {
       navigate('/')
@@ -53,7 +55,7 @@ export function AuthPage() {
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!username.trim()) { setErrorMsg('El nombre de usuario es obligatorio.'); return }
+    if (!username.trim()) { setErrorMsg(t('auth.errorUsernameRequired')); return }
     setLoading(true)
     setErrorMsg('')
 
@@ -78,7 +80,7 @@ export function AuthPage() {
     }
 
     setLoading(false)
-    setSuccessMsg('¡Cuenta creada! Ya puedes iniciar sesión.')
+    setSuccessMsg(t('auth.successRegistered'))
     switchTab('login')
   }
 
@@ -99,17 +101,17 @@ export function AuthPage() {
         {/* Branding */}
         <div className="text-center mb-8">
           <p className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
-            Boardgame Social
+            {t('auth.title')}
           </p>
-          <p className="text-sm text-muted-foreground mt-2">La red social de juegos de mesa</p>
+          <p className="text-sm text-muted-foreground mt-2">{t('auth.subtitle')}</p>
         </div>
 
         <Card className="glass-panel shadow-2xl rounded-[24px]">
           {/* Tabs */}
           <div className="flex border-b border-border/30">
             {[
-              { id: 'login' as const,    label: 'Iniciar Sesión', icon: LogIn },
-              { id: 'register' as const, label: 'Crear Cuenta',   icon: UserPlus },
+              { id: 'login' as const,    label: t('auth.signInTab'), icon: LogIn },
+              { id: 'register' as const, label: t('auth.signUpTab'), icon: UserPlus },
             ].map(({ id, label, icon }) => (
               <Button
                 key={id}
@@ -177,7 +179,7 @@ export function AuthPage() {
                 >
                   <Form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email" className="font-semibold">Email</Label>
+                      <Label htmlFor="login-email" className="font-semibold">{t('auth.emailLabel')}</Label>
                       <Input
                         id="login-email"
                         type="email"
@@ -189,7 +191,7 @@ export function AuthPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="login-password" className="font-semibold">Contraseña</Label>
+                      <Label htmlFor="login-password" className="font-semibold">{t('auth.passwordLabel')}</Label>
                       <Input
                         id="login-password"
                         type="password"
@@ -207,8 +209,8 @@ export function AuthPage() {
                       disabled={loading}
                     >
                       {loading
-                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Entrando...</span>
-                        : 'Entrar'}
+                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('auth.signInLoader')}</span>
+                        : t('auth.signInButton')}
                     </Button>
                   </Form>
                 </MotionDiv>
@@ -224,11 +226,11 @@ export function AuthPage() {
                 >
                   <Form onSubmit={handleRegister} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="reg-username" className="font-semibold">Nombre de usuario</Label>
+                      <Label htmlFor="reg-username" className="font-semibold">{t('auth.usernameLabel')}</Label>
                       <Input
                         id="reg-username"
                         type="text"
-                        placeholder="boardgamer_xyz"
+                        placeholder={t('auth.usernamePlaceholder')}
                         required
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
@@ -236,7 +238,7 @@ export function AuthPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="reg-email" className="font-semibold">Email</Label>
+                      <Label htmlFor="reg-email" className="font-semibold">{t('auth.emailLabel')}</Label>
                       <Input
                         id="reg-email"
                         type="email"
@@ -248,7 +250,7 @@ export function AuthPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="reg-password" className="font-semibold">Contraseña <span className="text-xs text-muted-foreground font-normal">(mín. 6 caracteres)</span></Label>
+                      <Label htmlFor="reg-password" className="font-semibold">{t('auth.passwordLabel')} <span className="text-xs text-muted-foreground font-normal">{t('auth.passwordHelp')}</span></Label>
                       <Input
                         id="reg-password"
                         type="password"
@@ -267,8 +269,8 @@ export function AuthPage() {
                       disabled={loading}
                     >
                       {loading
-                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Creando cuenta...</span>
-                        : 'Crear Cuenta'}
+                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('auth.signUpLoader')}</span>
+                        : t('auth.signUpButton')}
                     </Button>
                   </Form>
                 </MotionDiv>

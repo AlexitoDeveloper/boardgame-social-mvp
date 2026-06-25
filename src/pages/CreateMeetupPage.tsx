@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
+import { useTranslation } from 'react-i18next'
+import { useGameLocale } from '../hooks/useGameLocale'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -13,12 +15,11 @@ import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall } fr
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
-import { Game } from '../types'
-import { getGameTitle } from '../lib/gameLocale'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { PremiumUpgradeModal } from '../components/PremiumUpgradeModal'
 import { CityAutocomplete, ESP_CITIES } from '../components/meetup-form/CityAutocomplete'
 import { GameSelectionSection } from '../components/meetup-form/GameSelectionSection'
+import { Game } from '@/types'
 
 const MotionDiv = motion.div;
 const MotionForm = motion.form;
@@ -27,6 +28,8 @@ export function CreateMeetupPage() {
   const { id } = useParams<{ id: string }>()
   const isEditMode = Boolean(id)
   const { user } = useAuth()
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const gameIdParam = searchParams.get('gameId') || searchParams.get('game_id')
@@ -552,7 +555,7 @@ export function CreateMeetupPage() {
     return (
       <div className="flex flex-col items-center justify-center mt-20 space-y-4">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <p className="text-muted-foreground animate-pulse font-medium">Comprobando límite de partidas activas...</p>
+        <p className="text-muted-foreground animate-pulse font-medium">{t('create.checkingLimit')}</p>
       </div>
     )
   }
@@ -569,10 +572,10 @@ export function CreateMeetupPage() {
           onClick={isEditMode ? () => navigate(`/tablero/${id}`) : () => navigate(-1)} 
           className="flex-shrink-0 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> Volver
+          <ArrowLeft className="w-4 h-4" /> {t('common.back')}
         </Button>
         <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
-          {isEditMode ? 'Editar Mesa' : `Partidas Activas: ${activeMeetupsCount !== null ? activeMeetupsCount : 0}/${limit}`}
+          {isEditMode ? t('create.editTitle') : `${t('create.activeMeetups')}: ${activeMeetupsCount !== null ? activeMeetupsCount : 0}/${limit}`}
         </span>
       </div>
 
@@ -581,10 +584,10 @@ export function CreateMeetupPage() {
           <CardHeader className="p-4 pb-4 sm:p-6 sm:pb-4 border-b border-border/30">
             <div className="min-w-0">
               <CardTitle className="text-2xl font-extrabold tracking-tight text-primary truncate">
-                {isEditMode ? 'Editar Mesa' : 'Abrir Mesa'}
+                {isEditMode ? t('create.editTitle') : t('create.hostTitle')}
               </CardTitle>
               <CardDescription className="font-medium text-foreground/80 truncate">
-                {isEditMode ? 'Modifica los detalles de tu partida.' : 'Abre una mesa de juego para reunir jugadores en tu zona.'}
+                {isEditMode ? t('create.editDesc') : t('create.hostDesc')}
               </CardDescription>
             </div>
           </CardHeader>
@@ -595,9 +598,9 @@ export function CreateMeetupPage() {
                   <Laptop className="w-8 h-8" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black text-foreground">Límite de Partidas Alcanzado</h3>
+                  <h3 className="text-lg font-black text-foreground">{t('create.limitTitle')}</h3>
                   <p className="text-xs text-muted-foreground leading-normal max-w-sm mx-auto">
-                    Has alcanzado el límite máximo de <strong>{limit} partidas activas</strong> creadas. Completa o elimina alguna de tus partidas existentes para poder abrir más.
+                    {t('create.limitDesc', { limit })}
                   </p>
                 </div>
                 <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
@@ -607,7 +610,7 @@ export function CreateMeetupPage() {
                     size="sm"
                     onClick={() => navigate('/')}
                   >
-                    Volver al Tablero
+                    {t('meetup.backToBoard')}
                   </Button>
                   {!isPremiumUser && (
                     <>
@@ -617,7 +620,7 @@ export function CreateMeetupPage() {
                         size="sm"
                         onClick={() => setIsUpgradeModalOpen(true)}
                       >
-                        Obtener PRO (Aumentar a 10)
+                        {t('create.upgradePro')}
                       </Button>
                       <PremiumUpgradeModal 
                         isOpen={isUpgradeModalOpen}
@@ -636,14 +639,14 @@ export function CreateMeetupPage() {
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${!showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-success bg-success/15 text-success'}`}>
                   {selectedGames.length > 0 ? '✓' : '1'}
                 </span>
-                <span>Seleccionar Juegos</span>
+                <span>{t('create.selectGamesStep')}</span>
               </div>
               <div className="w-8 sm:w-16 h-px bg-border/40" />
               <div className={`flex items-center gap-2 text-xs sm:text-sm font-extrabold transition-all duration-300 ${showDetails ? 'text-primary' : 'text-muted-foreground/60'}`}>
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center border font-bold text-xs transition-all duration-300 ${showDetails ? 'border-primary bg-primary/10 shadow-sm shadow-primary/10' : 'border-muted bg-muted'}`}>
                   2
                 </span>
-                <span>Detalles de la Partida</span>
+                <span>{t('create.meetupDetailsStep')}</span>
               </div>
             </div>
 
@@ -690,13 +693,13 @@ export function CreateMeetupPage() {
                   {/* Selected Games Showcase Frame */}
                   <div className="p-4 border border-border/40 rounded-xl bg-muted/20 backdrop-blur-sm shadow-inner space-y-3">
                     <div className="flex justify-between items-center border-b border-border/20 pb-2">
-                      <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Juegos de la Sesión</Label>
+                      <Label className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t('create.sessionGames')}</Label>
                       <Button variant="outline" size="sm" type="button" onClick={() => setShowDetails(false)} className="cursor-pointer">
-                        Añadir/Cambiar
+                        {t('create.addChange')}
                       </Button>
                     </div>
                     {selectedGames.length === 0 ? (
-                      <p className="text-xs font-medium text-muted-foreground italic">Por decidir en el chat (ningún juego fijo aún).</p>
+                      <p className="text-xs font-medium text-muted-foreground italic">{t('create.noGamesSelected')}</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {selectedGames.map(game => (
@@ -712,8 +715,8 @@ export function CreateMeetupPage() {
                             )}
                             <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
-                              <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md shrink-0">
-                                Expansión
+                              <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/25 rounded-md shrink-0">
+                                {t('common.expansion')}
                               </span>
                             )}
                           </div>
@@ -732,7 +735,7 @@ export function CreateMeetupPage() {
                         onClick={() => setShowExpansions(!showExpansions)}
                         className="cursor-pointer p-0 h-auto text-primary"
                       >
-                        {showExpansions ? '− Ocultar Expansiones' : `+ Añadir Expansiones (${availableExpansions.length} disponibles)`}
+                        {showExpansions ? t('create.hideExpansions') : t('create.showExpansions', { count: availableExpansions.length })}
                       </Button>
                       
                       <AnimatePresence>
@@ -785,10 +788,10 @@ export function CreateMeetupPage() {
 
                   {/* Title */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="title" className="font-bold">Título de la mesa</Label>
+                    <Label htmlFor="title" className="font-bold">{t('create.meetupTitleLabel')}</Label>
                     <Input 
                       id="title"
-                      placeholder="Ej: Tarde de Eurogames, Campaña Gloomhaven..."
+                      placeholder={t('create.meetupTitlePlaceholder')}
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required 
@@ -797,10 +800,10 @@ export function CreateMeetupPage() {
 
                   {/* Description */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="description" className="font-bold">Descripción (Opcional)</Label>
+                    <Label htmlFor="description" className="font-bold">{t('create.descLabel')}</Label>
                     <Textarea 
                       id="description"
-                      placeholder="Explica detalles como el nivel de experiencia requerido, si hay que llevar comida, etc."
+                      placeholder={t('create.descPlaceholder')}
                       className="min-h-[100px] resize-none"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
@@ -809,11 +812,11 @@ export function CreateMeetupPage() {
 
                   {/* Modality Selector */}
                   <div className="space-y-1.5">
-                    <Label className="font-bold">Modalidad de la Partida</Label>
+                    <Label className="font-bold">{t('create.modalityLabel')}</Label>
                     <Tabs
                       options={[
-                        { id: 'presencial', label: 'Presencial', icon: MapPin },
-                        { id: 'online', label: 'Online', icon: Laptop }
+                        { id: 'presencial', label: t('create.presencial'), icon: MapPin },
+                        { id: 'online', label: t('create.online'), icon: Laptop }
                       ]}
                       activeTab={isOnline ? 'online' : 'presencial'}
                       onChange={(val) => setIsOnline(val === 'online')}
@@ -838,10 +841,10 @@ export function CreateMeetupPage() {
                         />
 
                         <div className="space-y-1.5">
-                          <Label htmlFor="location" className="font-bold">Dirección / Lugar</Label>
+                          <Label htmlFor="location" className="font-bold">{t('create.locationLabel')}</Label>
                           <Input 
                             id="location"
-                            placeholder="Ej: Café Central, Calle Mayor 5..."
+                            placeholder={t('create.locationPlaceholder')}
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             required 
@@ -859,7 +862,7 @@ export function CreateMeetupPage() {
                       >
                         <div className="space-y-1.5">
                           <Label htmlFor="platform" className="font-bold flex items-center gap-1">
-                            <Laptop className="w-3.5 h-3.5 text-primary" /> Plataforma Online
+                            <Laptop className="w-3.5 h-3.5 text-primary" /> {t('create.platformLabel')}
                           </Label>
                           <Input 
                             id="platform"
@@ -872,7 +875,7 @@ export function CreateMeetupPage() {
 
                         <div className="space-y-1.5">
                           <Label htmlFor="voiceLink" className="font-bold flex items-center gap-1">
-                            <PhoneCall className="w-3.5 h-3.5 text-primary" /> Enlace de Voz (Opcional)
+                            <PhoneCall className="w-3.5 h-3.5 text-primary" /> {t('create.voiceLabel')}
                           </Label>
                           <Input 
                             id="voiceLink"
@@ -889,14 +892,14 @@ export function CreateMeetupPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="date" className="font-bold flex items-center gap-1">
-                        <CalendarDays className="w-3.5 h-3.5 text-primary" /> Fecha y Hora
+                        <CalendarDays className="w-3.5 h-3.5 text-primary" /> {t('create.dateLabel')}
                       </Label>
                       <CalendarDatePicker value={date} onChange={setDate} />
                     </div>
 
                     <div className="space-y-1.5">
                       <Label htmlFor="maxPlayers" className="font-bold flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-primary" /> Jugadores Máximos
+                        <Users className="w-3.5 h-3.5 text-primary" /> {t('create.maxPlayersLabel')}
                       </Label>
                       <Input 
                         id="maxPlayers"
@@ -915,10 +918,10 @@ export function CreateMeetupPage() {
                     <Button type="submit" variant="premium" className="w-full shadow-lg" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
-                          <Loader2 className="w-5 h-5 animate-spin"/> {isEditMode ? 'Guardando cambios...' : 'Abriendo mesa...'}
+                          <Loader2 className="w-5 h-5 animate-spin"/> {t('create.saving')}
                         </span>
                       ) : (
-                        isEditMode ? 'Guardar Cambios' : 'Abrir Mesa en el Tablero'
+                        isEditMode ? t('create.saveChanges') : t('create.createButtonFull')
                       )}
                     </Button>
                   </div>

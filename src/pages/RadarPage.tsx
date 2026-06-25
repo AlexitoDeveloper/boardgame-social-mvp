@@ -10,6 +10,7 @@ import { MeetupCard } from '../components/MeetupCard'
 import { Game, Meetup } from '../types'
 import { USE_MOCKS } from '../lib/config'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -24,6 +25,7 @@ const itemVars = {
 } as const
 
 export function RadarPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
   const ITEMS_PER_PAGE = 10
@@ -197,13 +199,13 @@ export function RadarPage() {
     <section className="space-y-6 pb-20 p-4 max-w-xl mx-auto relative">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/30 pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Tablero</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">{t('radar.title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Descubre partidas y mesas de juego cerca de ti.
+            {t('radar.subtitle')}
           </p>
         </div>
         <Link to="/tablero/new" className="hidden sm:inline-block">
-          <Button size="sm" icon={Plus} label="Abrir Mesa" className="cursor-pointer" />
+          <Button size="sm" icon={Plus} label={t('radar.openTable')} className="cursor-pointer" />
         </Link>
       </div>
 
@@ -227,8 +229,8 @@ export function RadarPage() {
             transition={{ duration: 0.2 }}
             className="text-center py-20 px-4 bg-muted/20 rounded-2xl border border-dashed border-border/60"
           >
-            <p className="text-muted-foreground text-lg mb-1">No hay partidas en el tablero aún.</p>
-            <p className="text-sm text-foreground/60">¡Sé el primero en abrir una mesa!</p>
+            <p className="text-muted-foreground text-lg mb-1">{t('radar.emptyTitle')}</p>
+            <p className="text-sm text-foreground/60">{t('radar.emptyDesc')}</p>
           </MotionDiv>
         ) : (
           <MotionDiv 
@@ -260,7 +262,7 @@ export function RadarPage() {
       )}
       {!hasMore && meetups.length > 0 && (
         <div className="text-center text-xs font-bold text-muted-foreground py-6 select-none">
-          No hay más partidas en el tablero.
+          {t('radar.noMore')}
         </div>
       )}
       <div ref={sentinelRef} className="h-4 w-full" />

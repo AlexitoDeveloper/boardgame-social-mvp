@@ -7,6 +7,7 @@ import { Tabs } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Game } from '../../types'
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
+import { useTranslation } from 'react-i18next'
 
 interface TopsSettingsProps {
   mode: 'tier' | 'top10';
@@ -40,14 +41,15 @@ export function TopsSettings({
   setAspectRatio,
 }: TopsSettingsProps) {
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <div className="space-y-4">
       {/* Configuration Card */}
       <Card className="border-border/40 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-md font-bold">Tipo de Ranking</CardTitle>
-          <CardDescription className="text-xs">Elige la estructura de tu lista.</CardDescription>
+          <CardTitle className="text-md font-bold">{t('topsSettings.rankingTypeTitle')}</CardTitle>
+          <CardDescription className="text-xs">{t('topsSettings.rankingTypeDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="pb-4">
           <Tabs
@@ -67,15 +69,15 @@ export function TopsSettings({
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-emerald-500/5 to-primary/5 opacity-70 group-hover:opacity-100 transition-opacity" />
           <CardHeader className="pb-2 relative z-10">
             <CardTitle className="text-sm font-extrabold flex items-center gap-1.5 text-primary">
-              <Crown className="w-4.5 h-4.5 animate-bounce shrink-0 text-primary" /> Generador PRO
+              <Crown className="w-4.5 h-4.5 animate-bounce shrink-0 text-primary" /> {t('topsSettings.proGeneratorTitle')}
             </CardTitle>
             <CardDescription className="text-[11px]">
-              Exporta sin marcas de agua, fondos premium y ratios adaptados.
+              {t('topsSettings.proGeneratorDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-4 relative z-10 space-y-2">
             <p className="text-[10px] text-zinc-300 leading-normal">
-              Desbloquea formatos listos para tus redes sociales (1:1, 9:16, 16:9).
+              {t('topsSettings.proGeneratorHelp')}
             </p>
             <Button
               variant="premium"
@@ -83,7 +85,7 @@ export function TopsSettings({
               onClick={() => setIsUpgradeModalOpen(true)}
               className="w-full h-8 rounded-xl flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all animate-pulse"
             >
-              <Crown className="w-3.5 h-3.5" /> Activar PRO (Simulado)
+              <Crown className="w-3.5 h-3.5" /> {t('topsSettings.activatePro')}
             </Button>
             <PremiumUpgradeModal 
               isOpen={isUpgradeModalOpen}
@@ -95,21 +97,21 @@ export function TopsSettings({
       ) : (
         <Card className="border-primary/20 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl relative">
           <Tag variant="default" size="xs" className="absolute top-2.5 right-2.5 shrink-0 select-none uppercase tracking-wider">
-            <Crown className="w-2.5 h-2.5" /> PRO Activo
+            <Crown className="w-2.5 h-2.5" /> {t('topsSettings.proActive')}
           </Tag>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-extrabold text-primary">Opciones PRO</CardTitle>
-            <CardDescription className="text-[11px]">Ajustes de exportación avanzados.</CardDescription>
+            <CardTitle className="text-sm font-extrabold text-primary">{t('topsSettings.proOptionsTitle')}</CardTitle>
+            <CardDescription className="text-[11px]">{t('topsSettings.proOptionsDesc')}</CardDescription>
           </CardHeader>
           <CardContent className="pb-4 space-y-3">
             {/* 1. Ratio selector */}
             <div className="space-y-1.5">
               <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                <Layout className="w-3 h-3 text-primary" /> Formato / Aspecto
+                <Layout className="w-3 h-3 text-primary" /> {t('topsSettings.aspectRatioLabel')}
               </label>
               <Tabs
                 options={[
-                  { id: 'standard', label: 'Fluido' },
+                  { id: 'standard', label: t('topsSettings.fluid') },
                   { id: 'square', label: '1:1' },
                   { id: 'story', label: '9:16' },
                   { id: 'landscape', label: '16:9' }
@@ -122,7 +124,7 @@ export function TopsSettings({
             {/* 2. Gradient background selector */}
             <div className="space-y-1">
               <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                <Image className="w-3 h-3" /> Fondo Premium
+                <Image className="w-3 h-3" /> {t('topsSettings.premiumBgLabel')}
               </label>
               <div className="flex flex-wrap gap-1.5 py-1">
                 {[
@@ -156,7 +158,7 @@ export function TopsSettings({
             <div className="space-y-2 border-t border-border/20 pt-2">
               <div className="flex items-center justify-between">
                 <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1 select-none">
-                  {showWatermark ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-muted-foreground" />} Marca de Agua
+                  {showWatermark ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-muted-foreground" />} {t('topsSettings.watermarkLabel')}
                 </label>
                 <Button
                   onClick={() => setShowWatermark(!showWatermark)}
@@ -177,7 +179,7 @@ export function TopsSettings({
                 <div className="space-y-1">
                   <Input
                     type="text"
-                    placeholder="Firma (ej. @tuusuario)"
+                    placeholder={t('topsSettings.watermarkPlaceholder')}
                     value={customWatermark}
                     onChange={(e) => setCustomWatermark(e.target.value)}
                     className="h-7 text-[10px] rounded-lg bg-background/30 border-border/30 focus:ring-amber-500 focus:border-amber-500 placeholder:text-muted-foreground py-1 px-2"
@@ -199,7 +201,7 @@ export function TopsSettings({
                 }}
                 className="text-[9.5px] font-extrabold text-muted-foreground hover:text-destructive transition-colors cursor-pointer h-auto p-0 hover:no-underline"
               >
-                Desactivar Cuenta PRO
+                {t('topsSettings.deactivatePro')}
               </Button>
             </div>
           </CardContent>

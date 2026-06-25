@@ -6,7 +6,8 @@ import { Input } from '../ui/input'
 import { DropdownIconButton } from '../ui/dropdown-icon-button'
 import { Game } from '../../types'
 import { Tier } from '../../hooks/useTops'
-import { getGameTitle } from '../../lib/gameLocale'
+import { useGameLocale } from '../../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 
 interface TierGameItemProps {
   game: Game;
@@ -23,6 +24,8 @@ function TierGameItem({
   returnTierGameToPool,
   isLandscape = false,
 }: TierGameItemProps) {
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   const [hasError, setHasError] = useState(false)
   const imageSize = isLandscape ? 60 : 150
   const proxiedUrl = game.image_url ? `https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=${imageSize}&h=${imageSize}&fit=cover` : null
@@ -60,7 +63,7 @@ function TierGameItem({
         /* Hover cover showing trash icon and label instead of name covering it */
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-all duration-200">
           <Trash2 className={isLandscape ? 'w-3 h-3 text-white' : 'w-4 h-4 text-white drop-shadow'} />
-          {!isLandscape && <span className="text-[7px] uppercase font-bold text-white tracking-widest mt-0.5">Quitar</span>}
+          {!isLandscape && <span className="text-[7px] uppercase font-bold text-white tracking-widest mt-0.5">{t('common.remove')}</span>}
         </div>
       )}
     </div>
@@ -82,6 +85,8 @@ function Top10GameItem({
   returnTop10GameToPool,
   isLandscape = false,
 }: Top10GameItemProps) {
+  const { t } = useTranslation()
+  const { getGameTitle } = useGameLocale()
   const [hasError, setHasError] = useState(false)
   const imageSize = isLandscape ? 32 : 100
   const proxiedUrl = game.image_url ? `https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=${imageSize}&h=${imageSize}&fit=cover` : null
@@ -114,7 +119,7 @@ function Top10GameItem({
         </div>
         <div className="min-w-0">
           <p className={`font-semibold text-zinc-100 truncate ${isLandscape ? 'text-xs' : 'text-sm'}`}>{getGameTitle(game)}</p>
-          {!isLandscape && <p className="text-xs text-zinc-500">{game.year_published || 'Año desc.'}</p>}
+          {!isLandscape && <p className="text-xs text-zinc-500">{game.year_published || t('common.yearUnknown')}</p>}
         </div>
       </div>
       <Button 
@@ -243,6 +248,7 @@ export function TopsCanvas({
   saveSuccess,
   handleSaveToProfile,
 }: TopsCanvasProps) {
+  const { t } = useTranslation()
   const hasGames = mode === 'tier'
     ? tiers.some(t => t.games.length > 0)
     : top10.some(g => g !== null)
@@ -253,13 +259,13 @@ export function TopsCanvas({
     <div className="w-full space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-foreground/80 flex items-center gap-1.5">
-          <Sparkles className="w-4.5 h-4.5 text-primary animate-pulse" /> Diseña tu lista
+          <Sparkles className="w-4.5 h-4.5 text-primary animate-pulse" /> {t('tops.designTitle')}
         </h2>
         <div className="flex items-center gap-3 ml-auto sm:ml-0 relative">
           <div className="flex text-xs text-muted-foreground items-center gap-1.5 bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10">
             <ArrowLeftRight className="w-3.5 h-3.5 text-primary shrink-0 animate-pulse" />
-            <span className="hidden sm:inline">Arrastra o haz clic para colocar un juego</span>
-            <span className="inline sm:hidden">Toca un juego de la bandeja para colocarlo</span>
+            <span className="hidden sm:inline">{t('tops.dragHintLandscape')}</span>
+            <span className="inline sm:hidden">{t('tops.dragHintPortrait')}</span>
           </div>
           
           {/* Desktop buttons (visible on sm and larger screens) */}
@@ -272,7 +278,7 @@ export function TopsCanvas({
               className="flex items-center gap-1.5 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Reiniciar</span>
+              <span>{t('tops.reset')}</span>
             </Button>
 
             <Button
@@ -285,17 +291,17 @@ export function TopsCanvas({
               {saving ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Guardando...</span>
+                  <span>{t('tops.saving')}</span>
                 </>
               ) : saveSuccess ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                  <span className="text-emerald-500">¡Guardado!</span>
+                  <span className="text-emerald-500">{t('tops.saveSuccess')}</span>
                 </>
               ) : (
                 <>
                   <Bookmark className="w-3.5 h-3.5" />
-                  <span>Guardar en Perfil</span>
+                  <span>{t('tops.saveButton')}</span>
                 </>
               )}
             </Button>
@@ -309,12 +315,12 @@ export function TopsCanvas({
               {exporting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Exportando...</span>
+                  <span>{t('common.generating')}</span>
                 </>
               ) : (
                 <>
                   <Download className="w-3.5 h-3.5" />
-                  <span>Descargar Imagen</span>
+                  <span>{t('common.savePhoto')}</span>
                 </>
               )}
             </Button>
@@ -327,7 +333,7 @@ export function TopsCanvas({
               onClick={handleExportImage}
               disabled={exporting || !hasGames}
               className="h-9 w-9 p-0 rounded-xl flex items-center justify-center shadow-md cursor-pointer"
-              title="Descargar Imagen"
+              title={t('common.savePhoto')}
             >
               {exporting ? (
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -342,7 +348,7 @@ export function TopsCanvas({
               icon={MoreVertical}
               items={[
                 {
-                  label: saving ? 'Guardando...' : saveSuccess ? '¡Guardado!' : 'Guardar en Perfil',
+                  label: saving ? t('tops.saving') : saveSuccess ? t('tops.saveSuccess') : t('tops.saveButton'),
                   onClick: handleSaveToProfile,
                   disabled: saving || !hasGames,
                   icon: saving ? (
@@ -355,7 +361,7 @@ export function TopsCanvas({
                   className: "text-foreground hover:bg-muted/50"
                 },
                 {
-                  label: 'Reiniciar Canvas',
+                  label: t('tops.resetCanvas'),
                   onClick: handleClearAll,
                   disabled: !canReset,
                   icon: <Trash2 className="w-4 h-4" />,
@@ -406,7 +412,7 @@ export function TopsCanvas({
                   type="text"
                   value={rankingTitle}
                   onChange={(e) => setRankingTitle(e.target.value)}
-                  placeholder="Dale un título a tu ranking..."
+                  placeholder={t('tops.titlePlaceholder')}
                   className={`font-extrabold tracking-tight text-white border-t-0 border-x-0 border-b-2 border-transparent hover:border-b-white/10 focus-visible:border-b-primary focus-visible:ring-0 bg-transparent px-2 py-1 shadow-none focus-visible:bg-transparent h-auto w-full transition-colors truncate rounded-none ${isLandscape ? 'text-xs py-0.5' : 'text-base sm:text-xl'}`}
                 />
               </div>
@@ -527,7 +533,7 @@ export function TopsCanvas({
                       }`}
                     >
                       {/* Number badge */}
-                      <div className={`rounded-lg flex items-center justify-center font-extrabold border shrink-0 ${
+                      <div className={`rounded-lg flex items-center justify-center font-sans font-extrabold border shrink-0 ${
                         isLandscape ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-sm'
                       } ${
                         game 
@@ -551,7 +557,7 @@ export function TopsCanvas({
                           />
                           {isPlaceable && !isLandscape && (
                             <span className="text-[10px] font-extrabold text-primary uppercase mr-2 tracking-wider animate-pulse shrink-0">
-                              Reemplazar
+                              {t('tops.replace')}
                             </span>
                           )}
                         </div>
@@ -573,7 +579,7 @@ export function TopsCanvas({
             {/* Bottom branding footer */}
             {(!isPremium || showWatermark) && (
               <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
-                <span>{(isPremium && customWatermark) ? customWatermark : "Abre tu mesa en Boardgame Social"}</span>
+                <span>{(isPremium && customWatermark) ? customWatermark : t('tops.watermarkPlaceholder')}</span>
                 {(!isPremium || !customWatermark) && <span className="font-extrabold text-white">#BoardgameSocial</span>}
               </div>
             )}

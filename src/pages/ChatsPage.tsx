@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
+import { formatDate, formatTime as formatTimeLocale } from '../lib/dateLocale'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { USE_MOCKS } from '../lib/config'
 import { 
@@ -21,12 +22,14 @@ import { Tag } from '../components/ui/tag'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { Meetup, MeetupMessage, Game } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
 
 export function ChatsPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { t } = useTranslation()
+  const { user, loading: authLoading, language } = useAuth()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlMeetupId = searchParams.get('id')
@@ -366,8 +369,7 @@ export function ChatsPage() {
 
   // Format message timestamps
   const formatTime = (isoString: string) => {
-    const d = new Date(isoString)
-    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    return formatTimeLocale(isoString, { hour: '2-digit', minute: '2-digit' }, language)
   }
 
   const formatDateLabel = (isoString: string) => {
@@ -376,9 +378,9 @@ export function ChatsPage() {
     const yesterday = new Date(today)
     yesterday.setDate(today.getDate() - 1)
 
-    if (d.toDateString() === today.toDateString()) return 'Hoy'
-    if (d.toDateString() === yesterday.toDateString()) return 'Ayer'
-    return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+    if (d.toDateString() === today.toDateString()) return language === 'es' ? 'Hoy' : 'Today'
+    if (d.toDateString() === yesterday.toDateString()) return language === 'es' ? 'Ayer' : 'Yesterday'
+    return formatDate(isoString, { day: 'numeric', month: 'short' }, language)
   }
 
   const renderSidebarSkeleton = () => (
@@ -402,7 +404,7 @@ export function ChatsPage() {
         <div className="w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full">
           <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
             <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-              <MessageSquare className="w-5 h-5 text-primary" /> Chats
+              <MessageSquare className="w-5 h-5 text-primary" /> {t('chats.title')}
             </h1>
           </div>
           {renderSidebarSkeleton()}
@@ -410,7 +412,7 @@ export function ChatsPage() {
         {/* Right loading placeholder */}
         <div className="hidden md:flex flex-grow flex-1 h-full min-h-0 flex-col bg-card/10 justify-center items-center text-center text-muted-foreground/60 space-y-3 p-8">
           <Loader2 className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-xs font-semibold animate-pulse">Cargando conversaciones...</p>
+          <p className="text-xs font-semibold animate-pulse">{t('chats.loading')}</p>
         </div>
       </section>
     )
@@ -425,10 +427,10 @@ export function ChatsPage() {
       }`}>
         <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
           <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-            <MessageSquare className="w-5 h-5 text-primary" /> Chats
+            <MessageSquare className="w-5 h-5 text-primary" /> {t('chats.title')}
           </h1>
           <Tag variant="default-solid" className="font-extrabold text-[10px] px-2 py-0.5 rounded-full">
-            {visibleMeetups.length} {visibleMeetups.length === 1 ? 'partida' : 'partidas'}
+            {visibleMeetups.length} {visibleMeetups.length === 1 ? t('chats.roomCount_one') : t('chats.roomCount_other')}
           </Tag>
         </div>
 
@@ -436,12 +438,12 @@ export function ChatsPage() {
           {visibleMeetups.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground space-y-2">
               <MessageSquare className="w-10 h-10 mx-auto opacity-30" />
-              <p className="text-sm font-bold">No estás en ninguna sala de chat.</p>
+              <p className="text-sm font-bold">{t('chats.emptyRooms')}</p>
               <p className="text-xs text-muted-foreground/85 leading-normal">
-                Únete a una partida activa en el tablero para poder coordinar los detalles del evento con el resto de asistentes.
+                {t('chats.emptyRoomsDesc')}
               </p>
               <Button onClick={() => navigate('/')} size="sm" className="mt-3">
-                Ir al Tablero
+                {t('chats.goToBoard')}
               </Button>
             </div>
           ) : (
@@ -490,7 +492,7 @@ export function ChatsPage() {
                             <span className="text-primary font-bold">{lastMsg.sender_name}:</span> {lastMsg.content}
                           </>
                         ) : (
-                          'No hay mensajes aún.'
+                          t('chats.noMessages')
                         )}
                       </p>
                     </div>
@@ -518,7 +520,7 @@ export function ChatsPage() {
                           setDeleteTargetMeetup(m)
                         }}
                         className="p-1 cursor-pointer opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
-                        title="Borrar chat"
+                        title={t('chats.deleteChat')}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -573,23 +575,23 @@ export function ChatsPage() {
                     </h2>
                     <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
                       <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                      {new Date(activeMeetup.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      {formatDate(activeMeetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center shrink-0">
-                <Button
-                  onClick={() => setDeleteTargetMeetup(activeMeetup)}
-                  variant="ghost"
-                  size="sm"
-                  className="cursor-pointer flex items-center gap-1.5"
-                  title="Borrar chat"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Borrar chat</span>
-                </Button>
+                  <Button
+                    onClick={() => setDeleteTargetMeetup(activeMeetup)}
+                    variant="ghost"
+                    size="sm"
+                    className="cursor-pointer flex items-center gap-1.5"
+                    title={t('chats.deleteChat')}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{t('chats.deleteChat')}</span>
+                  </Button>
               </div>
             </div>
 
@@ -604,8 +606,8 @@ export function ChatsPage() {
             {activeChatMessages.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground/60 space-y-2 p-6 bg-zinc-950/5 dark:bg-black/15">
                 <MessageSquare className="w-12 h-12 opacity-25" />
-                <p className="text-xs font-bold">La sala de chat está vacía.</p>
-                <p className="text-[10px] text-muted-foreground max-w-[200px]">¡Sé el primero en enviar un mensaje para romper el hielo!</p>
+                <p className="text-xs font-bold">{t('chats.emptyActiveRoom')}</p>
+                <p className="text-[10px] text-muted-foreground max-w-[200px]">{t('chats.emptyActiveRoomDesc')}</p>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-950/5 dark:bg-black/15">
@@ -641,7 +643,7 @@ export function ChatsPage() {
                           {/* Sender name label (only for others) */}
                           {!isMyMessage && (
                             <p className="text-[9.5px] font-black text-primary text-left tracking-wide px-1.5 uppercase truncate" title={msg.sender_name}>
-                              {msg.sender_name} {msg.guest_id && <span className="text-[7.5px] text-muted-foreground lowercase font-medium">(invitado)</span>}
+                              {msg.sender_name} {msg.guest_id && <span className="text-[7.5px] text-muted-foreground lowercase font-medium">({t('chats.guestTag')})</span>}
                             </p>
                           )}
 
@@ -673,7 +675,7 @@ export function ChatsPage() {
             <Form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
               <Input
                 type="text"
-                placeholder="Escribe tu mensaje..."
+                placeholder={t('chats.writeMessagePlaceholder')}
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 maxLength={400}
@@ -696,9 +698,9 @@ export function ChatsPage() {
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground/50 space-y-3 p-8">
             <MessageSquare className="w-16 h-16 opacity-15" />
-            <h3 className="text-sm font-black">Ningún Chat Seleccionado</h3>
+            <h3 className="text-sm font-black">{t('chats.noChatSelected')}</h3>
             <p className="text-xs text-muted-foreground/85 max-w-[240px] leading-normal">
-              Selecciona una conversación del panel de la izquierda para ver y participar en el chat de la partida.
+              {t('chats.noChatSelectedDesc')}
             </p>
           </div>
         )}
@@ -710,14 +712,14 @@ export function ChatsPage() {
           const userId = user?.id
           const isCreator = deleteTargetMeetup.creator_id === userId
           
-          let title = "¿Borrar chat?"
-          let description = "¿Quieres ocultar esta conversación de tu lista de chats? Volverá a aparecer si llega un nuevo mensaje."
+          let title = t('chats.deleteConfirmTitle')
+          let description = t('chats.deleteConfirmDesc')
           let actionLabel = ""
 
           if (isCreator) {
-            title = "¿Cancelar partida y borrar chat?"
-            description = "Eres el organizador de esta partida. Puedes ocultar el chat de tu vista local, o bien cancelar la partida definitivamente y borrarla para todos los asistentes."
-            actionLabel = "Cancelar partida para todos"
+            title = t('chats.deleteConfirmCreatorTitle')
+            description = t('chats.deleteConfirmCreatorDesc')
+            actionLabel = t('chats.deleteConfirmCreatorAction')
           }
 
           return (
@@ -751,7 +753,7 @@ export function ChatsPage() {
                     disabled={deletingChat}
                     className="w-full cursor-pointer"
                   >
-                    Ocultar conversación
+                    {t('chats.hideConversationButton')}
                   </Button>
 
                   {isCreator && actionLabel && (
@@ -764,7 +766,7 @@ export function ChatsPage() {
                       {deletingChat ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                          Cancelando partida...
+                          {t('chats.cancelingLoader')}
                         </>
                       ) : (
                         actionLabel
@@ -778,7 +780,7 @@ export function ChatsPage() {
                     variant="ghost"
                     className="w-full cursor-pointer"
                   >
-                    Cerrar
+                    {t('chats.close')}
                   </Button>
                 </div>
               </MotionDiv>

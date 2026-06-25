@@ -8,6 +8,7 @@ import { Form } from '../components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
 import { useGroups } from '../hooks/useGroups'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 const containerVars = {
@@ -23,6 +24,7 @@ export function GroupsPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { groups, loading, error, createGroup, joinGroup } = useGroups()
+  const { t } = useTranslation()
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,7 +69,7 @@ export function GroupsPage() {
       setInviteCode('')
       navigate(`/grupos/${joined.id}`)
     } catch (err: any) {
-      setJoinError(err.message || 'No se pudo unir al grupo.')
+      setJoinError(err.message || t('groups.joinError'))
     } finally {
       setJoinLoading(false)
     }
@@ -86,7 +88,7 @@ export function GroupsPage() {
       setGroupDesc('')
       navigate(`/grupos/${created.id}`)
     } catch (err: any) {
-      setCreateError(err.message || 'Error al crear el grupo.')
+      setCreateError(err.message || t('groups.createError'))
     } finally {
       setCreateLoading(false)
     }
@@ -112,10 +114,10 @@ export function GroupsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
-            Grupos de Juego
+            {t('groups.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Crea ludotecas compartidas con tus amigos y votad qué jugar en vuestra próxima quedada.
+            {t('groups.subtitle')}
           </p>
         </div>
 
@@ -127,7 +129,7 @@ export function GroupsPage() {
             className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11"
           >
             <Code className="h-4 w-4 text-primary" />
-            <span>Unirse con código</span>
+            <span>{t('groups.joinWithCode')}</span>
           </Button>
 
           <Button
@@ -135,14 +137,14 @@ export function GroupsPage() {
             className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11 shadow-md shadow-primary/20"
           >
             <Plus className="h-4 w-4" />
-            <span>Crear grupo</span>
+            <span>{t('groups.createGroup')}</span>
           </Button>
         </div>
       </div>
 
       {error && (
         <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">
-          Error al cargar los grupos: {error}
+          {t('groups.loadingGroupsError')} {error}
         </div>
       )}
 
@@ -158,9 +160,9 @@ export function GroupsPage() {
         <div className="text-center py-24 border border-dashed border-border/60 rounded-2xl bg-muted/10 max-w-xl mx-auto space-y-4">
           <Users className="h-12 w-12 text-muted-foreground/40 mx-auto" />
           <div className="space-y-1">
-            <p className="text-muted-foreground font-bold text-lg">No perteneces a ningún grupo lúdico aún</p>
+            <p className="text-muted-foreground font-bold text-lg">{t('groups.noGroupsTitle')}</p>
             <p className="text-xs text-foreground/50 max-w-sm mx-auto leading-normal">
-              Crea un grupo e invita a tus amigos, o pide que te pasen un código para unir tu ludoteca personal.
+              {t('groups.noGroupsDesc')}
             </p>
           </div>
           <div className="flex justify-center gap-3 pt-2">
@@ -170,14 +172,14 @@ export function GroupsPage() {
               size="sm"
               className="cursor-pointer font-bold rounded-xl"
             >
-              Unirse con código
+              {t('groups.joinWithCode')}
             </Button>
             <Button
               onClick={() => { setIsCreateOpen(true); setCreateError(null) }}
               size="sm"
               className="cursor-pointer font-bold rounded-xl shadow-sm"
             >
-              Crear primer grupo
+              {t('groups.createFirstGroup')}
             </Button>
           </div>
         </div>
@@ -188,7 +190,7 @@ export function GroupsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
-              placeholder="Buscar grupo..."
+              placeholder={t('groups.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -197,7 +199,7 @@ export function GroupsPage() {
 
           {filteredGroups.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              Ningún grupo coincide con tu búsqueda.
+              {t('groups.noResults')}
             </div>
           ) : (
             <MotionDiv
@@ -223,7 +225,7 @@ export function GroupsPage() {
                         {group.name}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {group.description || 'Sin descripción.'}
+                        {group.description || t('groups.noDescription')}
                       </p>
                     </div>
 
@@ -231,20 +233,20 @@ export function GroupsPage() {
                     <div className="flex items-center justify-between pt-2 border-t border-border/20">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
                         <Users className="h-3.5 w-3.5 text-primary shrink-0" />
-                        <span>{group.member_count || 1} {group.member_count === 1 ? 'miembro' : 'miembros'}</span>
+                        <span>{group.member_count || 1} {group.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
                       </div>
 
                       {/* Code button */}
                       <Button
                         onClick={(e) => handleCopyCode(e, group.invite_code, group.id)}
                         className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10"
-                        title="Copiar código de invitación"
+                        title={t('groups.copyCodeTooltip')}
                         variant="ghost"
                       >
                         {copiedId === group.id ? (
                           <>
                             <Check className="h-3 w-3" />
-                            <span>Copiado</span>
+                            <span>{t('groups.copied')}</span>
                           </>
                         ) : (
                           <>
@@ -267,10 +269,10 @@ export function GroupsPage() {
         <DialogContent className="max-w-sm bg-card border-border/50 rounded-[24px] p-6 shadow-2xl text-left gap-4">
           <DialogHeader className="border-b border-border/25 pb-2">
             <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-              <Code className="w-5 h-5 text-primary" /> Unirse a Grupo
+              <Code className="w-5 h-5 text-primary" /> {t('groups.joinModalTitle')}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground font-semibold">
-              Introduce el código de invitación del grupo para agregarte como miembro y fusionar tu ludoteca.
+              {t('groups.joinModalDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -298,7 +300,7 @@ export function GroupsPage() {
                 className="rounded-xl font-bold text-xs"
                 disabled={joinLoading}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -308,7 +310,7 @@ export function GroupsPage() {
                 {joinLoading ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <span>Unirse</span>
+                  <span>{t('groups.joinButton')}</span>
                 )}
               </Button>
             </div>
@@ -321,21 +323,21 @@ export function GroupsPage() {
         <DialogContent className="max-w-md bg-card border-border/50 rounded-[24px] p-6 shadow-2xl text-left gap-4">
           <DialogHeader className="border-b border-border/25 pb-2">
             <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-              <Plus className="w-5 h-5 text-primary" /> Crear Nuevo Grupo
+              <Plus className="w-5 h-5 text-primary" /> {t('groups.createModalTitle')}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground font-semibold">
-              Forma una comunidad privada para las quedadas de tu grupo de amigos habitual.
+              {t('groups.createModalDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <Form onSubmit={handleCreateSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
-                Nombre del Grupo
+                {t('groups.groupNameLabel')}
               </label>
               <Input
                 type="text"
-                placeholder="Ej. Los Reyes del Cartón"
+                placeholder={t('groups.groupNamePlaceholder')}
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 maxLength={45}
@@ -346,10 +348,10 @@ export function GroupsPage() {
 
             <div className="space-y-1">
               <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
-                Descripción (Opcional)
+                {t('groups.groupDescLabel')}
               </label>
               <Textarea
-                placeholder="Ej. Quedamos los fines de semana en casa de Dani para jugar wargames y eurogames..."
+                placeholder={t('groups.groupDescPlaceholder')}
                 value={groupDesc}
                 onChange={(e) => setGroupDesc(e.target.value)}
                 maxLength={150}
@@ -370,7 +372,7 @@ export function GroupsPage() {
                 className="rounded-xl font-bold text-xs"
                 disabled={createLoading}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -380,7 +382,7 @@ export function GroupsPage() {
                 {createLoading ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <span>Crear grupo</span>
+                  <span>{t('groups.createButton')}</span>
                 )}
               </Button>
             </div>
