@@ -3,7 +3,7 @@ name: Daily BGG Catalog Ingestion
 on:
   schedule:
     # Runs everyday at 03:00 AM UTC (approx. 05:00 AM Spanish local time)
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   workflow_dispatch: # Allows manual trigger of ingestion from the Actions tab
 
 jobs:
@@ -23,10 +23,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Debug secrets
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          echo "URL length: ${#VITE_SUPABASE_URL}"
+          echo "KEY length: ${#VITE_SUPABASE_ANON_KEY}"
 
       - name: Run BGG Ingestion Script
         env:
