@@ -308,7 +308,7 @@ export function AppShell() {
 
           {/* Legal Attribution */}
           <div className="mt-4 text-[10px] text-center text-muted-foreground/50 font-semibold select-none shrink-0">
-            Datos proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+            {t('appShell.bggAttribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
           </div>
         </aside>
 

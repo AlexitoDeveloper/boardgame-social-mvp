@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { useAuth } from '../lib/authContext'
 import { supabase } from '../lib/supabaseClient'
 import { USE_MOCKS } from '../lib/config'
+import { useTranslation } from 'react-i18next'
 
 interface PremiumDeactivateModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface PremiumDeactivateModalProps {
 export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDeactivateModalProps) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
+  const { t } = useTranslation()
 
   const handleDeactivate = async () => {
     setLoading(true)
@@ -57,25 +59,25 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
           </div>
           <div>
             <DialogTitle className="text-xl font-black text-center text-destructive">
-              Desactivar Boardgame Social PRO
+              {t('premium.deactivateTitle')}
             </DialogTitle>
             <DialogDescription className="text-xs text-zinc-400 font-medium text-center mt-1">
-              ¿Estás seguro de que deseas volver a la cuenta estándar?
+              {t('premium.deactivateDesc')}
             </DialogDescription>
           </div>
         </DialogHeader>
 
         <div className="space-y-4 py-4 relative z-10">
           <p className="text-xs text-zinc-300 font-semibold leading-relaxed text-center">
-            Al desactivar tu cuenta PRO, perderás inmediatamente el acceso a los formatos avanzados de exportación, tus fondos premium personalizados y tu límite máximo de partidas activas volverá a ser de 5.
+            {t('premium.deactivateWarning')}
           </p>
           
           <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/80 p-3 flex items-start gap-2.5 text-left">
             <ShieldX className="w-4.5 h-4.5 text-destructive shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <h4 className="text-[11px] font-black text-foreground">Acción reversible</h4>
+              <h4 className="text-[11px] font-black text-foreground">{t('premium.reversibleTitle')}</h4>
               <p className="text-[10px] text-zinc-400 leading-normal font-semibold">
-                Podrás volver a activarla cuando quieras, pero perderás la configuración premium activa en tus rankings.
+                {t('premium.reversibleDesc')}
               </p>
             </div>
           </div>
@@ -89,7 +91,7 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
             disabled={loading}
             className="w-full text-xs font-black h-11 rounded-2xl active:scale-98 cursor-pointer shadow-md"
           >
-            {loading ? "Desactivando..." : "Sí, desactivar cuenta PRO"}
+            {loading ? t('premium.deactivatingLoader') : t('premium.confirmDeactivate')}
           </Button>
           <DialogClose asChild>
             <Button
@@ -98,7 +100,7 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
               onClick={onClose}
               className="w-full text-[10px] font-bold cursor-pointer hover:bg-zinc-900"
             >
-              Mantener PRO
+              {t('premium.keepPro')}
             </Button>
           </DialogClose>
         </div>

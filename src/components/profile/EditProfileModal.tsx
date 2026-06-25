@@ -10,6 +10,7 @@ import { Label } from '../ui/label'
 import { Form } from '../ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { UserProfile } from '../../types'
+import { useTranslation } from 'react-i18next'
 
 const MotionDiv = motion.div
 
@@ -32,6 +33,7 @@ export function EditProfileModal({
   onSave,
   saving
 }: EditProfileModalProps) {
+  const { t } = useTranslation()
   const [editUsername, setEditUsername] = useState('')
   const [editCity, setEditCity] = useState('')
   const [editAvatarUrl, setEditAvatarUrl] = useState('')
@@ -155,7 +157,7 @@ export function EditProfileModal({
           >
             <div className="flex justify-between items-center pb-2 border-b border-border/20">
               <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" /> Editar Perfil Lúdico
+                <User className="w-5 h-5 text-primary" /> {t('profile.editModal.title')}
               </h3>
               <Button
                 variant="ghost"
@@ -174,36 +176,36 @@ export function EditProfileModal({
 
             <Form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5 text-left">
-                <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Nombre de Usuario</Label>
+                <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.usernameLabel')}</Label>
                 <Input
                   id="edit-username"
                   type="text"
                   required
                   value={editUsername}
                   onChange={(e) => setEditUsername(e.target.value)}
-                  placeholder="Escribe tu username..."
+                  placeholder={t('profile.editModal.usernamePlaceholder')}
                 />
               </div>
 
               <div className="space-y-1.5 text-left">
-                <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">Ciudad</Label>
+                <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.cityLabel')}</Label>
                 <Input
                   id="edit-city"
                   type="text"
                   value={editCity}
                   onChange={(e) => setEditCity(e.target.value)}
-                  placeholder="Escribe tu ciudad..."
+                  placeholder={t('profile.editModal.cityPlaceholder')}
                 />
               </div>
 
               <div className="space-y-2 text-left">
-                <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">Personalizar Avatar</Label>
+                <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">{t('profile.editModal.avatarLabel')}</Label>
                 <div className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border/20">
                   {/* Interactive Clickable Avatar Preview */}
                   <div 
                     onClick={() => !uploading && document.getElementById('avatar-upload')?.click()}
                     className="relative w-14 h-14 rounded-full border-2 border-primary/30 shrink-0 overflow-hidden group cursor-pointer shadow-sm active:scale-95 transition-all"
-                    title="Subir foto de perfil"
+                    title={t('profile.editModal.uploadTitle')}
                   >
                     <Avatar className="w-full h-full">
                       <AvatarImage src={editAvatarUrl || undefined} />
@@ -230,7 +232,7 @@ export function EditProfileModal({
                       type="text"
                       value={editAvatarUrl}
                       onChange={(e) => setEditAvatarUrl(e.target.value)}
-                      placeholder="URL de imagen o semilla..."
+                      placeholder={t('profile.editModal.avatarUrlPlaceholder')}
                       disabled={uploading}
                     />
                     <div className="flex flex-wrap gap-1.5">
@@ -250,7 +252,7 @@ export function EditProfileModal({
                         size="sm"
                         className="cursor-pointer"
                         icon={uploading ? Loader2 : Camera}
-                        label="Subir Foto"
+                        label={t('profile.editModal.uploadPhoto')}
                       />
                       <Button
                         type="button"
@@ -260,13 +262,13 @@ export function EditProfileModal({
                         size="sm"
                         className="cursor-pointer"
                         icon={Dices}
-                        label="Cambiar Semilla"
+                        label={t('profile.editModal.randomSeed')}
                       />
                     </div>
                   </div>
                 </div>
                 <span className="text-[9px] text-muted-foreground font-semibold block leading-normal mt-1 select-none">
-                  Puedes subir una foto de tu dispositivo, pegar un enlace directo a tu imagen de perfil, o usar un avatar de Dicebear ingresando cualquier palabra (semilla).
+                  {t('profile.editModal.avatarHelp')}
                 </span>
               </div>
 
@@ -279,7 +281,7 @@ export function EditProfileModal({
                   disabled={saving || uploading}
                   className="cursor-pointer"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -290,10 +292,10 @@ export function EditProfileModal({
                   {saving ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-                      Guardando...
+                      {t('profile.editModal.saving')}
                     </>
                   ) : (
-                    'Guardar Cambios'
+                    t('profile.editModal.saveChanges')
                   )}
                 </Button>
               </div>

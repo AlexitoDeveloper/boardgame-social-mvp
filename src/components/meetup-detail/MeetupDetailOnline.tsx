@@ -1,6 +1,7 @@
 import { Laptop, PhoneCall, Lock, ExternalLink, HelpCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+import { useTranslation } from 'react-i18next'
 
 interface MeetupDetailOnlineProps {
   platform: string;
@@ -9,6 +10,7 @@ interface MeetupDetailOnlineProps {
 }
 
 export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: MeetupDetailOnlineProps) {
+  const { t } = useTranslation()
   // Check if voiceLink is valid/non-empty
   const hasVoiceLink = Boolean(voiceLink && voiceLink.trim())
   
@@ -24,7 +26,7 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
       
       <CardHeader className="p-4 sm:p-6 pb-3 border-b border-border/20">
         <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary flex items-center gap-2">
-          <Laptop className="w-4 h-4" /> Logística Online
+          <Laptop className="w-4 h-4" /> {t('meetup.onlinePlatformTitle')}
         </CardTitle>
       </CardHeader>
       
@@ -35,8 +37,8 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
             <Laptop className="w-5 h-5 animate-pulse [animation-duration:4s]" />
           </div>
           <div className="space-y-0.5">
-            <h3 className="font-extrabold text-[11px] text-primary uppercase tracking-wider">Plataforma de Juego</h3>
-            <p className="text-md font-black text-foreground">{platform || 'Por definir'}</p>
+            <h3 className="font-extrabold text-[11px] text-primary uppercase tracking-wider">{t('meetup.gamePlatformLabel')}</h3>
+            <p className="text-md font-black text-foreground">{platform || t('meetup.toBeDefinedPlatform')}</p>
           </div>
         </div>
 
@@ -50,12 +52,12 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
             <div className="relative z-10 space-y-3.5 text-center sm:text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-1 text-left">
                 <h4 className="font-extrabold text-sm text-foreground flex items-center gap-1.5 justify-center sm:justify-start">
-                  <PhoneCall className="w-4 h-4 text-success animate-bounce" /> Canal de Voz / Reunión
+                  <PhoneCall className="w-4 h-4 text-success animate-bounce" /> {t('meetup.voiceChannelTitle')}
                 </h4>
                 <p className="text-xs text-muted-foreground font-medium">
                   {hasVoiceLink 
-                    ? 'El organizador ha configurado este canal para la partida.' 
-                    : 'Aún no se ha añadido un enlace. ¡Coordina con tu grupo en el chat!'
+                    ? t('meetup.voiceChannelSetDesc')
+                    : t('meetup.voiceChannelUnsetDesc')
                   }
                 </p>
               </div>
@@ -71,7 +73,7 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
                     variant="default"
                     className="w-full sm:w-auto rounded-xl font-extrabold shadow-lg shadow-success/10 hover:shadow-success/20 bg-success text-success-foreground hover:bg-success/90 h-11 px-5 flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border-0"
                   >
-                    Entrar al Canal <ExternalLink className="w-4 h-4" />
+                    {t('meetup.enterChannel')} <ExternalLink className="w-4 h-4" />
                   </Button>
                 </a>
               ) : (
@@ -80,7 +82,7 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
                   variant="outline"
                   className="w-full sm:w-auto rounded-xl font-bold h-11 border-border/60 text-muted-foreground cursor-not-allowed select-none bg-background/50 flex items-center gap-1.5 justify-center"
                 >
-                  <HelpCircle className="w-4 h-4" /> Sin Enlace
+                  <HelpCircle className="w-4 h-4" /> {t('meetup.noLink')}
                 </Button>
               )}
             </div>
@@ -92,10 +94,10 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
               </div>
               <div className="space-y-1 max-w-sm">
                 <h4 className="font-extrabold text-sm text-foreground">
-                  Canal de Voz Protegido
+                  {t('meetup.voiceProtectedTitle')}
                 </h4>
                 <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                  Únete a esta mesa como jugador o invitado para desbloquear el acceso a la llamada de voz (Discord, Meet, etc.).
+                  {t('meetup.voiceProtectedDesc')}
                 </p>
               </div>
             </div>

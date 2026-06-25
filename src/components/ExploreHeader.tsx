@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+import { useTranslation } from 'react-i18next'
 
 interface ExploreHeaderProps {
   search: string;
@@ -26,6 +27,7 @@ export function ExploreHeader({
   spanishOnly,
   onSpanishOnlyChange,
 }: ExploreHeaderProps) {
+  const { t } = useTranslation()
   const hasActiveFilters = search || playerFilter || complexityFilter || spanishOnly;
 
   const [isScrolled, setIsScrolled] = useState(false)
@@ -63,7 +65,7 @@ export function ExploreHeader({
           <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
           <Input
             type="text"
-            placeholder="Buscar por título de juego..."
+            placeholder={t('explore.searchPlaceholder')}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 pr-10"
@@ -95,7 +97,7 @@ export function ExploreHeader({
                   size="sm"
                   className="h-9 sm:h-9 rounded-xl font-bold cursor-pointer text-xs px-3 flex items-center gap-1.5"
                 >
-                  <span className="hidden xs:inline">Limpiar</span>
+                  <span className="hidden xs:inline">{t('explore.clear')}</span>
                   <X className="h-3.5 w-3.5" />
                 </Button>
               </motion.div>
@@ -109,7 +111,7 @@ export function ExploreHeader({
             className="cursor-pointer shrink-0 flex items-center gap-1.5 h-9"
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Filtros</span>
+            <span className="hidden sm:inline">{t('explore.filters')}</span>
             {activeFiltersCount > 0 && (
               <span className={cn(
                 "text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border border-primary/10",
@@ -139,7 +141,7 @@ export function ExploreHeader({
               <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
                 <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-[11px] uppercase tracking-wider select-none">
                   <Users className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Jugadores</span>
+                  <span>{t('explore.playersFilter')}</span>
                 </span>
                 <div className="grid grid-cols-5 gap-1">
                   {['', '1', '2', '3-4', '5+'].map((val) => (
@@ -150,7 +152,7 @@ export function ExploreHeader({
                       size="sm"
                       className="w-full h-8 text-[11px] sm:text-xs font-bold rounded-lg px-1 truncate cursor-pointer"
                     >
-                      {val === '' ? 'Todos' : val}
+                      {val === '' ? t('explore.all') : val}
                     </Button>
                   ))}
                 </div>
@@ -160,14 +162,14 @@ export function ExploreHeader({
               <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
                 <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-[11px] uppercase tracking-wider select-none">
                   <Brain className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span>Complejidad</span>
+                  <span>{t('explore.complexityFilter')}</span>
                 </span>
                 <div className="grid grid-cols-4 gap-1">
                   {[
-                    { key: '', label: 'Todos' },
-                    { key: 'familiar', label: 'Familiar' },
-                    { key: 'medio', label: 'Medio' },
-                    { key: 'experto', label: 'Experto' }
+                    { key: '', label: t('explore.all') },
+                    { key: 'familiar', label: t('explore.familiar') },
+                    { key: 'medio', label: t('explore.medium') },
+                    { key: 'experto', label: t('explore.expert') }
                   ].map((opt) => (
                     <Button
                       key={opt.key}
@@ -193,7 +195,7 @@ export function ExploreHeader({
                   )}
                 >
                   <Globe className={cn('h-3.5 w-3.5 transition-transform duration-300', spanishOnly && 'rotate-12')} />
-                  <span>Solo en Español</span>
+                  <span>{t('explore.spanishOnly')}</span>
                 </Button>
               </div>
             </div>

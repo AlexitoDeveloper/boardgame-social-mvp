@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGameLocale } from '../../hooks/useGameLocale'
 import { formatDate } from '../../lib/dateLocale'
 import { OptimizedImage } from '../ui/OptimizedImage'
+import { useTranslation } from 'react-i18next'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup;
@@ -18,6 +19,7 @@ interface MeetupDetailHeroProps {
 
 export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: MeetupDetailHeroProps) {
   const { getGameTitle, language } = useGameLocale()
+  const { t } = useTranslation()
   const gamesList = meetup.games || [];
   
   // State for active game index in carousel
@@ -191,14 +193,14 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         {/* Lista de juegos interactiva */}
         {gamesList.length === 0 ? (
           <div className="text-sm font-bold text-amber-500 tracking-wide flex items-center gap-1.5 pt-1">
-            <span>Juegos:</span> 
+            <span>{t('meetup.gamesLabel')}</span> 
             <Tag variant="warning-solid" className="shadow-sm">
-              Por decidir en el chat
+              {t('meetup.toDecideInChat')}
             </Tag>
           </div>
         ) : (
           <div className="text-xs sm:text-sm font-bold text-primary tracking-wide flex flex-wrap items-center gap-2 pt-1">
-            <span>Juegos en mesa ({gamesList.length}):</span> 
+            <span>{t('meetup.gamesOnTable', { count: gamesList.length })}</span> 
             <div className="flex flex-wrap gap-1.5">
               {gamesList.map((g, idx) => (
                 <Tag
@@ -230,7 +232,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
           {meetup.is_online ? (
             <span className="flex items-center gap-2">
               <Laptop className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span>Partida Online • {meetup.platform || 'BGA / TTS'}</span>
+              <span>{ t('meetup.onlineMatch', { platform: meetup.platform || 'BGA / TTS' }) }</span>
             </span>
           ) : (
             <a 

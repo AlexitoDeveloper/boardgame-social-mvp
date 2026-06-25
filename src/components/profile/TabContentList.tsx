@@ -448,7 +448,7 @@ export function TabContentList({
 
             {/* BGG attribution footer under collection games */}
             <div className="text-[9px] text-center text-muted-foreground/40 font-semibold select-none pt-4">
-              Datos de ludoteca proporcionados por <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
+              {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
             </div>
           </MotionDiv>
         )}

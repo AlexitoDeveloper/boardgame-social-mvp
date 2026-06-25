@@ -12,8 +12,10 @@ import { EditProfileModal } from '../components/profile/EditProfileModal'
 import { ImportBggModal } from '../components/profile/ImportBggModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
 import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -74,15 +76,15 @@ export function ProfilePage() {
       <section className="space-y-4 max-w-xl mx-auto p-4 text-center">
         <div className="text-destructive bg-destructive/10 px-4 py-6 rounded-2xl border border-destructive/20 space-y-3">
           <UserX className="w-10 h-10 mx-auto text-destructive" />
-          <h2 className="text-xl font-bold">Perfil no disponible</h2>
-          <p className="text-sm font-medium text-foreground/80">{errorMsg || 'No se pudo cargar el perfil solicitado.'}</p>
+          <h2 className="text-xl font-bold">{t('profile.notAvailableTitle')}</h2>
+          <p className="text-sm font-medium text-foreground/80">{errorMsg || t('profile.notAvailableDesc')}</p>
         </div>
         <Button 
           onClick={() => navigate('/')} 
           variant="outline" 
           size="sm" 
           icon={ArrowLeft} 
-          label="Volver al Tablero" 
+          label={t('profile.backToBoard')} 
           className="mx-auto cursor-pointer" 
         />
       </section>
@@ -102,11 +104,11 @@ export function ProfilePage() {
   const xpProgress = Math.min(100, Math.max(0, (xpCurrent / xpRange) * 100))
 
   const getPlayerTitle = (level: number) => {
-    if (level >= 10) return 'Mítico del Cartón 👑'
-    if (level >= 6) return 'Gran Maestro de la Mesa ⚔️'
-    if (level >= 4) return 'Veterano del Meeple 🛡️'
-    if (level >= 2) return 'Estratega del Salón 🎲'
-    return 'Novato del Meeple 🌱'
+    if (level >= 10) return t('profile.level10')
+    if (level >= 6) return t('profile.level6')
+    if (level >= 4) return t('profile.level4')
+    if (level >= 2) return t('profile.level2')
+    return t('profile.level1')
   }
   const playerTitle = getPlayerTitle(playerLevel)
 
@@ -120,7 +122,7 @@ export function ProfilePage() {
           onClick={() => navigate(-1)} 
           className="cursor-pointer"
           icon={ArrowLeft}
-          label="Atrás"
+          label={t('profile.back')}
         />
         <div className="flex items-center gap-2">
           {isOwnProfileEditable && (
@@ -130,7 +132,7 @@ export function ProfilePage() {
               onClick={() => setIsEditing(true)}
               className="cursor-pointer text-foreground"
               icon={Edit}
-              label="Editar Datos"
+              label={t('profile.editData')}
             />
           )}
         </div>
@@ -159,10 +161,10 @@ export function ProfilePage() {
       {/* Navigation Tabs */}
       <Tabs
         options={[
-          { id: 'upcoming', label: 'Próximas', icon: CalendarDays, count: upcomingMeetups.length },
-          { id: 'completed', label: 'Historial', icon: History, count: completedMeetups.length },
-          { id: 'collection', label: 'Ludoteca', icon: Dices, count: collectionGames.length },
-          { id: 'mas', label: 'Más', icon: MoreHorizontal }
+          { id: 'upcoming', label: t('profile.tabs.upcoming'), icon: CalendarDays, count: upcomingMeetups.length },
+          { id: 'completed', label: t('profile.tabs.completed'), icon: History, count: completedMeetups.length },
+          { id: 'collection', label: t('profile.tabs.collection'), icon: Dices, count: collectionGames.length },
+          { id: 'mas', label: t('profile.tabs.more'), icon: MoreHorizontal }
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
@@ -187,14 +189,14 @@ export function ProfilePage() {
         handleRemoveFromCollection={async (e, bggId) => {
           e.preventDefault()
           e.stopPropagation()
-          if (confirm('¿Quieres quitar este juego de tu ludoteca?')) {
+          if (confirm(t('profile.removeConfirm'))) {
             await removeFromCollection(bggId)
           }
         }}
         handleDeleteRanking={async (e, rankingId) => {
           e.preventDefault()
           e.stopPropagation()
-          if (confirm('¿Estás seguro de que quieres eliminar este ranking de tu perfil?')) {
+          if (confirm(t('profile.deleteRankingConfirm'))) {
             await deleteRanking(rankingId)
           }
         }}
