@@ -25,6 +25,7 @@ dist-ssr
 android/
 dev-dist/
 .agents/
+node_modules/
 
 # Environment variables
 .env
