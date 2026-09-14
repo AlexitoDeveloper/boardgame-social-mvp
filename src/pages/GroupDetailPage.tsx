@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2 } from 'lucide-react'
+import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -145,6 +145,22 @@ export function GroupDetailPage() {
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(group.invite_code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleShareWhatsApp = () => {
+    if (!group) return
+    const inviteUrl = `${window.location.origin}/grupos?join=${group.invite_code}`
+    const text = t('groups.inviteWhatsAppText', { groupName: group.name, inviteUrl })
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+    window.open(whatsappUrl, '_blank')
+  }
+
+  const handleCopyInviteLink = () => {
+    if (!group) return
+    const inviteUrl = `${window.location.origin}/grupos?join=${group.invite_code}`
+    navigator.clipboard.writeText(inviteUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -311,19 +327,30 @@ export function GroupDetailPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex-1 font-mono text-center text-lg font-black bg-card border border-border/30 rounded-xl py-2 px-3 tracking-wider text-foreground">
-              {group.invite_code}
-            </div>
-
+          <div className="space-y-2.5">
             <Button
-              onClick={handleCopyCode}
-              variant={copied ? 'default' : 'outline'}
-              className="rounded-xl h-11 px-3.5 shrink-0"
-              title={t('groups.copyCode')}
+              onClick={handleShareWhatsApp}
+              className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
+              <Share2 className="w-4 h-4" />
+              <span>{t('groups.inviteWhatsApp')}</span>
             </Button>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 font-mono text-center text-sm font-black bg-card border border-border/30 rounded-xl py-2 px-3 tracking-wider text-foreground">
+                {group.invite_code}
+              </div>
+
+              <Button
+                onClick={handleCopyInviteLink}
+                variant={copied ? 'default' : 'outline'}
+                className="rounded-xl h-9 px-3 shrink-0 cursor-pointer text-xs font-bold flex items-center gap-1.5"
+                title={t('groups.copyInviteLink')}
+              >
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}
+                <span className="hidden sm:inline">{copied ? t('groups.copied') : t('groups.copyInviteLink')}</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

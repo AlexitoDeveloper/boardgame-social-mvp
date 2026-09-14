@@ -28,6 +28,29 @@ export default {
           DEFAULT: 'hsl(var(--success))',
           foreground: 'hsl(var(--success-foreground))',
         },
+        brass: {
+          DEFAULT: '#E5A93C',
+          light: '#F3C56D',
+          dark: '#B87B1D',
+        },
+        meeple: {
+          red: '#D33F49',
+          blue: '#2B70C9',
+          yellow: '#E5A93C',
+          green: '#2E8B57',
+        },
+        walnut: {
+          950: '#111315',
+          900: '#16181B',
+          800: '#1E2126',
+          700: '#282C33',
+          600: '#343A43',
+        },
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {
         lg: 'var(--radius)',

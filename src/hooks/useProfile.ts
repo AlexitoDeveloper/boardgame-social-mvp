@@ -390,6 +390,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
             if (!updated.some(g => g.bgg_id === dixitGame.bgg_id)) updated.push(dixitGame as any)
             if (!updated.some(g => g.bgg_id === catanGame.bgg_id)) updated.push(catanGame as any)
             localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+            localStorage.setItem(`bgg_onboarded_${profileId}`, 'true')
             return updated
           })
           setImportSuccessCount(2)
@@ -411,6 +412,9 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
       if (error) throw error
 
       if (data && data.success) {
+        if (currentUserId) {
+          localStorage.setItem(`bgg_onboarded_${currentUserId}`, 'true')
+        }
         setImportSuccessCount(data.imported || 0)
         await loadCollection()
       } else {
