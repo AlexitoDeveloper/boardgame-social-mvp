@@ -442,7 +442,7 @@ export function PlayPage() {
         <Button
           onClick={() => {
             playClack()
-            navigate('/tablero/new')
+            navigate('/mesa/nueva')
           }}
           className="rounded-2xl font-bold shadow-lg shadow-primary/25 flex items-center gap-2 h-11 px-5 shrink-0"
         >
@@ -645,7 +645,7 @@ export function PlayPage() {
               </div>
 
               <Button
-                onClick={() => navigate(`/tablero/new?gameId=${suggestedGame.bgg_id}`)}
+                onClick={() => navigate(`/mesa/nueva?gameId=${suggestedGame.bgg_id}`)}
                 className="rounded-xl font-bold text-xs h-10 px-4 shrink-0 shadow-sm"
               >
                 <span>{t('play.startMeetupWithGame')}</span>
@@ -687,7 +687,7 @@ export function PlayPage() {
               return (
                 <div
                   key={meetup.id}
-                  onClick={() => navigate(`/tablero/${meetup.id}`)}
+                  onClick={() => navigate(`/mesa/${meetup.id}`)}
                   className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-md flex items-center gap-3.5 group"
                 >
                   {gameImg ? (
@@ -735,7 +735,7 @@ export function PlayPage() {
               </p>
             </div>
             <Button
-              onClick={() => navigate('/tablero/new')}
+              onClick={() => navigate('/mesa/nueva')}
               size="sm"
               variant="outline"
               className="rounded-xl font-bold text-xs"

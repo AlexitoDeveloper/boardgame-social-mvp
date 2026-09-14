@@ -35,9 +35,22 @@ export interface Game {
   complexity?: number | null;
 }
 
+export type MeepleColor = 'red' | 'blue' | 'yellow' | 'green' | 'purple' | 'orange';
+
+export interface PlayerScore {
+  userId?: string | null;
+  guestId?: string | null;
+  name: string;
+  score: number;
+  meepleColor: MeepleColor;
+  rank?: number;
+  isWinner?: boolean;
+}
+
 export interface Meetup {
   id: string;
   creator_id: string;
+  group_id?: string | null;       // Linked group for Table Companion mode
   game_id?: number | null;
   title: string;
   description: string | null;
@@ -58,6 +71,22 @@ export interface Meetup {
   is_online?: boolean;
   platform?: string | null;
   voice_link?: string | null;
+  board_photo_url?: string | null; // Final photo of table
+  player_scores?: PlayerScore[] | null; // Detailed player scores
+  first_player_id?: string | null; // First player determined in session
+}
+
+/** Alias for Meetup representing a Table Companion session */
+export type TableSession = Meetup;
+
+export interface UserCollectionItem {
+  id?: string;
+  user_id: string;
+  game_id: number;
+  created_at?: string;
+  is_unplayed?: boolean;
+  play_count?: number;
+  games?: Game;
 }
 
 export interface BggSearchResult {

@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
-import { RadarPage } from './pages/RadarPage'
 import { ExplorePage } from './pages/ExplorePage'
 import { PlayPage } from './pages/PlayPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
@@ -38,8 +37,10 @@ function App() {
         <Route path="/" element={<ExplorePage />} />
         <Route path="/jugar" element={<PlayPage />} />
         <Route path="/juegos/:id" element={<GameDetailPage />} />
-        <Route path="/tablero" element={<RadarPage />} />
+        {/* Legacy stranger radar redirects to Table Companion play engine */}
+        <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
+        <Route path="/mesa/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route
           path="/chats"
@@ -83,7 +84,23 @@ function App() {
           }
         />
         <Route
+          path="/mesa/:id/edit"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/tablero/new"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mesa/nueva"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />

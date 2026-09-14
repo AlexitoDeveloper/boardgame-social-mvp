@@ -6,39 +6,41 @@
 
 @layer base {
   :root {
-    --background: 40 18% 97%;
-    --foreground: 216 16% 12%;
+    /* Grand Game Mat - Clean Light Mode */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 216 16% 12%;
-    --primary: 38 80% 46%;
+    --card-foreground: 222 47% 11%;
+    /* Vibrant Emerald Gaming Felt Accent */
+    --primary: 158 70% 40%;
     --primary-foreground: 0 0% 100%;
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 0 0% 100%;
-    --muted: 40 16% 93%;
-    --muted-foreground: 216 10% 46%;
-    --border: 36 14% 86%;
-    --input: 36 14% 86%;
-    --ring: 38 80% 46%;
+    --muted: 210 28% 95%;
+    --muted-foreground: 215 16% 47%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 158 70% 40%;
     --radius: 1rem;
     --shadow-color: 220 30% 10%;
   }
 
   .dark {
-    /* Scandi Tabletop Warm Walnut Graphite (#16181B) */
-    --background: 216 10% 9.6%;
-    --foreground: 220 14% 96%;
-    --card: 218 10% 13.5%;
-    --card-foreground: 220 14% 96%;
-    /* Brass / Amber Accent (#E5A93C) */
-    --primary: 39 77% 57%;
-    --primary-foreground: 216 10% 9.6%;
+    /* Grand Game Mat - Midnight Slate Neoprene (#0A0F1D) */
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 98%;
+    /* Vibrant Emerald Gaming Felt Accent (#10B981) */
+    --primary: 158 70% 43%;
+    --primary-foreground: 0 0% 100%;
     --success: 152 65% 42%;
     --success-foreground: 0 0% 100%;
-    --muted: 218 10% 16.5%;
-    --muted-foreground: 220 10% 64%;
-    --border: 218 11% 20%;
-    --input: 218 11% 20%;
-    --ring: 39 77% 57%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 217 19% 65%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 158 70% 43%;
     --radius: 1rem;
     --shadow-color: 0 0% 0%;
   }
