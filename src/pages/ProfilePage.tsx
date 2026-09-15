@@ -11,6 +11,7 @@ import { TabContentList } from '../components/profile/TabContentList'
 import { EditProfileModal } from '../components/profile/EditProfileModal'
 import { ImportBggModal } from '../components/profile/ImportBggModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
+import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
 import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -45,6 +46,7 @@ export function ProfilePage() {
     importSuccessCount,
     setImportSuccessCount,
     importBggCollection,
+    addToCollection,
     removeFromCollection,
     deleteRanking
   } = useProfile({ profileId, currentUserId: user?.id })
@@ -52,6 +54,7 @@ export function ProfilePage() {
   // Modal display states
   const [isEditing, setIsEditing] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false)
   const [selectedRanking, setSelectedRanking] = useState<any | null>(null)
 
   // Active Tab state
@@ -202,6 +205,7 @@ export function ProfilePage() {
         }}
         setSelectedRanking={setSelectedRanking}
         setIsImportModalOpen={setIsImportModalOpen}
+        setIsAddGameModalOpen={setIsAddGameModalOpen}
       />
 
       {/* Modal Dialogs */}
@@ -224,6 +228,13 @@ export function ProfilePage() {
         importSuccessCount={importSuccessCount}
         setImportSuccessCount={setImportSuccessCount}
         onImport={importBggCollection}
+      />
+
+      <AddGameToLibraryModal
+        isOpen={isAddGameModalOpen}
+        onClose={() => setIsAddGameModalOpen(false)}
+        userCollectionGameIds={collectionGames.map((g) => g.bgg_id)}
+        onAddGame={addToCollection}
       />
 
       <RankingVisualizerModal

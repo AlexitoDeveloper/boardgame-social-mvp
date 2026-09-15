@@ -304,10 +304,13 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
 
     const handleProfileUpdate = () => {
       loadProfileData()
+      loadCollection()
     }
     window.addEventListener('profile_update', handleProfileUpdate)
+    window.addEventListener('collection_update', handleProfileUpdate)
     return () => {
       window.removeEventListener('profile_update', handleProfileUpdate)
+      window.removeEventListener('collection_update', handleProfileUpdate)
     }
   }, [loadProfileData, loadCollection])
 
@@ -429,6 +432,70 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
     }
   }
 
+  const addToCollection = async (game: Game) => {
+    if (isMock) {
+      setCollectionGames(prev => {
+        if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+        const updated = [...prev, game]
+        localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+        return updated
+      })
+      window.dispatchEvent(new Event('collection_update'))
+      return
+    }
+
+    try {
+      if (!currentUserId) throw new Error('Usuario no autenticado.')
+
+      // 1. Ensure game exists in games table
+      const { data: existingGame } = await supabase
+        .from('games')
+        .select('bgg_id')
+        .eq('bgg_id', game.bgg_id)
+        .maybeSingle()
+
+      if (!existingGame) {
+        if (game.isFromBgg) {
+          await supabase.functions.invoke('bgg-ingest', {
+            body: { action: 'ingest', bggIds: [game.bgg_id] }
+          })
+        } else {
+          await supabase.from('games').insert({
+            bgg_id: game.bgg_id,
+            title: game.title,
+            title_es: game.title_es || null,
+            image_url: game.image_url || null,
+            min_players: game.min_players || 2,
+            max_players: game.max_players || 5,
+            playing_time: game.playing_time || 45,
+            year_published: game.year_published || new Date().getFullYear()
+          })
+        }
+      }
+
+      // 2. Insert into user_collection
+      const { error } = await supabase
+        .from('user_collection')
+        .insert({
+          user_id: currentUserId,
+          game_id: game.bgg_id
+        })
+
+      if (error && error.code !== '23505') {
+        throw error
+      }
+
+      setCollectionGames(prev => {
+        if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
+        return [...prev, game]
+      })
+      window.dispatchEvent(new Event('collection_update'))
+    } catch (err: any) {
+      console.error('Error adding game to collection:', err)
+      throw err
+    }
+  }
+
   const removeFromCollection = async (bggId: number) => {
     if (isMock) {
       setCollectionGames(prev => {
@@ -503,6 +570,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
     importSuccessCount,
     setImportSuccessCount,
     importBggCollection,
+    addToCollection,
     removeFromCollection,
     deleteRanking,
     refresh: loadProfileData

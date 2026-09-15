@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw } from 'lucide-react'
+import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote } from 'lucide-react'
+import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button'
 import { Select } from '../components/ui/select'
 import { useAuth } from '../lib/authContext'
@@ -12,6 +13,9 @@ import { useTranslation } from 'react-i18next'
 import { formatDate } from '../lib/dateLocale'
 import { BggOnboardingModal } from '../components/onboarding/BggOnboardingModal'
 import { useTableSound } from '../hooks/useTableSound'
+import { MeepleSvg } from '../components/ui/MeepleToken'
+import { ExpressVotingModal } from '../components/play/ExpressVotingModal'
+import { cn } from '../lib/utils'
 
 interface SimpleGame {
   bgg_id: number;
@@ -26,6 +30,7 @@ interface SimpleGame {
   is_expansion?: boolean | null;
   base_game_id?: string | null;
   bgg_base_game_id?: number | null;
+  is_unplayed?: boolean;
 }
 
 function isGameExpansion(game: SimpleGame): boolean {
@@ -51,6 +56,7 @@ function mapToSimpleGame(g: any): SimpleGame {
     is_expansion: g.is_expansion ?? false,
     base_game_id: g.base_game_id,
     bgg_base_game_id: g.bgg_base_game_id,
+    is_unplayed: g.is_unplayed ?? false,
   }
 }
 
@@ -65,11 +71,13 @@ export function PlayPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<number | null>(null)
   const [selectedDuration, setSelectedDuration] = useState<string>('any')
   const [selectedGroupId, setSelectedGroupId] = useState<string>('personal')
+  const [onlyUnplayed, setOnlyUnplayed] = useState<boolean>(false)
 
   // Available games pool for decision engine
   const [gamesPool, setGamesPool] = useState<SimpleGame[]>([])
   const [loadingGames, setLoadingGames] = useState(false)
   const [showSyncModal, setShowSyncModal] = useState(false)
+  const [showVotingModal, setShowVotingModal] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Decision outcome
@@ -358,11 +366,16 @@ export function PlayPage() {
     return () => { isCancelled = true }
   }, [user])
 
-  // Filter games based on player count, duration, and exclude expansions
+  // Filter games based on player count, duration, shelf of shame, and exclude expansions
   const filteredGames = useMemo(() => {
     return gamesPool.filter((game) => {
       // Exclude expansions: expansions cannot be played without base game and should not be rolled as standalone titles
       if (isGameExpansion(game)) {
+        return false
+      }
+
+      // Shelf of shame filter (prioritize unplayed games)
+      if (onlyUnplayed && !game.is_unplayed) {
         return false
       }
 
@@ -384,9 +397,9 @@ export function PlayPage() {
 
       return true
     })
-  }, [gamesPool, selectedPlayers, selectedDuration])
+  }, [gamesPool, selectedPlayers, selectedDuration, onlyUnplayed])
 
-  // Spin Roulette action
+  // Spin Roulette with authentic inercial mechanical deceleration and haptics
   const handleSpinRoulette = () => {
     setSpinError(null)
     if (filteredGames.length === 0) {
@@ -396,19 +409,34 @@ export function PlayPage() {
 
     setIsSpinning(true)
     playClack()
-    let counter = 0
-    const totalFlips = 12
-    const interval = setInterval(() => {
+
+    // Mechanical deceleration curve: begins rapid (40ms), slows step-by-step to 430ms
+    const delays = [40, 40, 45, 50, 55, 65, 75, 90, 110, 135, 170, 215, 270, 340, 430]
+    let step = 0
+
+    const executeStep = () => {
       const randomIdx = Math.floor(Math.random() * filteredGames.length)
       setSuggestedGame(filteredGames[randomIdx])
       playClack()
-      counter++
-      if (counter >= totalFlips) {
-        clearInterval(interval)
+
+      step++
+      if (step < delays.length) {
+        setTimeout(executeStep, delays[step])
+      } else {
         setIsSpinning(false)
         playDice()
+        try {
+          confetti({
+            particleCount: 40,
+            spread: 60,
+            origin: { y: 0.7 },
+            colors: ['#10B981', '#3B82F6', '#EF4444', '#F59E0B'],
+          })
+        } catch {}
       }
-    }, 80)
+    }
+
+    setTimeout(executeStep, delays[0])
   }
 
   // Detect owned expansions for the suggested game in the current pool
@@ -470,15 +498,16 @@ export function PlayPage() {
 
         {/* Parametric Filters */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10 pt-1">
-          {/* 1. Players selector */}
+          {/* 1. Players selector with tactile MeepleTokens */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-primary" />
               <span>{t('play.playersLabel')}</span>
             </label>
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="flex gap-2 items-center flex-wrap pt-0.5">
               {[2, 3, 4, 5, 6].map((count) => {
                 const isSelected = selectedPlayers === count
+                const label = count === 6 ? '6+' : String(count)
                 return (
                   <Button
                     key={count}
@@ -489,9 +518,15 @@ export function PlayPage() {
                       playClack()
                       setSelectedPlayers(isSelected ? null : count)
                     }}
-                    className="flex-1 min-w-[42px] rounded-xl font-bold text-xs h-9 font-mono-tabular"
+                    className={cn(
+                      'h-9 px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs select-none cursor-pointer',
+                      isSelected
+                        ? 'bg-primary text-primary-foreground border-primary shadow-sm scale-[1.02]'
+                        : 'bg-card/50 hover:bg-card border-border/40 text-muted-foreground hover:text-foreground'
+                    )}
                   >
-                    {count}{count === 6 ? '+' : ''}
+                    <MeepleSvg className={cn('w-3.5 h-3.5', isSelected ? 'text-primary-foreground' : 'text-primary')} />
+                    <span>{label}</span>
                   </Button>
                 )
               })}
@@ -576,16 +611,64 @@ export function PlayPage() {
           </div>
         </div>
 
-        {/* Spin Roulette Button */}
-        <div className="pt-2 relative z-10 flex flex-col sm:flex-row items-center gap-4">
+        {/* Shelf of Shame (Estantería de la Vergüenza) Toggle */}
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border/20 relative z-10">
+          <Button
+            type="button"
+            variant={onlyUnplayed ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => {
+              playClack()
+              setOnlyUnplayed((prev) => !prev)
+            }}
+            className={cn(
+              'rounded-xl font-bold text-xs h-9 px-3.5 transition-all flex items-center gap-2',
+              onlyUnplayed
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'border-border/40 text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <PackageCheck className="w-3.5 h-3.5" />
+            <span>{t('play.shelfOfShame', 'Estantería de la Vergüenza')}</span>
+            {onlyUnplayed && (
+              <span className="px-1.5 py-0.5 rounded-md bg-black/20 text-[9px] font-black uppercase">
+                {t('play.active', 'Activo')}
+              </span>
+            )}
+          </Button>
+
+          <p className="text-[11px] text-muted-foreground font-medium">
+            {onlyUnplayed
+              ? t('play.unplayedFilterActive', 'Priorizando juegos no estrenados del grupo')
+              : t('play.allLibraryIncluded', 'Explorando toda la ludoteca disponible')}
+          </p>
+        </div>
+
+        {/* Actions: Spin Roulette & Express Voting */}
+        <div className="pt-2 relative z-10 flex flex-col sm:flex-row items-center gap-3">
           <Button
             onClick={handleSpinRoulette}
             disabled={isSpinning || loadingGames}
             size="lg"
-            className="w-full sm:w-auto rounded-2xl font-extrabold text-sm h-12 px-8 shadow-md shadow-primary/25 flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className="w-full sm:w-auto rounded-2xl font-extrabold text-sm h-12 px-7 shadow-md shadow-primary/25 flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
             <RotateCw className={`w-4 h-4 ${isSpinning ? 'animate-spin' : ''}`} />
             <span>{suggestedGame ? t('play.spinAgain') : t('play.spinRoulette')}</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            disabled={isSpinning || loadingGames || filteredGames.length === 0}
+            onClick={() => {
+              playClack()
+              setShowVotingModal(true)
+            }}
+            className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 border-border/40 hover:border-primary/40 flex items-center justify-center gap-2 transition-all shadow-xs"
+          >
+            <Vote className="w-4 h-4 text-primary" />
+            <span>{t('play.expressVoting', 'Votación Exprés (30s)')}</span>
           </Button>
 
           {spinError && (
@@ -626,7 +709,7 @@ export function PlayPage() {
                 <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-muted-foreground font-semibold">
                   <span className="flex items-center gap-1">
                     <Users className="w-3.5 h-3.5 text-primary" />
-                    {suggestedGame.min_players || 2}-{suggestedGame.max_players || 5} pl.
+                    {suggestedGame.min_players || 2}-{suggestedGame.max_players || 5} jug.
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-primary" />
@@ -717,7 +800,7 @@ export function PlayPage() {
                       {formatDate(meetup.date, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, i18n.language as any)}
                     </p>
                     <p className="text-[10px] text-muted-foreground/80 font-semibold truncate">
-                      {meetup.is_online ? 'Online' : (meetup.location || meetup.city || 'Mesa presencial')} • {meetup.joined_players?.length || 1}/{meetup.max_players} pl.
+                      {meetup.is_online ? 'Online' : (meetup.location || meetup.city || 'Mesa presencial')} • {meetup.joined_players?.length || 1}/{meetup.max_players} jug.
                     </p>
                   </div>
 
@@ -806,6 +889,17 @@ export function PlayPage() {
         isOpen={showSyncModal}
         onClose={() => setShowSyncModal(false)}
         onSuccess={() => setRefreshTrigger(v => v + 1)}
+      />
+
+      {/* Express Voting Modal (30s Group Quick Vote) */}
+      <ExpressVotingModal
+        isOpen={showVotingModal}
+        onClose={() => setShowVotingModal(false)}
+        candidates={filteredGames}
+        onGameSelected={(game) => {
+          setShowVotingModal(false)
+          navigate(`/mesa/nueva?gameId=${game.bgg_id}`)
+        }}
       />
     </section>
   )

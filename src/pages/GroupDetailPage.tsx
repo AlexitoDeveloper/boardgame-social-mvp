@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2 } from 'lucide-react'
+import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2, QrCode } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -13,6 +13,8 @@ import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { GroupLudotecaTab } from '../components/group-detail/GroupLudotecaTab'
 import { GroupPollsTab } from '../components/group-detail/GroupPollsTab'
 import { GroupMembersTab } from '../components/group-detail/GroupMembersTab'
+import { GroupInviteQrModal } from '../components/groups/GroupInviteQrModal'
+import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
 import { AppLanguage } from '../lib/gameLocale'
 import { formatDate } from '../lib/dateLocale'
 import { useTranslation } from 'react-i18next'
@@ -60,7 +62,8 @@ export function GroupDetailPage() {
     closePoll,
     leaveGroup,
     kickMember,
-    deleteGroup
+    deleteGroup,
+    addGameToGroup
   } = useGroupDetail(groupId)
 
   // Navigation Tabs
@@ -70,7 +73,10 @@ export function GroupDetailPage() {
   const [collectionSearch, setCollectionSearch] = useState('')
 
   // Invite code copy feedback
-  const [copied, setCopied] = useState(false)
+  const [copiedCode, setCopiedCode] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false)
+  const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false)
 
   // Create Poll Modal State
   const [isPollOpen, setIsPollOpen] = useState(false)
@@ -144,9 +150,10 @@ export function GroupDetailPage() {
   const isAdmin = members.find(m => m.user_id === user?.id)?.role === 'admin' || isCreator
 
   const handleCopyCode = () => {
+    if (!group) return
     navigator.clipboard.writeText(group.invite_code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopiedCode(true)
+    setTimeout(() => setCopiedCode(false), 2000)
   }
 
   const handleShareWhatsApp = () => {
@@ -161,8 +168,8 @@ export function GroupDetailPage() {
     if (!group) return
     const inviteUrl = `${window.location.origin}/grupos?join=${group.invite_code}`
     navigator.clipboard.writeText(inviteUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopiedLink(true)
+    setTimeout(() => setCopiedLink(false), 2000)
   }
 
   const handleLeave = () => {
@@ -328,27 +335,44 @@ export function GroupDetailPage() {
           </div>
 
           <div className="space-y-2.5">
-            <Button
-              onClick={handleShareWhatsApp}
-              className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-            >
-              <Share2 className="w-4 h-4" />
-              <span>{t('groups.inviteWhatsApp')}</span>
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={handleShareWhatsApp}
+                className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>WhatsApp</span>
+              </Button>
+
+              <Button
+                onClick={() => setIsQrModalOpen(true)}
+                variant="outline"
+                className="w-full rounded-xl font-bold text-xs h-9 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-border/40 hover:border-primary/50"
+              >
+                <QrCode className="w-3.5 h-3.5 text-primary" />
+                <span>{t('groups.showQrCode', 'Código QR')}</span>
+              </Button>
+            </div>
 
             <div className="flex items-center gap-2">
-              <div className="flex-1 font-mono text-center text-sm font-black bg-card border border-border/30 rounded-xl py-2 px-3 tracking-wider text-foreground">
-                {group.invite_code}
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleCopyCode}
+                title="Copiar código al portapapeles"
+                className="flex-1 font-mono text-center text-sm font-black bg-card hover:bg-card/80 border border-border/30 rounded-xl py-1.5 px-3 tracking-wider text-foreground h-9 cursor-pointer transition-all active:scale-[0.99]"
+              >
+                <span>{copiedCode ? '¡Código copiado!' : group.invite_code}</span>
+              </Button>
 
               <Button
                 onClick={handleCopyInviteLink}
-                variant={copied ? 'default' : 'outline'}
+                variant={copiedLink ? 'default' : 'outline'}
                 className="rounded-xl h-9 px-3 shrink-0 cursor-pointer text-xs font-bold flex items-center gap-1.5"
                 title={t('groups.copyInviteLink')}
               >
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Clipboard className="h-3.5 w-3.5" />}
-                <span className="hidden sm:inline">{copied ? t('groups.copied') : t('groups.copyInviteLink')}</span>
+                {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Clipboard className="h-3.5 w-3.5" />}
+                <span className="hidden sm:inline">{copiedLink ? t('groups.copied') : t('groups.copyInviteLink')}</span>
               </Button>
             </div>
           </div>
@@ -375,6 +399,7 @@ export function GroupDetailPage() {
             user={user}
             collectionSearch={collectionSearch}
             setCollectionSearch={setCollectionSearch}
+            onOpenAddGame={() => setIsAddGameModalOpen(true)}
           />
         )}
 
@@ -586,6 +611,23 @@ export function GroupDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* QR Code Modal */}
+      <GroupInviteQrModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        groupName={group.name}
+        inviteCode={group.invite_code}
+      />
+
+      {/* Add Game to Group Collection Modal */}
+      <AddGameToLibraryModal
+        isOpen={isAddGameModalOpen}
+        onClose={() => setIsAddGameModalOpen(false)}
+        userCollectionGameIds={mergedCollection.map((item) => item.game.bgg_id)}
+        onAddGame={addGameToGroup}
+        isGroupContext
+      />
     </section>
   )
 }

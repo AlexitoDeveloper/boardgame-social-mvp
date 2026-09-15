@@ -122,6 +122,19 @@ export function useGroupDetail(groupId: string | undefined) {
         167791: { bgg_id: 167791, title: 'Terraforming Mars', image_url: 'https://cf.geekdo-images.com/7bM8c6P2dG22a1tN7s_b8JtQJ9k=/fit-in/64x64/filters:strip_icc()/pic2419375.jpg' }
       }
 
+      const localCollStr = localStorage.getItem(`boardgame_social_mock_collection_${user.id}`)
+      if (localCollStr) {
+        try {
+          const userLocalGames: Game[] = JSON.parse(localCollStr)
+          userLocalGames.forEach(g => {
+            mockGamesPool[g.bgg_id] = g
+            if (!mockCollections[user.id].includes(g.bgg_id)) {
+              mockCollections[user.id].push(g.bgg_id)
+            }
+          })
+        } catch {}
+      }
+
       const mergedMap: Record<number, { user_id: string; username: string; avatar_url: string | null }[]> = {}
 
       activeMembers.forEach((member: any) => {
@@ -550,6 +563,59 @@ export function useGroupDetail(groupId: string | undefined) {
     if (error) throw error
   }
 
+  const addGameToGroup = async (game: Game) => {
+    if (!user) return
+
+    if (USE_MOCKS && groupId?.startsWith('mock-')) {
+      const localKey = `boardgame_social_mock_collection_${user.id}`
+      const existing: Game[] = JSON.parse(localStorage.getItem(localKey) || '[]')
+      if (!existing.some((g) => g.bgg_id === game.bgg_id)) {
+        existing.push(game)
+        localStorage.setItem(localKey, JSON.stringify(existing))
+      }
+      window.dispatchEvent(new Event('collection_update'))
+      return
+    }
+
+    try {
+      const { data: existingGame } = await supabase
+        .from('games')
+        .select('bgg_id')
+        .eq('bgg_id', game.bgg_id)
+        .maybeSingle()
+
+      if (!existingGame) {
+        if (game.isFromBgg) {
+          await supabase.functions.invoke('bgg-ingest', {
+            body: { action: 'ingest', bggIds: [game.bgg_id] },
+          })
+        } else {
+          await supabase.from('games').insert({
+            bgg_id: game.bgg_id,
+            title: game.title,
+            title_es: game.title_es || null,
+            image_url: game.image_url || null,
+            min_players: game.min_players || 2,
+            max_players: game.max_players || 5,
+            playing_time: game.playing_time || 45,
+            year_published: game.year_published || new Date().getFullYear(),
+          })
+        }
+      }
+
+      await supabase
+        .from('user_collection')
+        .insert({ user_id: user.id, game_id: game.bgg_id })
+
+      window.dispatchEvent(new Event('collection_update'))
+    } catch (err: any) {
+      if (err.code !== '23505') {
+        console.error('Error adding game to collection:', err)
+        throw err
+      }
+    }
+  }
+
   useEffect(() => {
     isFirstLoad.current = true
   }, [groupId])
@@ -591,8 +657,14 @@ export function useGroupDetail(groupId: string | undefined) {
       )
       .subscribe()
 
+    const handleCollectionUpdate = () => {
+      fetchDetails(false)
+    }
+    window.addEventListener('collection_update', handleCollectionUpdate)
+
     return () => {
       supabase.removeChannel(channel)
+      window.removeEventListener('collection_update', handleCollectionUpdate)
     }
   }, [groupId, fetchDetails])
 
@@ -609,6 +681,7 @@ export function useGroupDetail(groupId: string | undefined) {
     leaveGroup,
     kickMember,
     deleteGroup,
+    addGameToGroup,
     refresh: fetchDetails
   }
 }
