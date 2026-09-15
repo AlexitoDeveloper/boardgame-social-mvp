@@ -13,7 +13,8 @@ import {
   Sparkles,
   Download,
   Calendar,
-  Crown
+  Crown,
+  Dices
 } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { cn } from '../lib/utils'
@@ -29,6 +30,10 @@ import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailA
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
 import { MeetupDetailOnline } from '../components/meetup-detail/MeetupDetailOnline'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
+import { FirstPlayerSelector } from '../components/session/FirstPlayerSelector'
+import { LiveScoreTracker } from '../components/session/LiveScoreTracker'
+import { BoardPhotoUploader } from '../components/session/BoardPhotoUploader'
+import { VictoryCardModal } from '../components/session/VictoryCardModal'
 
 const BACKGROUNDS: Record<string, string> = {
   default: 'from-[#141b29] via-[#0e121b] to-[#0a362e]',
@@ -94,10 +99,15 @@ export function MeetupDetailPage() {
     guestReservation,
     handleJoinAsGuest,
     handleLeaveAsGuest,
-    handleCompleteMeetup
+    handleCompleteMeetup,
+    updateScores,
+    updateBoardPhoto,
+    updateFirstPlayer
   } = useMeetupDetail(id, user)
 
   const [showExportModal, setShowExportModal] = useState(false)
+  const [showFirstPlayerModal, setShowFirstPlayerModal] = useState(false)
+  const [showVictoryCardModal, setShowVictoryCardModal] = useState(false)
   const [selectedTheme, setSelectedTheme] = useState('default')
   const [selectedRatio, setSelectedRatio] = useState<'story' | 'square'>('story')
   const [exporting, setExporting] = useState(false)
@@ -142,30 +152,54 @@ export function MeetupDetailPage() {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate('/')} 
+          onClick={() => navigate(-1)} 
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('meetup.backToBoard')}</span><span className="xs:hidden">{t('common.back')}</span>
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('common.back')}</span>
         </Button>
         
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleShare}
-          className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer bg-card px-3"
-        >
-          {copySuccess ? (
-            <>
-              <Check className="w-4 h-4 text-success" />
-              <span className="text-success font-semibold">{t('common.copied')}</span>
-            </>
-          ) : (
-            <>
-              <Share2 className="w-4 h-4 text-primary" />
-              <span>{t('common.share')}</span>
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFirstPlayerModal(true)}
+            className="rounded-xl flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 text-xs h-9 cursor-pointer px-3"
+            title="Elegir primer jugador al azar"
+          >
+            <Dices className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">1er Jugador</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowVictoryCardModal(true)}
+            className="rounded-xl flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 text-xs h-9 cursor-pointer px-3"
+            title="Ver y compartir tarjeta de resultado"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span className="hidden sm:inline">Tarjeta WhatsApp</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer bg-card px-3"
+          >
+            {copySuccess ? (
+              <>
+                <Check className="w-4 h-4 text-success" />
+                <span className="text-success font-semibold">{t('common.copied')}</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4 text-primary" />
+                <span className="hidden xs:inline">{t('common.share')}</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Hero Header component */}
@@ -193,6 +227,22 @@ export function MeetupDetailPage() {
             creatorId={meetup.creator_id}
             userId={userId}
             guestReservationId={guestReservation?.id}
+          />
+
+          {/* Live Score Sheet */}
+          <LiveScoreTracker
+            initialScores={meetup.player_scores}
+            attendees={attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))}
+            isEditable={isJoined || isCreator}
+            onSaveScores={updateScores}
+          />
+
+          {/* Final Board Photo */}
+          <BoardPhotoUploader
+            currentPhotoUrl={meetup.board_photo_url}
+            meetupId={meetup.id}
+            isEditable={isJoined || isCreator}
+            onPhotoUploaded={updateBoardPhoto}
           />
 
           {/* Location details card or Online Logistics */}
@@ -231,6 +281,8 @@ export function MeetupDetailPage() {
           handleLeaveAsGuest={handleLeaveAsGuest}
           handleCompleteMeetup={handleCompleteMeetup}
           onExportClick={() => setShowExportModal(true)}
+          onFirstPlayerClick={() => setShowFirstPlayerModal(true)}
+          onVictoryCardClick={() => setShowVictoryCardModal(true)}
         />
       </div>
 
@@ -622,6 +674,23 @@ export function MeetupDetailPage() {
           )
         })()}
       </AnimatePresence>
+
+      {/* First Player Multitouch Selector Modal */}
+      <FirstPlayerSelector
+        isOpen={showFirstPlayerModal}
+        onClose={() => setShowFirstPlayerModal(false)}
+        attendees={attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))}
+        onSelectFirstPlayer={(_, name) => updateFirstPlayer(name)}
+      />
+
+      {/* WhatsApp Victory Card Modal */}
+      <VictoryCardModal
+        isOpen={showVictoryCardModal}
+        onClose={() => setShowVictoryCardModal(false)}
+        meetup={meetup}
+        scores={meetup.player_scores}
+        language={i18n.language as any}
+      />
     </section>
   )
 }

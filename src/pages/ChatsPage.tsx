@@ -553,7 +553,7 @@ export function ChatsPage() {
 
                 {/* Clickable info/link area that goes to details page */}
                 <div 
-                  onClick={() => navigate(`/tablero/${activeMeetup.id}`)}
+                  onClick={() => navigate(`/mesa/${activeMeetup.id}`)}
                   className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group/info"
                   title="Ver Ficha de Partida"
                 >

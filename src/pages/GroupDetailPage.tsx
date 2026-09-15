@@ -424,7 +424,7 @@ export function GroupDetailPage() {
               setHasPollDate(false)
             }}
             onCreateMeetupRedirect={(pollTitle, gameId, gameTitle) => {
-              navigate(`/tablero/new?game_id=${gameId}&title=${encodeURIComponent(`${t('groups.pollsTitle')}: ${pollTitle}`)}&description=${encodeURIComponent(t('groups.groupMeetupRedirectDesc', { gameTitle }))}`)
+              navigate(`/mesa/nueva?game_id=${gameId}&groupId=${groupId}&title=${encodeURIComponent(`${t('groups.pollsTitle')}: ${pollTitle}`)}&description=${encodeURIComponent(t('groups.groupMeetupRedirectDesc', { gameTitle }))}`)
             }}
           />
         )}

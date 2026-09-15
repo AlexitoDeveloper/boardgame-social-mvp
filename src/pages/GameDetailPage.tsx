@@ -487,7 +487,7 @@ export function GameDetailPage() {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/30">
-                  <Link to={`/tablero/${meetup.id}`} className="block">
+                  <Link to={`/mesa/${meetup.id}`} className="block">
                     <Button variant="outline" size="sm" className="w-full text-[11px] gap-1 h-8 rounded-xl font-black">
                       {t('gameDetail.viewMeetupDetails')}
                     </Button>
@@ -506,7 +506,7 @@ export function GameDetailPage() {
               {t('gameDetail.noScheduledPlaysDesc')}
             </p>
           </div>
-          <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="inline-block mt-2">
+          <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="inline-block mt-2">
             <Button size="sm" className="font-black gap-1.5 px-4 h-9">
               <Plus className="h-4 w-4" />
               {t('gameDetail.createNewMeetup')}
@@ -601,7 +601,7 @@ export function GameDetailPage() {
         
         <div className="flex flex-col gap-3">
           {/* Organize Match Button */}
-          <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="w-full">
+          <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="w-full">
             <Button className="w-full font-black tracking-tight gap-2 py-6 rounded-xl shadow-md cursor-pointer bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/95 hover:to-emerald-500 hover:shadow-lg transition-all duration-300">
               <CalendarDays className="h-4.5 w-4.5" />
               {t('gameDetail.organizeMeetup')}

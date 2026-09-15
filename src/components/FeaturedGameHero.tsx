@@ -128,7 +128,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
 
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-          <Link to={`/tablero/new?gameId=${game.bgg_id}`} className="shrink-0">
+          <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="shrink-0">
             <Button size="sm" className="font-bold cursor-pointer rounded-xl h-10 px-5 flex items-center gap-1.5 shadow-lg shadow-primary/10 hover:shadow-primary/20">
               <Plus className="w-4.5 h-4.5" />
               <span>{t('common.hostTable')}</span>

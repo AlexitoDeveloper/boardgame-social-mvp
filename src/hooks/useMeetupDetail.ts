@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { User } from '@supabase/supabase-js'
-import { Meetup, UserProfile, Game } from '../types'
+import { Meetup, UserProfile, Game, PlayerScore } from '../types'
 import { USE_MOCKS } from '../lib/config'
 
 // Helper to get mock attendees lists for mock data
@@ -766,6 +766,53 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     }
   }
 
+  const updateScores = async (newScores: PlayerScore[]) => {
+    if (!id) return
+    try {
+      if (!USE_MOCKS || !id.startsWith('mock-')) {
+        await supabase
+          .from('meetups')
+          .update({ player_scores: newScores })
+          .eq('id', id)
+      }
+      setMeetup(prev => prev ? { ...prev, player_scores: newScores } : null)
+    } catch (err) {
+      console.error('Error updating player scores:', err)
+      throw err
+    }
+  }
+
+  const updateBoardPhoto = async (photoUrl: string | null) => {
+    if (!id) return
+    try {
+      if (!USE_MOCKS || !id.startsWith('mock-')) {
+        await supabase
+          .from('meetups')
+          .update({ board_photo_url: photoUrl })
+          .eq('id', id)
+      }
+      setMeetup(prev => prev ? { ...prev, board_photo_url: photoUrl } : null)
+    } catch (err) {
+      console.error('Error updating board photo:', err)
+      throw err
+    }
+  }
+
+  const updateFirstPlayer = async (firstPlayerId: string | null) => {
+    if (!id) return
+    try {
+      if (!USE_MOCKS || !id.startsWith('mock-')) {
+        await supabase
+          .from('meetups')
+          .update({ first_player_id: firstPlayerId })
+          .eq('id', id)
+      }
+      setMeetup(prev => prev ? { ...prev, first_player_id: firstPlayerId } : null)
+    } catch (err) {
+      console.error('Error updating first player:', err)
+    }
+  }
+
   return {
     meetup,
     attendees,
@@ -781,6 +828,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     guestReservation,
     handleJoinAsGuest,
     handleLeaveAsGuest,
-    handleCompleteMeetup
+    handleCompleteMeetup,
+    updateScores,
+    updateBoardPhoto,
+    updateFirstPlayer
   }
 }

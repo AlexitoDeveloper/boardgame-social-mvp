@@ -43,7 +43,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
           return (
             <Link
               key={meetup.id}
-              to={`/tablero/${meetup.id}`}
+              to={`/mesa/${meetup.id}`}
               className="snap-start shrink-0 w-[260px] sm:w-[300px] block group"
             >
               <Card className="overflow-hidden glass-panel spotlight-card border border-border/40 hover:border-primary/45 transition-all duration-300 shadow-md hover:shadow-lg p-0 flex flex-col h-full bg-card/65 backdrop-blur-xl relative">

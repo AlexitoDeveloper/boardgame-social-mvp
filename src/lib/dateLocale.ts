@@ -1,4 +1,5 @@
 import { AppLanguage } from './gameLocale'
+export type { AppLanguage }
 
 /**
  * Formats a date using the active language.

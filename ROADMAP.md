@@ -36,12 +36,12 @@ _Objetivo: Aumentar el valor de la app para el usuario frecuente en su día a d�
 
 _Objetivo Estratégico: Eliminar la dependencia del "Radar de desconocidos" (evitando el síndrome del pueblo fantasma de Meeplay) y convertir la app en la herramienta indispensable para tu grupo habitual de juego cada fin de semana._
 
-> **Dirección Artística y Sensorial: "Scandi Craft & Tactile Tabletop Lounge"**
-> - **Atmósfera:** Estilo Stonemaier / nórdico editorial cálido. Sensación de accesorio físico de lujo sobre el tapete (madera, lino, dados de resina y piezas troqueladas).
-> - **Paleta de diseño:** Fondo grafito nogal mate (`#16181B`), acento latón/ámbar (`#E5A93C`) y cuarteto canónico de meeples de madera (Rojo, Azul, Amarillo, Verde) para los jugadores.
-> - **Stack sensorial integrado:** Three.js / WebGL para componentes 3D físicos, `framer-motion` para inercia y física de cartas, `use-sound` para clicks de madera y dados, `canvas-confetti` temático y `react-countup` para contadores mecánicos.
+> **Dirección Artística y Visual: "The Grand Game Mat" (Neopreno Medianoche & Tapete Esmeralda)**
+> - **Atmósfera:** Tapete de juego profesional de neopreno de alta gama donde los componentes y las portadas cobran vida visual sin distracciones.
+> - **Paleta de diseño:** Fondo pizarra medianoche profundo (`#0A0F1D`), acento verde esmeralda vivo (`#10B981` / energía de juego activo y victoria). Sin similitud con Plex.
+> - **Stack visual y cinético:** `framer-motion` para inercia, física de cartas y resortes elásticos, feedback háptico en móviles (`navigator.vibrate`), `canvas-confetti` temático y `react-countup` para contadores numéricos (estrictamente sin efectos sonoros).
 
-#### FASE 1: PODA DE NAVEGACIÓN, ONBOARDING Y FUNDACIÓN DE DISEÑO TÁCTIL (COMPLETADA)
+#### FASE 1: PODA DE NAVEGACIÓN, ONBOARDING Y SANEAMIENTO DE FLUJOS (COMPLETADA)
 - [x] **Ocultar Radar Público (`/tablero`):** Retirar la pestaña de quedadas públicas de la barra de navegación para evitar pantallas vacías en ciudades con pocos usuarios.
 - [x] **Reestructurar `AppShell` a 4 pestañas limpias:**
   - 🏠 **Explorar:** Catálogo BGG en español con filtros potentes.
@@ -50,41 +50,45 @@ _Objetivo Estratégico: Eliminar la dependencia del "Radar de desconocidos" (evi
   - 👤 **Mi Perfil:** Colección, victorias y medallas.
 - [x] **Onboarding BGG Express:** Prompt inicial tras registrarse para importar colección de BGG en 5 segundos por nombre de usuario.
 - [x] **Invitación a Grupos por Enlace Corto de WhatsApp:** Flujo de unión en 1 toque.
-- [x] **[ARTE & UI] Sistema de Tokens Scandi Tabletop:**
-  - Migración cromática a fondo grafito nogal cálido mate (`#16181B`) anti-fatiga en salón.
-  - Tipografía display editorial de caja moderna (`Outfit` / `Plus Jakarta Sans`) + números tabulares (`JetBrains Mono`).
-  - Capa de acabado lino mate (*linen finish* procedural con filtro SVG) en tarjetas y modales.
-  - Paisaje sonoro base (`use-sound`): Clack de madera sordo en botones táctiles principales.
+- [x] **[ARTE & UI] Sistema de Tokens "The Grand Game Mat":**
+  - Fondo pizarra medianoche (`#0A0F1D`) y acento esmeralda tapete (`#10B981`) con ratios WCAG 2.2 AAA.
+  - Tipografía display editorial (`Outfit` / `Plus Jakarta Sans`) + números tabulares (`JetBrains Mono`).
+- [x] **Saneamiento Total de Flujos Legacy (Cero fugas a `/tablero`):**
+  - Eliminado definitivamente el archivo huérfano `RadarPage.tsx`.
+  - Reemplazadas todas las rutas y llamadas residuales a `/tablero/*` por `/mesa/*` en toda la aplicación.
+  - En `CreateMeetupPage`: Suprimido el límite artificial de 5 partidas, navegación directa a `/mesa/:id` al abrir mesa y persistencia de `groupId`.
+  - En `GameDetailPage`: Conectado el botón "Organizar partida" directo a `/mesa/nueva?gameId=...`.
 
-#### FASE 2: MOTOR DE DECISIÓN SENSORIAL ("¿A QUÉ JUGAMOS HOY?")
-- [ ] **Selector Paramétrico de Mesa:**
-  - Selector táctil de número de jugadores con fichas de madera interactivas (2, 3, 4, 5, 6+).
-  - Selector de tiempo disponible (<30 min, 60 min, 90-120 min, tarde entera).
-  - Filtro "Estantería de la Vergüenza" (priorizar juegos no estrenados del grupo).
-- [ ] **Modo Votación Exprés (30 segundos):** Despliegue elástico de cartas en abanico (`framer-motion`) donde los presentes tocan sus 3 favoritos con feedback háptico.
-- [ ] **Modo Ruleta 3D / Háptica:** Ruleta física de mesa con desaceleración inercial realista, freno elástico, vibración háptica (`navigator.vibrate`) en cada diente y sonido de carraca de madera.
+#### FASE 2: MOTOR DE DECISIÓN ("¿A QUÉ JUGAMOS HOY?") (COMPLETADA)
+- [x] **Selector Paramétrico de Mesa:**
+  - Selector numérico limpio y neutral de número de jugadores (2, 3, 4, 5, 6+), sin saturación de meeples de color en los filtros.
+  - Selector de tiempo disponible (<30 min, 45-60 min, 90-120 min).
+  - Filtro "Estantería de la Vergüenza" con toggle para priorizar juegos no estrenados.
+- [x] **Modo Votación Exprés (30 segundos):** Modal accesible con cuenta atrás visual de 30s, sellado de votos y proclamación automática del juego ganador con confeti.
+- [x] **Modo Ruleta Háptica e Inercial:** Ruleta física con desaceleración mecánica realista (curva de 40ms a 430ms), vibración háptica en móviles y parada triunfal con confeti (sin efectos de audio).
 
-#### FASE 3: ASISTENTE DE PUNTUACIÓN Y CIERRE CON TARJETA DE WHATSAPP
-- [ ] **Selector de Primer Jugador 3D / Táctil:** Dado poliédrico 3D físico con WebGL (`three` / `@react-three/fiber`) que rueda por la pantalla o ruleta circular táctil de dedos para decidir quién empieza.
-- [ ] **Contador de Puntos en Vivo Mecánico:**
-  - Asignación de color de meeple y avatar procedimental por jugador (@dicebear).
-  - Marcador numérico rodante continuo (`react-countup`) con feedback sonoro al incrementar puntos.
-  - Soporte de invitados *shadow* (amigos sin cuenta).
-- [ ] **Foto del Tablero Final:** Captura y subida optimizada de la foto de la partida terminada.
-- [ ] **Cierre de Partida con Celebración:** Lluvia de confeti temático (`canvas-confetti`) simulando troqueles de cartón y gemas acrílicas cayendo, con fanfarria sutil de victoria.
-- [ ] **Tarjeta Viral de WhatsApp "Scandi Editorial":**
-  - Generación de imagen con `html-to-image` en alta resolución (diseño tipo cartel con foto de la mesa, badge de latón de campeón y puntuaciones gigantes).
-  - Envío en 1 clic a través de Web Share API al chat de WhatsApp del grupo.
+#### FASE 3: ASISTENTE DE PUNTUACIÓN Y CIERRE CON TARJETA DE WHATSAPP (COMPLETADA)
+- [x] **Selector de Primer Jugador Multitáctil ("Chwazi" Tabletop):** Superficie multitáctil donde los jugadores colocan los dedos en pantalla, se iluminan anillos con colores distintivos y tras 2.2s se elige al azar con háptica quién empieza (con soporte de tirada accesible con un clic en PC, sin sonidos).
+- [x] **Contador de Puntos en Vivo para la Mesa:**
+  - Marcador de tanteo continuo integrado en `/mesa/:id` con tipografía monoespaciada tabular.
+  - Botones de ajuste rápido (+1, +5, -1, -5) y edición de puntuación directa.
+  - Asignación de corona 👑 al líder de la partida.
+  - Soporte de invitados *shadow* (amigos presentes en la mesa sin cuenta) y persistencia en tiempo real en Supabase.
+- [x] **Foto del Tablero Final:** Captura directa con cámara móvil y compresión optimizada en cliente mediante canvas para la foto de la mesa terminada.
+- [x] **Tarjeta de Victoria para WhatsApp:**
+  - Generación de imagen en alta resolución con `html-to-image` (diseño cartel con carátula del juego, podio de puntuaciones, fecha y foto final).
+  - Envío en 1 toque al chat de WhatsApp del grupo mediante Web Share API (`navigator.share`) o enlace nativo `https://wa.me/` con el acta formateada y descarga en PNG.
 
 #### FASE 4: EL "SALÓN DE LA FAMA" Y RIVALIDADES DE GRUPO
-- [ ] **Podio 3D de Campeones:** Escenario 3D minimalista (`three`) con los avatares en podio escalonado al consultar el ranking histórico del grupo.
-- [ ] **Estadísticas de Enfrentamiento Directo:** Detección de "Némesis" y "Víctima favorita" con animaciones dinámicas (espadas cruzadas ⚔️ con Twemoji vectoriales).
-- [ ] **Récords por Juego:** Máxima puntuación histórica registrada por juego en el grupo con efecto de medalla de latón pulido.
+- [ ] **Podio de Campeones:** Escenario minimalista con los avatares en podio escalonado al consultar el ranking histórico del grupo.
+- [ ] **Estadísticas de Enfrentamiento Directo:** Detección de "Némesis" y "Víctima favorita" con animaciones dinámicas (espadas cruzadas ⚔️).
+- [ ] **Récords por Juego:** Máxima puntuación histórica registrada por juego en el grupo con efecto de medalla pulida.
 - [ ] **Rachas de Victoria:** Indicador de racha activa con fuego vectorial animado (🔥).
 
 #### FASE 5: DISTRIBUCIÓN MÓVIL Y MONETIZACIÓN B2C/B2B
 - [ ] **PWA Standalone & Capacitor Android:** Empaquetado pulido para instalación en pantalla completa sin barras de navegador.
 - [ ] **Suscripción "Host Pro":** Estadísticas analíticas avanzadas, personalización de temas visuales para tarjetas de WhatsApp y hojas de puntuación por categorías.
 - [ ] **Piloto B2B Cafeterías de Juegos:** Modo menú QR para mesas de locales y bares de juegos de mesa.
+
 
 

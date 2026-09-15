@@ -11,10 +11,9 @@ import { USE_MOCKS } from '../lib/config'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '../lib/dateLocale'
-import { BggOnboardingModal } from '../components/onboarding/BggOnboardingModal'
-import { MeepleSvg } from '../components/ui/MeepleToken'
 import { ExpressVotingModal } from '../components/play/ExpressVotingModal'
 import { cn } from '../lib/utils'
+import { BggOnboardingModal } from '../components/onboarding/BggOnboardingModal'
 
 interface SimpleGame {
   bgg_id: number;
@@ -518,7 +517,6 @@ export function PlayPage() {
                         : 'bg-card/50 hover:bg-card border-border/40 text-muted-foreground hover:text-foreground'
                     )}
                   >
-                    <MeepleSvg className={cn('w-3.5 h-3.5', isSelected ? 'text-primary-foreground' : 'text-primary')} />
                     <span>{label}</span>
                   </Button>
                 )
@@ -884,6 +882,7 @@ export function PlayPage() {
         isOpen={showVotingModal}
         onClose={() => setShowVotingModal(false)}
         candidates={filteredGames}
+        roomId={selectedGroupId !== 'personal' ? `group-${selectedGroupId}` : 'general'}
         onGameSelected={(game) => {
           setShowVotingModal(false)
           navigate(`/mesa/nueva?gameId=${game.bgg_id}`)

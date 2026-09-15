@@ -33,6 +33,7 @@ export function CreateMeetupPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const gameIdParam = searchParams.get('gameId') || searchParams.get('game_id')
+  const groupIdParam = searchParams.get('groupId') || searchParams.get('group_id')
 
   // Game Search State
   const [searchQuery, setSearchQuery] = useState('')
@@ -506,7 +507,7 @@ export function CreateMeetupPage() {
             if (relError) throw relError
           }
         }
-        navigate(`/tablero/${id}`)
+        navigate(`/mesa/${id}`)
       } else {
         const { data: insertData, error: insertError } = await supabase
           .from('meetups')
@@ -521,7 +522,8 @@ export function CreateMeetupPage() {
             voice_link: isOnline ? voiceLink.trim() : null,
             date: new Date(date).toISOString(),
             max_players: Number(maxPlayers),
-            joined_players: [userId] // The creator joins their own meetup automatically
+            joined_players: [userId], // The creator joins their own meetup automatically
+            group_id: groupIdParam || null
           })
           .select('id')
           .single()
@@ -538,7 +540,7 @@ export function CreateMeetupPage() {
           if (relError) throw relError
         }
 
-        navigate('/')
+        navigate(`/mesa/${insertData.id}`)
       }
     } catch (err: any) {
       console.error(err)
@@ -569,7 +571,7 @@ export function CreateMeetupPage() {
           type="button"
           variant="outline" 
           size="sm" 
-          onClick={isEditMode ? () => navigate(`/tablero/${id}`) : () => navigate(-1)} 
+          onClick={isEditMode ? () => navigate(`/mesa/${id}`) : () => navigate(-1)} 
           className="flex-shrink-0 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> {t('common.back')}
