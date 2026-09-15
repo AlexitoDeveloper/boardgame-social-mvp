@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote } from 'lucide-react'
+import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote, Download } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button'
+import { FilterChip } from '../components/ui/chip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useAuth } from '../lib/authContext'
 import { useGroups } from '../hooks/useGroups'
@@ -12,8 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '../lib/dateLocale'
 import { ExpressVotingModal } from '../components/play/ExpressVotingModal'
-import { cn } from '../lib/utils'
-import { BggOnboardingModal } from '../components/onboarding/BggOnboardingModal'
+import { BggSyncModal } from '../components/library/BggSyncModal'
 
 interface SimpleGame {
   bgg_id: number;
@@ -502,29 +502,23 @@ export function PlayPage() {
                 const isSelected = selectedPlayers === count
                 const label = count === 6 ? '6+' : String(count)
                 return (
-                  <Button
+                  <FilterChip
                     key={count}
-                    type="button"
-                    variant={isSelected ? 'default' : 'outline'}
+                    selected={isSelected}
                     size="sm"
                     onClick={() => {
                       setSelectedPlayers(isSelected ? null : count)
                     }}
-                    className={cn(
-                      'h-9 px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs select-none cursor-pointer',
-                      isSelected
-                        ? 'bg-primary text-primary-foreground border-primary shadow-sm scale-[1.02]'
-                        : 'bg-card/50 hover:bg-card border-border/40 text-muted-foreground hover:text-foreground'
-                    )}
+                    className="min-w-[2.5rem]"
                   >
                     <span>{label}</span>
-                  </Button>
+                  </FilterChip>
                 )
               })}
             </div>
           </div>
 
-          {/* 2. Duration selector */}
+          {/* 2. Duration selector with semantic color coding */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-primary" />
@@ -532,23 +526,23 @@ export function PlayPage() {
             </label>
             <div className="grid grid-cols-2 gap-1.5">
               {[
-                { id: 'any', label: t('play.anyTime') },
-                { id: 'quick', label: t('play.quickTime') },
-                { id: 'medium', label: t('play.mediumTime') },
-                { id: 'long', label: t('play.longTime') }
+                { id: 'any', label: t('play.anyTime'), variant: 'default' as const },
+                { id: 'quick', label: t('play.quickTime'), variant: 'emerald' as const },
+                { id: 'medium', label: t('play.mediumTime'), variant: 'amber' as const },
+                { id: 'long', label: t('play.longTime'), variant: 'purple' as const },
               ].map((opt) => (
-                <Button
+                <FilterChip
                   key={opt.id}
-                  type="button"
-                  variant={selectedDuration === opt.id ? 'default' : 'outline'}
+                  selected={selectedDuration === opt.id}
+                  variant={opt.variant}
                   size="sm"
                   onClick={() => {
                     setSelectedDuration(opt.id)
                   }}
-                  className="rounded-xl font-bold text-[11px] h-9 truncate font-mono-tabular"
+                  className="w-full truncate font-mono-tabular"
                 >
                   {opt.label}
-                </Button>
+                </FilterChip>
               ))}
             </div>
           </div>
@@ -591,11 +585,11 @@ export function PlayPage() {
                   onClick={() => {
                     setShowSyncModal(true)
                   }}
-                  className="h-auto p-0 text-[10px] font-bold text-primary hover:underline hover:bg-transparent cursor-pointer flex items-center gap-1"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  <span>Sincronizar BGG</span>
-                </Button>
+                  className="h-auto p-0 text-xs font-bold text-primary hover:underline hover:bg-transparent cursor-pointer flex items-center gap-1"
+                  icon={Download}
+                  label={t('profile.collection.syncButton')}
+                  aria-label={t('profile.collection.syncButton')}
+                />
               )}
             </div>
           </div>
@@ -603,30 +597,24 @@ export function PlayPage() {
 
         {/* Shelf of Shame (Estantería de la Vergüenza) Toggle */}
         <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border/20 relative z-10">
-          <Button
-            type="button"
-            variant={onlyUnplayed ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => {
-              setOnlyUnplayed((prev) => !prev)
-            }}
-            className={cn(
-              'rounded-xl font-bold text-xs h-9 px-3.5 transition-all flex items-center gap-2',
-              onlyUnplayed
-                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'border-border/40 text-muted-foreground hover:text-foreground'
-            )}
+          <FilterChip
+            selected={onlyUnplayed}
+            variant="amber"
+            size="default"
+            onClick={() => setOnlyUnplayed((prev) => !prev)}
+            icon={PackageCheck}
+            badge={
+              onlyUnplayed ? (
+                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-[10px] font-black uppercase">
+                  {t('play.active', 'Activo')}
+                </span>
+              ) : undefined
+            }
           >
-            <PackageCheck className="w-3.5 h-3.5" />
             <span>{t('play.shelfOfShame', 'Estantería de la Vergüenza')}</span>
-            {onlyUnplayed && (
-              <span className="px-1.5 py-0.5 rounded-md bg-black/20 text-[9px] font-black uppercase">
-                {t('play.active', 'Activo')}
-              </span>
-            )}
-          </Button>
+          </FilterChip>
 
-          <p className="text-[11px] text-muted-foreground font-medium">
+          <p className="text-xs text-muted-foreground font-medium">
             {onlyUnplayed
               ? t('play.unplayedFilterActive', 'Priorizando juegos no estrenados del grupo')
               : t('play.allLibraryIncluded', 'Explorando toda la ludoteca disponible')}
@@ -873,7 +861,7 @@ export function PlayPage() {
       </div>
 
       {/* Optional BGG Sync Modal */}
-      <BggOnboardingModal
+      <BggSyncModal
         isOpen={showSyncModal}
         onClose={() => setShowSyncModal(false)}
         onSuccess={() => setRefreshTrigger(v => v + 1)}

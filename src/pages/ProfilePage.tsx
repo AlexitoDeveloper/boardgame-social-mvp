@@ -9,7 +9,7 @@ import { ProfileShowcaseCard } from '../components/profile/ProfileShowcaseCard'
 import { AchievementsVitrina } from '../components/profile/AchievementsVitrina'
 import { TabContentList } from '../components/profile/TabContentList'
 import { EditProfileModal } from '../components/profile/EditProfileModal'
-import { ImportBggModal } from '../components/profile/ImportBggModal'
+import { BggSyncModal } from '../components/library/BggSyncModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
 import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
 import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal } from 'lucide-react'
@@ -40,11 +40,6 @@ export function ProfilePage() {
     loadingCollection,
     savingProfile,
     saveProfile,
-    importingCollection,
-    importError,
-    setImportError,
-    importSuccessCount,
-    setImportSuccessCount,
     importBggCollection,
     addToCollection,
     removeFromCollection,
@@ -219,14 +214,9 @@ export function ProfilePage() {
         saving={savingProfile}
       />
 
-      <ImportBggModal
+      <BggSyncModal
         isOpen={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        importingCollection={importingCollection}
-        importError={importError}
-        setImportError={setImportError}
-        importSuccessCount={importSuccessCount}
-        setImportSuccessCount={setImportSuccessCount}
+        onClose={() => setIsImportModalOpen(false)}
         onImport={importBggCollection}
       />
 

@@ -515,12 +515,13 @@ export function ChatsPage() {
                       )}
                       <Button
                         variant="ghost"
+                        size="icon-xs"
+                        aria-label={t('chats.deleteChat')}
                         onClick={(e) => {
                           e.stopPropagation()
                           setDeleteTargetMeetup(m)
                         }}
-                        className="p-1 cursor-pointer opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
-                        title={t('chats.deleteChat')}
+                        className="opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -545,10 +546,13 @@ export function ChatsPage() {
                 <Button 
                   onClick={handleBackToList}
                   variant="ghost" 
-                  size="sm" 
-                  className="md:hidden shrink-0 flex items-center justify-center"
+                  size="sm"
+                  aria-label={t('common.back')}
+                  title={t('common.back')}
+                  className="md:hidden shrink-0 flex items-center gap-1 text-xs font-bold"
                 >
                   <ArrowLeft className="w-4 h-4 text-foreground" />
+                  <span>{t('common.back')}</span>
                 </Button>
 
                 {/* Clickable info/link area that goes to details page */}
@@ -588,6 +592,7 @@ export function ChatsPage() {
                     size="sm"
                     className="cursor-pointer flex items-center gap-1.5"
                     title={t('chats.deleteChat')}
+                    aria-label={t('chats.deleteChat')}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{t('chats.deleteChat')}</span>
@@ -683,16 +688,13 @@ export function ChatsPage() {
               />
               <Button
                 type="submit"
-                disabled={sending || !messageText.trim()}
-                size="sm"
-                className="shrink-0 cursor-pointer shadow-sm"
-              >
-                {sending ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                ) : (
-                  <Send className="w-4 h-4 text-white" />
-                )}
-              </Button>
+                disabled={!messageText.trim()}
+                loading={sending}
+                icon={Send}
+                size="icon-sm"
+                aria-label={t('chats.sendMessage', 'Enviar mensaje')}
+                className="shrink-0 shadow-sm"
+              />
             </Form>
           </>
         ) : (
@@ -736,7 +738,8 @@ export function ChatsPage() {
                   </h3>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon-sm"
+                    aria-label={t('common.close')}
                     onClick={() => setDeleteTargetMeetup(null)}
                   >
                     <X className="w-4 h-4" />

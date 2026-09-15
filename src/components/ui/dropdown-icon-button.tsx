@@ -44,9 +44,13 @@ export function DropdownIconButton({
   return (
     <div ref={containerRef} className="relative inline-block text-left">
       <Button
+        type="button"
         variant={variant}
-        size={size}
-        className={cn("w-9 h-9 p-0 flex items-center justify-center cursor-pointer", className)}
+        size={size || "icon-sm"}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={props['aria-label'] || "Opciones"}
+        className={cn("cursor-pointer", className)}
         onClick={() => setOpen(!open)}
         {...props}
       >
@@ -56,6 +60,7 @@ export function DropdownIconButton({
       <AnimatePresence>
         {open && (
           <motion.div
+            role="menu"
             initial={{ opacity: 0, scale: 0.95, y: 5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 5 }}
@@ -69,6 +74,8 @@ export function DropdownIconButton({
               return (
                 <button
                   key={index}
+                  type="button"
+                  role="menuitem"
                   onClick={(e) => {
                     if (item.disabled) return
                     item.onClick(e)
@@ -76,7 +83,7 @@ export function DropdownIconButton({
                   }}
                   disabled={item.disabled}
                   className={cn(
-                    "w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0 bg-transparent outline-none",
+                    "w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0 bg-transparent outline-none hover:bg-muted/40 focus-visible:bg-muted/40",
                     item.className
                   )}
                 >

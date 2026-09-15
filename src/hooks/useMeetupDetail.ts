@@ -155,7 +155,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         attended_guests: thisMeetupCompleted ? thisMeetupCompleted.attended_guests : [],
         is_online: foundMock.is_online || false,
         platform: foundMock.platform || null,
-        voice_link: foundMock.voice_link || null
+        voice_link: foundMock.voice_link || null,
+        board_photo_url: JSON.parse(localStorage.getItem('boardgame_social_mock_photos') || '{}')[id] || null,
+        player_scores: JSON.parse(localStorage.getItem('boardgame_social_mock_scores') || '{}')[id] || null,
+        first_player_id: JSON.parse(localStorage.getItem('boardgame_social_mock_first_player') || '{}')[id] || null
       }
 
       setMeetup(formattedMock)
@@ -770,10 +773,18 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (!id) return
     try {
       if (!USE_MOCKS || !id.startsWith('mock-')) {
-        await supabase
+        const { error } = await supabase
           .from('meetups')
           .update({ player_scores: newScores })
           .eq('id', id)
+        if (error) {
+          console.error('Supabase error updating player_scores:', error)
+          throw error
+        }
+      } else {
+        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_scores') || '{}')
+        saved[id] = newScores
+        localStorage.setItem('boardgame_social_mock_scores', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, player_scores: newScores } : null)
     } catch (err) {
@@ -786,10 +797,18 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (!id) return
     try {
       if (!USE_MOCKS || !id.startsWith('mock-')) {
-        await supabase
+        const { error } = await supabase
           .from('meetups')
           .update({ board_photo_url: photoUrl })
           .eq('id', id)
+        if (error) {
+          console.error('Supabase error updating board_photo_url:', error)
+          throw error
+        }
+      } else {
+        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_photos') || '{}')
+        saved[id] = photoUrl
+        localStorage.setItem('boardgame_social_mock_photos', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, board_photo_url: photoUrl } : null)
     } catch (err) {
@@ -802,10 +821,17 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (!id) return
     try {
       if (!USE_MOCKS || !id.startsWith('mock-')) {
-        await supabase
+        const { error } = await supabase
           .from('meetups')
           .update({ first_player_id: firstPlayerId })
           .eq('id', id)
+        if (error) {
+          console.error('Supabase error updating first_player_id:', error)
+        }
+      } else {
+        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_first_player') || '{}')
+        saved[id] = firstPlayerId
+        localStorage.setItem('boardgame_social_mock_first_player', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, first_player_id: firstPlayerId } : null)
     } catch (err) {

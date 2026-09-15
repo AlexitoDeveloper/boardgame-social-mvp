@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Download, Loader2, X } from 'lucide-react'
+import { Sparkles, Download, X } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { Button } from '../ui/button'
 import { useGameLocale } from '../../hooks/useGameLocale'
@@ -128,7 +128,7 @@ export function RankingVisualizerModal({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-[#0b0f19] border-0 lg:border border-white/10 rounded-none lg:rounded-2xl max-w-3xl w-full h-full lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-screen lg:max-h-[95vh]"
+          className="bg-[#0b0f19] border-0 lg:border border-white/10 rounded-none lg:rounded-2xl max-w-3xl w-full h-full lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-dvh lg:max-h-[95dvh]"
         >
           {/* Modal Header bar */}
           <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] lg:pt-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/60 z-10">
@@ -142,26 +142,18 @@ export function RankingVisualizerModal({
               <Button
                 size="sm"
                 onClick={handleExportModalImage}
-                disabled={exporting}
+                loading={exporting}
+                aria-label={t('common.savePhoto')}
                 className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
-                title={t('common.savePhoto')}
               >
-                {exporting ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                    <span className="hidden sm:inline">{t('common.generating')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden sm:inline">{t('common.savePhoto')}</span>
-                  </>
-                )}
+                <Download className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">{t('common.savePhoto')}</span>
               </Button>
               <Button
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
                 onClick={onClose}
+                aria-label={t('common.close')}
                 className="border border-white/10 hover:bg-white/10 text-white"
               >
                 <X className="w-4 h-4" />

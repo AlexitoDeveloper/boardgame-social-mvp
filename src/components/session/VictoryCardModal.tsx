@@ -1,11 +1,11 @@
-import { useState, useRef, FC } from 'react'
+import { useState, useRef, useEffect, FC } from 'react'
 import { motion } from 'framer-motion'
 import { toPng } from 'html-to-image'
+import { useTranslation } from 'react-i18next'
 import {
   X,
-  Share2,
+  Copy,
   Download,
-  Loader2,
   Crown,
   Calendar,
   Check,
@@ -32,13 +32,37 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
   scores = [],
   language = 'es',
 }) => {
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [gameImageError, setGameImageError] = useState(false)
+  const [boardPhotoError, setBoardPhotoError] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      setGameImageError(false)
+      setBoardPhotoError(false)
+    }
+  }, [isOpen])
 
   const sortedScores = [...(scores || [])].sort((a, b) => b.score - a.score)
   const winner = sortedScores[0]
   const game = meetup.games?.[0]
+  const gameTitle = game?.title || game?.title_es || meetup.game_name || 'Juego de mesa'
+  const rawGameImage = game?.image_url || (meetup as any).game_image || null
+
+  const proxiedGameImage = rawGameImage ? (
+    rawGameImage.startsWith('http://') || rawGameImage.startsWith('https://')
+      ? `https://images.weserv.nl/?url=${encodeURIComponent(rawGameImage)}&w=200&h=200&fit=cover`
+      : rawGameImage
+  ) : null
+
+  const proxiedBoardPhoto = meetup.board_photo_url ? (
+    meetup.board_photo_url.startsWith('http')
+      ? `https://images.weserv.nl/?url=${encodeURIComponent(meetup.board_photo_url)}&w=800&fit=cover`
+      : meetup.board_photo_url
+  ) : null
 
   const handleDownloadPng = async () => {
     if (!cardRef.current) return
@@ -67,7 +91,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
   const handleShareNative = async () => {
     const textLines = [
       `🎲 *Resumen de Partida: ${meetup.title}*`,
-      game ? `📖 Juego: *${game.title}*` : '',
+      gameTitle ? `📖 Juego: *${gameTitle}*` : '',
       winner ? `🏆 Ganador: *${winner.name}* (${winner.score} pts)` : '',
       '',
       '📊 *Clasificación:*',
@@ -100,7 +124,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
   const handleCopySummary = async () => {
     const textLines = [
       `🎲 *Resumen de Partida: ${meetup.title}*`,
-      game ? `📖 Juego: *${game.title}*` : '',
+      gameTitle ? `📖 Juego: *${gameTitle}*` : '',
       winner ? `🏆 Ganador: *${winner.name}* (${winner.score} pts)` : '',
       ...sortedScores.map((s, idx) => `${idx + 1}. ${s.name} — ${s.score} pts`),
     ].filter(Boolean)
@@ -137,9 +161,10 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             onClick={onClose}
-            className="h-8 w-8 p-0 rounded-xl text-muted-foreground hover:text-foreground"
+            aria-label="Cerrar modal"
+            className="text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -171,24 +196,25 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
 
             {/* Game & Winner Spotlight */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 relative z-10 mb-4 backdrop-blur-md">
-              {game && (
+              {gameTitle && (
                 <div className="flex items-center gap-3">
-                  {game.image_url ? (
+                  {proxiedGameImage && !gameImageError ? (
                     <img
-                      src={game.image_url}
-                      alt={game.title}
+                      src={proxiedGameImage}
+                      alt={gameTitle}
                       crossOrigin="anonymous"
-                      className="w-12 h-12 rounded-xl object-cover border border-white/20 shrink-0"
+                      onError={() => setGameImageError(true)}
+                      className="w-12 h-12 rounded-xl object-cover border border-white/20 shrink-0 shadow-sm"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-sm font-black text-emerald-400">
+                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-sm font-black text-emerald-400 shrink-0 border border-white/10">
                       🎲
                     </div>
                   )}
                   <div className="min-w-0">
                     <span className="text-[9px] uppercase font-bold text-zinc-400">Juego</span>
                     <h5 className="text-sm font-black truncate text-white leading-tight">
-                      {game.title}
+                      {gameTitle}
                     </h5>
                   </div>
                 </div>
@@ -248,12 +274,13 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             )}
 
             {/* Board Photo Thumbnail (if uploaded) */}
-            {meetup.board_photo_url && (
+            {proxiedBoardPhoto && !boardPhotoError && (
               <div className="rounded-2xl overflow-hidden border border-white/10 aspect-video relative z-10 mb-3 bg-black">
                 <img
-                  src={meetup.board_photo_url}
+                  src={proxiedBoardPhoto}
                   alt="Tablero final"
                   crossOrigin="anonymous"
+                  onError={() => setBoardPhotoError(true)}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -274,9 +301,11 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             size="sm"
             onClick={handleCopySummary}
             className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            aria-label={copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}
+            title={copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'Copiado' : 'Copiar Texto'}</span>
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}</span>
           </Button>
 
           <div className="flex items-center gap-2">
@@ -285,27 +314,22 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
               variant="outline"
               size="sm"
               onClick={handleDownloadPng}
-              disabled={isExporting}
-              className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
-            >
-              {isExporting ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Download className="w-3.5 h-3.5" />
-              )}
-              <span>Descargar PNG</span>
-            </Button>
+              loading={isExporting}
+              icon={Download}
+              aria-label={t('common.savePhoto')}
+              label={t('common.savePhoto')}
+            />
 
             <Button
               type="button"
               variant="default"
               size="sm"
               onClick={handleShareNative}
-              className="h-9 px-4 rounded-xl text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Enviar a WhatsApp</span>
-            </Button>
+              icon={MessageCircle}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
+              aria-label={t('common.shareWhatsApp', 'WhatsApp')}
+              label={t('common.shareWhatsApp', 'WhatsApp')}
+            />
           </div>
         </div>
       </motion.div>

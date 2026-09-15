@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2, QrCode, Trophy } from 'lucide-react'
+import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, QrCode, Trophy, MessageCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -270,9 +270,11 @@ export function GroupDetailPage() {
           variant="ghost" 
           size="sm" 
           onClick={() => navigate('/grupos')} 
+          aria-label={t('common.back')}
+          title={t('common.back')}
           className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-xs font-bold"
         >
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('groups.backToGroups')}</span><span className="xs:hidden">{t('common.back')}</span>
+          <ArrowLeft className="w-4 h-4" /> <span>{t('common.back')}</span>
         </Button>
 
         <div className="flex gap-2">
@@ -280,19 +282,23 @@ export function GroupDetailPage() {
             <Button
               onClick={handleDelete}
               variant="ghost"
+              aria-label={t('groups.deleteGroup')}
+              title={t('groups.deleteGroup')}
               className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="hidden xs:inline">{t('groups.deleteGroup')}</span><span className="xs:hidden">{t('common.remove')}</span>
+              <span className="hidden xs:inline">{t('groups.deleteGroup')}</span>
             </Button>
           ) : (
             <Button
               onClick={handleLeave}
               variant="ghost"
+              aria-label={t('groups.leaveGroup')}
+              title={t('groups.leaveGroup')}
               className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-9 flex items-center gap-1 cursor-pointer border border-transparent hover:border-destructive/10"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden xs:inline">{t('groups.leaveGroup')}</span><span className="xs:hidden">{t('common.leave')}</span>
+              <span className="hidden xs:inline">{t('groups.leaveGroup')}</span>
             </Button>
           )}
         </div>
@@ -341,8 +347,8 @@ export function GroupDetailPage() {
                 onClick={handleShareWhatsApp}
                 className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>WhatsApp</span>
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>{t('common.shareWhatsApp', 'WhatsApp')}</span>
               </Button>
 
               <Button
@@ -371,6 +377,7 @@ export function GroupDetailPage() {
                 variant={copiedLink ? 'default' : 'outline'}
                 className="rounded-xl h-9 px-3 shrink-0 cursor-pointer text-xs font-bold flex items-center gap-1.5"
                 title={t('groups.copyInviteLink')}
+                aria-label={copiedLink ? t('groups.copied') : t('groups.copyInviteLink')}
               >
                 {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Clipboard className="h-3.5 w-3.5" />}
                 <span className="hidden sm:inline">{copiedLink ? t('groups.copied') : t('groups.copyInviteLink')}</span>
