@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Languages } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Languages, Plus } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { useTranslation } from 'react-i18next'
 
 import { BggOnboardingModal } from '../onboarding/BggOnboardingModal'
+import { MobileQuickActions } from './MobileQuickActions'
 
 const MotionDiv = motion.div
 
@@ -91,6 +92,7 @@ export function AppShell() {
   const location = useLocation()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false)
+  const [showQuickActions, setShowQuickActions] = useState(false)
   const [unreadChats, setUnreadChats] = useState(0)
   const [showBggOnboarding, setShowBggOnboarding] = useState(false)
 
@@ -104,6 +106,7 @@ export function AppShell() {
     document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     setShowUserMenu(false)
     setShowMobileUserMenu(false)
+    setShowQuickActions(false)
   }, [location.pathname])
 
   // Check if express BGG onboarding is needed
@@ -399,7 +402,25 @@ export function AppShell() {
         <div className="mx-auto flex max-w-md items-center justify-around gap-1">
           <NavItem to="/" label={t('nav.explore')} icon={Home} mobile />
           <NavItem to="/jugar" label={t('nav.play')} icon={Dices} mobile />
-          <NavItem to="/grupos" label={t('nav.groups')} icon={Users} mobile />
+          
+          {/* Quick Action Center Button */}
+          <Button
+            type="button"
+            variant="ghost"
+            aria-label={t('nav.quickActions')}
+            onClick={() => setShowQuickActions((v) => !v)}
+            className="relative flex-1 flex flex-col justify-center items-center gap-0 rounded-xl px-0 py-1 transition-colors duration-300 h-auto shadow-none bg-transparent hover:bg-transparent cursor-pointer"
+          >
+            <div
+              className={cn(
+                "w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/25 active:scale-95 transition-all duration-200",
+                showQuickActions && "rotate-45 bg-zinc-800 dark:bg-zinc-700 shadow-none text-white"
+              )}
+            >
+              <Plus aria-hidden="true" focusable={false} className="h-5 w-5 stroke-[2.5]" />
+            </div>
+          </Button>
+
           <NavItem to="/chats" label={t('nav.chats')} icon={MessageSquare} badgeCount={unreadChats} mobile />
           {user ? (
             <Button
@@ -409,12 +430,12 @@ export function AppShell() {
               onClick={() => setShowMobileUserMenu((v) => !v)}
               className={cn(
                 'relative flex-1 flex-col justify-center items-center gap-0 rounded-xl px-0 py-2 transition-colors duration-300 h-auto shadow-none bg-transparent hover:bg-transparent',
-                isProfileActive || showMobileUserMenu || location.pathname.startsWith('/tops')
+                isProfileActive || showMobileUserMenu || location.pathname.startsWith('/grupos') || location.pathname.startsWith('/tops')
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
               )}
             >
-              {(isProfileActive || showMobileUserMenu || location.pathname.startsWith('/tops')) && (
+              {(isProfileActive || showMobileUserMenu || location.pathname.startsWith('/grupos') || location.pathname.startsWith('/tops')) && (
                 <MotionDiv
                   layoutId="mobile-nav-active"
                   className="absolute inset-x-3 inset-y-0.5 bg-primary/15 dark:bg-primary/20 rounded-xl z-0"
@@ -461,6 +482,19 @@ export function AppShell() {
               >
                 <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
                 <span>{t('nav.profile')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  location.pathname.startsWith('/grupos') ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <Users aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", location.pathname.startsWith('/grupos') ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.groups')}</span>
               </Button>
 
               <Button
@@ -515,6 +549,12 @@ export function AppShell() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Mobile Quick Actions Drawer */}
+      <MobileQuickActions
+        isOpen={showQuickActions}
+        onClose={() => setShowQuickActions(false)}
+      />
 
       {/* Express BGG Onboarding Modal for New Users */}
       <BggOnboardingModal
