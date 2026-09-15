@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2, QrCode } from 'lucide-react'
+import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, Share2, QrCode, Trophy } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -11,6 +11,7 @@ import { useGroupDetail } from '../hooks/useGroupDetail'
 import { useAuth } from '../lib/authContext'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { GroupLudotecaTab } from '../components/group-detail/GroupLudotecaTab'
+import { GroupHallOfFameTab } from '../components/group-detail/GroupHallOfFameTab'
 import { GroupPollsTab } from '../components/group-detail/GroupPollsTab'
 import { GroupMembersTab } from '../components/group-detail/GroupMembersTab'
 import { GroupInviteQrModal } from '../components/groups/GroupInviteQrModal'
@@ -67,7 +68,7 @@ export function GroupDetailPage() {
   } = useGroupDetail(groupId)
 
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState<'ludoteca' | 'polls' | 'members'>('ludoteca')
+  const [activeTab, setActiveTab] = useState<'ludoteca' | 'hall_of_fame' | 'polls' | 'members'>('ludoteca')
 
   // Search inside merged collection
   const [collectionSearch, setCollectionSearch] = useState('')
@@ -383,11 +384,12 @@ export function GroupDetailPage() {
       <Tabs
         options={[
           { id: 'ludoteca', label: t('groups.sharedLudoteca'), icon: Layers, count: mergedCollection.length },
+          { id: 'hall_of_fame', label: t('groups.hallOfFame'), icon: Trophy },
           { id: 'polls', label: t('groups.meetupsAndVotes'), icon: Calendar, count: polls.length },
           { id: 'members', label: t('groups.members'), icon: Users, count: members.length }
         ]}
         activeTab={activeTab}
-        onChange={(tab) => setActiveTab(tab)}
+        onChange={(tab) => setActiveTab(tab as any)}
         hideLabelsOnMobile
       />
 
@@ -401,6 +403,10 @@ export function GroupDetailPage() {
             setCollectionSearch={setCollectionSearch}
             onOpenAddGame={() => setIsAddGameModalOpen(true)}
           />
+        )}
+
+        {activeTab === 'hall_of_fame' && groupId && (
+          <GroupHallOfFameTab groupId={groupId} />
         )}
 
         {activeTab === 'polls' && (

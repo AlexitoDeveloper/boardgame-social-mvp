@@ -79,11 +79,11 @@ _Objetivo Estratégico: Eliminar la dependencia del "Radar de desconocidos" (evi
   - Generación de imagen en alta resolución con `html-to-image` (diseño cartel con carátula del juego, podio de puntuaciones, fecha y foto final).
   - Envío en 1 toque al chat de WhatsApp del grupo mediante Web Share API (`navigator.share`) o enlace nativo `https://wa.me/` con el acta formateada y descarga en PNG.
 
-#### FASE 4: EL "SALÓN DE LA FAMA" Y RIVALIDADES DE GRUPO
-- [ ] **Podio de Campeones:** Escenario minimalista con los avatares en podio escalonado al consultar el ranking histórico del grupo.
-- [ ] **Estadísticas de Enfrentamiento Directo:** Detección de "Némesis" y "Víctima favorita" con animaciones dinámicas (espadas cruzadas ⚔️).
-- [ ] **Récords por Juego:** Máxima puntuación histórica registrada por juego en el grupo con efecto de medalla pulida.
-- [ ] **Rachas de Victoria:** Indicador de racha activa con fuego vectorial animado (🔥).
+#### FASE 4: EL "SALÓN DE LA FAMA" Y RIVALIDADES DE GRUPO (COMPLETADA)
+- [x] **Podio de Campeones:** Escenario minimalista con los avatares en podio escalonado al consultar el ranking histórico del grupo.
+- [x] **Estadísticas de Enfrentamiento Directo:** Detección de "Némesis" y "Víctima favorita" con animaciones dinámicas (espadas cruzadas ⚔️).
+- [x] **Récords por Juego:** Máxima puntuación histórica registrada por juego en el grupo con efecto de medalla pulida.
+- [x] **Rachas de Victoria:** Indicador de racha activa con fuego vectorial animado (🔥).
 
 #### FASE 5: DISTRIBUCIÓN MÓVIL Y MONETIZACIÓN B2C/B2B
 - [ ] **PWA Standalone & Capacitor Android:** Empaquetado pulido para instalación en pantalla completa sin barras de navegador.

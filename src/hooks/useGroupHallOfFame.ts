@@ -1,0 +1,480 @@
+import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '../lib/supabaseClient'
+import { useAuth } from '../lib/authContext'
+import { USE_MOCKS } from '../lib/config'
+import { HallOfFameMember, RivalryStat, GameRecord, WinStreakRecord, PlayerScore } from '../types'
+
+export interface HallOfFameData {
+  membersLeaderboard: HallOfFameMember[];
+  nemesis: RivalryStat | null;
+  favoriteVictim: RivalryStat | null;
+  gameRecords: GameRecord[];
+  activeStreaks: WinStreakRecord[];
+  totalSessionsPlayed: number;
+  totalUniqueGames: number;
+}
+
+export function useGroupHallOfFame(groupId: string | undefined) {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [data, setData] = useState<HallOfFameData>({
+    membersLeaderboard: [],
+    nemesis: null,
+    favoriteVictim: null,
+    gameRecords: [],
+    activeStreaks: [],
+    totalSessionsPlayed: 0,
+    totalUniqueGames: 0
+  })
+
+  const fetchHallOfFame = useCallback(async () => {
+    if (!groupId) {
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      if (USE_MOCKS) {
+        // Realistic mock statistics for immediate preview
+        const mockMembers: HallOfFameMember[] = [
+          {
+            userId: user?.id || 'mock-u1',
+            username: user?.user_metadata?.username || 'Tú (LudoMaster)',
+            avatarUrl: user?.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+            wins: 14,
+            totalPlayed: 22,
+            winRate: 64,
+            currentStreak: 3,
+            maxStreak: 5
+          },
+          {
+            userId: 'mock-u2',
+            username: 'Sara_Meeples',
+            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
+            wins: 11,
+            totalPlayed: 20,
+            winRate: 55,
+            currentStreak: 0,
+            maxStreak: 4
+          },
+          {
+            userId: 'mock-u3',
+            username: 'HexStrategist',
+            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter',
+            wins: 8,
+            totalPlayed: 18,
+            winRate: 44,
+            currentStreak: 1,
+            maxStreak: 3
+          },
+          {
+            userId: 'mock-u4',
+            username: 'Carlos_Dice',
+            avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos',
+            wins: 4,
+            totalPlayed: 15,
+            winRate: 27,
+            currentStreak: 0,
+            maxStreak: 2
+          }
+        ]
+
+        const mockNemesis: RivalryStat = {
+          opponentId: 'mock-u2',
+          opponentName: 'Sara_Meeples',
+          opponentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
+          count: 5,
+          totalMatchesTogether: 14
+        }
+
+        const mockVictim: RivalryStat = {
+          opponentId: 'mock-u3',
+          opponentName: 'HexStrategist',
+          opponentAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter',
+          count: 7,
+          totalMatchesTogether: 12
+        }
+
+        const mockGameRecords: GameRecord[] = [
+          {
+            gameId: 13,
+            gameTitle: 'Catan',
+            gameImage: 'https://cf.geekdo-images.com/W3Bsga_uLP9kO91gZ7H8yw__thumb/img/M_3swc5662Pmsr8eb8m-tOHFqAE=/fit-in/200x150/filters:strip_icc()/pic2419375.jpg',
+            highScore: 12,
+            holderName: user?.user_metadata?.username || 'Tú (LudoMaster)',
+            holderAvatar: user?.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+            holderId: user?.id || 'mock-u1',
+            date: '2026-08-14'
+          },
+          {
+            gameId: 30549,
+            gameTitle: 'Pandemic',
+            gameImage: 'https://cf.geekdo-images.com/S3ybV1_xDY4NeaIIXdTXmA__thumb/img/h7K4yV0-fUq6gX_pEa3P31M4230=/fit-in/200x150/filters:strip_icc()/pic1534148.jpg',
+            highScore: 4,
+            holderName: 'Sara_Meeples',
+            holderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
+            holderId: 'mock-u2',
+            date: '2026-07-28'
+          },
+          {
+            gameId: 167791,
+            gameTitle: 'Terraforming Mars',
+            gameImage: 'https://cf.geekdo-images.com/wg9oOLcsKvDesqGGneUyRw__thumb/img/mK9kK2mK2oH1Kz-Wq1W5o_V7zY0=/fit-in/200x150/filters:strip_icc()/pic3536616.jpg',
+            highScore: 114,
+            holderName: user?.user_metadata?.username || 'Tú (LudoMaster)',
+            holderAvatar: user?.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+            holderId: user?.id || 'mock-u1',
+            date: '2026-09-02'
+          }
+        ]
+
+        const mockStreaks: WinStreakRecord[] = [
+          {
+            userId: user?.id || 'mock-u1',
+            username: user?.user_metadata?.username || 'Tú (LudoMaster)',
+            avatarUrl: user?.user_metadata?.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
+            streakCount: 3,
+            isActive: true
+          }
+        ]
+
+        setData({
+          membersLeaderboard: mockMembers,
+          nemesis: mockNemesis,
+          favoriteVictim: mockVictim,
+          gameRecords: mockGameRecords,
+          activeStreaks: mockStreaks,
+          totalSessionsPlayed: 24,
+          totalUniqueGames: 6
+        })
+        setLoading(false)
+        return
+      }
+
+      // 1. Fetch group members with user profile details
+      const { data: membersRows, error: membersErr } = await supabase
+        .from('group_members')
+        .select(`
+          user_id,
+          role,
+          users:users!group_members_user_id_fkey (id, username, avatar_url)
+        `)
+        .eq('group_id', groupId)
+
+      if (membersErr) throw membersErr
+
+      const memberProfilesMap = new Map<string, { username: string; avatar_url: string | null }>()
+      membersRows?.forEach((row: any) => {
+        if (row.users) {
+          memberProfilesMap.set(row.user_id, {
+            username: row.users.username || 'Jugador',
+            avatar_url: row.users.avatar_url || null
+          })
+        }
+      })
+
+      // 2. Fetch meetups for this group
+      const { data: meetupsRows, error: meetupsErr } = await supabase
+        .from('meetups')
+        .select(`
+          id,
+          group_id,
+          date,
+          created_at,
+          player_scores,
+          joined_players,
+          meetup_games (
+            game_id,
+            winner_user_id,
+            winner_guest_id,
+            winner_score,
+            games:games (
+              bgg_id,
+              title,
+              title_es,
+              image_url
+            )
+          )
+        `)
+        .eq('group_id', groupId)
+        .order('date', { ascending: true })
+
+      if (meetupsErr) throw meetupsErr
+
+      // Maps for tracking statistics
+      const winsMap = new Map<string, number>()
+      const playedMap = new Map<string, number>()
+      const playerGameHistory = new Map<string, { date: string; won: boolean }[]>()
+
+      // Head-to-head tracking for logged-in user
+      const currentUserId = user?.id
+      const lossesAgainst = new Map<string, { count: number; name: string; avatar: string | null }>()
+      const winsAgainst = new Map<string, { count: number; name: string; avatar: string | null }>()
+      const matchesTogether = new Map<string, number>()
+
+      // Game records map: gameId -> Best Record
+      const recordsByGame = new Map<number, GameRecord>()
+      const uniqueGameIds = new Set<number>()
+      let totalSessions = 0
+
+      meetupsRows?.forEach((meetup: any) => {
+        const scores: PlayerScore[] = Array.isArray(meetup.player_scores) ? meetup.player_scores : []
+        const gamesInMeetup: any[] = meetup.meetup_games || []
+        const meetupDate = meetup.date || meetup.created_at
+
+        // Extract winner(s) and participants
+        const sessionParticipants = new Set<string>()
+
+        // Add participants from player_scores
+        scores.forEach(s => {
+          const pid = s.userId || s.name
+          if (pid) sessionParticipants.add(pid)
+          if (s.userId && s.name && !memberProfilesMap.has(s.userId)) {
+            memberProfilesMap.set(s.userId, { username: s.name, avatar_url: null })
+          }
+        })
+
+        // Add participants from joined_players
+        if (Array.isArray(meetup.joined_players)) {
+          meetup.joined_players.forEach((pid: string) => sessionParticipants.add(pid))
+        }
+
+        if (sessionParticipants.size > 0 || gamesInMeetup.length > 0) {
+          totalSessions++
+        }
+
+        // Check each game in session
+        gamesInMeetup.forEach(mg => {
+          const gameMeta = mg.games
+          const gameId = mg.game_id || gameMeta?.bgg_id
+          if (gameId) uniqueGameIds.add(gameId)
+
+          const winnerId = mg.winner_user_id
+          const winnerScoreNum = mg.winner_score ? parseFloat(mg.winner_score) : null
+
+          // Update game record if winner_score exists
+          if (gameId && winnerScoreNum !== null && !isNaN(winnerScoreNum)) {
+            const currentRec = recordsByGame.get(gameId)
+            const holderProfile = winnerId ? memberProfilesMap.get(winnerId) : null
+            const candidateHolder = holderProfile?.username || 'Anónimo'
+
+            if (!currentRec || winnerScoreNum > currentRec.highScore) {
+              recordsByGame.set(gameId, {
+                gameId,
+                gameTitle: gameMeta?.title_es || gameMeta?.title || 'Juego',
+                gameImage: gameMeta?.image_url || null,
+                highScore: winnerScoreNum,
+                holderName: candidateHolder,
+                holderAvatar: holderProfile?.avatar_url || null,
+                holderId: winnerId || null,
+                date: meetupDate
+              })
+            }
+          }
+
+          // Register win for winner_user_id
+          if (winnerId) {
+            winsMap.set(winnerId, (winsMap.get(winnerId) || 0) + 1)
+          }
+        })
+
+        // Also check scores array for winners & game records
+        scores.forEach(s => {
+          const pid = s.userId
+          if (s.isWinner && pid) {
+            if (!gamesInMeetup.some(mg => mg.winner_user_id === pid)) {
+              winsMap.set(pid, (winsMap.get(pid) || 0) + 1)
+            }
+          }
+
+          if (s.score !== undefined && s.score !== null && !isNaN(Number(s.score))) {
+            const numScore = Number(s.score)
+            gamesInMeetup.forEach(mg => {
+              const gameId = mg.game_id || mg.games?.bgg_id
+              if (gameId) {
+                const currentRec = recordsByGame.get(gameId)
+                if (!currentRec || numScore > currentRec.highScore) {
+                  const prof = pid ? memberProfilesMap.get(pid) : null
+                  recordsByGame.set(gameId, {
+                    gameId,
+                    gameTitle: mg.games?.title_es || mg.games?.title || 'Juego',
+                    gameImage: mg.games?.image_url || null,
+                    highScore: numScore,
+                    holderName: prof?.username || s.name || 'Jugador',
+                    holderAvatar: prof?.avatar_url || null,
+                    holderId: pid || null,
+                    date: meetupDate
+                  })
+                }
+              }
+            })
+          }
+        })
+
+        // Track participation count and chronology for streaks
+        sessionParticipants.forEach(pid => {
+          playedMap.set(pid, (playedMap.get(pid) || 0) + 1)
+
+          const wonInMeetup = gamesInMeetup.some(mg => mg.winner_user_id === pid) ||
+            scores.some(s => s.userId === pid && s.isWinner)
+
+          const history = playerGameHistory.get(pid) || []
+          history.push({ date: meetupDate, won: wonInMeetup })
+          playerGameHistory.set(pid, history)
+        })
+
+        // Head-to-Head calculations
+        if (currentUserId && sessionParticipants.has(currentUserId)) {
+          const userWon = gamesInMeetup.some(mg => mg.winner_user_id === currentUserId) ||
+            scores.some(s => s.userId === currentUserId && s.isWinner)
+
+          sessionParticipants.forEach(otherPid => {
+            if (otherPid === currentUserId) return
+            matchesTogether.set(otherPid, (matchesTogether.get(otherPid) || 0) + 1)
+
+            const prof = memberProfilesMap.get(otherPid)
+            const otherName = prof?.username || 'Compañero'
+            const otherAvatar = prof?.avatar_url || null
+
+            if (userWon) {
+              const prev = winsAgainst.get(otherPid) || { count: 0, name: otherName, avatar: otherAvatar }
+              winsAgainst.set(otherPid, { ...prev, count: prev.count + 1 })
+            } else {
+              const otherWon = gamesInMeetup.some(mg => mg.winner_user_id === otherPid) ||
+                scores.some(s => s.userId === otherPid && s.isWinner)
+
+              if (otherWon) {
+                const prev = lossesAgainst.get(otherPid) || { count: 0, name: otherName, avatar: otherAvatar }
+                lossesAgainst.set(otherPid, { ...prev, count: prev.count + 1 })
+              }
+            }
+          })
+        }
+      })
+
+      // Calculate streaks per player
+      const streaksMap = new Map<string, { current: number; max: number }>()
+      playerGameHistory.forEach((history, pid) => {
+        let max = 0
+        let tempStreak = 0
+
+        history.forEach(item => {
+          if (item.won) {
+            tempStreak++
+            if (tempStreak > max) max = tempStreak
+          } else {
+            tempStreak = 0
+          }
+        })
+        const current = tempStreak
+        streaksMap.set(pid, { current, max })
+      })
+
+      // Build Members Leaderboard
+      const allKnownPlayers = new Set<string>([
+        ...Array.from(memberProfilesMap.keys()),
+        ...Array.from(playedMap.keys())
+      ])
+
+      const membersLeaderboard: HallOfFameMember[] = Array.from(allKnownPlayers)
+        .map(pid => {
+          const profile = memberProfilesMap.get(pid) || { username: 'Jugador', avatar_url: null }
+          const wins = winsMap.get(pid) || 0
+          const totalPlayed = playedMap.get(pid) || 0
+          const winRate = totalPlayed > 0 ? Math.round((wins / totalPlayed) * 100) : 0
+          const streakInfo = streaksMap.get(pid) || { current: 0, max: 0 }
+
+          return {
+            userId: pid,
+            username: profile.username,
+            avatarUrl: profile.avatar_url,
+            wins,
+            totalPlayed,
+            winRate,
+            currentStreak: streakInfo.current,
+            maxStreak: streakInfo.max
+          }
+        })
+        .filter(m => m.totalPlayed > 0 || memberProfilesMap.has(m.userId))
+        .sort((a, b) => {
+          if (b.wins !== a.wins) return b.wins - a.wins
+          if (b.winRate !== a.winRate) return b.winRate - a.winRate
+          return b.totalPlayed - a.totalPlayed
+        })
+
+      // Find Nemesis
+      let nemesis: RivalryStat | null = null
+      let maxLossCount = 0
+      lossesAgainst.forEach((info, opId) => {
+        if (info.count > maxLossCount) {
+          maxLossCount = info.count
+          nemesis = {
+            opponentId: opId,
+            opponentName: info.name,
+            opponentAvatar: info.avatar,
+            count: info.count,
+            totalMatchesTogether: matchesTogether.get(opId) || info.count
+          }
+        }
+      })
+
+      // Find Favorite Victim
+      let favoriteVictim: RivalryStat | null = null
+      let maxWinCount = 0
+      winsAgainst.forEach((info, opId) => {
+        if (info.count > maxWinCount) {
+          maxWinCount = info.count
+          favoriteVictim = {
+            opponentId: opId,
+            opponentName: info.name,
+            opponentAvatar: info.avatar,
+            count: info.count,
+            totalMatchesTogether: matchesTogether.get(opId) || info.count
+          }
+        }
+      })
+
+      // Active streaks
+      const activeStreaks: WinStreakRecord[] = membersLeaderboard
+        .filter(m => m.currentStreak >= 2)
+        .map(m => ({
+          userId: m.userId,
+          username: m.username,
+          avatarUrl: m.avatarUrl,
+          streakCount: m.currentStreak,
+          isActive: true
+        }))
+        .sort((a, b) => b.streakCount - a.streakCount)
+
+      setData({
+        membersLeaderboard,
+        nemesis,
+        favoriteVictim,
+        gameRecords: Array.from(recordsByGame.values()),
+        activeStreaks,
+        totalSessionsPlayed: totalSessions,
+        totalUniqueGames: uniqueGameIds.size
+      })
+    } catch (err: any) {
+      console.error('Error fetching group hall of fame:', err)
+      setError(err?.message || 'Error al cargar estadísticas del Salón de la Fama')
+    } finally {
+      setLoading(false)
+    }
+  }, [groupId, user?.id, user?.user_metadata])
+
+  useEffect(() => {
+    fetchHallOfFame()
+  }, [fetchHallOfFame])
+
+  return {
+    ...data,
+    loading,
+    error,
+    refreshHallOfFame: fetchHallOfFame
+  }
+}

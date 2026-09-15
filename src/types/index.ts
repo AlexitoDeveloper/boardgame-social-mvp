@@ -110,3 +110,41 @@ export interface MeetupMessage {
   created_at: string;
 }
 
+export interface HallOfFameMember {
+  userId: string;
+  username: string;
+  avatarUrl: string | null;
+  wins: number;
+  totalPlayed: number;
+  winRate: number;
+  currentStreak: number;
+  maxStreak: number;
+}
+
+export interface RivalryStat {
+  opponentId: string;
+  opponentName: string;
+  opponentAvatar: string | null;
+  count: number;
+  totalMatchesTogether: number;
+}
+
+export interface GameRecord {
+  gameId: number;
+  gameTitle: string;
+  gameImage: string | null;
+  highScore: number;
+  holderName: string;
+  holderAvatar: string | null;
+  holderId: string | null;
+  date: string;
+}
+
+export interface WinStreakRecord {
+  userId: string;
+  username: string;
+  avatarUrl: string | null;
+  streakCount: number;
+  isActive: boolean;
+}
+
