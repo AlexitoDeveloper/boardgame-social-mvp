@@ -33,14 +33,14 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, type: 'spring', damping: 25 }}
-      className="w-full relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-950/40 backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group"
+      className="w-full relative rounded-3xl overflow-hidden border border-border bg-card backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group"
     >
       {/* Decorative Neon Glows in background */}
       <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-gradient-to-br from-primary/10 to-teal-500/5 rounded-full blur-[80px] pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-0 w-[50%] h-[50%] bg-gradient-to-tr from-purple-500/5 to-primary/5 rounded-full blur-[80px] pointer-events-none -z-10" />
 
       {/* Game Cover on Left */}
-      <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-white/15 bg-zinc-900 shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+      <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-border bg-muted shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
         {game.image_url ? (
           <img
             src={game.image_url}
@@ -63,7 +63,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           </div>
 
           {/* Title */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white leading-tight break-words text-pretty">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight break-words text-pretty">
             {displayTitle}
             {game.year_published && (
               <span className="text-muted-foreground/60 text-sm sm:text-base md:text-lg font-normal ml-2">
@@ -73,33 +73,33 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           </h2>
 
           {/* Subtitle / Edition */}
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-400">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-semibold text-muted-foreground">
             {isSpanish && (
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-extrabold uppercase text-[10px]">
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[10px]">
                 {t('explore.spanishEdition')}
               </span>
             )}
             {getGamePublisher(game) && (
-              <span className="text-zinc-500">{t('explore.editedBy', { publisher: getGamePublisher(game) })}</span>
+              <span className="text-muted-foreground/70">{t('explore.editedBy', { publisher: getGamePublisher(game) })}</span>
             )}
           </div>
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 py-2 border-y border-white/5 max-w-xl mx-auto md:mx-0">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
-            <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 py-2 border-y border-border max-w-xl mx-auto md:mx-0">
+          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
+            <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.rating')}</span>
-              <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">{formattedRating}</span>
+              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.rating')}</span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedRating}</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
+          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
             <Users className="w-4 h-4 text-primary shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">{t('common.players')}</span>
-              <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">
+              <span className="text-[10px] text-muted-foreground leading-none">{t('common.players')}</span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
                 {game.min_players === game.max_players 
                   ? game.min_players 
                   : `${game.min_players}-${game.max_players}`}
@@ -107,21 +107,21 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
-            <Hourglass className="w-4 h-4 text-teal-400 shrink-0" />
+          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
+            <Hourglass className="w-4 h-4 text-teal-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.duration')}</span>
-              <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">
+              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.duration')}</span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
                 {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-zinc-300">
-            <BarChart className="w-4 h-4 text-purple-400 shrink-0" />
+          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
+            <BarChart className="w-4 h-4 text-purple-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 leading-none">{t('explore.difficulty')}</span>
-              <span className="font-extrabold text-white text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-[10px] text-zinc-500">/5</span></span>
+              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.difficulty')}</span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-[10px] text-muted-foreground">/5</span></span>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
             </Button>
           </Link>
           <Link to={`/juegos/${game.bgg_id}`} className="shrink-0">
-            <Button size="sm" variant="outline" className="font-semibold cursor-pointer rounded-xl h-10 px-5 border-white/10 bg-white/5 hover:bg-white/10">
+            <Button size="sm" variant="outline" className="font-semibold cursor-pointer rounded-xl h-10 px-5">
               {t('common.details')}
             </Button>
           </Link>
