@@ -1,11 +1,12 @@
-import * as React from "react"
+﻿import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer",
   {
     variants: {
       variant: {
@@ -42,25 +43,47 @@ export interface ButtonProps
   asChild?: boolean
   icon?: React.ComponentType<{ className?: string }>
   label?: string
+  loading?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, icon: Icon, label, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      icon: Icon,
+      label,
+      loading = false,
+      disabled,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button"
     const isIconButton = Icon && !label && !children
     const computedSize = size || (isIconButton ? "icon" : "default")
+    const isDisabled = disabled || loading
 
     return (
       <Comp
         className={cn(buttonVariants({ variant, size: computedSize, className }))}
         ref={ref}
+        disabled={isDisabled}
+        aria-busy={loading ? "true" : undefined}
         {...props}
       >
         {asChild ? (
           children
         ) : (
           <>
-            {Icon && <Icon className="size-4 shrink-0" />}
+            {loading ? (
+              <Loader2 className="size-4 animate-spin shrink-0" />
+            ) : (
+              Icon && <Icon className="size-4 shrink-0" />
+            )}
             {label && <span>{label}</span>}
             {children}
           </>
@@ -70,6 +93,5 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 )
 Button.displayName = "Button"
-
 
 export { Button, buttonVariants }

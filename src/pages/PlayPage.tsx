@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button'
-import { Select } from '../components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useAuth } from '../lib/authContext'
 import { useGroups } from '../hooks/useGroups'
 import { supabase } from '../lib/supabaseClient'
@@ -491,7 +491,7 @@ export function PlayPage() {
 
         {/* Parametric Filters */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10 pt-1">
-          {/* 1. Players selector with tactile MeepleTokens */}
+          {/* 1. Players selector */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-primary" />
@@ -561,17 +561,19 @@ export function PlayPage() {
             </label>
             <Select
               value={selectedGroupId}
-              onChange={(e) => {
-                setSelectedGroupId(e.target.value)
-              }}
-              className="w-full h-9 rounded-xl border border-input bg-card px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+              onValueChange={setSelectedGroupId}
             >
-              <option value="personal">{t('play.allMyGames')}</option>
-              {groups.map((grp) => (
-                <option key={grp.id} value={grp.id}>
-                  {grp.name} ({grp.member_count || 1})
-                </option>
-              ))}
+              <SelectTrigger className="w-full h-9 rounded-xl border border-input bg-card px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm">
+                <SelectValue placeholder={t('play.allMyGames')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="personal">{t('play.allMyGames')}</SelectItem>
+                {groups.map((grp) => (
+                  <SelectItem key={grp.id} value={grp.id}>
+                    {grp.name} ({grp.member_count || 1})
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
 
             <div className="flex items-center justify-between pt-1">
