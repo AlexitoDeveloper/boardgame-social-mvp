@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { useMeetupDetail } from '../hooks/useMeetupDetail'
@@ -112,6 +112,10 @@ export function MeetupDetailPage() {
   const [selectedRatio, setSelectedRatio] = useState<'story' | 'square'>('story')
   const [exporting, setExporting] = useState(false)
   const exportRef = useRef<HTMLDivElement>(null)
+
+  const sessionAttendees = useMemo(() => {
+    return attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))
+  }, [attendees])
 
   if (loading) {
     return (
@@ -232,7 +236,7 @@ export function MeetupDetailPage() {
           {/* Live Score Sheet */}
           <LiveScoreTracker
             initialScores={meetup.player_scores}
-            attendees={attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))}
+            attendees={sessionAttendees}
             isEditable={isJoined || isCreator}
             onSaveScores={updateScores}
           />
@@ -679,7 +683,7 @@ export function MeetupDetailPage() {
       <FirstPlayerSelector
         isOpen={showFirstPlayerModal}
         onClose={() => setShowFirstPlayerModal(false)}
-        attendees={attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))}
+        attendees={sessionAttendees}
         onSelectFirstPlayer={(_, name) => updateFirstPlayer(name)}
       />
 

@@ -1,4 +1,4 @@
-import { useState, FC, useEffect } from 'react'
+import { useState, FC, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Trophy, Plus, Minus, UserPlus, Trash2, Crown, Save, Check } from 'lucide-react'
 import { Button } from '../ui/button'
@@ -36,11 +36,23 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
 
-  // Initialize scores from props or registered attendees
+  const isInitializedRef = useRef(false)
+  const lastInitialScoresStrRef = useRef<string>('')
+
+  // Initialize scores from props or registered attendees safely
   useEffect(() => {
-    if (initialScores && initialScores.length > 0) {
+    const currentInitialStr = JSON.stringify(initialScores || [])
+
+    // Case 1: Initial scores changed externally (e.g. initial DB fetch)
+    if (initialScores && initialScores.length > 0 && currentInitialStr !== lastInitialScoresStrRef.current) {
+      lastInitialScoresStrRef.current = currentInitialStr
       setScores(initialScores)
-    } else if (attendees.length > 0) {
+      isInitializedRef.current = true
+      return
+    }
+
+    // Case 2: Not yet initialized, and attendees exist
+    if (!isInitializedRef.current && attendees.length > 0) {
       const generated: PlayerScore[] = attendees.map((a, idx) => ({
         userId: a.id,
         name: a.name,
@@ -48,6 +60,25 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
         meepleColor: AVAILABLE_COLORS[idx % AVAILABLE_COLORS.length],
       }))
       setScores(generated)
+      isInitializedRef.current = true
+      return
+    }
+
+    // Case 3: Already initialized, but new attendees joined who are not in scores
+    if (isInitializedRef.current && attendees.length > 0) {
+      setScores((prev) => {
+        const existingUserIds = new Set(prev.map((p) => p.userId).filter(Boolean))
+        const missing = attendees.filter((a) => !existingUserIds.has(a.id))
+        if (missing.length === 0) return prev
+
+        const additions: PlayerScore[] = missing.map((a, idx) => ({
+          userId: a.id,
+          name: a.name,
+          score: 0,
+          meepleColor: AVAILABLE_COLORS[(prev.length + idx) % AVAILABLE_COLORS.length],
+        }))
+        return [...prev, ...additions]
+      })
     }
   }, [initialScores, attendees])
 
@@ -59,7 +90,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     if (!isEditable) return
     setScores((prev) => {
       const updated = [...prev]
-      const current = updated[index].score || 0
+      const current = updated[index]?.score || 0
       updated[index] = { ...updated[index], score: Math.max(0, current + delta) }
       return updated
     })
@@ -70,6 +101,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     if (!isEditable) return
     setScores((prev) => {
       const updated = [...prev]
+      if (!updated[index]) return prev
       updated[index] = { ...updated[index], score: Math.max(0, value) }
       return updated
     })
@@ -112,6 +144,8 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
       }))
 
       await onSaveScores(ranked)
+      setScores(ranked)
+      lastInitialScoresStrRef.current = JSON.stringify(ranked)
       setSaveSuccess(true)
       setTimeout(() => setSaveSuccess(false), 2500)
     } catch (err) {
@@ -292,8 +326,19 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                       type="number"
                       value={player.score}
                       disabled={!isEditable}
-                      onChange={(e) => handleSetExactScore(idx, parseInt(e.target.value) || 0)}
-                      className="w-20 h-10 font-mono font-black text-xl text-foreground text-center rounded-xl bg-background/50 border-border/40"
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        if (val === '') {
+                          handleSetExactScore(idx, 0)
+                        } else {
+                          const parsed = parseInt(val, 10)
+                          if (!isNaN(parsed)) {
+                            handleSetExactScore(idx, Math.max(0, parsed))
+                          }
+                        }
+                      }}
+                      className="w-20 h-10 font-mono font-black text-xl text-foreground text-center rounded-xl bg-background/50 border-border/40 focus:border-primary focus:ring-1 focus:ring-primary"
                     />
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
                       pts

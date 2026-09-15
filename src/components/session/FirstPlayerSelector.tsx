@@ -65,6 +65,18 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
     }
   }, [isOpen])
 
+  // Allow closing via Escape key
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
+
   // Handle countdown when touches are active
   useEffect(() => {
     if (winnerTouch || winnerPlayer) return
@@ -132,6 +144,13 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
   // Multitouch handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     if (winnerTouch || winnerPlayer) return
+    
+    // Ignore touches on interactive elements (buttons, close icon, etc.)
+    const target = e.target as HTMLElement | null
+    if (target && target.closest('button, a, input, [role="button"]')) {
+      return
+    }
+
     e.preventDefault()
 
     const newTouches: TouchPoint[] = []
@@ -216,7 +235,13 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
       className="fixed inset-0 z-50 bg-slate-950/95 text-white flex flex-col justify-between overflow-hidden touch-none select-none backdrop-blur-xl"
     >
       {/* Top Header Controls */}
-      <div className="flex items-center justify-between p-4 z-20">
+      <div
+        className="flex items-center justify-between p-4 z-20"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchCancel={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
             <Dices className="w-4 h-4" />
@@ -236,7 +261,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               variant="outline"
               size="sm"
               onClick={resetSelection}
-              className="h-8 text-xs font-bold gap-1 rounded-xl bg-slate-900 border-white/20 text-white hover:bg-slate-800"
+              className="h-8 text-xs font-bold gap-1 rounded-xl bg-slate-900 border-white/20 text-white hover:bg-slate-800 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Repetir</span>
@@ -247,8 +272,12 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0 rounded-xl text-slate-400 hover:text-white hover:bg-white/10"
+            onClick={(e) => {
+              e.stopPropagation()
+              onClose()
+            }}
+            aria-label="Cerrar selector"
+            className="h-9 w-9 p-0 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </Button>
@@ -265,7 +294,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
             <div
               key={t.id}
               style={{ left: `${t.x}px`, top: `${t.y}px` }}
-              className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+              className="absolute -translate-x-1/2 -translate-y-1/2 w-28 h-28 flex items-center justify-center pointer-events-none"
             >
               {/* Outer pulsing ring */}
               <motion.div
@@ -279,14 +308,14 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                   duration: isCountingDown ? 0.6 : 1.2,
                   ease: 'easeInOut',
                 }}
-                className={`w-28 h-28 rounded-full border-2 ${styling.border} ring-4 ${styling.ring}/30 pointer-events-none`}
+                className={`absolute inset-0 rounded-full border-2 ${styling.border} ring-4 ${styling.ring}/30 pointer-events-none`}
               />
 
-              {/* Inner disc */}
+              {/* Inner disc directly in the center */}
               <motion.div
                 initial={{ scale: 0.2 }}
                 animate={{ scale: isWinner ? 1.4 : 1 }}
-                className={`w-14 h-14 rounded-full ${styling.bg} shadow-lg flex items-center justify-center text-white font-black text-xs border border-white/40 pointer-events-none`}
+                className={`w-14 h-14 rounded-full ${styling.bg} shadow-lg flex items-center justify-center text-white font-black text-xs border border-white/40 pointer-events-none relative z-10`}
               >
                 {isWinner ? <Trophy className="w-6 h-6 text-white" /> : '•'}
               </motion.div>
@@ -304,6 +333,9 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className="bg-slate-900/90 border border-emerald-500/40 p-6 rounded-3xl max-w-xs w-full shadow-2xl backdrop-blur-md pointer-events-auto space-y-4"
             >
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 mx-auto flex items-center justify-center text-emerald-400">
@@ -316,8 +348,11 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               </div>
               <Button
                 type="button"
-                onClick={onClose}
-                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onClose()
+                }}
+                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
               >
                 Confirmar
               </Button>
@@ -328,6 +363,9 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className="bg-slate-900/90 border border-emerald-500/40 p-6 rounded-3xl max-w-xs w-full shadow-2xl backdrop-blur-md pointer-events-auto space-y-4"
             >
               <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 mx-auto flex items-center justify-center text-emerald-400">
@@ -342,8 +380,11 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               </div>
               <Button
                 type="button"
-                onClick={onClose}
-                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onClose()
+                }}
+                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
               >
                 Confirmar
               </Button>
@@ -395,7 +436,13 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
       </div>
 
       {/* Bottom Accessible / Desktop Bar */}
-      <div className="p-4 z-20 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 bg-slate-950/80 backdrop-blur-md">
+      <div
+        className="p-4 z-20 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 bg-slate-950/80 backdrop-blur-md"
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchCancel={(e) => e.stopPropagation()}
+      >
         <span className="text-[11px] text-muted-foreground font-medium">
           ¿En ordenador o sin táctil?
         </span>
@@ -407,7 +454,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               variant="outline"
               size="sm"
               onClick={handleRandomAttendee}
-              className="flex-1 sm:flex-initial h-9 text-xs font-bold gap-1.5 rounded-xl border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+              className="flex-1 sm:flex-initial h-9 text-xs font-bold gap-1.5 rounded-xl border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
             >
               <Dices className="w-4 h-4 text-emerald-400" />
               <span>Sortear entre la mesa ({attendees.length})</span>
