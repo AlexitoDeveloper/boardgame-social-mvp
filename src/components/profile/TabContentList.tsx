@@ -44,6 +44,7 @@ interface TabContentListProps {
   handleDeleteRanking: (e: React.MouseEvent, rankingId: string) => void;
   setSelectedRanking: (ranking: any) => void;
   setIsImportModalOpen: (val: boolean) => void;
+  setIsAddGameModalOpen?: (val: boolean) => void;
 }
 
 export function TabContentList({
@@ -63,7 +64,8 @@ export function TabContentList({
   handleRemoveFromCollection,
   handleDeleteRanking,
   setSelectedRanking,
-  setIsImportModalOpen
+  setIsImportModalOpen,
+  setIsAddGameModalOpen
 }: TabContentListProps) {
 
   const { t } = useTranslation()
@@ -92,7 +94,7 @@ export function TabContentList({
                 const mainGame = gamesList[0] || null
 
                 return (
-                  <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
+                  <Link key={meetup.id} to={`/mesa/${meetup.id}`}>
                     <div className="flex items-center justify-between p-4 rounded-2xl glass-panel hover:bg-muted/40 hover:border-primary/20 hover:shadow-lg transition-all group border-border/40">
                       <div className="flex items-center gap-3.5 min-w-0">
                         <div className="relative w-12 h-12 shrink-0">
@@ -150,7 +152,7 @@ export function TabContentList({
                 const didAttend = meetup.attended_players?.includes(currentUserId || '')
 
                 return (
-                  <Link key={meetup.id} to={`/tablero/${meetup.id}`}>
+                  <Link key={meetup.id} to={`/mesa/${meetup.id}`}>
                     <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all hover:shadow-md group ${
                       isWinner 
                         ? 'border-rose-500/25 bg-rose-500/[0.02] hover:bg-rose-500/[0.04] hover:border-rose-500/40 glass-panel shadow-sm' 
@@ -361,13 +363,23 @@ export function TabContentList({
                   </p>
                 </div>
                 {isOwnProfileEditable && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => setIsImportModalOpen(true)}
-                    className="mt-2 cursor-pointer"
-                    icon={Plus}
-                    label={t('profile.collection.importLudoteca')}
-                  />
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <Button 
+                      size="sm" 
+                      onClick={() => setIsAddGameModalOpen?.(true)}
+                      className="cursor-pointer"
+                      icon={Plus}
+                      label={t('profile.collection.addGame', 'Añadir Juego')}
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setIsImportModalOpen(true)}
+                      className="cursor-pointer"
+                      icon={Download}
+                      label={t('profile.collection.importLudoteca')}
+                    />
+                  </div>
                 )}
               </div>
             ) : (
@@ -377,14 +389,23 @@ export function TabContentList({
                     {collectionGames.length} {collectionGames.length === 1 ? t('profile.collection.gameCount') : t('profile.collection.gamesCount')}
                   </span>
                   {isOwnProfileEditable && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsImportModalOpen(true)}
-                      className="cursor-pointer"
-                      icon={Download}
-                      label={t('profile.collection.syncButton')}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => setIsAddGameModalOpen?.(true)}
+                        className="cursor-pointer"
+                        icon={Plus}
+                        label={t('profile.collection.addGame', 'Añadir Juego')}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsImportModalOpen(true)}
+                        className="cursor-pointer"
+                        icon={Download}
+                        label={t('profile.collection.syncButton')}
+                      />
+                    </div>
                   )}
                 </div>
 

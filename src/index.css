@@ -6,37 +6,41 @@
 
 @layer base {
   :root {
-    --background: 220 25% 98%;
-    --foreground: 224 71% 4%;
+    /* Grand Game Mat - Clean Light Mode */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --primary: 158 64% 40%;
+    --card-foreground: 222 47% 11%;
+    /* Vibrant Emerald Gaming Felt Accent */
+    --primary: 158 70% 40%;
     --primary-foreground: 0 0% 100%;
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 0 0% 100%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 158 64% 40%;
+    --muted: 210 28% 95%;
+    --muted-foreground: 215 16% 47%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 158 70% 40%;
     --radius: 1rem;
     --shadow-color: 220 30% 10%;
   }
 
   .dark {
-    --background: 224 25% 5.5%;
-    --foreground: 224 10% 96%;
-    --card: 224 25% 9.5%;
-    --card-foreground: 224 10% 96%;
-    --primary: 158 55% 42%;
+    /* Grand Game Mat - Midnight Slate Neoprene (#0A0F1D) */
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 98%;
+    /* Vibrant Emerald Gaming Felt Accent (#10B981) */
+    --primary: 158 70% 43%;
     --primary-foreground: 0 0% 100%;
-    --success: 142.1 55% 38%;
+    --success: 152 65% 42%;
     --success-foreground: 0 0% 100%;
-    --muted: 224 20% 14%;
-    --muted-foreground: 224 10% 65%;
-    --border: 224 20% 15%;
-    --input: 224 20% 15%;
-    --ring: 158 64% 52%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 217 19% 65%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 158 70% 43%;
     --radius: 1rem;
     --shadow-color: 0 0% 0%;
   }
@@ -51,6 +55,7 @@
     margin: 0;
     overflow-x: clip;
     font-family:
+      'Plus Jakarta Sans',
       Inter,
       system-ui,
       -apple-system,
@@ -58,8 +63,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: Inter, system-ui, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: Outfit, sans-serif;
+    letter-spacing: -0.025em;
   }
 
   #root {
@@ -85,6 +90,17 @@
   .font-inter {
     font-family: Inter, sans-serif;
   }
+
+  .font-display {
+    font-family: Outfit, sans-serif;
+  }
+
+  .font-mono-tabular {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Smooth Scandi surface */
 
   /* Outline numbers for top 10 played */
   .text-outline-number {

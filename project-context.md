@@ -225,3 +225,5 @@ _Cada desarrollador o agente de IA que incorpore, altere o remueva característi
 | 2026-06-13 | Antigravity AI | Actualización  | Implementación de Modalidad de Partida Online (Presencial/Online, plataforma, enlace de voz).                        |
 | 2026-06-13 | Antigravity AI | Actualización  | Implementación de Sesiones Multijuego (1:N relacion, tabla meetup_games, listado de juegos/Por decidir).             |
 | 2026-06-21 | Antigravity AI | Actualización  | Implementación de Mi Ludoteca (importador BGG en Edge Function y pestaña perfil) y Atribución Legal de Datos de BGG. |
+| 2026-09-14 | Antigravity AI | Actualización  | Fase 1 Table Companion: Poda de navegación (4 pestañas limpias: Explorar, A Jugar, Mis Grupos, Mi Perfil; ocultar radar público), Onboarding BGG Express en 5s, Invitación a grupos por WhatsApp con flujo de unión en 1 toque. |
+| 2026-09-15 | Antigravity AI | Actualización  | Fase 4 Table Companion: Salón de la Fama y Rivalidades de Grupo (Podio escalonado de campeones, estadísticas 1v1 de Némesis y Víctima favorita, récords históricos por juego y rachas de victoria activas con 🔥). |

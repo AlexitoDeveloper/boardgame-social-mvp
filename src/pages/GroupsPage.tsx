@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, Users, Loader2, Code, Search, Clipboard, Check } from 'lucide-react'
+import { Plus, Users, Loader2, Code, Search, Clipboard, Check, Share2 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -33,12 +33,39 @@ export function GroupsPage() {
   const [isJoinOpen, setIsJoinOpen] = useState(false)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
+  // 1-touch auto-join via URL param ?join=CODE
+  const [autoJoining, setAutoJoining] = useState(false)
+  const [autoJoinMessage, setAutoJoinMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const joinCode = params.get('join')
+    if (joinCode && !autoJoining) {
+      const processAutoJoin = async () => {
+        setAutoJoining(true)
+        setAutoJoinMessage(t('groups.joiningGroup'))
+        try {
+          const joined = await joinGroup(joinCode)
+          navigate(`/grupos/${joined.id}`, { replace: true })
+        } catch (err: any) {
+          const existing = groups.find(g => g.invite_code.toUpperCase() === joinCode.trim().toUpperCase())
+          if (existing) {
+            navigate(`/grupos/${existing.id}`, { replace: true })
+          } else {
+            setAutoJoinMessage(err.message || t('groups.joinError'))
+            setTimeout(() => setAutoJoining(false), 3500)
+          }
+        }
+      }
+      processAutoJoin()
+    }
+  }, [location.search, groups, joinGroup, navigate, t, autoJoining])
+
   // Listen to ?create=true search parameter
   useEffect(() => {
     const params = new URLSearchParams(location.search)
     if (params.get('create') === 'true') {
       setIsCreateOpen(true)
-      // Remove query parameter from URL to prevent reopening on reload
       navigate('/grupos', { replace: true })
     }
   }, [location.search, navigate])
@@ -56,6 +83,15 @@ export function GroupsPage() {
 
   // Copy success feedback state
   const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  const handleShareWhatsApp = (e: React.MouseEvent, groupName: string, inviteCode: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const inviteUrl = `${window.location.origin}/grupos?join=${inviteCode}`
+    const text = t('groups.inviteWhatsAppText', { groupName, inviteUrl })
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+    window.open(whatsappUrl, '_blank')
+  }
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -97,7 +133,8 @@ export function GroupsPage() {
   const handleCopyCode = (e: React.MouseEvent, code: string, id: string) => {
     e.preventDefault()
     e.stopPropagation()
-    navigator.clipboard.writeText(code)
+    const inviteUrl = `${window.location.origin}/grupos?join=${code}`
+    navigator.clipboard.writeText(inviteUrl)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
   }
@@ -124,7 +161,11 @@ export function GroupsPage() {
         {/* Action buttons */}
         <div className="flex items-center gap-2.5">
           <Button
-            onClick={() => { setIsJoinOpen(true); setJoinError(null); setInviteCode('') }}
+            onClick={() => {
+              setIsJoinOpen(true)
+              setJoinError(null)
+              setInviteCode('')
+            }}
             variant="outline"
             className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11"
           >
@@ -133,7 +174,12 @@ export function GroupsPage() {
           </Button>
 
           <Button
-            onClick={() => { setIsCreateOpen(true); setCreateError(null); setGroupName(''); setGroupDesc('') }}
+            onClick={() => {
+              setIsCreateOpen(true)
+              setCreateError(null)
+              setGroupName('')
+              setGroupDesc('')
+            }}
             className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11 shadow-md shadow-primary/20"
           >
             <Plus className="h-4 w-4" />
@@ -141,6 +187,13 @@ export function GroupsPage() {
           </Button>
         </div>
       </div>
+
+      {autoJoining && (
+        <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center gap-3 animate-in fade-in">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <span className="text-sm font-bold text-foreground">{autoJoinMessage}</span>
+        </div>
+      )}
 
       {error && (
         <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">
@@ -212,8 +265,10 @@ export function GroupsPage() {
                 <MotionDiv
                   key={group.id}
                   variants={itemVars}
-                  onClick={() => navigate(`/grupos/${group.id}`)}
-                  className="group relative block p-5 rounded-2xl bg-card/65 border border-border/30 hover:border-primary/30 shadow-md hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer overflow-hidden text-left"
+                  onClick={() => {
+                    navigate(`/grupos/${group.id}`)
+                  }}
+                  className="group relative block p-5 rounded-2xl bg-card/65 border border-border/30 hover:border-primary/30 shadow-md hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer overflow-hidden text-left linen-finish"
                 >
                   {/* Decorative background glow */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl pointer-events-none group-hover:from-primary/20 transition-all duration-300" />
@@ -221,7 +276,7 @@ export function GroupsPage() {
                   <div className="flex flex-col justify-between h-full space-y-4">
                     {/* Header */}
                     <div className="space-y-1.5">
-                      <h4 className="text-lg font-black tracking-tight text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-1">
+                      <h4 className="text-lg font-black tracking-tight text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-1 font-display">
                         {group.name}
                       </h4>
                       <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
@@ -231,30 +286,47 @@ export function GroupsPage() {
 
                     {/* Stats & Actions */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/20">
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold font-mono-tabular">
                         <Users className="h-3.5 w-3.5 text-primary shrink-0" />
                         <span>{group.member_count || 1} {group.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
                       </div>
 
-                      {/* Code button */}
-                      <Button
-                        onClick={(e) => handleCopyCode(e, group.invite_code, group.id)}
-                        className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10"
-                        title={t('groups.copyCodeTooltip')}
-                        variant="ghost"
-                      >
-                        {copiedId === group.id ? (
-                          <>
-                            <Check className="h-3 w-3" />
-                            <span>{t('groups.copied')}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clipboard className="h-3 w-3" />
-                            <span>{group.invite_code}</span>
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex items-center gap-1.5">
+                        {/* WhatsApp Invite Button */}
+                        <Button
+                          onClick={(e) => {
+                            handleShareWhatsApp(e, group.name, group.invite_code)
+                          }}
+                          className="h-auto flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
+                          title={t('groups.inviteWhatsApp')}
+                          variant="ghost"
+                        >
+                          <Share2 className="h-3 w-3" />
+                          <span className="hidden sm:inline">{t('groups.inviteWhatsApp')}</span>
+                        </Button>
+
+                        {/* Code button */}
+                        <Button
+                          onClick={(e) => {
+                            handleCopyCode(e, group.invite_code, group.id)
+                          }}
+                          className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"
+                          title={t('groups.copyInviteLink')}
+                          variant="ghost"
+                        >
+                          {copiedId === group.id ? (
+                            <>
+                              <Check className="h-3 w-3" />
+                              <span>{t('groups.copied')}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clipboard className="h-3 w-3" />
+                              <span>{group.invite_code}</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </MotionDiv>

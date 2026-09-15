@@ -305,7 +305,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           {/* Título de la mesa */}
           <div className="flex items-start justify-between gap-2">
             <h3 
-              onClick={() => onNavigate(`/tablero/${meetup.id}`)}
+              onClick={() => onNavigate(`/mesa/${meetup.id}`)}
               className="text-base sm:text-lg font-extrabold leading-snug tracking-tight text-foreground hover:text-primary transition-colors cursor-pointer line-clamp-1 flex items-center gap-2 text-pretty"
             >
               {meetup.title || t('meetup.defaultMeetupTitle')}
@@ -421,7 +421,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
         {/* Acciones */}
         <div className="flex gap-2 pt-1">
           <Button 
-            onClick={() => onNavigate(`/tablero/${meetup.id}`)}
+            onClick={() => onNavigate(`/mesa/${meetup.id}`)}
             variant="outline" 
             size="sm" 
             className="flex-1 h-9 rounded-xl font-bold transition-all duration-200"

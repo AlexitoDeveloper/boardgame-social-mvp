@@ -1,6 +1,6 @@
 import { createElement, FormEvent } from 'react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Input } from '../components/ui/input'
@@ -30,6 +30,8 @@ export function AuthPage() {
   const [errorMsg, setErrorMsg]   = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/'
 
   const switchTab = (next: 'login' | 'register') => {
     setTabDir(next === 'register' ? 1 : -1)
@@ -49,7 +51,7 @@ export function AuthPage() {
         ? t('auth.errorInvalidCredentials')
         : error.message)
     } else {
-      navigate('/')
+      navigate(redirectTo)
     }
   }
 

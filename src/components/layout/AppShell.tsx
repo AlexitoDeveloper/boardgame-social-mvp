@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Plus, X, Sparkles, Languages } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Languages, Plus } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
@@ -10,13 +10,20 @@ import { Button } from '../ui/button'
 import { supabase } from '../../lib/supabaseClient'
 import { useTranslation } from 'react-i18next'
 
+import { BggOnboardingModal } from '../onboarding/BggOnboardingModal'
+import { MobileQuickActions } from './MobileQuickActions'
+
 const MotionDiv = motion.div
 
 const desktopNavItems = [
-  { to: '/', labelKey: 'nav.home', icon: Home },
-  { to: '/tablero', labelKey: 'nav.board', icon: Dices },
-  { to: '/chats', labelKey: 'nav.chats', icon: MessageSquare },
+  { to: '/', labelKey: 'nav.explore', icon: Home },
+  { to: '/jugar', labelKey: 'nav.play', icon: Dices },
   { to: '/grupos', labelKey: 'nav.groups', icon: Users },
+  { to: '/perfil', labelKey: 'nav.profile', icon: User },
+]
+
+const desktopSecondaryItems = [
+  { to: '/chats', labelKey: 'nav.chats', icon: MessageSquare },
   { to: '/tops', labelKey: 'nav.tops', icon: ListOrdered },
 ]
 
@@ -85,12 +92,88 @@ export function AppShell() {
   const location = useLocation()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false)
-  const [unreadChats, setUnreadChats] = useState(0)
   const [showQuickActions, setShowQuickActions] = useState(false)
+  const [unreadChats, setUnreadChats] = useState(0)
+  const [showBggOnboarding, setShowBggOnboarding] = useState(false)
 
   const isChatPage = location.pathname.startsWith('/chats')
   const isProfileActive = location.pathname.startsWith('/perfil')
-  const isGroupsActive = location.pathname.startsWith('/grupos')
+
+  // Reset vertical scroll on every route transition & close open menus
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    setShowUserMenu(false)
+    setShowMobileUserMenu(false)
+    setShowQuickActions(false)
+  }, [location.pathname])
+
+  // Check if express BGG onboarding is needed
+  useEffect(() => {
+    if (!user) return
+
+    // 1. If explicit query ?onboarding=true is set, open it
+    const searchParams = new URLSearchParams(location.search)
+    if (searchParams.get('onboarding') === 'true') {
+      setShowBggOnboarding(true)
+      return
+    }
+
+    // 2. If already marked as onboarded in localStorage, don't open
+    if (localStorage.getItem(`bgg_onboarded_${user.id}`) === 'true') {
+      return
+    }
+
+    // 3. If user has bgg_username in metadata, they are already synced
+    if (user.user_metadata?.bgg_username) {
+      localStorage.setItem(`bgg_onboarded_${user.id}`, 'true')
+      return
+    }
+
+    // 4. Check if user already has games in mock collection
+    const mockCollStr = localStorage.getItem(`boardgame_social_mock_collection_${user.id}`)
+    if (mockCollStr) {
+      try {
+        const parsed = JSON.parse(mockCollStr)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localStorage.setItem(`bgg_onboarded_${user.id}`, 'true')
+          return
+        }
+      } catch {}
+    }
+
+    // 5. Query Supabase user_collection to verify if user already has games
+    let isCancelled = false
+    const checkUserCollection = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('user_collection')
+          .select('game_id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+
+        if (error) {
+          return
+        }
+
+        if (count && count > 0) {
+          // User is ALREADY synchronized with BGG!
+          localStorage.setItem(`bgg_onboarded_${user.id}`, 'true')
+          return
+        }
+
+        // Only show if user has 0 games in collection and hasn't seen it yet
+        if (!isCancelled && !localStorage.getItem(`bgg_onboarded_${user.id}`)) {
+          setShowBggOnboarding(true)
+        }
+      } catch {
+        // Silently skip if query fails
+      }
+    }
+
+    checkUserCollection()
+    return () => { isCancelled = true }
+  }, [user, location.search])
 
   // Function to calculate and update unread chats count
   const updateUnreadCount = useCallback(async () => {
@@ -179,17 +262,6 @@ export function AppShell() {
     }
   }, [user, updateUnreadCount])
 
-  // Keyboard escape listener for quick actions modal
-  useEffect(() => {
-    if (!showQuickActions) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setShowQuickActions(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showQuickActions])
 
   const username = user?.user_metadata?.username || user?.email?.split('@')[0] || 'Usuario'
   const avatarUrl = user?.user_metadata?.avatar_url || null
@@ -206,7 +278,7 @@ export function AppShell() {
       <div className="flex min-h-dvh w-full">
 
         {/* ── Desktop sidebar ────────────────────────────────── */}
-        <aside className="hidden w-72 glass-panel p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
+        <aside className="hidden w-72 glass-panel linen-finish p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
           <div className="mb-6 pt-safeTop px-2">
             <p className="text-xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">Boardgame Social</p>
             <p className="text-sm font-medium text-primary mt-1">MVP</p>
@@ -214,8 +286,14 @@ export function AppShell() {
 
           <nav className="space-y-1">
             {desktopNavItems.map((item) => (
-              <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
+              <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} />
             ))}
+
+            <div className="pt-3 mt-3 border-t border-border/20 space-y-1">
+              {desktopSecondaryItems.map((item) => (
+                <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} badgeCount={item.to === '/chats' ? unreadChats : 0} />
+              ))}
+            </div>
           </nav>
 
           {/* Bottom: user */}
@@ -240,7 +318,7 @@ export function AppShell() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -6, scale: 0.97 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute bottom-full mb-2 left-0 right-0 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50"
+                      className="absolute bottom-full mb-2 left-0 right-0 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 linen-finish"
                     >
                       <Button
                         type="button"
@@ -320,225 +398,169 @@ export function AppShell() {
         </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-[-2px] z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom)+2px)] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
-        <div className="mx-auto flex max-w-md items-center justify-between gap-1">
-          <NavItem to="/" label={t('nav.home')} icon={Home} mobile />
-          <NavItem to="/tablero" label={t('nav.board')} icon={Dices} mobile />
-
-          {/* Quick Actions mobile center button */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
+        <div className="mx-auto flex max-w-md items-center justify-around gap-1">
+          <NavItem to="/" label={t('nav.explore')} icon={Home} mobile />
+          <NavItem to="/jugar" label={t('nav.play')} icon={Dices} mobile />
+          
+          {/* Quick Action Center Button */}
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setShowQuickActions(v => !v)}
-            className="flex-grow flex-1 flex flex-col justify-center items-center rounded-xl px-0 py-2 cursor-pointer hover:bg-transparent h-auto"
+            aria-label={t('nav.quickActions')}
+            onClick={() => setShowQuickActions((v) => !v)}
+            className="relative flex-1 flex flex-col justify-center items-center gap-0 rounded-xl px-0 py-1 transition-colors duration-300 h-auto shadow-none bg-transparent hover:bg-transparent cursor-pointer"
           >
-            <div className={cn(
-              "w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md shadow-primary/25 active:scale-95 transition-all duration-300",
-              showQuickActions && "rotate-45 bg-zinc-700"
-            )}>
-              <Plus className="w-5 h-5 text-white" />
+            <div
+              className={cn(
+                "w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/25 active:scale-95 transition-all duration-200",
+                showQuickActions && "rotate-45 bg-zinc-800 dark:bg-zinc-700 shadow-none text-white"
+              )}
+            >
+              <Plus aria-hidden="true" focusable={false} className="h-5 w-5 stroke-[2.5]" />
             </div>
           </Button>
 
           <NavItem to="/chats" label={t('nav.chats')} icon={MessageSquare} badgeCount={unreadChats} mobile />
           {user ? (
-            <div className="relative flex flex-1 items-center justify-center">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setShowMobileUserMenu(v => !v)}
-                className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 relative hover:bg-transparent p-0"
-              >
-                <Avatar className="h-5 w-5">
-                  <AvatarImage src={avatarUrl || undefined} alt={username} />
-                  <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">{initials}</AvatarFallback>
-                </Avatar>
-              </Button>
-              
-              <AnimatePresence>
-                {showMobileUserMenu && (
-                  <>
-                    <MotionDiv
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={() => setShowMobileUserMenu(false)}
-                      className="fixed inset-0 z-40 bg-transparent"
-                    />
-                    <MotionDiv
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute bottom-full right-2 mb-4 w-48 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 divide-y divide-border/25"
-                    >
-                      <Button
-                        onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
-                        variant="ghost"
-                        className={cn(
-                          "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
-                          isProfileActive 
-                            ? "bg-primary/10 text-primary font-bold"
-                            : "hover:bg-muted/30 text-foreground"
-                        )}
-                      >
-                        <User className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
-                        <span>{t('nav.profile')}</span>
-                      </Button>
-                      <Button
-                        onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
-                        variant="ghost"
-                        className={cn(
-                           "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none",
-                          isGroupsActive 
-                            ? "bg-primary/10 text-primary font-bold"
-                            : "hover:bg-muted/30 text-foreground"
-                        )}
-                      >
-                        <Users className={cn("h-4 w-4 shrink-0 transition-colors", isGroupsActive ? "text-primary" : "text-muted-foreground")} />
-                        <span>{t('nav.groups')}</span>
-                      </Button>
-                      <Button
-                        onClick={toggle}
-                        variant="ghost"
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
-                      >
-                        <div className="flex items-center gap-3">
-                          {isDark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
-                          <span>{t('nav.theme')}</span>
-                        </div>
-                        <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
-                      </Button>
-                      <Button
-                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                        variant="ghost"
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto border-t border-border/30"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Languages className="h-4 w-4 text-primary" />
-                          <span>{t('nav.changeLang')}</span>
-                        </div>
-                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
-                      </Button>
-                      <Button
-                        onClick={() => { handleSignOut(); setShowMobileUserMenu(false) }}
-                        variant="ghost"
-                        className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto border-t border-border/30"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {t('nav.signOut')}
-                      </Button>
-                    </MotionDiv>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label={t('nav.profile')}
+              onClick={() => setShowMobileUserMenu((v) => !v)}
+              className={cn(
+                'relative flex-1 flex-col justify-center items-center gap-0 rounded-xl px-0 py-2 transition-colors duration-300 h-auto shadow-none bg-transparent hover:bg-transparent',
+                isProfileActive || showMobileUserMenu || location.pathname.startsWith('/grupos') || location.pathname.startsWith('/tops')
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+              )}
+            >
+              {(isProfileActive || showMobileUserMenu || location.pathname.startsWith('/grupos') || location.pathname.startsWith('/tops')) && (
+                <MotionDiv
+                  layoutId="mobile-nav-active"
+                  className="absolute inset-x-3 inset-y-0.5 bg-primary/15 dark:bg-primary/20 rounded-xl z-0"
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
+              )}
+              <div className="relative z-10 flex items-center justify-center">
+                <User aria-hidden="true" focusable={false} className="h-5 w-5 opacity-90" />
+              </div>
+            </Button>
           ) : (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => navigate('/auth')}
-                  className="flex flex-1 flex-col items-center justify-center rounded-xl px-0 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 h-9 hover:bg-transparent p-0"
-                >
-                  <User aria-hidden="true" focusable={false} className="h-5 w-5 text-primary shrink-0" />
-                </Button>
+            <NavItem to="/auth" label={t('nav.signIn')} icon={LogIn} mobile />
           )}
         </div>
       </nav>
 
-      {/* Quick Actions Drawer for Mobile */}
+      {/* Mobile User Dropdown Menu */}
       <AnimatePresence>
-        {showQuickActions && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm !mt-0"
-          >
-            {/* Click-away backdrop */}
-            <div 
-              onClick={() => setShowQuickActions(false)}
-              className="absolute inset-0 z-0 cursor-pointer"
+        {showMobileUserMenu && (
+          <>
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setShowMobileUserMenu(false)}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
             />
-
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="relative z-10 w-full sm:max-w-sm bg-card dark:bg-card border-t sm:border border-border/40 dark:border-white/10 rounded-t-[24px] sm:rounded-[24px] p-6 shadow-2xl space-y-4 text-left pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+            <MotionDiv
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 w-56 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden md:hidden linen-finish divide-y divide-border/20"
             >
-              <div className="flex justify-between items-center pb-2 border-b border-border/20">
-                <h3 className="text-sm font-black tracking-tight text-foreground uppercase tracking-widest flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-primary animate-pulse" /> {t('nav.quickActions')}
-                </h3>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowQuickActions(false)}
-                  className="p-1 rounded-full hover:bg-muted/30 text-muted-foreground transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  isProfileActive ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.profile')}</span>
+              </Button>
 
-              <div className="grid grid-cols-1 gap-2.5">
-                <Button
-                  onClick={() => {
-                    setShowQuickActions(false);
-                    navigate('/tablero/new');
-                  }}
-                  variant="ghost"
-                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Dices className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">{t('nav.createMeetup')}</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createMeetupDesc')}</p>
-                  </div>
-                </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/grupos') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  location.pathname.startsWith('/grupos') ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <Users aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", location.pathname.startsWith('/grupos') ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.groups')}</span>
+              </Button>
 
-                <Button
-                  onClick={() => {
-                    setShowQuickActions(false);
-                    navigate('/tops');
-                  }}
-                  variant="ghost"
-                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <ListOrdered className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">{t('profile.stats.createRanking')}</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createRankingDesc')}</p>
-                  </div>
-                </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/tops') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  location.pathname.startsWith('/tops') ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <ListOrdered aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", location.pathname.startsWith('/tops') ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.tops')}</span>
+              </Button>
 
-                <Button
-                  onClick={() => {
-                    setShowQuickActions(false);
-                    navigate('/grupos?create=true');
-                  }}
-                  variant="ghost"
-                  className="flex items-center justify-start gap-3.5 p-3 rounded-xl border border-border/30 dark:border-white/5 hover:bg-primary/5 transition-all text-left group cursor-pointer w-full h-auto"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <h4 className="text-xs font-bold text-foreground">{t('nav.createGroup')}</h4>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{t('nav.createGroupDesc')}</p>
-                  </div>
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={toggle}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
+              >
+                <div className="flex items-center gap-3">
+                  {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
+                  <span>{t('nav.theme')}</span>
+                </div>
+                <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
+              >
+                <div className="flex items-center gap-3">
+                  <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
+                  <span>{t('nav.changeLang')}</span>
+                </div>
+                <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); handleSignOut() }}
+                className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto"
+              >
+                <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
+                <span>{t('nav.signOut')}</span>
+              </Button>
+            </MotionDiv>
+          </>
         )}
       </AnimatePresence>
+
+      {/* Mobile Quick Actions Drawer */}
+      <MobileQuickActions
+        isOpen={showQuickActions}
+        onClose={() => setShowQuickActions(false)}
+      />
+
+      {/* Express BGG Onboarding Modal for New Users */}
+      <BggOnboardingModal
+        isOpen={showBggOnboarding}
+        onClose={() => setShowBggOnboarding(false)}
+      />
     </div>
   )
 }

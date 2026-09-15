@@ -1,8 +1,8 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
-import { RadarPage } from './pages/RadarPage'
 import { ExplorePage } from './pages/ExplorePage'
+import { PlayPage } from './pages/PlayPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
 import { TopsPage } from './pages/TopsPage'
@@ -14,11 +14,15 @@ import { GroupDetailPage } from './pages/GroupDetailPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
-/** Redirects unauthenticated users to /auth */
+/** Redirects unauthenticated users to /auth with redirect query */
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
+  const location = useLocation()
   if (loading) return null  // wait for session check before deciding
-  if (!user) return <Navigate to="/auth" replace />
+  if (!user) {
+    const redirectTarget = encodeURIComponent(location.pathname + location.search)
+    return <Navigate to={`/auth?redirectTo=${redirectTarget}`} replace />
+  }
   return <>{children}</>;
 }
 
@@ -31,9 +35,12 @@ function App() {
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
         <Route path="/" element={<ExplorePage />} />
+        <Route path="/jugar" element={<PlayPage />} />
         <Route path="/juegos/:id" element={<GameDetailPage />} />
-        <Route path="/tablero" element={<RadarPage />} />
+        {/* Legacy stranger radar redirects to Table Companion play engine */}
+        <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
+        <Route path="/mesa/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route
           path="/chats"
@@ -77,7 +84,23 @@ function App() {
           }
         />
         <Route
+          path="/mesa/:id/edit"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/tablero/new"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mesa/nueva"
           element={
             <ProtectedRoute>
               <CreateMeetupPage />

@@ -17,7 +17,9 @@ import {
   CalendarCheck2,
   CheckSquare,
   Square,
-  Share2
+  Share2,
+  Dices,
+  Sparkles
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -45,6 +47,8 @@ interface MeetupDetailSidebarProps {
   handleLeaveAsGuest: () => void;
   handleCompleteMeetup: (gameWinners: Record<number, string | null>, gameWinnersScores: Record<number, string | null>, attendedPlayerIds: string[], attendedGuestIds: string[]) => void;
   onExportClick?: () => void;
+  onFirstPlayerClick?: () => void;
+  onVictoryCardClick?: () => void;
 }
 
 export function MeetupDetailSidebar({ 
@@ -64,7 +68,9 @@ export function MeetupDetailSidebar({
   handleJoinAsGuest,
   handleLeaveAsGuest,
   handleCompleteMeetup,
-  onExportClick
+  onExportClick,
+  onFirstPlayerClick,
+  onVictoryCardClick
 }: MeetupDetailSidebarProps) {
   const { t } = useTranslation()
   const { getGameTitle, getGamePublisher } = useGameLocale()
@@ -603,6 +609,35 @@ export function MeetupDetailSidebar({
                 </div>
               </div>
 
+              {/* Table Companion Quick Tools */}
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/20">
+                {onFirstPlayerClick && (
+                  <Button
+                    type="button"
+                    onClick={onFirstPlayerClick}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 text-xs font-bold gap-1.5 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 rounded-xl cursor-pointer"
+                  >
+                    <Dices className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>1er Jugador</span>
+                  </Button>
+                )}
+
+                {onVictoryCardClick && (
+                  <Button
+                    type="button"
+                    onClick={onVictoryCardClick}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 text-xs font-bold gap-1.5 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 rounded-xl cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Tarjeta WA</span>
+                  </Button>
+                )}
+              </div>
+
               {/* Main Join / Leave / Full Buttons (For normal users) */}
               {!isCreator && (
                 user ? renderActionButton() : renderGuestSection()
@@ -635,7 +670,7 @@ export function MeetupDetailSidebar({
                   {!confirmCancel ? (
                     <div className="grid grid-cols-2 gap-2">
                       <Button 
-                        onClick={() => navigate(`/tablero/${meetup.id}/edit`)}
+                        onClick={() => navigate(`/mesa/${meetup.id}/edit`)}
                         variant="outline" 
                         size="sm"
                         className="h-10 flex items-center gap-1.5"

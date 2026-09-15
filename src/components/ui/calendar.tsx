@@ -8,6 +8,7 @@ import { DayPicker, getDefaultClassNames, type DayPickerProps, type DayButtonPro
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export type CalendarProps = DayPickerProps & {
   buttonVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
@@ -124,23 +125,36 @@ function Calendar({
 
           return (<ChevronDownIcon className={cn("size-4", className)} {...props} />);
         },
-        Dropdown: ({ options, className, ...props }) => (
-          <div className="relative inline-flex items-center">
-            <select
+        Dropdown: ({ options, className, value, onChange, disabled }: any) => (
+          <Select
+            value={value !== undefined ? String(value) : undefined}
+            onValueChange={(val) => {
+              if (onChange) {
+                const syntheticEvent = {
+                  target: { value: val },
+                } as unknown as React.ChangeEvent<HTMLSelectElement>;
+                onChange(syntheticEvent);
+              }
+            }}
+            disabled={disabled}
+          >
+            <SelectTrigger
+              size="sm"
               className={cn(
-                "bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl pl-2.5 pr-7 py-1 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer appearance-none h-8 transition-all",
+                "h-8 min-w-[70px] bg-background/50 hover:bg-background/80 border border-border/50 rounded-xl px-2 text-xs font-bold text-foreground focus:ring-1 focus:ring-primary transition-all",
                 className
               )}
-              {...props}
             >
-              {options?.map((opt) => (
-                <option key={opt.value} value={opt.value} disabled={opt.disabled} className="bg-card text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="max-h-60 min-w-[7rem]">
+              {options?.map((opt: any) => (
+                <SelectItem key={opt.value} value={String(opt.value)} disabled={opt.disabled}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDownIcon className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          </div>
+            </SelectContent>
+          </Select>
         ),
         DayButton: CalendarDayButton,
         WeekNumber: ({ children, ...props }) => {
