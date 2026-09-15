@@ -1,11 +1,10 @@
 import { createElement, useState, useEffect, useCallback } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Plus, X, Sparkles, Languages, Volume2, VolumeX } from 'lucide-react'
+import { Dices, LogIn, LogOut, User, Sun, Moon, ListOrdered, LucideIcon, MessageSquare, Home, Users, Languages } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
-import { useTableSound } from '../../hooks/useTableSound'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
 import { supabase } from '../../lib/supabaseClient'
@@ -36,11 +35,9 @@ interface NavItemProps {
 }
 
 function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemProps) {
-  const { playClack } = useTableSound()
   return (
     <NavLink
       to={to}
-      onClick={() => playClack()}
       className={({ isActive }) =>
         cn(
           'relative flex items-center gap-3 px-3 py-2 text-sm transition-colors duration-300',
@@ -90,15 +87,24 @@ export function AppShell() {
   const { user, signOut, language, setLanguage } = useAuth()
   const { t } = useTranslation()
   const { isDark, toggle } = useTheme()
-  const { soundEnabled, toggleSound, playClack } = useTableSound()
   const navigate = useNavigate()
   const location = useLocation()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showMobileUserMenu, setShowMobileUserMenu] = useState(false)
   const [unreadChats, setUnreadChats] = useState(0)
   const [showBggOnboarding, setShowBggOnboarding] = useState(false)
 
   const isChatPage = location.pathname.startsWith('/chats')
   const isProfileActive = location.pathname.startsWith('/perfil')
+
+  // Reset vertical scroll on every route transition & close open menus
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    setShowUserMenu(false)
+    setShowMobileUserMenu(false)
+  }, [location.pathname])
 
   // Check if express BGG onboarding is needed
   useEffect(() => {
@@ -277,7 +283,7 @@ export function AppShell() {
 
           <nav className="space-y-1">
             {desktopNavItems.map((item) => (
-              <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} badgeCount={item.to === '/jugar' ? unreadChats : 0} />
+              <NavItem key={item.to} to={item.to} label={t(item.labelKey)} icon={item.icon} />
             ))}
 
             <div className="pt-3 mt-3 border-t border-border/20 space-y-1">
@@ -340,27 +346,6 @@ export function AppShell() {
                       <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => {
-                          toggleSound()
-                          playClack()
-                        }}
-                        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30 rounded-none h-auto"
-                      >
-                        <div className="flex items-center gap-3">
-                          {soundEnabled ? (
-                            <Volume2 aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
-                          ) : (
-                            <VolumeX aria-hidden="true" focusable={false} className="h-4 w-4 text-muted-foreground" />
-                          )}
-                          <span>{t('nav.sound', 'Sonido táctil')}</span>
-                        </div>
-                        <span className="text-muted-foreground text-[10px]">
-                          {soundEnabled ? 'ON' : 'OFF'}
-                        </span>
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
                         onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
                         className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors border-t border-border/30 rounded-none h-auto"
                       >
@@ -413,11 +398,123 @@ export function AppShell() {
       <nav className="fixed inset-x-0 bottom-0 z-50 glass-panel rounded-t-[20px] border-b-0 border-x-0 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] md:hidden">
         <div className="mx-auto flex max-w-md items-center justify-around gap-1">
           <NavItem to="/" label={t('nav.explore')} icon={Home} mobile />
-          <NavItem to="/jugar" label={t('nav.play')} icon={Dices} badgeCount={unreadChats} mobile />
+          <NavItem to="/jugar" label={t('nav.play')} icon={Dices} mobile />
           <NavItem to="/grupos" label={t('nav.groups')} icon={Users} mobile />
-          <NavItem to={user ? "/perfil" : "/auth"} label={t('nav.profile')} icon={User} mobile />
+          <NavItem to="/chats" label={t('nav.chats')} icon={MessageSquare} badgeCount={unreadChats} mobile />
+          {user ? (
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label={t('nav.profile')}
+              onClick={() => setShowMobileUserMenu((v) => !v)}
+              className={cn(
+                'relative flex-1 flex-col justify-center items-center gap-0 rounded-xl px-0 py-2 transition-colors duration-300 h-auto shadow-none bg-transparent hover:bg-transparent',
+                isProfileActive || showMobileUserMenu || location.pathname.startsWith('/tops')
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+              )}
+            >
+              {(isProfileActive || showMobileUserMenu || location.pathname.startsWith('/tops')) && (
+                <MotionDiv
+                  layoutId="mobile-nav-active"
+                  className="absolute inset-x-3 inset-y-0.5 bg-primary/15 dark:bg-primary/20 rounded-xl z-0"
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
+              )}
+              <div className="relative z-10 flex items-center justify-center">
+                <User aria-hidden="true" focusable={false} className="h-5 w-5 opacity-90" />
+              </div>
+            </Button>
+          ) : (
+            <NavItem to="/auth" label={t('nav.signIn')} icon={LogIn} mobile />
+          )}
         </div>
       </nav>
+
+      {/* Mobile User Dropdown Menu */}
+      <AnimatePresence>
+        {showMobileUserMenu && (
+          <>
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setShowMobileUserMenu(false)}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
+            />
+            <MotionDiv
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 w-56 bg-card dark:bg-card border border-border/40 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden md:hidden linen-finish divide-y divide-border/20"
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/perfil') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  isProfileActive ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <User aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", isProfileActive ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.profile')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); navigate('/tops') }}
+                className={cn(
+                  "w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium transition-colors cursor-pointer rounded-none h-auto",
+                  location.pathname.startsWith('/tops') ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted/30 text-foreground"
+                )}
+              >
+                <ListOrdered aria-hidden="true" focusable={false} className={cn("h-4 w-4 shrink-0 transition-colors", location.pathname.startsWith('/tops') ? "text-primary" : "text-muted-foreground")} />
+                <span>{t('nav.tops')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={toggle}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
+              >
+                <div className="flex items-center gap-3">
+                  {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
+                  <span>{t('nav.theme')}</span>
+                </div>
+                <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/30 transition-colors rounded-none h-auto"
+              >
+                <div className="flex items-center gap-3">
+                  <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
+                  <span>{t('nav.changeLang')}</span>
+                </div>
+                <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => { setShowMobileUserMenu(false); handleSignOut() }}
+                className="w-full flex items-center justify-start gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors rounded-none h-auto"
+              >
+                <LogOut aria-hidden="true" focusable={false} className="h-4 w-4" />
+                <span>{t('nav.signOut')}</span>
+              </Button>
+            </MotionDiv>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Express BGG Onboarding Modal for New Users */}
       <BggOnboardingModal

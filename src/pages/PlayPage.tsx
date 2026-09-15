@@ -12,7 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '../lib/dateLocale'
 import { BggOnboardingModal } from '../components/onboarding/BggOnboardingModal'
-import { useTableSound } from '../hooks/useTableSound'
 import { MeepleSvg } from '../components/ui/MeepleToken'
 import { ExpressVotingModal } from '../components/play/ExpressVotingModal'
 import { cn } from '../lib/utils'
@@ -64,7 +63,6 @@ export function PlayPage() {
   const { user } = useAuth()
   const { groups } = useGroups()
   const { t, i18n } = useTranslation()
-  const { playClack, playDice } = useTableSound()
   const navigate = useNavigate()
 
   // Filter States for Decision Engine
@@ -399,7 +397,7 @@ export function PlayPage() {
     })
   }, [gamesPool, selectedPlayers, selectedDuration, onlyUnplayed])
 
-  // Spin Roulette with authentic inercial mechanical deceleration and haptics
+  // Spin Roulette with authentic inercial mechanical deceleration
   const handleSpinRoulette = () => {
     setSpinError(null)
     if (filteredGames.length === 0) {
@@ -408,7 +406,6 @@ export function PlayPage() {
     }
 
     setIsSpinning(true)
-    playClack()
 
     // Mechanical deceleration curve: begins rapid (40ms), slows step-by-step to 430ms
     const delays = [40, 40, 45, 50, 55, 65, 75, 90, 110, 135, 170, 215, 270, 340, 430]
@@ -417,14 +414,12 @@ export function PlayPage() {
     const executeStep = () => {
       const randomIdx = Math.floor(Math.random() * filteredGames.length)
       setSuggestedGame(filteredGames[randomIdx])
-      playClack()
 
       step++
       if (step < delays.length) {
         setTimeout(executeStep, delays[step])
       } else {
         setIsSpinning(false)
-        playDice()
         try {
           confetti({
             particleCount: 40,
@@ -469,7 +464,6 @@ export function PlayPage() {
 
         <Button
           onClick={() => {
-            playClack()
             navigate('/mesa/nueva')
           }}
           className="rounded-2xl font-bold shadow-lg shadow-primary/25 flex items-center gap-2 h-11 px-5 shrink-0"
@@ -515,7 +509,6 @@ export function PlayPage() {
                     variant={isSelected ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => {
-                      playClack()
                       setSelectedPlayers(isSelected ? null : count)
                     }}
                     className={cn(
@@ -552,7 +545,6 @@ export function PlayPage() {
                   variant={selectedDuration === opt.id ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => {
-                    playClack()
                     setSelectedDuration(opt.id)
                   }}
                   className="rounded-xl font-bold text-[11px] h-9 truncate font-mono-tabular"
@@ -572,7 +564,6 @@ export function PlayPage() {
             <Select
               value={selectedGroupId}
               onChange={(e) => {
-                playClack()
                 setSelectedGroupId(e.target.value)
               }}
               className="w-full h-9 rounded-xl border border-input bg-card px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
@@ -598,7 +589,6 @@ export function PlayPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => {
-                    playClack()
                     setShowSyncModal(true)
                   }}
                   className="h-auto p-0 text-[10px] font-bold text-primary hover:underline hover:bg-transparent cursor-pointer flex items-center gap-1"
@@ -618,7 +608,6 @@ export function PlayPage() {
             variant={onlyUnplayed ? 'default' : 'outline'}
             size="sm"
             onClick={() => {
-              playClack()
               setOnlyUnplayed((prev) => !prev)
             }}
             className={cn(
@@ -662,7 +651,6 @@ export function PlayPage() {
             size="lg"
             disabled={isSpinning || loadingGames || filteredGames.length === 0}
             onClick={() => {
-              playClack()
               setShowVotingModal(true)
             }}
             className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 border-border/40 hover:border-primary/40 flex items-center justify-center gap-2 transition-all shadow-xs"

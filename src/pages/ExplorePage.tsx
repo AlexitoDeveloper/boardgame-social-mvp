@@ -29,8 +29,7 @@ export function ExplorePage() {
     communityRankings,
     searchResults,
     isFiltering,
-    featuredGame,
-    activeMeetups
+    featuredGame
   } = useExploreGames(search, playerFilter, complexityFilter, spanishOnly)
 
   // Skeleton loaders for grids

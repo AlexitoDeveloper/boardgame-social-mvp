@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useGroups } from '../hooks/useGroups'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { useTableSound } from '../hooks/useTableSound'
 
 const MotionDiv = motion.div
 const containerVars = {
@@ -26,7 +25,6 @@ export function GroupsPage() {
   const location = useLocation()
   const { groups, loading, error, createGroup, joinGroup } = useGroups()
   const { t } = useTranslation()
-  const { playClack } = useTableSound()
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('')
@@ -164,7 +162,6 @@ export function GroupsPage() {
         <div className="flex items-center gap-2.5">
           <Button
             onClick={() => {
-              playClack()
               setIsJoinOpen(true)
               setJoinError(null)
               setInviteCode('')
@@ -178,7 +175,6 @@ export function GroupsPage() {
 
           <Button
             onClick={() => {
-              playClack()
               setIsCreateOpen(true)
               setCreateError(null)
               setGroupName('')
@@ -270,7 +266,6 @@ export function GroupsPage() {
                   key={group.id}
                   variants={itemVars}
                   onClick={() => {
-                    playClack()
                     navigate(`/grupos/${group.id}`)
                   }}
                   className="group relative block p-5 rounded-2xl bg-card/65 border border-border/30 hover:border-primary/30 shadow-md hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer overflow-hidden text-left linen-finish"
@@ -300,7 +295,6 @@ export function GroupsPage() {
                         {/* WhatsApp Invite Button */}
                         <Button
                           onClick={(e) => {
-                            playClack()
                             handleShareWhatsApp(e, group.name, group.invite_code)
                           }}
                           className="h-auto flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
@@ -314,7 +308,6 @@ export function GroupsPage() {
                         {/* Code button */}
                         <Button
                           onClick={(e) => {
-                            playClack()
                             handleCopyCode(e, group.invite_code, group.id)
                           }}
                           className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"

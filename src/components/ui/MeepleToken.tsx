@@ -1,7 +1,6 @@
 import { FC, HTMLAttributes } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '../../lib/utils'
-import { useTableSound } from '../../hooks/useTableSound'
 import { MeepleColor } from '../../types'
 
 export interface MeepleTokenProps extends HTMLAttributes<HTMLDivElement> {
@@ -85,13 +84,11 @@ export const MeepleToken: FC<MeepleTokenProps> = ({
   className,
   ...rest
 }) => {
-  const { playClack } = useTableSound()
   const styling = colorStyles[color]
   const sz = sizeConfig[size]
 
   const handleClick = () => {
     if (disabled) return
-    playClack()
     onClick?.()
   }
 

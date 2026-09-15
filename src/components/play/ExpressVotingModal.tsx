@@ -4,7 +4,6 @@ import { Timer, Trophy, Check, ArrowRight, RotateCcw } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { useTableSound } from '../../hooks/useTableSound'
 import { CandidateVoteCard } from './CandidateVoteCard'
 import { useTranslation } from 'react-i18next'
 
@@ -32,7 +31,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
   onGameSelected,
 }) => {
   const { t, i18n } = useTranslation()
-  const { playClack, playDice } = useTableSound()
 
   // Up to 5 pool games
   const pool = useMemo(() => candidates.slice(0, 5), [candidates])
@@ -67,9 +65,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
 
     const timer = setTimeout(() => {
       setSecondsLeft((s) => s - 1)
-      if (secondsLeft <= 5) {
-        playClack()
-      }
     }, 1000)
 
     return () => clearTimeout(timer)
@@ -77,7 +72,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
 
   const handleVote = (bggId: number) => {
     if (isFinished) return
-    playClack()
     if ('vibrate' in navigator) {
       navigator.vibrate(15)
     }
@@ -89,7 +83,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
 
   const handleUnvote = (bggId: number) => {
     if (isFinished) return
-    playClack()
     setVotes((prev) => {
       const current = prev[bggId] || 0
       if (current <= 1) {
@@ -106,7 +99,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
 
   const handleFinishVoting = () => {
     setIsFinished(true)
-    playDice()
 
     // Determine winner
     let maxVotes = -1
@@ -136,7 +128,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
     setSecondsLeft(30)
     setIsFinished(false)
     setWinningGame(null)
-    playClack()
   }
 
   return (
