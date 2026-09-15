@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, Users, Loader2, Code, Search, Clipboard, Check, Share2 } from 'lucide-react'
+import { Plus, Users, Loader2, Code, Search, Clipboard, Check, MessageCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -299,9 +299,10 @@ export function GroupsPage() {
                           }}
                           className="h-auto flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
                           title={t('groups.inviteWhatsApp')}
+                          aria-label={t('groups.inviteWhatsApp')}
                           variant="ghost"
                         >
-                          <Share2 className="h-3 w-3" />
+                          <MessageCircle className="h-3 w-3" />
                           <span className="hidden sm:inline">{t('groups.inviteWhatsApp')}</span>
                         </Button>
 
@@ -312,6 +313,7 @@ export function GroupsPage() {
                           }}
                           className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"
                           title={t('groups.copyInviteLink')}
+                          aria-label={copiedId === group.id ? t('groups.copied') : t('groups.copyInviteLink')}
                           variant="ghost"
                         >
                           {copiedId === group.id ? (

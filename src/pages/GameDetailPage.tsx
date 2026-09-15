@@ -488,7 +488,7 @@ export function GameDetailPage() {
 
                 <div className="mt-4 pt-3 border-t border-border/30">
                   <Link to={`/mesa/${meetup.id}`} className="block">
-                    <Button variant="outline" size="sm" className="w-full text-[11px] gap-1 h-8 rounded-xl font-black">
+                    <Button variant="outline" size="sm" className="w-full gap-1.5 font-bold">
                       {t('gameDetail.viewMeetupDetails')}
                     </Button>
                   </Link>
@@ -507,10 +507,13 @@ export function GameDetailPage() {
             </p>
           </div>
           <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="inline-block mt-2">
-            <Button size="sm" className="font-black gap-1.5 px-4 h-9">
-              <Plus className="h-4 w-4" />
-              {t('gameDetail.createNewMeetup')}
-            </Button>
+            <Button 
+              size="sm" 
+              className="font-black gap-1.5 px-4 h-9"
+              icon={Plus}
+              label={t('common.hostTable')}
+              aria-label={t('common.hostTable')}
+            />
           </Link>
         </div>
       )}
@@ -639,7 +642,7 @@ export function GameDetailPage() {
   )
 
   return (
-    <div className="relative min-h-screen pb-16 space-y-6">
+    <div className="relative min-h-dvh pb-16 space-y-6">
       {/* Ambient background blur behind the header */}
       {game.image_url && (
         <div className="absolute top-0 inset-x-0 h-[380px] overflow-hidden pointer-events-none select-none z-0 opacity-30">
@@ -662,6 +665,8 @@ export function GameDetailPage() {
           className="cursor-pointer"
           icon={ArrowLeft}
           label={t('common.back')}
+          aria-label={t('common.back')}
+          title={t('common.back')}
         />
         <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
           {t('gameDetail.technicalSheet')}

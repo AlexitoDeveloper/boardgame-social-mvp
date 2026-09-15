@@ -296,6 +296,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                   onClick={handleShareRoom}
                   className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1 cursor-pointer border-border/40"
                   title="Compartir enlace para que otros voten en sus móviles"
+                  aria-label={copiedLink ? 'Enlace copiado' : 'Compartir'}
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
                   <span className="hidden sm:inline">{copiedLink ? 'Enlace copiado' : 'Compartir'}</span>

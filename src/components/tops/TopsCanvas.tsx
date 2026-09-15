@@ -334,6 +334,7 @@ export function TopsCanvas({
               disabled={exporting || !hasGames}
               className="h-9 w-9 p-0 rounded-xl flex items-center justify-center shadow-md cursor-pointer"
               title={t('common.savePhoto')}
+              aria-label={t('common.savePhoto')}
             >
               {exporting ? (
                 <Loader2 className="w-4 h-4 animate-spin text-white" />

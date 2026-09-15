@@ -683,8 +683,9 @@ export function MeetupDetailSidebar({
                         variant="outline" 
                         size="sm"
                         className="h-10 text-destructive border-destructive/30 hover:bg-destructive/10 flex items-center gap-1.5"
+                        aria-label={t('meetup.cancelTable', 'Cancelar Mesa')}
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> {t('common.cancel')}
+                        <Trash2 className="w-3.5 h-3.5" /> {t('meetup.cancelTable', 'Cancelar Mesa')}
                       </Button>
                     </div>
                   ) : (

@@ -303,10 +303,13 @@ export function TabContentList({
                           <div className="flex items-center gap-1 shrink-0">
                             {isOwnProfile && (
                               <Button 
-                                variant="ghost" size="sm" 
+                                variant="ghost" 
+                                size="icon-sm" 
                                 onClick={(e) => handleDeleteRanking(e, ranking.id)}
                                 className="cursor-pointer text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                title={t('tops.deleteRanking')} icon={Trash2}
+                                title={t('tops.deleteRanking')}
+                                aria-label={t('tops.deleteRanking')}
+                                icon={Trash2}
                               />
                             )}
                             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-all" />
@@ -339,8 +342,8 @@ export function TabContentList({
                 <Button
                   size="sm"
                   onClick={() => setIsImportModalOpen(true)}
-                  icon={Plus}
-                  label={t('profile.collection.importButton')}
+                  icon={Download}
+                  label={t('profile.collection.syncButton')}
                 />
               </div>
             )}
@@ -377,7 +380,7 @@ export function TabContentList({
                       onClick={() => setIsImportModalOpen(true)}
                       className="cursor-pointer"
                       icon={Download}
-                      label={t('profile.collection.importLudoteca')}
+                      label={t('profile.collection.syncButton')}
                     />
                   </div>
                 )}
@@ -421,9 +424,11 @@ export function TabContentList({
                         <Button
                           type="button"
                           variant="ghost"
+                          size="icon-sm"
                           onClick={(e) => handleRemoveFromCollection(e, game.bgg_id)}
                           className="absolute top-2.5 right-2.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer z-30 flex items-center justify-center shadow-md border border-white/10 bg-black/75 hover:bg-destructive"
                           title={t('profile.collection.removeFromCollection')}
+                          aria-label={t('profile.collection.removeFromCollection')}
                           icon={Trash2}
                         />
                       )}

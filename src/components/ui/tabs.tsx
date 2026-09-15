@@ -27,7 +27,10 @@ export function Tabs<T extends string>({
   const layoutId = `tabs-pill-${options.map(o => o.id).join('-')}`
 
   return (
-    <div className={cn("bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 w-full select-none relative z-10", className)}>
+    <div
+      role="tablist"
+      className={cn("bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 w-full select-none relative z-10", className)}
+    >
       {options.map((opt) => {
         const isActive = activeTab === opt.id
         const Icon = opt.icon
@@ -35,10 +38,13 @@ export function Tabs<T extends string>({
           <button
             key={opt.id}
             type="button"
+            role="tab"
+            aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(opt.id)}
             className={cn(
-              "flex-1 py-1.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-black relative transition-all duration-300 flex items-center justify-center gap-1 sm:gap-1.5 focus:outline-none cursor-pointer",
-              isActive ? "text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+              "flex-1 py-1.5 sm:py-2 rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1 sm:gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none",
+              isActive ? "text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >
             {isActive && (
@@ -53,7 +59,7 @@ export function Tabs<T extends string>({
               <span className={cn(hideLabelsOnMobile && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
-                  "px-1.5 py-0.2 rounded-full text-[9px] font-bold border border-current shrink-0",
+                  "px-1.5 py-0.5 rounded-full text-[10px] font-bold border border-current shrink-0",
                   isActive ? "bg-primary-foreground/15 border-transparent" : "bg-muted text-muted-foreground border-border/40"
                 )}>
                   {opt.count}

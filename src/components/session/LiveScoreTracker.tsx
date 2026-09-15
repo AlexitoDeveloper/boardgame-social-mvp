@@ -308,13 +308,13 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
+                      size="icon-xs"
                       onClick={() => handleRemovePlayer(idx)}
-                      className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive rounded-lg"
+                      className="text-muted-foreground hover:text-destructive"
                       title="Eliminar invitado"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                      aria-label="Eliminar invitado"
+                      icon={Trash2}
+                    />
                   )}
                 </div>
 

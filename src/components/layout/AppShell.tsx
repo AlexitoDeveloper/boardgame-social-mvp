@@ -10,7 +10,7 @@ import { Button } from '../ui/button'
 import { supabase } from '../../lib/supabaseClient'
 import { useTranslation } from 'react-i18next'
 
-import { BggOnboardingModal } from '../onboarding/BggOnboardingModal'
+import { BggSyncModal } from '../library/BggSyncModal'
 import { MobileQuickActions } from './MobileQuickActions'
 
 const MotionDiv = motion.div
@@ -557,9 +557,10 @@ export function AppShell() {
       />
 
       {/* Express BGG Onboarding Modal for New Users */}
-      <BggOnboardingModal
+      <BggSyncModal
         isOpen={showBggOnboarding}
         onClose={() => setShowBggOnboarding(false)}
+        variant="onboarding"
       />
     </div>
   )

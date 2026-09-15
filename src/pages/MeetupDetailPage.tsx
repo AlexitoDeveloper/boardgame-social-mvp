@@ -157,9 +157,11 @@ export function MeetupDetailPage() {
           variant="ghost" 
           size="sm" 
           onClick={() => navigate(-1)} 
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer"
+          aria-label={t('common.back')}
+          title={t('common.back')}
+          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-xs font-bold"
         >
-          <ArrowLeft className="w-4 h-4" /> <span className="hidden xs:inline">{t('common.back')}</span>
+          <ArrowLeft className="w-4 h-4" /> <span>{t('common.back')}</span>
         </Button>
         
         <div className="flex items-center gap-2">
@@ -169,6 +171,7 @@ export function MeetupDetailPage() {
             onClick={() => setShowFirstPlayerModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 text-xs h-9 cursor-pointer px-3"
             title="Elegir primer jugador al azar"
+            aria-label="Elegir primer jugador al azar"
           >
             <Dices className="w-4 h-4 text-emerald-400" />
             <span className="hidden sm:inline">1er Jugador</span>
@@ -180,15 +183,18 @@ export function MeetupDetailPage() {
             onClick={() => setShowVictoryCardModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 text-xs h-9 cursor-pointer px-3"
             title="Ver y compartir tarjeta de resultado"
+            aria-label="Tarjeta de Resultado"
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Tarjeta WhatsApp</span>
+            <span className="hidden sm:inline">Tarjeta Resultado</span>
           </Button>
 
           <Button
             variant="outline"
             size="sm"
             onClick={handleShare}
+            aria-label={copySuccess ? t('common.copied') : t('common.share')}
+            title={copySuccess ? t('common.copied') : t('common.share')}
             className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer bg-card px-3"
           >
             {copySuccess ? (
@@ -362,6 +368,7 @@ export function MeetupDetailPage() {
                       disabled={exporting}
                       className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
                       title={t('common.savePhoto')}
+                      aria-label={t('common.savePhoto')}
                     >
                       {exporting ? (
                         <>
@@ -376,10 +383,11 @@ export function MeetupDetailPage() {
                       )}
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="ghost"
                       onClick={() => setShowExportModal(false)}
-                      className="h-9 w-9 p-0 border border-white/10 hover:bg-white/10 text-white rounded-xl flex items-center justify-center shrink-0"
+                      aria-label={t('common.close')}
+                      className="border border-white/10 hover:bg-white/10 text-white rounded-xl flex items-center justify-center shrink-0"
                     >
                       <X className="w-4 h-4" />
                     </Button>

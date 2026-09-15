@@ -96,6 +96,7 @@ export function GameSelectionSection({
                 type="button"
                 onClick={() => setSelectedGames([])}
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer flex items-center gap-1"
+                aria-label={t('common.clear')}
               >
                 <Trash2 className="w-3.5 h-3.5" /> {t('common.clear')}
               </Button>
@@ -129,12 +130,13 @@ export function GameSelectionSection({
                     <Button
                       type="button"
                       variant="outline"
+                      size="icon-xs"
                       onClick={() => setSelectedGames(prev => prev.filter(g => g.bgg_id !== game.bgg_id))}
-                      className="absolute top-0.5 right-0.5 w-5 h-5 p-0 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md flex items-center justify-center"
+                      className="absolute top-0.5 right-0.5 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md bg-background/90"
                       title={`${t('common.remove')} ${game.title}`}
-                    >
-                      <X className="w-2.5 h-2.5" />
-                    </Button>
+                      aria-label={`${t('common.remove')} ${game.title}`}
+                      icon={X}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>

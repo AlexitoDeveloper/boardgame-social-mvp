@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, FC } from 'react'
 import { motion } from 'framer-motion'
 import { toPng } from 'html-to-image'
+import { useTranslation } from 'react-i18next'
 import {
   X,
-  Share2,
+  Copy,
   Download,
-  Loader2,
   Crown,
   Calendar,
   Check,
@@ -32,6 +32,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
   scores = [],
   language = 'es',
 }) => {
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [gameImageError, setGameImageError] = useState(false)
@@ -160,9 +161,10 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             onClick={onClose}
-            className="h-8 w-8 p-0 rounded-xl text-muted-foreground hover:text-foreground"
+            aria-label="Cerrar modal"
+            className="text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -299,9 +301,11 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             size="sm"
             onClick={handleCopySummary}
             className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            aria-label={copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}
+            title={copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'Copiado' : 'Copiar Texto'}</span>
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copiedLink ? t('common.copied') : t('common.copyText', 'Copiar texto')}</span>
           </Button>
 
           <div className="flex items-center gap-2">
@@ -310,27 +314,22 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
               variant="outline"
               size="sm"
               onClick={handleDownloadPng}
-              disabled={isExporting}
-              className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
-            >
-              {isExporting ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Download className="w-3.5 h-3.5" />
-              )}
-              <span>Descargar PNG</span>
-            </Button>
+              loading={isExporting}
+              icon={Download}
+              aria-label={t('common.savePhoto')}
+              label={t('common.savePhoto')}
+            />
 
             <Button
               type="button"
               variant="default"
               size="sm"
               onClick={handleShareNative}
-              className="h-9 px-4 rounded-xl text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Enviar a WhatsApp</span>
-            </Button>
+              icon={MessageCircle}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
+              aria-label={t('common.shareWhatsApp', 'WhatsApp')}
+              label={t('common.shareWhatsApp', 'WhatsApp')}
+            />
           </div>
         </div>
       </motion.div>

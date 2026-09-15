@@ -53,7 +53,12 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       inPerson: "Presencial",
       online: "Online",
       yearUnknown: "Año desc.",
-      won: "GANADO"
+      won: "GANADO",
+      close: "Cerrar",
+      delete: "Eliminar",
+      copyLink: "Copiar enlace",
+      copyText: "Copiar texto",
+      shareWhatsApp: "WhatsApp"
     },
     nav: {
       home: "Inicio",
@@ -132,6 +137,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       tableClosed: "Mesa Cerrada",
       manageMaster: "Gestionar como Master",
       closeGame: "Cerrar Partida",
+      cancelTable: "Cancelar Mesa",
       confirmCancelTitle: "¿Cancelar la partida?",
       yesCancel: "Sí, cancelar",
       noCancel: "No",
@@ -879,7 +885,12 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       inPerson: "In Person",
       online: "Online",
       yearUnknown: "Unknown year",
-      won: "WON"
+      won: "WON",
+      close: "Close",
+      delete: "Delete",
+      copyLink: "Copy link",
+      copyText: "Copy text",
+      shareWhatsApp: "WhatsApp"
     },
     nav: {
       home: "Home",
@@ -958,6 +969,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       tableClosed: "Table Closed",
       manageMaster: "Manage as Host",
       closeGame: "Close Game",
+      cancelTable: "Cancel Table",
       confirmCancelTitle: "Cancel this meetup?",
       yesCancel: "Yes, cancel",
       noCancel: "No",
