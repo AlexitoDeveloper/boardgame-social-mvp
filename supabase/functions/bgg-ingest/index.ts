@@ -143,6 +143,26 @@ const SPANISH_PUBLISHERS = [
   "mercurio distribuciones"
 ];
 
+function sanitizeGameText(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const cleaned = String(text)
+    .replace(/\\+(['"])/g, '$1')
+    .replace(/\\+&/g, '&')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&hellip;/g, '…')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+  return cleaned || null;
+}
+
 function getPublisherName(v: any): string | null {
   let links = v.link || [];
   if (!Array.isArray(links)) links = [links];
@@ -424,6 +444,7 @@ Deno.serve(async (request) => {
             title = item.name["@_value"] || "Juego Desconocido";
           }
         }
+        title = sanitizeGameText(title) || "Juego Desconocido";
 
         const yearPublished = Number(item.yearpublished?.["@_value"]) || null;
 
@@ -511,7 +532,7 @@ Deno.serve(async (request) => {
         names = [names];
       }
       const primaryNameObj = names.find((n: any) => n?.["@_type"] === "primary") || names[0];
-      const title = primaryNameObj?.["@_value"] || "Unknown Game";
+      const title = sanitizeGameText(primaryNameObj?.["@_value"]) || "Unknown Game";
 
       // Parse stats
       const yearPublished = Number(item.yearpublished?.["@_value"]) || null;
@@ -565,7 +586,7 @@ Deno.serve(async (request) => {
 
       // Extract original publisher from main game links
       const origPubLink = links.find((l: any) => l["@_type"] === "boardgamepublisher");
-      if (origPubLink) publisher = origPubLink["@_value"] ?? null;
+      if (origPubLink) publisher = sanitizeGameText(origPubLink["@_value"]);
 
       // Extract Spanish edition version specifics
       if (item.versions && item.versions.item) {
@@ -587,10 +608,10 @@ Deno.serve(async (request) => {
             }
           }
 
-          if (candidateTitle?.trim()) {
-            const trimmedTitleEs = candidateTitle.trim();
-            if (!isGenericEditionName(trimmedTitleEs)) {
-              titleEs = trimmedTitleEs;
+          const cleanedCandidate = sanitizeGameText(candidateTitle);
+          if (cleanedCandidate) {
+            if (!isGenericEditionName(cleanedCandidate)) {
+              titleEs = cleanedCandidate;
             }
           }
 
@@ -604,7 +625,7 @@ Deno.serve(async (request) => {
           if (!Array.isArray(vLinks)) vLinks = [vLinks];
           const publisherLink = vLinks.find((l: any) => l["@_type"] === "boardgamepublisher");
           if (publisherLink) {
-            esPublisher = publisherLink["@_value"];
+            esPublisher = sanitizeGameText(publisherLink["@_value"]);
           }
         }
       }

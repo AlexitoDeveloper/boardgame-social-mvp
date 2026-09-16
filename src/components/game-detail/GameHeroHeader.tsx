@@ -4,6 +4,7 @@ import { CalendarDays, Globe, ExternalLink, ZoomIn } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Game } from '@/types'
 import { cn } from '@/lib/utils'
+import { sanitizeGameText } from '@/lib/gameLocale'
 import { Badge } from '@/components/ui/badge'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import {
@@ -11,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog'
 
 interface GameHeroHeaderProps {
@@ -124,9 +124,9 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
             {title}
           </h1>
 
-          {language === 'es' && game.title_es && game.title_es !== game.title && (
+          {language === 'es' && game.title_es && sanitizeGameText(game.title_es) !== sanitizeGameText(game.title) && (
             <p className="text-xs font-semibold text-muted-foreground">
-              {t('gameDetail.originalTitle')}: <span className="italic font-bold text-foreground/80">{game.title}</span>
+              {t('gameDetail.originalTitle')}: <span className="italic font-bold text-foreground/80">{sanitizeGameText(game.title)}</span>
             </p>
           )}
         </div>
@@ -135,35 +135,33 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
       {/* Cover Image Lightbox Modal */}
       {fullCoverUrl && (
         <Dialog open={isCoverZoomOpen} onOpenChange={setIsCoverZoomOpen}>
-          <DialogContent className="max-w-[94vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl p-3 sm:p-5 bg-card/95 backdrop-blur-2xl border border-border/40 shadow-2xl rounded-2xl sm:rounded-3xl">
-            <DialogHeader className="px-1 pt-1 pb-2 sm:pb-3 border-b border-border/20 text-left">
-              <div className="flex items-center gap-2 pr-7">
-                <DialogTitle className="text-base sm:text-xl font-black tracking-tight text-foreground truncate">
+          <DialogContent className="max-w-[94vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[90vh] flex flex-col p-3 sm:p-5 bg-card/95 backdrop-blur-2xl border border-border/40 shadow-2xl rounded-2xl sm:rounded-3xl overflow-hidden">
+            <DialogHeader className="px-1 pt-1 pb-2 sm:pb-3 border-b border-border/20 text-left shrink-0 min-w-0">
+              <div className="flex items-center gap-2 pr-7 min-w-0">
+                <DialogTitle className="text-base sm:text-xl font-black tracking-tight text-foreground truncate min-w-0 flex-1" title={title}>
                   {title}
                 </DialogTitle>
                 {game.year_published && (
-                  <Badge variant="secondary" size="sm">
+                  <Badge variant="secondary" size="sm" className="shrink-0">
                     {game.year_published}
                   </Badge>
                 )}
                 {game.has_spanish_edition && (
-                  <Badge variant="primary-soft" size="sm">
+                  <Badge variant="primary-soft" size="sm" className="shrink-0">
                     ES
                   </Badge>
                 )}
               </div>
-              <DialogDescription className="text-xs text-muted-foreground truncate">
-                {t('gameDetail.coverOf', { title })}
-              </DialogDescription>
             </DialogHeader>
 
-            <div className="relative w-full max-h-[75vh] flex items-center justify-center overflow-hidden rounded-xl bg-muted/15 p-2 sm:p-4">
+            <div className="relative w-full flex-1 min-h-0 max-h-[72vh] flex items-center justify-center overflow-hidden rounded-xl bg-muted/15 p-2 sm:p-4">
               <OptimizedImage
                 src={fullCoverUrl}
                 alt={title}
                 fit="contain"
                 loading="eager"
-                className="max-w-full max-h-[68vh] w-auto h-auto object-contain drop-shadow-xl"
+                className="w-full h-full max-h-[68vh] bg-transparent border-0 shadow-none flex items-center justify-center"
+                imgClassName="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-2xl rounded-lg"
               />
             </div>
           </DialogContent>

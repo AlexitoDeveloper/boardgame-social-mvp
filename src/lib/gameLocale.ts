@@ -18,12 +18,39 @@ export type AppLanguage = 'es' | 'en'
  *   import { getGameTitle } from '../lib/gameLocale'
  *   <span>{getGameTitle(game, language)}</span>
  */
+/**
+ * Sanitizes game text, unescaping HTML entities (like &#039;, &amp;, &quot;)
+ * and removing erroneous backslash escaping (like \', \", \&#039;) from BGG imports.
+ */
+export function sanitizeGameText(text: string | null | undefined): string {
+  if (!text) return ''
+  return text
+    // Remove backslashes before quotes or entities: e.g. \' or \&#039;
+    .replace(/\\+(['"])/g, '$1')
+    .replace(/\\+&/g, '&')
+    // Numeric decimal entities (&#39;, &#039;, etc.)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    // Numeric hex entities (&#x27;, etc.)
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    // Common named entities
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&hellip;/g, '…')
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
+
 export function getGameTitle(game: Game, lang: AppLanguage = 'es'): string {
-  if (lang === 'es') {
-    return game.title_es || game.title
+  if (lang === 'es' && game.title_es) {
+    return sanitizeGameText(game.title_es)
   }
-  // English mode: always the original title
-  return game.title
+  // English mode or fallback to original title
+  return sanitizeGameText(game.title)
 }
 
 /**
@@ -39,10 +66,10 @@ export function getGameTitle(game: Game, lang: AppLanguage = 'es'): string {
  *   <span>{getGamePublisher(game, language)}</span>
  */
 export function getGamePublisher(game: Game, lang: AppLanguage = 'es'): string | null {
-  if (lang === 'es') {
-    return game.es_publisher ?? game.publisher ?? null
+  if (lang === 'es' && game.es_publisher) {
+    return sanitizeGameText(game.es_publisher)
   }
-  return game.publisher ?? null
+  return game.publisher ? sanitizeGameText(game.publisher) : null
 }
 
 /**
