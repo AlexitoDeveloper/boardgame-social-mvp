@@ -44,3 +44,17 @@ export function getGamePublisher(game: Game, lang: AppLanguage = 'es'): string |
   }
   return game.publisher ?? null
 }
+
+/**
+ * Returns the appropriate cover image URL for a game based on the active language.
+ *
+ * - 'es': returns `game.image_url_es` if available, otherwise falls back to `game.image_url`.
+ * - 'en': always returns `game.image_url`.
+ */
+export function getGameCover(game: Game, lang: AppLanguage = 'es'): string | null {
+  if (lang === 'es' && game.image_url_es) {
+    return game.image_url_es
+  }
+  return game.image_url ?? null
+}
+

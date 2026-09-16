@@ -106,6 +106,9 @@ export function useExploreGames(
   const [novedades, setNovedades] = useState<Game[]>([])
   const [paraDos, setParaDos] = useState<Game[]>([])
   const [classics, setClassics] = useState<Game[]>([])
+  const [fastGames, setFastGames] = useState<Game[]>([])
+  const [heavyGames, setHeavyGames] = useState<Game[]>([])
+  const [partyGames, setPartyGames] = useState<Game[]>([])
   const [top10, setTop10] = useState<Game[]>([])
   const [top10Month, setTop10Month] = useState<Game[]>([])
   const [communityRankings, setCommunityRankings] = useState<any[]>([])
@@ -147,6 +150,34 @@ export function useExploreGames(
           .not('rating_geek', 'is', null)
           .order('rating_geek', { ascending: false })
           .limit(35)
+
+        // fastGames Query: <= 35 min
+        const fastGamesQuery = supabase
+          .from('games')
+          .select('*')
+          .lte('playing_time', 35)
+          .gt('playing_time', 0)
+          .not('rating_geek', 'is', null)
+          .order('rating_geek', { ascending: false })
+          .limit(30)
+
+        // heavyGames Query: complexity >= 3.2
+        const heavyGamesQuery = supabase
+          .from('games')
+          .select('*')
+          .gte('complexity', 3.2)
+          .not('rating_geek', 'is', null)
+          .order('rating_geek', { ascending: false })
+          .limit(30)
+
+        // partyGames Query: max_players >= 6
+        const partyGamesQuery = supabase
+          .from('games')
+          .select('*')
+          .gte('max_players', 6)
+          .not('rating_geek', 'is', null)
+          .order('rating_geek', { ascending: false })
+          .limit(30)
 
         // communityRankings Query
         let commRankingsData: any[] = []
@@ -212,10 +243,13 @@ export function useExploreGames(
         }
 
         // Run other queries in parallel
-        const [novRes, dosRes, claRes] = await Promise.all([
+        const [novRes, dosRes, claRes, fastRes, heavyRes, partyRes] = await Promise.all([
           novedadesQuery,
           paraDosQuery,
-          classicsQuery
+          classicsQuery,
+          fastGamesQuery,
+          heavyGamesQuery,
+          partyGamesQuery
         ])
 
         if (novRes.error) throw novRes.error
@@ -245,10 +279,16 @@ export function useExploreGames(
         const shuffledNovedades = seedShuffle(novRes.data || [], daySeed).slice(0, 15)
         const shuffledParaDos = seedShuffle(dosRes.data || [], daySeed + 1).slice(0, 15)
         const shuffledClassics = seedShuffle(claRes.data || [], daySeed + 2).slice(0, 15)
+        const shuffledFast = seedShuffle(fastRes.data || [], daySeed + 3).slice(0, 15)
+        const shuffledHeavy = seedShuffle(heavyRes.data || [], daySeed + 4).slice(0, 15)
+        const shuffledParty = seedShuffle(partyRes.data || [], daySeed + 5).slice(0, 15)
 
         setNovedades(shuffledNovedades)
         setParaDos(shuffledParaDos)
         setClassics(shuffledClassics)
+        setFastGames(shuffledFast)
+        setHeavyGames(shuffledHeavy)
+        setPartyGames(shuffledParty)
         setTop10(weekRes || [])
         setTop10Month(monthRes || [])
         setCommunityRankings(commRankingsData)
@@ -335,6 +375,9 @@ export function useExploreGames(
     novedades,
     paraDos,
     classics,
+    fastGames,
+    heavyGames,
+    partyGames,
     top10,
     top10Month,
     communityRankings,

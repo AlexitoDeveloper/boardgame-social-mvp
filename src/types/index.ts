@@ -19,6 +19,8 @@ export interface Game {
   has_spanish_edition?: boolean;
   year_published?: number | null;
   image_url: string | null;
+  image_url_es?: string | null;     // Spanish cover image from BGG CDN
+  spanish_checked_at?: string | null; // Timestamp of when BGG was inspected for Spanish edition
   min_players?: number | null;
   max_players?: number | null;
   playing_time?: number | null;

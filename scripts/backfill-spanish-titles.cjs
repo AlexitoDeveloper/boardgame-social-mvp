@@ -160,11 +160,11 @@ async function runBackfill(batchSize) {
   console.log(`\n=== BGG Spanish Title Backfill ===`);
   console.log(`Batch size: ${batchSize} games`);
 
-  // 1. Fetch games with missing title_es, prioritising those with a known Spanish edition
+  // 1. Fetch games pending Spanish check (spanish_checked_at is null)
   const { data: games, error: fetchErr } = await supabase
     .from('games')
     .select('bgg_id, title')
-    .is('title_es', null)
+    .is('spanish_checked_at', null)
     .order('has_spanish_edition', { ascending: false, nullsFirst: false })
     .order('bgg_id', { ascending: true })
     .limit(batchSize);
@@ -175,7 +175,7 @@ async function runBackfill(batchSize) {
   }
 
   if (!games || games.length === 0) {
-    console.log('🎉 All games already have Spanish title data. Nothing to do!');
+    console.log('🎉 All games have already been checked for Spanish edition data. Nothing to do!');
     return;
   }
 
@@ -183,7 +183,7 @@ async function runBackfill(batchSize) {
   const { count: totalPending } = await supabase
     .from('games')
     .select('bgg_id', { count: 'exact', head: true })
-    .is('title_es', null);
+    .is('spanish_checked_at', null);
 
   console.log(`Found ${games.length} games to process (${totalPending} total pending)\n`);
 
@@ -238,10 +238,10 @@ async function runBackfill(batchSize) {
         const publisher = origPubLink?.['@_value'] ?? null;
 
         // Spanish version data
-        let titleEs = titleEnglish; // default to original title to mark as checked if no Spanish edition exists
+        let titleEs = null;
         let esPublisher = null;
         let hasSpanishEdition = false;
-        let bggImageUrl = item.image || item.thumbnail || null;
+        let imageUrlEs = null;
 
         const versions = item.versions?.item;
         if (versions) {
@@ -250,41 +250,58 @@ async function runBackfill(batchSize) {
           if (spanishVersion) {
             hasSpanishEdition = true;
 
-            // Spanish title (title_es only — never touches title)
-            const canonicalSpanishTitle =
-              spanishVersion.canonicalname?.['@_value'];
+            // 1. Spanish title (checks canonicalname first, then name)
+            const canonicalSpanishTitle = spanishVersion.canonicalname?.['@_value'];
+            let candidateTitle = canonicalSpanishTitle;
 
-            if (canonicalSpanishTitle?.trim()) {
-              const trimmedTitleEs = canonicalSpanishTitle.trim();
+            if (!candidateTitle) {
+              let spanishNames = spanishVersion.name;
+              if (spanishNames) {
+                if (!Array.isArray(spanishNames)) spanishNames = [spanishNames];
+                const primaryName = spanishNames.find(n => n?.['@_type'] === 'primary') || spanishNames[0];
+                candidateTitle = primaryName?.['@_value'];
+              }
+            }
+
+            if (candidateTitle?.trim()) {
+              const trimmedTitleEs = candidateTitle.trim();
               if (!isGenericEditionName(trimmedTitleEs)) {
                 titleEs = trimmedTitleEs;
                 withSpanish++;
                 console.log(`🇪🇸 ${titleEnglish} → ${titleEs}`);
               }
             }
-            // Spanish publisher
+
+            // 2. Spanish publisher
             let vLinks = spanishVersion.link || [];
             if (!Array.isArray(vLinks)) vLinks = [vLinks];
             const pubLink = vLinks.find(l => l?.['@_type'] === 'boardgamepublisher');
             if (pubLink) esPublisher = pubLink['@_value'] ?? null;
 
-            // Spanish cover image url fallback
+            // 3. Spanish cover image from BGG CDN
             if (spanishVersion.image || spanishVersion.thumbnail) {
-              bggImageUrl = spanishVersion.image || spanishVersion.thumbnail;
+              imageUrlEs = spanishVersion.image || spanishVersion.thumbnail;
+              console.log(`🖼️ Portada ES encontrada para ${titleEnglish}`);
             }
           }
         }
 
-        // Update DB — title stays untouched
+        // Update DB — original image_url and title stay untouched
+        const updatePayload = {
+          title_es: titleEs,
+          publisher,
+          es_publisher: esPublisher,
+          has_spanish_edition: hasSpanishEdition,
+          spanish_checked_at: new Date().toISOString()
+        };
+
+        if (imageUrlEs) {
+          updatePayload.image_url_es = imageUrlEs;
+        }
+
         const { error: updateErr } = await supabase
           .from('games')
-          .update({
-            title_es: titleEs,       // null if no Spanish edition (marks as "checked")
-            publisher,
-            es_publisher: esPublisher,
-            has_spanish_edition: hasSpanishEdition,
-            image_url: bggImageUrl
-          })
+          .update(updatePayload)
           .eq('bgg_id', bggId);
 
         if (updateErr) {
@@ -309,7 +326,7 @@ async function runBackfill(batchSize) {
   const { count: remaining } = await supabase
     .from('games')
     .select('bgg_id', { count: 'exact', head: true })
-    .is('title_es', null);
+    .is('spanish_checked_at', null);
 
   console.log('\n=== Backfill batch complete ===');
   console.log(`  Processed:          ${processed}`);

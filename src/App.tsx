@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { ExplorePage } from './pages/ExplorePage'
+import { TableHubPage } from './pages/TableHubPage'
 import { PlayPage } from './pages/PlayPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
@@ -35,6 +36,8 @@ function App() {
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
         <Route path="/" element={<ExplorePage />} />
+        <Route path="/home-v2" element={<Navigate to="/" replace />} />
+        <Route path="/mesa-hub" element={<TableHubPage />} />
         <Route path="/jugar" element={<PlayPage />} />
         <Route path="/juegos/:id" element={<GameDetailPage />} />
         {/* Legacy stranger radar redirects to Table Companion play engine */}

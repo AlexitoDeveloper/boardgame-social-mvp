@@ -36,9 +36,17 @@ jobs:
           echo "URL length: ${#VITE_SUPABASE_URL}"
           echo "KEY length: ${#VITE_SUPABASE_ANON_KEY}"
 
-      - name: Run BGG Ingestion Script
+      - name: Run BGG Recent Ingestion Script
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           BGG_API_KEY: ${{ secrets.BGG_API_KEY }} # Optional, if you have one configured
         run: node scripts/ingest-bgg.cjs --recent --limit=25
+
+      - name: Run BGG Spanish Titles & Covers Backfill
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          BGG_API_KEY: ${{ secrets.BGG_API_KEY }} # Optional, if you have one configured
+        run: node scripts/backfill-spanish-titles.cjs --limit=200
+

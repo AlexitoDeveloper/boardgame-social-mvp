@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Plus, Star, Users, Hourglass, BarChart } from 'lucide-react'
+import { Sparkles, Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 import { Game } from '../types'
@@ -12,10 +12,11 @@ interface FeaturedGameHeroProps {
 
 export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
   const { t } = useTranslation()
-  const { getGameTitle, getGamePublisher } = useGameLocale()
+  const { getGameTitle, getGamePublisher, getGameCover } = useGameLocale()
   if (!game) return null
 
   const displayTitle = getGameTitle(game)
+  const coverUrl = getGameCover(game)
   const isSpanish = game.has_spanish_edition || !!game.title_es
   
   // Format complexity (averageweight) to 1 decimal place or show placeholder
@@ -41,12 +42,13 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
 
       {/* Game Cover on Left */}
       <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-border bg-muted shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-        {game.image_url ? (
+        {coverUrl ? (
           <img
-            src={game.image_url}
+            src={coverUrl}
             alt={displayTitle}
             className="w-full h-full object-cover"
             loading="eager"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="text-4xl">🎲</div>
@@ -118,7 +120,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           </div>
 
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
-            <BarChart className="w-4 h-4 text-purple-500 shrink-0" />
+            <Brain className="w-4 h-4 text-purple-500 shrink-0" />
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground leading-none">{t('explore.difficulty')}</span>
               <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-xs text-muted-foreground">/5</span></span>
