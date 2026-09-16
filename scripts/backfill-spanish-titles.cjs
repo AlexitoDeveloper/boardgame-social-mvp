@@ -47,8 +47,25 @@ const RETRY_DELAY_MS = 5000;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+function sanitizeGameText(text) {
+  if (!text) return null;
+  const cleaned = String(text)
+    .replace(/\\+(['"])/g, '$1')
+    .replace(/\\+&/g, '&')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&hellip;/g, '…')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+  return cleaned || null;
+}
 
 function isGenericEditionName(name) {
   if (!name) return true;
@@ -263,12 +280,12 @@ async function runBackfill(batchSize) {
               }
             }
 
-            if (candidateTitle?.trim()) {
-              const trimmedTitleEs = candidateTitle.trim();
-              if (!isGenericEditionName(trimmedTitleEs)) {
-                titleEs = trimmedTitleEs;
+            const cleanedCandidate = sanitizeGameText(candidateTitle);
+            if (cleanedCandidate) {
+              if (!isGenericEditionName(cleanedCandidate)) {
+                titleEs = cleanedCandidate;
                 withSpanish++;
-                console.log(`🇪🇸 ${titleEnglish} → ${titleEs}`);
+                console.log(`🇪🇸 ${sanitizeGameText(titleEnglish)} → ${titleEs}`);
               }
             }
 
@@ -276,12 +293,12 @@ async function runBackfill(batchSize) {
             let vLinks = spanishVersion.link || [];
             if (!Array.isArray(vLinks)) vLinks = [vLinks];
             const pubLink = vLinks.find(l => l?.['@_type'] === 'boardgamepublisher');
-            if (pubLink) esPublisher = pubLink['@_value'] ?? null;
+            if (pubLink) esPublisher = sanitizeGameText(pubLink['@_value']);
 
             // 3. Spanish cover image from BGG CDN
             if (spanishVersion.image || spanishVersion.thumbnail) {
               imageUrlEs = spanishVersion.image || spanishVersion.thumbnail;
-              console.log(`🖼️ Portada ES encontrada para ${titleEnglish}`);
+              console.log(`🖼️ Portada ES encontrada para ${sanitizeGameText(titleEnglish)}`);
             }
           }
         }
@@ -289,7 +306,7 @@ async function runBackfill(batchSize) {
         // Update DB — original image_url and title stay untouched
         const updatePayload = {
           title_es: titleEs,
-          publisher,
+          publisher: sanitizeGameText(publisher),
           es_publisher: esPublisher,
           has_spanish_edition: hasSpanishEdition,
           spanish_checked_at: new Date().toISOString()

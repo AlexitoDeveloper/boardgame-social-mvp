@@ -57,6 +57,26 @@ function isGenericEditionName(name) {
   return genericPatterns.some(pattern => pattern.test(normalized));
 }
 
+function sanitizeGameText(text) {
+  if (!text) return null;
+  const cleaned = String(text)
+    .replace(/\\+(['"])/g, '$1')
+    .replace(/\\+&/g, '&')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—')
+    .replace(/&hellip;/g, '…')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+  return cleaned || null;
+}
+
 const SPANISH_PUBLISHERS = [
   'tranjis games', 'devir', 'zacatrus', 'ludonova', 'gdm games', 'gdm',
   'edge entertainment', 'asmodee spain', 'asmodee ibérica', 'asmodee iberica',
@@ -442,7 +462,7 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
         names = [names];
       }
       const primaryNameObj = names.find(n => n?.['@_type'] === 'primary') || names[0];
-      const title = primaryNameObj?.['@_value'] || 'Unknown Game';
+      const title = sanitizeGameText(primaryNameObj?.['@_value']) || 'Unknown Game';
       
       // Parse stats
       const yearPublished = Number(item.yearpublished?.['@_value']) || null;
@@ -490,7 +510,7 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
       // Extract original publisher from main game links
       const publisherLink = links.find(l => l['@_type'] === 'boardgamepublisher');
       if (publisherLink) {
-        publisher = publisherLink['@_value'];
+        publisher = sanitizeGameText(publisherLink['@_value']);
       }
       
       if (isExpansion) {
@@ -520,13 +540,13 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
             }
           }
 
-          if (candidateTitle?.trim()) {
-            const trimmedTitleEs = candidateTitle.trim();
-            if (!isGenericEditionName(trimmedTitleEs)) {
-              titleEs = trimmedTitleEs;
+          const cleanedCandidate = sanitizeGameText(candidateTitle);
+          if (cleanedCandidate) {
+            if (!isGenericEditionName(cleanedCandidate)) {
+              titleEs = cleanedCandidate;
               console.log(`[Parser] Spanish title (canonical): ${titleEs} (original: ${title})`);
             } else {
-              console.log(`[Parser] Spanish version title "${trimmedTitleEs}" is generic. Keeping English title: ${title}`);
+              console.log(`[Parser] Spanish version title "${cleanedCandidate}" is generic. Keeping English title: ${title}`);
             }
           }
 
@@ -539,7 +559,7 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
           if (!Array.isArray(links)) links = [links];
           const publisherLink = links.find(l => l['@_type'] === 'boardgamepublisher');
           if (publisherLink) {
-            esPublisher = publisherLink['@_value'];
+            esPublisher = sanitizeGameText(publisherLink['@_value']);
             console.log(`[Parser] Spanish publisher: ${esPublisher}`);
           }
         }

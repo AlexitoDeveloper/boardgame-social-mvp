@@ -59,17 +59,21 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         ) : (
           <div className="text-xs sm:text-sm font-bold text-primary tracking-wide flex flex-wrap items-center gap-2 pt-1">
             <span>{t('meetup.gamesOnTable', { count: gamesList.length })}</span> 
-            <div className="flex flex-wrap gap-1.5">
-              {gamesList.map((g, idx) => (
-                <Tag
-                  key={g.bgg_id}
-                  onClick={() => setActiveGameIdx(idx)}
-                  variant={idx === activeGameIdx ? "default" : "secondary"}
-                  className="cursor-pointer transition-all hover:scale-105 active:scale-95"
-                >
-                  {getGameTitle(g)}
-                </Tag>
-              ))}
+            <div className="flex flex-wrap gap-1.5 items-center">
+              {gamesList.map((g, idx) => {
+                const title = getGameTitle(g)
+                return (
+                  <Tag
+                    key={g.bgg_id}
+                    onClick={() => setActiveGameIdx(idx)}
+                    variant={idx === activeGameIdx ? "default" : "secondary"}
+                    title={title}
+                    className="cursor-pointer transition-all hover:scale-105 active:scale-95 max-w-[200px] sm:max-w-[280px]"
+                  >
+                    <span className="truncate block">{title}</span>
+                  </Tag>
+                )
+              })}
             </div>
           </div>
         )}

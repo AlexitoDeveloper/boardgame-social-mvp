@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useGameLocale } from '../../hooks/useGameLocale'
 import { ChevronLeft, ChevronRight, Dices, Laptop } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 interface MeetupHeroCarouselProps {
   gamesList: Game[]
@@ -102,14 +103,31 @@ export function MeetupHeroCarousel({
                 gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
               }`}
             >
-              <OptimizedImage
-                src={currentCover}
-                alt={getGameTitle(currentGame) || 'Juego'}
-                widthSize={500}
-                fit="contain"
-                className="w-full h-full bg-transparent border-0 shadow-none flex items-center justify-center"
-                imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/15 drop-shadow-2xl transition-transform duration-300 pointer-events-none select-none"
-              />
+              {currentGame.bgg_id ? (
+                <Link
+                  to={`/juegos/${currentGame.bgg_id}`}
+                  className="w-full h-full flex items-center justify-center cursor-pointer group/carousel-cover"
+                  title={getGameTitle(currentGame) || 'Ver ficha del juego'}
+                >
+                  <OptimizedImage
+                    src={currentCover}
+                    alt={getGameTitle(currentGame) || 'Juego'}
+                    widthSize={500}
+                    fit="contain"
+                    className="w-full h-full bg-transparent border-0 shadow-none flex items-center justify-center pointer-events-none"
+                    imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/15 drop-shadow-2xl transition-transform duration-300 group-hover/carousel-cover:scale-[1.03] select-none"
+                  />
+                </Link>
+              ) : (
+                <OptimizedImage
+                  src={currentCover}
+                  alt={getGameTitle(currentGame) || 'Juego'}
+                  widthSize={500}
+                  fit="contain"
+                  className="w-full h-full bg-transparent border-0 shadow-none flex items-center justify-center"
+                  imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/15 drop-shadow-2xl transition-transform duration-300 pointer-events-none select-none"
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </>

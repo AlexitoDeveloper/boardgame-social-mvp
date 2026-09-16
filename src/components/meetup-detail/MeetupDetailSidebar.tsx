@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useGameLocale } from '../../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
 import { OptimizedImage } from '../ui/OptimizedImage'
@@ -8,7 +8,6 @@ import {
   Crown, 
   Edit3, 
   Trash2, 
-  ExternalLink, 
   AlertTriangle,
   Loader2,
   MessageSquare,
@@ -73,7 +72,7 @@ export function MeetupDetailSidebar({
   onVictoryCardClick
 }: MeetupDetailSidebarProps) {
   const { t } = useTranslation()
-  const { getGameTitle, getGamePublisher } = useGameLocale()
+  const { getGameTitle, getGamePublisher, getGameCover } = useGameLocale()
   const navigate = useNavigate()
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [guestName, setGuestName] = useState('')
@@ -741,45 +740,66 @@ export function MeetupDetailSidebar({
         </Card>
       ) : (
         <div className="space-y-4">
-          {gamesList.map((game) => (
-            <Card key={game.bgg_id} className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl">
-              <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
-                    {getGameTitle(game)}
-                  </CardTitle>
-                  {game.is_expansion && (
-                    <Tag variant="purple" className="shrink-0 text-xs px-1 py-0 shadow-sm">
-                      {t('common.expansion')}
-                    </Tag>
-                  )}
-                </div>
-                {game.bgg_id && (
-                  <a 
-                    href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 transition-colors cursor-pointer shrink-0"
-                    title="Ver en BGG"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-              </CardHeader>
-              <CardContent className="p-4 pt-4 sm:p-5 sm:pt-4 space-y-3.5">
-                {/* Cover image in card */}
-                {game.image_url && (
-                  <div className="w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner">
-                    <OptimizedImage
-                      src={game.image_url}
-                      alt={getGameTitle(game)}
-                      widthSize={250}
-                      fit="contain"
-                      className="w-full h-full bg-transparent border-0 shadow-none"
-                      imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-lg"
-                    />
+          {gamesList.map((game) => {
+            const cover = getGameCover(game) || game.image_url
+            const title = getGameTitle(game)
+            return (
+              <Card key={game.bgg_id} className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl group/card hover:border-primary/40 transition-colors">
+                <CardHeader className="p-4 pb-3 sm:p-5 sm:pb-3 border-b border-border/20 flex flex-row items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {game.bgg_id ? (
+                      <Link 
+                        to={`/juegos/${game.bgg_id}`}
+                        className="text-xs font-black tracking-tight uppercase text-primary truncate hover:underline flex-1 min-w-0"
+                        title={title}
+                      >
+                        <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
+                          {title}
+                        </CardTitle>
+                      </Link>
+                    ) : (
+                      <CardTitle className="text-xs font-black tracking-tight uppercase text-primary truncate">
+                        {title}
+                      </CardTitle>
+                    )}
+                    {game.is_expansion && (
+                      <Tag variant="purple" className="shrink-0 text-xs px-1 py-0 shadow-sm">
+                        {t('common.expansion')}
+                      </Tag>
+                    )}
                   </div>
-                )}
+                </CardHeader>
+                <CardContent className="p-4 pt-4 sm:p-5 sm:pt-4 space-y-3.5">
+                  {/* Cover image in card */}
+                  {cover && (
+                    game.bgg_id ? (
+                      <Link
+                        to={`/juegos/${game.bgg_id}`}
+                        className="block w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner group/cover cursor-pointer hover:border-primary/40 transition-colors"
+                        title={title}
+                      >
+                        <OptimizedImage
+                          src={cover}
+                          alt={title}
+                          widthSize={250}
+                          fit="contain"
+                          className="w-full h-full bg-transparent border-0 shadow-none"
+                          imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-lg group-hover/cover:scale-105 transition-transform duration-200"
+                        />
+                      </Link>
+                    ) : (
+                      <div className="w-full h-32 overflow-hidden rounded-xl border border-border/30 bg-background/50 p-1.5 flex items-center justify-center shadow-inner">
+                        <OptimizedImage
+                          src={cover}
+                          alt={title}
+                          widthSize={250}
+                          fit="contain"
+                          className="w-full h-full bg-transparent border-0 shadow-none"
+                          imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-lg"
+                        />
+                      </div>
+                    )
+                  )}
 
                 {/* Specs */}
                 <div className="grid grid-cols-2 gap-2 text-center">
@@ -808,7 +828,7 @@ export function MeetupDetailSidebar({
                 )}
               </CardContent>
             </Card>
-          ))}
+          )})}
         </div>
       )}
 
