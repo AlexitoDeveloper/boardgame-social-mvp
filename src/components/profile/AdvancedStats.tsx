@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
 import { Skull, Swords, Zap, Crown, Flame } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
@@ -6,6 +6,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart'
 import { Meetup, UserProfile } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
 import { useTranslation } from 'react-i18next'
+import { TITLE_IMAGES } from './achievementAssets'
+import { BadgePreviewModal } from './BadgePreviewModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,6 +121,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
   }
 
   const hasEnoughData = stats.played >= 3
+  const [isTitleModalOpen, setIsTitleModalOpen] = useState(false)
 
   return (
     <div className="space-y-4">
@@ -131,15 +134,22 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
       </div>
 
       {/* 1. Dynamic Title */}
-      <Card className={`border ${titleConfig.border} ${titleConfig.bg} rounded-2xl shadow-lg overflow-hidden relative`}>
+      <Card 
+        onClick={() => setIsTitleModalOpen(true)}
+        className={`border ${titleConfig.border} ${titleConfig.bg} rounded-2xl shadow-lg overflow-hidden relative cursor-pointer hover:border-primary/40 transition-colors duration-200 group`}
+      >
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
           <div className={`w-full h-full bg-gradient-to-br ${titleConfig.color}`} />
         </div>
         <CardContent className="p-4 flex items-center gap-4 relative z-10">
-          <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${titleConfig.color} flex items-center justify-center shadow-lg text-xl`}>
-            {titleConfig.emoji}
+          <div className="w-14 h-14 shrink-0 rounded-full overflow-hidden drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
+            <img 
+              src={TITLE_IMAGES[titleId] || TITLE_IMAGES.rookie} 
+              alt={t(`profile.advancedStats.title_${titleId}_label`)} 
+              className="w-full h-full object-cover object-center scale-110" 
+            />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">
               {t('profile.advancedStats.yourTitle')}
             </p>
@@ -152,6 +162,17 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           </div>
         </CardContent>
       </Card>
+
+      <BadgePreviewModal
+        isOpen={isTitleModalOpen}
+        onClose={() => setIsTitleModalOpen(false)}
+        imageSrc={TITLE_IMAGES[titleId] || TITLE_IMAGES.rookie}
+        title={t(`profile.advancedStats.title_${titleId}_label`)}
+        subtitle={t('profile.advancedStats.yourTitle')}
+        description={t(`profile.advancedStats.title_${titleId}_desc`)}
+        tierLabel="Título de Jugador"
+        unlocked={true}
+      />
 
       {/* 2. Nemesis & Victim */}
       <div className="grid grid-cols-2 gap-3">

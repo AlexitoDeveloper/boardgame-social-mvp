@@ -6,6 +6,7 @@ export interface OptimizedImageProps extends Omit<React.ImgHTMLAttributes<HTMLIm
   src: string | null | undefined;
   alt: string;
   className?: string;
+  imgClassName?: string;
   widthSize?: number;
   heightSize?: number;
   fit?: "cover" | "contain" | "inside" | "outside";
@@ -17,6 +18,7 @@ export function OptimizedImage({
   src,
   alt,
   className,
+  imgClassName,
   widthSize,
   heightSize,
   fit = "cover",
@@ -98,9 +100,14 @@ export function OptimizedImage({
         src={src}
         alt={alt}
         className={cn(
-          "h-full w-full transition-opacity duration-300",
-          fit === "contain" ? "object-contain" : fit === "inside" ? "object-scale-down" : "object-cover",
-          loading ? "opacity-0" : "opacity-100"
+          "transition-opacity duration-300",
+          fit === "contain" 
+            ? "max-h-full max-w-full h-auto w-auto object-contain" 
+            : fit === "inside" 
+              ? "object-scale-down h-full w-full" 
+              : "h-full w-full object-cover",
+          loading ? "opacity-0" : "opacity-100",
+          imgClassName
         )}
         onLoad={() => {
           setLoading(false)

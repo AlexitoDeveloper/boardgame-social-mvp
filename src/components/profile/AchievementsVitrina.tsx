@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award } from 'lucide-react'
+import { Award, Maximize2 } from 'lucide-react'
 import { UserStats } from '../../hooks/useProfile'
 import { AchievementMedallion } from './AchievementMedallion'
 import { useTranslation } from 'react-i18next'
+import { BadgePreviewModal } from './BadgePreviewModal'
+import { ACHIEVEMENT_TIER_ASSETS } from './achievementAssets'
+import { Button } from '../ui/button'
 
 const MotionDiv = motion.div
 
@@ -135,6 +138,7 @@ export function AchievementsVitrina({
   ]
 
   const [activeAchId, setActiveAchId] = useState<string>('host')
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const activeAch = achievements.find(a => a.id === activeAchId) || achievements[0]
 
   return (
@@ -155,11 +159,11 @@ export function AchievementsVitrina({
               className="flex flex-col items-center select-none cursor-pointer"
             >
               {/* Achievement Badge Container */}
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 relative z-0 shrink-0 ${
                 hasUnlocked 
-                  ? `${isActive ? 'ring-2 ring-primary scale-105 border-primary/45' : 'hover:scale-105 border-white/10'}`
-                  : `bg-zinc-950/20 border-dashed border-border/40 opacity-30 filter grayscale ${
-                      isActive ? 'ring-2 ring-muted scale-105' : ''
+                  ? `${isActive ? 'scale-105 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]' : 'hover:scale-105'}`
+                  : `opacity-40 filter grayscale ${
+                      isActive ? 'scale-105' : ''
                     }`
               }`}>
                 <AchievementMedallion 
@@ -171,15 +175,15 @@ export function AchievementsVitrina({
               </div>
               
               {/* Mini label below */}
-              <span className={`text-xs font-extrabold uppercase tracking-wide mt-1.5 text-center truncate w-full ${
+              <span className={`text-[10px] font-semibold tracking-tight mt-2 text-center line-clamp-2 w-full px-0.5 leading-[1.15] min-h-[26px] flex items-center justify-center break-words relative z-10 ${
                 hasUnlocked 
-                  ? isActive ? 'text-primary font-black' : 'text-foreground font-black'
+                  ? isActive ? 'text-primary font-bold' : 'text-foreground'
                   : 'text-zinc-500'
-              }`}>
-                {hasUnlocked ? ach.currentTier?.name : t('profile.achievements.lockedBadge')}
+              }`} title={hasUnlocked ? (ach.currentTier?.name || ach.baseName) : t('profile.achievements.lockedBadge')}>
+                {hasUnlocked ? (ach.currentTier?.name || ach.baseName) : ach.baseName}
               </span>
               
-              <span className="text-xs font-semibold text-muted-foreground/80 scale-90">
+              <span className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
                 {ach.id === 'reliable' ? `${stats.karma}%` : `${ach.progressVal}`}
               </span>
             </div>
@@ -244,7 +248,11 @@ export function AchievementsVitrina({
             >
               <div className="flex gap-4 items-start">
                 {/* Large Medallion Frame */}
-                <div className="w-16 h-16 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/30 flex items-center justify-center p-0.5">
+                <div 
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-16 h-16 shrink-0 rounded-full flex items-center justify-center p-0.5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] cursor-pointer hover:scale-105 transition-transform"
+                  title="Ver en grande"
+                >
                   <AchievementMedallion 
                     id={activeAch.id} 
                     tier={activeAch.currentTier?.tier || null} 
@@ -260,11 +268,22 @@ export function AchievementsVitrina({
                         ? t('profile.achievements.unlockedTitle', { tier: tierLabel })
                         : t('profile.achievements.lockedTitle')}
                     </span>
-                    <span className={`text-xs font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 shrink-0 ${
-                      hasUnlocked ? 'text-primary' : 'text-muted-foreground'
-                    }`}>
-                      {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
-                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`text-xs font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 ${
+                        hasUnlocked ? 'text-primary' : 'text-muted-foreground'
+                      }`}>
+                        {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsModalOpen(true)}
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                        title="Ver en grande"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
                   
                   <div>
@@ -294,6 +313,26 @@ export function AchievementsVitrina({
           )
         })()}
       </AnimatePresence>
+
+      {/* Modal Preview when clicking large achievement */}
+      {(() => {
+        const hasUnlocked = activeAch.currentTier !== null
+        const tierKey = activeAch.currentTier ? activeAch.currentTier.tier.toLowerCase() : 'bronce'
+        const modalImg = ACHIEVEMENT_TIER_ASSETS[`${activeAch.id}_${tierKey}`] || ACHIEVEMENT_TIER_ASSETS[`${activeAch.id}_bronce`]
+
+        return (
+          <BadgePreviewModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            imageSrc={modalImg}
+            title={hasUnlocked ? activeAch.currentTier?.name || activeAch.baseName : `${t('profile.achievements.lockedBadge')} (${activeAch.baseName})`}
+            subtitle={activeAch.baseName}
+            description={activeAch.description}
+            tierLabel={activeAch.currentTier?.tier || t('profile.achievements.lockedBadge')}
+            unlocked={hasUnlocked}
+          />
+        )
+      })()}
     </div>
   )
 }
