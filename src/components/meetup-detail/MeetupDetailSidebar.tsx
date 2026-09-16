@@ -775,7 +775,8 @@ export function MeetupDetailSidebar({
                       alt={getGameTitle(game)}
                       widthSize={250}
                       fit="contain"
-                      className="max-h-full max-w-full object-contain rounded-lg"
+                      className="w-full h-full bg-transparent border-0 shadow-none"
+                      imgClassName="max-h-full max-w-full w-auto h-auto object-contain rounded-lg"
                     />
                   </div>
                 )}
