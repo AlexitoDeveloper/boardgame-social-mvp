@@ -367,16 +367,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 <div className="flex flex-col sm:flex-row gap-2.5 pt-2 max-w-sm mx-auto">
                   <Button
                     type="button"
-                    variant="default"
-                    onClick={() => onGameSelected(winningGame)}
-                    className="flex-1 h-11 rounded-xl font-bold text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
-                  >
-                    <span>Abrir Mesa con este juego</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-
-                  <Button
-                    type="button"
                     variant="outline"
                     onClick={() => {
                       setIsFinished(false)
@@ -388,7 +378,17 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                     className="h-11 px-4 rounded-xl font-bold text-xs gap-1.5 cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span>Repetir</span>
+                    <span>Volver a votar</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="default"
+                    onClick={() => onGameSelected(winningGame)}
+                    className="flex-1 h-11 rounded-xl font-bold text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
+                  >
+                    <span>Abrir Mesa con este juego</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
               </motion.div>

@@ -1,7 +1,7 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Dices, ListOrdered, Users, Sparkles, X } from 'lucide-react'
+import { ListOrdered, Users, Sparkles, X, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 
@@ -83,7 +83,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                 className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <Dices className="w-5 h-5" />
+                  <Plus className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 text-left">
                   <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">

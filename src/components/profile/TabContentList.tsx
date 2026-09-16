@@ -369,18 +369,18 @@ export function TabContentList({
                   <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                     <Button 
                       size="sm" 
-                      onClick={() => setIsAddGameModalOpen?.(true)}
-                      className="cursor-pointer"
-                      icon={Plus}
-                      label={t('profile.collection.addGame', 'Añadir Juego')}
-                    />
-                    <Button 
-                      size="sm" 
                       variant="outline"
                       onClick={() => setIsImportModalOpen(true)}
                       className="cursor-pointer"
                       icon={Download}
                       label={t('profile.collection.syncButton')}
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={() => setIsAddGameModalOpen?.(true)}
+                      className="cursor-pointer"
+                      icon={Plus}
+                      label={t('profile.collection.addGame', 'Añadir Juego')}
                     />
                   </div>
                 )}
@@ -395,18 +395,18 @@ export function TabContentList({
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        onClick={() => setIsAddGameModalOpen?.(true)}
-                        className="cursor-pointer"
-                        icon={Plus}
-                        label={t('profile.collection.addGame', 'Añadir Juego')}
-                      />
-                      <Button
-                        size="sm"
                         variant="outline"
                         onClick={() => setIsImportModalOpen(true)}
                         className="cursor-pointer"
                         icon={Download}
                         label={t('profile.collection.syncButton')}
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => setIsAddGameModalOpen?.(true)}
+                        className="cursor-pointer"
+                        icon={Plus}
+                        label={t('profile.collection.addGame', 'Añadir Juego')}
                       />
                     </div>
                   )}

@@ -236,21 +236,21 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
           />
           <Button
             type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAddGuest(false)}
+            className="h-9 text-xs font-bold rounded-xl shrink-0"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
             size="sm"
             onClick={handleAddGuest}
             disabled={!newGuestName.trim()}
             className="h-9 text-xs font-bold rounded-xl shrink-0"
           >
             Añadir
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAddGuest(false)}
-            className="h-9 px-2 rounded-xl text-xs shrink-0"
-          >
-            Cancelar
           </Button>
         </motion.div>
       )}

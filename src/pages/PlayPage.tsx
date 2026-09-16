@@ -705,11 +705,11 @@ export function PlayPage() {
 
               <Button
                 onClick={() => navigate(`/mesa/nueva?gameId=${suggestedGame.bgg_id}`)}
-                className="rounded-xl font-bold text-xs h-10 px-4 shrink-0 shadow-sm"
-              >
-                <span>{t('play.startMeetupWithGame')}</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-              </Button>
+                className="rounded-xl font-bold text-xs h-10 px-4 shrink-0 shadow-sm flex items-center gap-1.5"
+                icon={Plus}
+                label={t('common.hostTable')}
+                aria-label={t('common.hostTable')}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -815,9 +815,10 @@ export function PlayPage() {
           </h2>
           <Link
             to="/grupos"
-            className="text-xs font-bold text-primary hover:underline"
+            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
           >
-            {t('play.viewGroup')}
+            <Users className="w-3.5 h-3.5" />
+            <span>{t('play.viewGroups')}</span>
           </Link>
         </div>
 
@@ -827,20 +828,22 @@ export function PlayPage() {
               <div
                 key={grp.id}
                 onClick={() => navigate(`/grupos/${grp.id}`)}
-                className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-md space-y-1.5 group"
+                className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-md flex items-center justify-between gap-3 group"
               >
-                <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                  {grp.name}
-                </h4>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {grp.description || 'Sin descripción'}
-                </p>
-                <div className="flex items-center justify-between pt-1 text-[10px] font-bold text-muted-foreground">
-                  <span>{grp.member_count || 1} miembros</span>
-                  <span className="text-primary group-hover:translate-x-0.5 transition-transform flex items-center">
-                    Entrar <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
-                  </span>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {grp.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {grp.description || t('groups.noDescription')}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5 pt-0.5">
+                    <Users className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span>{grp.member_count || 1} {grp.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
+                  </p>
                 </div>
+
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
               </div>
             ))}
           </div>

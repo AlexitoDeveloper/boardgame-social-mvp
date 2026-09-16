@@ -401,20 +401,20 @@ export function MeetupDetailSidebar({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 pt-3 border-t border-border/20 shrink-0">
-          <Button 
-            onClick={handleSubmitComplete}
-            variant="default"
-            className="w-full h-9"
-          >
-            {t('common.confirmSave')}
-          </Button>
+        <div className="flex flex-row gap-2 pt-3 border-t border-border/20 shrink-0">
           <Button 
             onClick={() => setIsCompleting(false)}
             variant="outline" 
-            className="w-full h-9"
+            className="flex-1 h-9"
           >
             {t('common.cancel')}
+          </Button>
+          <Button 
+            onClick={handleSubmitComplete}
+            variant="default"
+            className="flex-1 h-9"
+          >
+            {t('common.confirmSave')}
           </Button>
         </div>
       </div>
@@ -695,6 +695,14 @@ export function MeetupDetailSidebar({
                       </div>
                       <div className="flex gap-2">
                         <Button 
+                          onClick={() => setConfirmCancel(false)}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          {t('meetup.noCancel')}
+                        </Button>
+                        <Button 
                           onClick={handleCancelMeetup}
                           disabled={canceling}
                           variant="destructive"
@@ -702,14 +710,6 @@ export function MeetupDetailSidebar({
                           className="flex-1 h-8"
                         >
                           {canceling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('meetup.yesCancel')}
-                        </Button>
-                        <Button 
-                          onClick={() => setConfirmCancel(false)}
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                        >
-                          {t('meetup.noCancel')}
                         </Button>
                       </div>
                     </div>

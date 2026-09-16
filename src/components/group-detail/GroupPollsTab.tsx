@@ -1,4 +1,4 @@
-import { Plus, Calendar, Crown, Sparkles, Check } from 'lucide-react'
+import { Plus, Calendar, Crown, Check } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -150,10 +150,10 @@ export function GroupPollsTab({
                             }}
                             size="sm"
                             className="rounded-xl text-[10px] font-black uppercase tracking-wider h-8 shadow-sm flex items-center gap-1"
-                          >
-                            <Sparkles className="h-3 w-3" />
-                            <span>{t('groups.createTable')}</span>
-                          </Button>
+                            icon={Plus}
+                            label={t('common.hostTable')}
+                            aria-label={t('common.hostTable')}
+                          />
                         ) : (
                           <span className="text-[10px] text-muted-foreground font-extrabold uppercase">{t('groups.noWinners')}</span>
                         )}

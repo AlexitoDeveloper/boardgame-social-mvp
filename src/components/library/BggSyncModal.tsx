@@ -152,7 +152,7 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !loading && (open ? null : handleDismiss())}>
-      <DialogContent className="max-w-md bg-card border-border/50 rounded-3xl p-6 shadow-2xl text-left gap-4 overflow-hidden relative">
+      <DialogContent className="max-w-md bg-card border-border/50 rounded-3xl p-6 shadow-2xl text-left gap-4 overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <DialogHeader className="border-b border-border/20 pb-3 flex flex-col space-y-1.5 text-left sm:text-left">
@@ -194,7 +194,7 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
               <Button
                 onClick={handleDismiss}
                 size="lg"
-                className="w-full rounded-xl font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/25"
+                className="w-full rounded-xl font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/25 h-12 text-sm"
               >
                 <span>{isOnboarding ? t('onboarding.startPlaying', 'Comenzar a jugar') : t('common.close', 'Cerrar')}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -245,23 +245,21 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 pt-3">
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 onClick={handleDismiss}
                 disabled={loading}
-                className="order-2 sm:order-1 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
+                className="rounded-xl text-sm font-bold text-muted-foreground hover:text-foreground cursor-pointer h-11 px-4"
               >
                 {isOnboarding ? t('onboarding.skip', 'Omitir por ahora') : t('common.cancel', 'Cancelar')}
               </Button>
               <Button
                 type="submit"
-                size="sm"
                 disabled={!bggUsername.trim()}
                 loading={loading}
-                className="order-1 sm:order-2 flex-1 rounded-xl text-xs font-bold shadow-md shadow-primary/20 h-10"
+                className="rounded-xl text-sm font-bold shadow-md shadow-primary/20 h-11 px-6 sm:w-auto w-full"
               >
                 {t('profile.bggImport.start', 'Sincronizar')}
               </Button>

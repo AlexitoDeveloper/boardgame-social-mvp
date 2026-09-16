@@ -603,12 +603,14 @@ export function GameDetailPage() {
         </h3>
         
         <div className="flex flex-col gap-3">
-          {/* Organize Match Button */}
+          {/* Host Table Button */}
           <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="w-full">
-            <Button className="w-full font-black tracking-tight gap-2 py-6 rounded-xl shadow-md cursor-pointer bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/95 hover:to-emerald-500 hover:shadow-lg transition-all duration-300">
-              <CalendarDays className="h-4.5 w-4.5" />
-              {t('gameDetail.organizeMeetup')}
-            </Button>
+            <Button 
+              className="w-full font-black tracking-tight gap-2 py-6 rounded-xl shadow-md cursor-pointer bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/95 hover:to-emerald-500 hover:shadow-lg transition-all duration-300"
+              icon={Plus}
+              label={t('common.hostTable')}
+              aria-label={t('common.hostTable')}
+            />
           </Link>
 
           {/* Toggle Personal Collection */}
