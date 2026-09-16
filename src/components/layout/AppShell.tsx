@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 import { BggSyncModal } from '../library/BggSyncModal'
 import { MobileQuickActions } from './MobileQuickActions'
+import { BrandLogo } from '../ui/BrandLogo'
 
 const MotionDiv = motion.div
 
@@ -280,8 +281,9 @@ export function AppShell() {
         {/* ── Desktop sidebar ────────────────────────────────── */}
         <aside className="hidden w-72 glass-panel linen-finish p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
           <div className="mb-6 pt-safeTop px-2">
-            <p className="text-xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent tracking-tight">Boardgame Social</p>
-            <p className="text-sm font-medium text-primary mt-1">MVP</p>
+            <NavLink to="/" className="block rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary">
+              <BrandLogo size="md" />
+            </NavLink>
           </div>
 
           <nav className="space-y-1">
