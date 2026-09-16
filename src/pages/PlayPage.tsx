@@ -633,15 +633,15 @@ export function PlayPage() {
 
           <Button
             type="button"
-            variant="outline"
+            variant="purple"
             size="lg"
             disabled={isSpinning || loadingGames || filteredGames.length === 0}
             onClick={() => {
               setShowVotingModal(true)
             }}
-            className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 border-border/40 hover:border-primary/40 flex items-center justify-center gap-2 transition-all shadow-xs"
+            className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 flex items-center justify-center gap-2 transition-all shadow-sm"
           >
-            <Vote className="w-4 h-4 text-muted-foreground" />
+            <Vote className="w-4 h-4 text-white" />
             <span>{t('play.expressVoting', 'Votación Exprés (30s)')}</span>
           </Button>
 

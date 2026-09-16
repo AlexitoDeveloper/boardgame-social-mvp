@@ -1,6 +1,6 @@
 import { Crown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
-import { Tag } from '../ui/tag'
+import { Badge } from '../ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -54,9 +54,9 @@ export function MeetupDetailAttendees({
             {t('meetup.attendeesCount', { current: attendees.length, max: maxPlayers })}
           </CardDescription>
         </div>
-        <Tag variant="default">
+        <Badge variant="primary-soft" className="text-xs">
           {t('meetup.spotsLeft', { count: spotsRemaining })}
-        </Tag>
+        </Badge>
       </CardHeader>
       
       <CardContent className="p-4 pt-4 sm:p-6 sm:pt-6">
@@ -104,16 +104,16 @@ export function MeetupDetailAttendees({
                   )}
 
                   {isUserOrganizer && (
-                    <Tag variant="warning" className="flex items-center gap-1 shrink-0">
+                    <Badge variant="warning" className="flex items-center gap-1 shrink-0 text-xs">
                       <Crown className="w-3 h-3 fill-current" />
                       Master
-                    </Tag>
+                    </Badge>
                   )}
 
                   {attendee.is_guest && !isUserOrganizer && (
-                    <Tag variant="secondary" className="shrink-0">
+                    <Badge variant="secondary" className="shrink-0 text-xs">
                       {t('common.guest')}
-                    </Tag>
+                    </Badge>
                   )}
                 </MotionDiv>
               )

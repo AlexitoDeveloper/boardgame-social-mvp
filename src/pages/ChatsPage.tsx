@@ -18,7 +18,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Form } from '../components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { Tag } from '../components/ui/tag'
+import { Badge } from '../components/ui/badge'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { Meetup, MeetupMessage, Game } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -429,9 +429,9 @@ export function ChatsPage() {
           <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
             <MessageSquare className="w-5 h-5 text-muted-foreground" /> {t('chats.title')}
           </h1>
-          <Tag variant="secondary" className="font-extrabold text-xs px-2 py-0.5 rounded-full">
+          <Badge variant="secondary" className="text-xs px-2.5 py-0.5">
             {visibleMeetups.length} {visibleMeetups.length === 1 ? t('chats.roomCount_one') : t('chats.roomCount_other')}
-          </Tag>
+          </Badge>
         </div>
 
         <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar">

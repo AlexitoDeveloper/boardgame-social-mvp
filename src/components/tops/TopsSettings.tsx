@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Crown, Check, Layout, Image, Eye, EyeOff } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card'
 import { Button } from '../ui/button'
-import { Tag } from '../ui/tag'
+import { Badge } from '../ui/badge'
 import { Tabs } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Switch } from '../ui/switch'
@@ -97,9 +97,9 @@ export function TopsSettings({
         </Card>
       ) : (
         <Card className="border-primary/20 shadow-xl shadow-primary/5 bg-card/60 backdrop-blur-2xl relative">
-          <Tag variant="default" size="xs" className="absolute top-2.5 right-2.5 shrink-0 select-none uppercase tracking-wider">
+          <Badge variant="default" size="sm" className="absolute top-2.5 right-2.5 shrink-0 select-none">
             <Crown className="w-2.5 h-2.5" /> {t('topsSettings.proActive')}
-          </Tag>
+          </Badge>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-extrabold text-primary">{t('topsSettings.proOptionsTitle')}</CardTitle>
             <CardDescription className="text-xs">{t('topsSettings.proOptionsDesc')}</CardDescription>
