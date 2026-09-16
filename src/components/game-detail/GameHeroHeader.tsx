@@ -1,9 +1,18 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { CalendarDays, Globe, ExternalLink } from 'lucide-react'
+import { CalendarDays, Globe, ExternalLink, ZoomIn } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Game } from '@/types'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 
 interface GameHeroHeaderProps {
   game: Game
@@ -14,6 +23,8 @@ interface GameHeroHeaderProps {
 
 export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHeaderProps) {
   const { t } = useTranslation()
+  const [isCoverZoomOpen, setIsCoverZoomOpen] = useState(false)
+  const fullCoverUrl = coverUrl || game.image_url
 
   return (
     <>
@@ -32,21 +43,47 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
 
       {/* Info Header */}
       <div className="relative max-w-6xl mx-auto px-4 flex gap-4 md:gap-8 items-start md:items-end text-left select-text">
-        {/* Cover Art */}
+        {/* Cover Art with Lightbox Trigger */}
         <motion.div
           initial={{ opacity: 0, y: 15, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="relative h-28 sm:h-36 md:h-48 w-24 sm:w-32 md:w-44 shrink-0 rounded-2xl shadow-xl border border-border/30 flex items-center justify-center bg-card/40 backdrop-blur-xs overflow-hidden"
+          onClick={() => fullCoverUrl && setIsCoverZoomOpen(true)}
+          role={fullCoverUrl ? 'button' : undefined}
+          tabIndex={fullCoverUrl ? 0 : undefined}
+          onKeyDown={(e) => {
+            if (fullCoverUrl && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault()
+              setIsCoverZoomOpen(true)
+            }
+          }}
+          className={cn(
+            "group/cover relative h-28 sm:h-36 md:h-48 w-24 sm:w-32 md:w-44 shrink-0 rounded-2xl shadow-xl border border-border/30 flex items-center justify-center bg-card/40 backdrop-blur-xs overflow-hidden transition-all duration-300",
+            fullCoverUrl && "cursor-zoom-in hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40"
+          )}
+          title={fullCoverUrl ? t('gameDetail.viewCover') : undefined}
+          aria-label={fullCoverUrl ? t('gameDetail.viewCover') : undefined}
         >
           <OptimizedImage
-            src={coverUrl || game.image_url}
+            src={fullCoverUrl}
             alt={title}
             widthSize={350}
             fit="contain"
             loading="eager"
-            className="w-full h-full p-1"
+            className="w-full h-full p-1 transition-transform duration-300 group-hover/cover:scale-105"
           />
+
+          {/* Hover zoom indicator overlay */}
+          {fullCoverUrl && (
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1 text-white pointer-events-none p-2 text-center">
+              <div className="p-2 rounded-full bg-black/60 backdrop-blur-xs shadow-md border border-white/10">
+                <ZoomIn className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold leading-tight drop-shadow-md hidden sm:inline-block">
+                {t('gameDetail.viewCover')}
+              </span>
+            </div>
+          )}
         </motion.div>
 
         {/* Title and metadata */}
@@ -94,6 +131,44 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
           )}
         </div>
       </div>
+
+      {/* Cover Image Lightbox Modal */}
+      {fullCoverUrl && (
+        <Dialog open={isCoverZoomOpen} onOpenChange={setIsCoverZoomOpen}>
+          <DialogContent className="max-w-[94vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl p-3 sm:p-5 bg-card/95 backdrop-blur-2xl border border-border/40 shadow-2xl rounded-2xl sm:rounded-3xl">
+            <DialogHeader className="px-1 pt-1 pb-2 sm:pb-3 border-b border-border/20 text-left">
+              <div className="flex items-center gap-2 pr-7">
+                <DialogTitle className="text-base sm:text-xl font-black tracking-tight text-foreground truncate">
+                  {title}
+                </DialogTitle>
+                {game.year_published && (
+                  <Badge variant="secondary" size="sm">
+                    {game.year_published}
+                  </Badge>
+                )}
+                {game.has_spanish_edition && (
+                  <Badge variant="primary-soft" size="sm">
+                    ES
+                  </Badge>
+                )}
+              </div>
+              <DialogDescription className="text-xs text-muted-foreground truncate">
+                {t('gameDetail.coverOf', { title })}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="relative w-full max-h-[75vh] flex items-center justify-center overflow-hidden rounded-xl bg-muted/15 p-2 sm:p-4">
+              <OptimizedImage
+                src={fullCoverUrl}
+                alt={title}
+                fit="contain"
+                loading="eager"
+                className="max-w-full max-h-[68vh] w-auto h-auto object-contain drop-shadow-xl"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }

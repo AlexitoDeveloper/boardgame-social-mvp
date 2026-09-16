@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { Sparkles, Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from './ui/button'
+import { OptimizedImage } from './ui/OptimizedImage'
 import { Game } from '../types'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
@@ -12,6 +13,7 @@ interface FeaturedGameHeroProps {
 
 export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { getGameTitle, getGamePublisher, getGameCover } = useGameLocale()
   if (!game) return null
 
@@ -29,12 +31,31 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
     ? Number(game.rating_average).toFixed(1) 
     : (game.rating_geek ? Number(game.rating_geek).toFixed(1) : 'N/A')
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.closest('button, a')) return
+    navigate(`/juegos/${game.bgg_id}`)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const target = e.target as HTMLElement
+    if (target.closest('button, a')) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      navigate(`/juegos/${game.bgg_id}`)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, type: 'spring', damping: 25 }}
-      className="w-full relative rounded-3xl overflow-hidden border border-border bg-card backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group"
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      className="w-full relative rounded-3xl overflow-hidden border border-border bg-card backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group cursor-pointer hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/40"
     >
       {/* Decorative Neon Glows in background */}
       <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-gradient-to-br from-primary/10 to-teal-500/5 rounded-full blur-[80px] pointer-events-none -z-10" />
@@ -42,17 +63,14 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
 
       {/* Game Cover on Left */}
       <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-border bg-muted shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-        {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt={displayTitle}
-            className="w-full h-full object-cover"
-            loading="eager"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="text-4xl">🎲</div>
-        )}
+        <OptimizedImage
+          src={coverUrl}
+          alt={displayTitle}
+          widthSize={350}
+          fit="cover"
+          loading="eager"
+          className="w-full h-full"
+        />
       </div>
 
       {/* Info on Right */}
@@ -130,13 +148,21 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
 
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-          <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="shrink-0">
+          <Link 
+            to={`/mesa/nueva?gameId=${game.bgg_id}`} 
+            onClick={(e) => e.stopPropagation()} 
+            className="shrink-0"
+          >
             <Button size="sm" className="font-bold cursor-pointer rounded-xl h-10 px-5 flex items-center gap-1.5 shadow-lg shadow-primary/10 hover:shadow-primary/20">
               <Plus className="w-4.5 h-4.5" />
               <span>{t('common.hostTable')}</span>
             </Button>
           </Link>
-          <Link to={`/juegos/${game.bgg_id}`} className="shrink-0">
+          <Link 
+            to={`/juegos/${game.bgg_id}`} 
+            onClick={(e) => e.stopPropagation()} 
+            className="shrink-0"
+          >
             <Button size="sm" variant="outline" className="font-semibold cursor-pointer rounded-xl h-10 px-5">
               {t('common.details')}
             </Button>

@@ -697,6 +697,8 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       infoNote: "Solo importaremos los juegos marcados como propios en tu cuenta de BGG."
     },
     gameDetail: {
+      viewCover: "Ver portada",
+      coverOf: "Portada de {{title}}",
       loadingTitle: "Cargando Ficha de Juego",
       loadingDesc: "Importando metadatos y estadísticas de BGG al vuelo...",
       notFoundTitle: "¡Oops! Juego no encontrado",
@@ -1527,6 +1529,8 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       infoNote: "We only import games marked as owned in your BGG account."
     },
     gameDetail: {
+      viewCover: "View cover",
+      coverOf: "Cover of {{title}}",
       loadingTitle: "Loading Game Details",
       loadingDesc: "Importing BGG metadata and stats on the fly...",
       notFoundTitle: "Oops! Game not found",
