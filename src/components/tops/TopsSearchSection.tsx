@@ -88,7 +88,7 @@ export function TopsSearchSection({
 
         {/* Show error */}
         {errorMsg && (
-          <div className="text-[11px] text-destructive bg-destructive/10 border border-destructive/20 px-2 py-1.5 rounded-lg font-semibold animate-shake">
+          <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 px-2 py-1.5 rounded-lg font-semibold animate-shake">
             {errorMsg}
           </div>
         )}
@@ -102,7 +102,7 @@ export function TopsSearchSection({
                 variant="ghost" 
                 size="sm" 
                 onClick={handleClearPool}
-                className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
+                className="h-7 px-2 text-xs font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer flex items-center gap-1"
               >
                 <Trash2 className="w-3 h-3" /> {t('common.clear')}
               </Button>
@@ -151,7 +151,7 @@ export function TopsSearchSection({
                       {game.image_url ? (
                         <img src={game.image_url} alt={getGameTitle(game)} className="w-full h-full object-cover pointer-events-none animate-fade-in" />
                       ) : (
-                        <div className="absolute inset-0 bg-muted/40 text-[9px] font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
+                        <div className="absolute inset-0 bg-muted/40 text-xs font-bold text-center flex items-center justify-center p-0.5 line-clamp-2">
                           {getGameTitle(game)}
                         </div>
                       )}
@@ -182,14 +182,14 @@ export function TopsSearchSection({
                         variant="ghost" 
                         size="sm" 
                         onClick={() => removeFromPool(selectedGameForPlacement.bgg_id)}
-                        className="h-6 text-[10px] text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer px-2"
+                        className="h-6 text-xs text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer px-2"
                       >
                         {t('common.remove')}
                       </Button>
                     </div>
                     
                     <div className="space-y-1.5">
-                      <p className="text-[10px] text-zinc-400 font-semibold">
+                      <p className="text-xs text-zinc-400 font-semibold">
                         <span className="hidden sm:inline">{t('tops.placementHintLandscape')}</span>
                         <span className="inline sm:hidden">{t('tops.placementHintPortrait')}</span>
                       </p>
@@ -200,7 +200,7 @@ export function TopsSearchSection({
                               key={t.id}
                               size="sm"
                               className={cn(
-                                "h-10 px-4 sm:h-7 sm:px-2.5 text-xs sm:text-[10px] font-black border border-white/10 rounded-md cursor-pointer text-white shadow-sm hover:scale-105 active:scale-95 transition-all duration-150",
+                                "h-10 px-4 sm:h-7 sm:px-2.5 text-xs font-black border border-white/10 rounded-md cursor-pointer text-white shadow-sm hover:scale-105 active:scale-95 transition-all duration-150",
                                 t.color
                               )}
                               onClick={() => placeInTier(t.id)}
@@ -214,7 +214,7 @@ export function TopsSearchSection({
                               key={num}
                               size="sm"
                               variant="secondary"
-                              className="h-10 w-10 sm:h-7 sm:w-7 p-0 text-xs sm:text-[10px] font-extrabold hover:bg-primary hover:text-primary-foreground border border-border/60 rounded-md cursor-pointer flex items-center justify-center"
+                              className="h-10 w-10 sm:h-7 sm:w-7 p-0 text-xs font-extrabold hover:bg-primary hover:text-primary-foreground border border-border/60 rounded-md cursor-pointer flex items-center justify-center"
                               onClick={() => placeInTop10(num - 1)}
                             >
                               #{num}
@@ -224,7 +224,7 @@ export function TopsSearchSection({
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-10 px-3 sm:h-7 sm:px-2 text-xs sm:text-[10px] text-muted-foreground hover:bg-muted ml-auto rounded-md cursor-pointer"
+                          className="h-10 px-3 sm:h-7 sm:px-2 text-xs text-muted-foreground hover:bg-muted ml-auto rounded-md cursor-pointer"
                           onClick={() => setSelectedGameForPlacement(null)}
                         >
                           {t('common.cancel')}

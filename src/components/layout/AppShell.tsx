@@ -67,13 +67,13 @@ function NavItem({ to, label, icon, mobile = false, badgeCount = 0 }: NavItemPro
               {createElement(icon, { 'aria-hidden': true, focusable: false, className: cn(mobile ? 'h-5 w-5 opacity-90' : 'h-5 w-5') })}
               {!mobile && <span>{label}</span>}
               {mobile && badgeCount > 0 && (
-                <span className="absolute top-[-5px] right-[-8px] w-[16px] h-[16px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[8px] font-black shrink-0 border border-card aspect-square">
+                <span className="absolute top-[-5px] right-[-8px] w-[16px] h-[16px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shrink-0 border border-card aspect-square">
                   {badgeCount}
                 </span>
               )}
             </div>
             {!mobile && badgeCount > 0 && (
-              <span className="w-[18px] h-[18px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[9px] font-black shrink-0 shadow-sm shadow-primary/20 aspect-square">
+              <span className="w-[18px] h-[18px] bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shrink-0 shadow-sm shadow-primary/20 aspect-square">
                 {badgeCount}
               </span>
             )}
@@ -344,7 +344,7 @@ export function AppShell() {
                           {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
                           <span>{t('nav.theme')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
+                        <span className="text-muted-foreground text-xs">{isDark ? t('nav.dark') : t('nav.light')}</span>
                       </Button>
                       <Button
                         type="button"
@@ -356,7 +356,7 @@ export function AppShell() {
                           <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
                           <span>{t('nav.changeLang')}</span>
                         </div>
-                        <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
+                        <span className="text-muted-foreground text-xs uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
                       </Button>
                       <Button
                         type="button"
@@ -385,7 +385,7 @@ export function AppShell() {
           </div>
 
           {/* Legal Attribution */}
-          <div className="mt-4 text-[10px] text-center text-muted-foreground/50 font-semibold select-none shrink-0">
+          <div className="mt-4 text-xs text-center text-muted-foreground/50 font-semibold select-none shrink-0">
             {t('appShell.bggAttribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
           </div>
         </aside>
@@ -520,7 +520,7 @@ export function AppShell() {
                   {isDark ? <Sun aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" /> : <Moon aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />}
                   <span>{t('nav.theme')}</span>
                 </div>
-                <span className="text-muted-foreground text-[10px]">{isDark ? t('nav.dark') : t('nav.light')}</span>
+                <span className="text-muted-foreground text-xs">{isDark ? t('nav.dark') : t('nav.light')}</span>
               </Button>
 
               <Button
@@ -533,7 +533,7 @@ export function AppShell() {
                   <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
                   <span>{t('nav.changeLang')}</span>
                 </div>
-                <span className="text-muted-foreground text-[10px] uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
+                <span className="text-muted-foreground text-xs uppercase">{language === 'es' ? t('nav.es') : t('nav.en')}</span>
               </Button>
 
               <Button

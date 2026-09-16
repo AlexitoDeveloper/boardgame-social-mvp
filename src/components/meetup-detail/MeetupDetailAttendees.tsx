@@ -78,7 +78,7 @@ export function MeetupDetailAttendees({
                     <span className="text-sm font-bold block text-foreground truncate group-hover:text-primary transition-colors">
                       {attendee.username} {isCurrentAttendee && <span className="text-xs text-primary font-semibold">({t('meetup.you')})</span>}
                     </span>
-                    <span className="text-[10px] text-muted-foreground font-medium block">
+                    <span className="text-xs text-muted-foreground font-medium block">
                       {isUserOrganizer ? t('meetup.organizer') : attendee.is_guest ? t('meetup.tempGuest') : t('meetup.player')}
                     </span>
                   </div>

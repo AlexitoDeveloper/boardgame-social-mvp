@@ -79,8 +79,8 @@ export function GroupLudotecaTab({
           {filteredMerged.map((item) => (
             <div key={item.game.bgg_id} className="space-y-2 flex flex-col justify-between">
               <GameCoverCard game={item.game} />
-              <div className="text-[10px] bg-muted/30 p-2 rounded-xl border border-border/20 space-y-1.5">
-                <p className="font-bold text-[9px] text-muted-foreground uppercase tracking-wider leading-none">
+              <div className="text-xs bg-muted/30 p-2 rounded-xl border border-border/20 space-y-1.5">
+                <p className="font-bold text-xs text-muted-foreground uppercase tracking-wider leading-none">
                   {t('groups.ownedBy')}
                 </p>
                 <div className="flex flex-wrap gap-1 items-center">
@@ -89,12 +89,12 @@ export function GroupLudotecaTab({
                     return (
                       <div
                         key={owner.user_id}
-                        className="flex items-center gap-1 bg-background/60 hover:bg-background px-1.5 py-1 rounded-lg border border-border/15 font-semibold text-foreground/80 text-[10px] shadow-sm select-all transition-colors cursor-default"
+                        className="flex items-center gap-1 bg-background/60 hover:bg-background px-1.5 py-1 rounded-lg border border-border/15 font-semibold text-foreground/80 text-xs shadow-sm select-all transition-colors cursor-default"
                         title={owner.username}
                       >
                         <Avatar className="h-4 w-4 shrink-0 border border-primary/20">
                           <AvatarImage src={owner.avatar_url || undefined} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-[6px] font-bold">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                             {initials}
                           </AvatarFallback>
                         </Avatar>

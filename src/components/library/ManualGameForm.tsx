@@ -68,7 +68,7 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
 
       <div className="grid grid-cols-3 gap-2.5">
         <div className="space-y-1">
-          <Label htmlFor="custom-min" className="text-[11px] font-bold text-muted-foreground">
+          <Label htmlFor="custom-min" className="text-xs font-bold text-muted-foreground">
             Mín. Jug.
           </Label>
           <Input
@@ -83,7 +83,7 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="custom-max" className="text-[11px] font-bold text-muted-foreground">
+          <Label htmlFor="custom-max" className="text-xs font-bold text-muted-foreground">
             Máx. Jug.
           </Label>
           <Input
@@ -98,7 +98,7 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="custom-time" className="text-[11px] font-bold text-muted-foreground">
+          <Label htmlFor="custom-time" className="text-xs font-bold text-muted-foreground">
             Tiempo (min)
           </Label>
           <Input

@@ -67,7 +67,7 @@ export function ProfileShowcaseCard({
               {profile.username?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-1 -right-1 z-20 bg-primary border-4 border-card text-white text-[11px] font-black rounded-full h-8 w-8 flex items-center justify-center shadow-lg">
+          <div className="absolute -bottom-1 -right-1 z-20 bg-primary border-4 border-card text-white text-xs font-black rounded-full h-8 w-8 flex items-center justify-center shadow-lg">
             {playerLevel}
           </div>
         </div>
@@ -130,7 +130,7 @@ export function ProfileShowcaseCard({
 
           {/* Experience Bar layout */}
           <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20 relative">
-            <div className="flex justify-between items-center text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+            <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase tracking-wider">
               <span className="flex items-center gap-1">
                 {t('profile.xpTitle')}
                 <span title={t('profile.xpHelpTitle')} className="inline-flex">
@@ -148,7 +148,7 @@ export function ProfileShowcaseCard({
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
-            <span className="text-[8.5px] text-muted-foreground/80 block leading-none font-semibold">
+            <span className="text-xs text-muted-foreground/80 block leading-none font-semibold">
               {t('profile.xpTotalDesc', { count: totalXp })}
             </span>
 
@@ -161,7 +161,7 @@ export function ProfileShowcaseCard({
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden border-t border-border/10 mt-1.5 pt-1.5"
                 >
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[9px] text-zinc-300 font-extrabold select-none">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-300 font-extrabold select-none">
                     <div className="flex items-center justify-between">
                       <span>🎲 {t('profile.xpRules.meetup')}:</span>
                       <span className="text-emerald-400 font-black">+100 XP</span>

@@ -118,18 +118,18 @@ export function GameDetailPage() {
       {/* Quick Specs Row */}
       <div className="grid grid-cols-3 gap-4 p-5 glass-panel rounded-2xl shadow-sm">
         <div className="flex flex-col items-center justify-center text-center p-2">
-          <Users className="h-6 w-6 text-primary mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('common.players')}</span>
+          <Users className="h-6 w-6 text-muted-foreground mb-1.5" />
+          <span className="text-xs uppercase font-black tracking-wider text-muted-foreground">{t('common.players')}</span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{players}</span>
         </div>
         <div className="flex flex-col items-center justify-center text-center p-2 border-x border-border/30">
-          <Hourglass className="h-6 w-6 text-teal-400 mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('explore.duration')}</span>
+          <Hourglass className="h-6 w-6 text-muted-foreground mb-1.5" />
+          <span className="text-xs uppercase font-black tracking-wider text-muted-foreground">{t('explore.duration')}</span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}</span>
         </div>
         <div className="flex flex-col items-center justify-center text-center p-2">
-          <BarChart className="h-6 w-6 text-purple-400 mb-1.5" />
-          <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">{t('explore.difficulty')}</span>
+          <BarChart className="h-6 w-6 text-muted-foreground mb-1.5" />
+          <span className="text-xs uppercase font-black tracking-wider text-muted-foreground">{t('explore.difficulty')}</span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">{complexity > 0 ? `${complexity.toFixed(1)}/5` : 'N/A'}</span>
         </div>
       </div>
@@ -137,21 +137,21 @@ export function GameDetailPage() {
       {/* BGG Rankings and Ratings Panel */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* BGG Rank Card */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
-          <Trophy className="absolute right-4 top-4 h-12 w-12 text-primary/10 select-none pointer-events-none" />
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-border/80 hover:shadow-lg transition-all duration-300 group/metric">
+          <Trophy className="absolute right-4 top-4 h-12 w-12 text-muted-foreground/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('gameDetail.bggRank')}</span>
             <h3 className="text-3xl font-black tracking-tight text-foreground">
               {game.bgg_rank ? `#${game.bgg_rank}` : 'N/A'}
             </h3>
           </div>
-          <p className="text-[11px] text-muted-foreground/75 leading-normal">
+          <p className="text-xs text-muted-foreground/75 leading-normal">
             {t('gameDetail.globalRankDesc')}
           </p>
         </div>
 
         {/* Rating Card */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-border/80 hover:shadow-lg transition-all duration-300 group/metric">
           <Star className="absolute right-4 top-4 h-12 w-12 text-amber-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('explore.rating')}</span>
@@ -160,13 +160,13 @@ export function GameDetailPage() {
               <span className="text-xs text-muted-foreground/70 font-semibold">/10</span>
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground/75 leading-normal">
+          <p className="text-xs text-muted-foreground/75 leading-normal">
             Geek Rating: {geekRating}
           </p>
         </div>
 
         {/* Complexity Card */}
-        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group/metric">
+        <div className="glass-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden shadow-sm h-36 hover:border-border/80 hover:shadow-lg transition-all duration-300 group/metric">
           <BarChart className="absolute right-4 top-4 h-12 w-12 text-purple-500/10 select-none pointer-events-none" />
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">{t('explore.difficulty')}</span>
@@ -177,7 +177,7 @@ export function GameDetailPage() {
               <span className="text-xs text-muted-foreground/70 font-semibold">/5</span>
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground/75 leading-normal">
+          <p className="text-xs text-muted-foreground/75 leading-normal">
             {complexityLabel}
           </p>
         </div>
@@ -188,7 +188,7 @@ export function GameDetailPage() {
         <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-3.5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <BarChart className="h-5 w-5 text-primary" />
+              <BarChart className="h-5 w-5 text-muted-foreground" />
               <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t('gameDetail.difficultyProfile')}</h4>
             </div>
             <span className={`text-xs font-extrabold uppercase px-2 py-0.5 rounded-md border ${complexityColor}`}>
@@ -205,7 +205,7 @@ export function GameDetailPage() {
                 style={{ width: `${(complexity / 5) * 100}%` }}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
+            <div className="flex justify-between text-xs text-muted-foreground font-bold">
               <span>{t('gameDetail.light')} (0)</span>
               <span>{t('gameDetail.medium')} (2.5)</span>
               <span>{t('gameDetail.heavy')} (5)</span>
@@ -254,7 +254,7 @@ export function GameDetailPage() {
             <Dices className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[9px] uppercase font-black tracking-widest text-muted-foreground block">
+            <span className="text-xs uppercase font-black tracking-widest text-muted-foreground block">
               {t('gameDetail.registeredPlays')}
             </span>
             <h4 className="text-xl font-black text-foreground mt-0.5">
@@ -296,7 +296,7 @@ export function GameDetailPage() {
                     />
                   ) : (
                     <div className="h-8 w-8 rounded-full bg-muted border border-border/40 flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-muted-foreground">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {winner.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -315,7 +315,7 @@ export function GameDetailPage() {
           <div className="text-center py-8 text-muted-foreground space-y-2">
             <Crown className="h-8 w-8 text-muted-foreground/30 mx-auto" />
             <p className="text-xs font-medium">{t('gameDetail.noWinsTitle')}</p>
-            <p className="text-[11px] text-muted-foreground/75">{t('gameDetail.noWinsDesc')}</p>
+            <p className="text-xs text-muted-foreground/75">{t('gameDetail.noWinsDesc')}</p>
           </div>
         )}
       </div>
@@ -323,7 +323,7 @@ export function GameDetailPage() {
       {/* Local Ludoteca Owners */}
       <div className="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-border/40 pb-3">
-          <Bookmark className="h-5 w-5 text-primary" />
+          <Bookmark className="h-5 w-5 text-muted-foreground" />
           <h3 className="text-xs font-black uppercase tracking-wider text-foreground">{t('gameDetail.communityLudoteca')}</h3>
         </div>
 
@@ -334,7 +334,7 @@ export function GameDetailPage() {
               return (
                 <div 
                   key={owner.user_id} 
-                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:border-primary/20 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-muted/20 hover:border-border/80 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Link to={`/perfil/${owner.user_id}`} className="shrink-0">
@@ -354,11 +354,11 @@ export function GameDetailPage() {
                     </Link>
                     
                     <div className="min-w-0">
-                      <Link to={`/perfil/${owner.user_id}`} className="hover:underline hover:text-primary transition-colors">
+                      <Link to={`/perfil/${owner.user_id}`} className="hover:underline hover:text-foreground transition-colors">
                         <span className="text-sm font-bold text-foreground block truncate">{owner.username}</span>
                       </Link>
                       {owner.city && (
-                        <span className="text-[10px] text-muted-foreground font-semibold block truncate">
+                        <span className="text-xs text-muted-foreground font-semibold block truncate">
                           📍 {owner.city}
                         </span>
                       )}
@@ -367,12 +367,12 @@ export function GameDetailPage() {
 
                   {currentUserCity ? (
                     isLocal ? (
-                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md shrink-0">
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md shrink-0">
                         {t('gameDetail.nearby')}
                       </span>
                     ) : (
                       owner.city && (
-                        <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60 bg-muted/40 border border-border/10 px-2 py-0.5 rounded-md shrink-0">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 bg-muted/40 border border-border/10 px-2 py-0.5 rounded-md shrink-0">
                           {t('gameDetail.foreign')}
                         </span>
                       )
@@ -386,7 +386,7 @@ export function GameDetailPage() {
           <div className="text-center py-8 text-muted-foreground space-y-2">
             <Bookmark className="h-8 w-8 text-muted-foreground/30 mx-auto" />
             <p className="text-xs font-medium">{t('gameDetail.emptyLudotecaTitle')}</p>
-            <p className="text-[11px] text-muted-foreground/75">{t('gameDetail.emptyLudotecaDesc')}</p>
+            <p className="text-xs text-muted-foreground/75">{t('gameDetail.emptyLudotecaDesc')}</p>
           </div>
         )}
       </div>
@@ -398,7 +398,7 @@ export function GameDetailPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-border/40 pb-3">
         <div className="flex items-center gap-2">
-          <CalendarDays className="h-5 w-5 text-primary" />
+          <CalendarDays className="h-5 w-5 text-muted-foreground" />
           <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
             {t('gameDetail.upcomingPlays')}
           </h3>
@@ -418,7 +418,7 @@ export function GameDetailPage() {
             return (
               <div 
                 key={meetup.id} 
-                className="glass-panel hover:border-primary/45 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col justify-between group"
+                className="glass-panel hover:border-border/80 rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
               >
                 <div className="space-y-3">
                   <div className="flex justify-between items-start gap-2">
@@ -431,17 +431,17 @@ export function GameDetailPage() {
                         />
                       ) : (
                         <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
-                          <span className="text-[8px] font-bold text-muted-foreground">
+                          <span className="text-xs font-bold text-muted-foreground">
                             {meetup.users?.username?.charAt(0).toUpperCase() || 'O'}
                           </span>
                         </div>
                       )}
-                      <span className="text-[11px] font-bold text-muted-foreground">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {t('gameDetail.organizedBy', { username: meetup.users?.username })}
                       </span>
                     </div>
 
-                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                    <span className={`text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
                       isFull ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                     }`}>
                       {isFull ? t('common.full') : t('common.free')}
@@ -459,9 +459,9 @@ export function GameDetailPage() {
                     )}
                   </div>
 
-                  <div className="text-[11px] font-semibold text-muted-foreground/80 space-y-1 border-t border-border/30 pt-3">
+                  <div className="text-xs font-semibold text-muted-foreground/80 space-y-1 border-t border-border/30 pt-3">
                     <p className="flex items-center gap-1.5">
-                      <CalendarDays className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <CalendarDays className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                       <span>
                         {formatDate(dateObj, { 
                           weekday: 'short', 
@@ -474,12 +474,12 @@ export function GameDetailPage() {
                     </p>
                     {meetup.is_online ? (
                       <p className="flex items-center gap-1.5">
-                        <Globe className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span>Online via {meetup.platform || 'Discord'}</span>
                       </p>
                     ) : (
                       <p className="flex items-center gap-1.5 truncate">
-                        <span className="shrink-0 text-primary">📍</span>
+                        <span className="shrink-0 text-muted-foreground">📍</span>
                         <span>{meetup.location} ({meetup.city})</span>
                       </p>
                     )}
@@ -555,7 +555,7 @@ export function GameDetailPage() {
               <h5 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {getGameTitle(baseGame)}
               </h5>
-              <p className="text-[10px] text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
+              <p className="text-xs text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
                 {t('gameDetail.baseGame')} • {baseGame.year_published || 'N/A'}
               </p>
             </div>
@@ -582,7 +582,7 @@ export function GameDetailPage() {
                 <h4 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
                   {getGameTitle(exp)}
                 </h4>
-                <p className="text-[10px] text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground font-extrabold mt-1 uppercase tracking-wider">
                   {t('gameDetail.expansion')} • {exp.year_published || 'N/A'}
                 </p>
               </div>
@@ -636,7 +636,7 @@ export function GameDetailPage() {
           </Button>
         </div>
 
-        <p className="text-[10px] text-muted-foreground font-medium leading-relaxed text-center pt-2">
+        <p className="text-xs text-muted-foreground font-medium leading-relaxed text-center pt-2">
           {t('gameDetail.collectionTip')}
         </p>
       </div>
@@ -670,7 +670,7 @@ export function GameDetailPage() {
           aria-label={t('common.back')}
           title={t('common.back')}
         />
-        <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
+        <span className="text-xs font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
           {t('gameDetail.technicalSheet')}
         </span>
       </div>
@@ -697,19 +697,19 @@ export function GameDetailPage() {
         <div className="flex-grow space-y-2 md:space-y-3 pb-1 md:pb-2 select-text min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             {game.year_published && (
-              <span className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
+              <span className="flex items-center gap-1 text-xs md:text-xs font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
                 <CalendarDays className="h-2.5 w-2.5 md:h-3 md:w-3" />
                 {game.year_published}
               </span>
             )}
             {game.has_spanish_edition && (
-              <span className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
+              <span className="flex items-center gap-1 text-xs md:text-xs font-extrabold uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm">
                 <Globe className="h-2.5 w-2.5 md:h-3 md:w-3" />
                 ES
               </span>
             )}
             {game.is_expansion && (
-              <span className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg uppercase backdrop-blur-sm shadow-sm">
+              <span className="text-xs md:text-xs font-extrabold tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg uppercase backdrop-blur-sm shadow-sm">
                 {t('gameDetail.expansion')}
               </span>
             )}
@@ -717,7 +717,7 @@ export function GameDetailPage() {
               href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm hover:text-primary hover:border-primary/30 transition-colors"
+              className="flex items-center gap-1 text-xs md:text-xs font-extrabold uppercase tracking-widest text-muted-foreground bg-card/85 dark:bg-card/45 border border-border/20 px-2 md:px-2.5 py-0.5 md:py-1 rounded-md md:rounded-lg backdrop-blur-sm shadow-sm hover:text-primary hover:border-primary/30 transition-colors"
             >
               BGG ↗
             </a>
@@ -728,7 +728,7 @@ export function GameDetailPage() {
           </h1>
 
           {language === 'es' && game.title_es && game.title_es !== game.title && (
-            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               {t('gameDetail.originalTitle')}: <span className="italic font-bold text-foreground/80">{game.title}</span>
             </p>
           )}
@@ -776,7 +776,7 @@ export function GameDetailPage() {
         </div>
 
         {/* BGG Legal Disclaimer */}
-        <div className="text-[10px] text-center text-muted-foreground/45 font-semibold select-none pt-12 border-t border-border/10 mt-8">
+        <div className="text-xs text-center text-muted-foreground/45 font-semibold select-none pt-12 border-t border-border/10 mt-8">
           {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
         </div>
       </div>

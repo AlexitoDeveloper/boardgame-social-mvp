@@ -240,7 +240,7 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
                 disabled={loading}
                 className="h-11 rounded-xl text-sm"
               />
-              <p className="text-[10px] text-muted-foreground font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 {t('profile.bggImport.infoOwned', 'Solo se importarán los juegos marcados como "Owned" en tu perfil público.')}
               </p>
             </div>

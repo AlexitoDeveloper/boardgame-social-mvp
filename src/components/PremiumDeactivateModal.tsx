@@ -75,8 +75,8 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
           <div className="rounded-2xl bg-zinc-900/50 border border-zinc-800/80 p-3 flex items-start gap-2.5 text-left">
             <ShieldX className="w-4.5 h-4.5 text-destructive shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <h4 className="text-[11px] font-black text-foreground">{t('premium.reversibleTitle')}</h4>
-              <p className="text-[10px] text-zinc-400 leading-normal font-semibold">
+              <h4 className="text-xs font-black text-foreground">{t('premium.reversibleTitle')}</h4>
+              <p className="text-xs text-zinc-400 leading-normal font-semibold">
                 {t('premium.reversibleDesc')}
               </p>
             </div>
@@ -98,7 +98,7 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="w-full text-[10px] font-bold cursor-pointer hover:bg-zinc-900"
+              className="w-full text-xs font-bold cursor-pointer hover:bg-zinc-900"
             >
               {t('premium.keepPro')}
             </Button>

@@ -341,7 +341,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">
+                  <span className="text-xs uppercase font-black tracking-widest text-emerald-400">
                     Juego Ganador por Mayoría
                   </span>
                   <h3 className="text-xl sm:text-2xl font-black text-foreground">
@@ -406,7 +406,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                     <Users className="w-3.5 h-3.5 text-primary" />
                     {totalVotesCast === 1 ? '1 persona ha votado' : `${totalVotesCast} personas han votado`}
                   </span>
-                  <span className="font-semibold text-[11px]">
+                  <span className="font-semibold text-xs">
                     {myVote ? 'Tu voto está emitido (pulsa para cambiarlo)' : 'Elige 1 juego de la lista'}
                   </span>
                 </div>
@@ -440,7 +440,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
         {/* Footer */}
         {!isFinished && (
           <div className="p-4 border-t border-border/30 bg-muted/10 flex items-center justify-between gap-3">
-            <span className="text-[11px] text-muted-foreground font-medium truncate">
+            <span className="text-xs text-muted-foreground font-medium truncate">
               Votando como <strong className="text-foreground">{currentUserName}</strong>
             </span>
 

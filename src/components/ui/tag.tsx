@@ -36,9 +36,9 @@ const tagVariants = cva(
           "border-border/40 text-foreground bg-transparent",
       },
       size: {
-        default: "h-6 px-2.5 text-[11px] rounded-lg",
-        sm: "h-5 px-2 text-[9.5px] rounded-md",
-        xs: "h-4.5 px-1.5 text-[8.5px] rounded-md font-extrabold",
+        default: "h-6 px-2.5 text-xs rounded-lg",
+        sm: "h-5 px-2 text-xs rounded-md",
+        xs: "h-4.5 px-1.5 text-xs rounded-md font-extrabold",
       },
     },
     defaultVariants: {

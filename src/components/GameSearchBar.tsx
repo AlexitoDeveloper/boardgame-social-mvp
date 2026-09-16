@@ -123,12 +123,12 @@ export function GameSearchBar({
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
                               {g.year_published || t('common.yearUnknown')}
                               {g.is_expansion && (
-                                <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
+                                <span className="ml-2 px-1.5 py-0.5 text-xs font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
                                   {t('common.expansion')}
                                 </span>
                               )}
                               {g.isFromBgg && (
-                                <span className="ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase text-primary bg-primary/10 border border-primary/20 rounded-md">
+                                <span className="ml-2 px-1.5 py-0.5 text-xs font-black uppercase text-primary bg-primary/10 border border-primary/20 rounded-md">
                                   BGG
                                 </span>
                               )}

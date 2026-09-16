@@ -46,7 +46,7 @@ export function MeetupDetailLocation({ location, city }: MeetupDetailLocationPro
               <Button 
                 size="sm" 
                 variant="secondary" 
-                className="rounded-lg text-[11px] font-bold shadow-md flex items-center gap-1.5 border h-8 bg-card hover:bg-muted text-foreground border-border/40 cursor-pointer"
+                className="rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5 border h-8 bg-card hover:bg-muted text-foreground border-border/40 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> {t('meetup.howToGet')}
               </Button>

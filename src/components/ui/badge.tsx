@@ -33,8 +33,8 @@ const badgeVariants = cva(
         outline: "border-border/40 text-foreground bg-transparent",
       },
       size: {
-        sm: "px-2 py-0.5 text-[9px] rounded-md",
-        default: "px-2.5 py-0.5 text-[10px] rounded-full",
+        sm: "px-2 py-0.5 text-xs rounded-md",
+        default: "px-2.5 py-0.5 text-xs rounded-full",
         lg: "px-3 py-1 text-xs rounded-xl",
       },
     },

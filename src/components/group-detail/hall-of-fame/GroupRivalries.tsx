@@ -45,7 +45,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                   <Skull className="w-3 h-3" />
                   {t('groups.nemesis')}
                 </Badge>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   {nemesis.totalMatchesTogether} {t('groups.matchesTogether')}
                 </span>
               </div>
@@ -67,7 +67,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                 </div>
               </div>
 
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {t('groups.nemesisDesc')}
               </p>
             </CardContent>
@@ -90,7 +90,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                   <Target className="w-3 h-3" />
                   {t('groups.favoriteVictim')}
                 </Badge>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   {favoriteVictim.totalMatchesTogether} {t('groups.matchesTogether')}
                 </span>
               </div>
@@ -112,7 +112,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                 </div>
               </div>
 
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {t('groups.favoriteVictimDesc')}
               </p>
             </CardContent>

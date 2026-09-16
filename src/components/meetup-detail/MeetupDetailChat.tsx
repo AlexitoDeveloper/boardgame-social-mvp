@@ -158,7 +158,7 @@ export function MeetupDetailChat({
                     <div className={`flex flex-col max-w-[75%] ${own ? 'items-end' : 'items-start'}`}>
                       {/* Sender Name (only for others) */}
                       {!own && (
-                        <span className="text-[11px] font-semibold text-muted-foreground mb-1 ml-1">
+                        <span className="text-xs font-semibold text-muted-foreground mb-1 ml-1">
                           {msg.sender_name}
                         </span>
                       )}
@@ -175,7 +175,7 @@ export function MeetupDetailChat({
                       </div>
 
                       {/* Timestamp */}
-                      <span className="text-[9px] text-muted-foreground/70 mt-1 px-1">
+                      <span className="text-xs text-muted-foreground/70 mt-1 px-1">
                         {formatTime(msg.created_at)}
                       </span>
                     </div>

@@ -59,7 +59,7 @@ export function Tabs<T extends string>({
               <span className={cn(hideLabelsOnMobile && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
-                  "px-1.5 py-0.5 rounded-full text-[10px] font-bold border border-current shrink-0",
+                  "px-1.5 py-0.5 rounded-full text-xs font-bold border border-current shrink-0",
                   isActive ? "bg-primary-foreground/15 border-transparent" : "bg-muted text-muted-foreground border-border/40"
                 )}>
                   {opt.count}

@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Tag } from '../ui/tag'
 import { Tabs } from '../ui/tabs'
 import { Input } from '../ui/input'
+import { Switch } from '../ui/switch'
 import { Game } from '../../types'
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
 import { useTranslation } from 'react-i18next'
@@ -71,19 +72,19 @@ export function TopsSettings({
             <CardTitle className="text-sm font-extrabold flex items-center gap-1.5 text-primary">
               <Crown className="w-4.5 h-4.5 animate-bounce shrink-0 text-primary" /> {t('topsSettings.proGeneratorTitle')}
             </CardTitle>
-            <CardDescription className="text-[11px]">
+            <CardDescription className="text-xs">
               {t('topsSettings.proGeneratorDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="pb-4 relative z-10 space-y-2">
-            <p className="text-[10px] text-zinc-300 leading-normal">
+            <p className="text-xs text-zinc-300 leading-normal">
               {t('topsSettings.proGeneratorHelp')}
             </p>
             <Button
               variant="premium"
               size="sm"
               onClick={() => setIsUpgradeModalOpen(true)}
-              className="w-full h-8 rounded-xl flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all animate-pulse"
+              className="w-full h-8 rounded-xl flex items-center justify-center gap-1 text-xs font-black uppercase tracking-wider cursor-pointer transition-all animate-pulse"
             >
               <Crown className="w-3.5 h-3.5" /> {t('topsSettings.activatePro')}
             </Button>
@@ -101,12 +102,12 @@ export function TopsSettings({
           </Tag>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-extrabold text-primary">{t('topsSettings.proOptionsTitle')}</CardTitle>
-            <CardDescription className="text-[11px]">{t('topsSettings.proOptionsDesc')}</CardDescription>
+            <CardDescription className="text-xs">{t('topsSettings.proOptionsDesc')}</CardDescription>
           </CardHeader>
           <CardContent className="pb-4 space-y-3">
             {/* 1. Ratio selector */}
             <div className="space-y-1.5">
-              <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+              <label className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                 <Layout className="w-3 h-3 text-primary" /> {t('topsSettings.aspectRatioLabel')}
               </label>
               <Tabs
@@ -123,7 +124,7 @@ export function TopsSettings({
 
             {/* 2. Gradient background selector */}
             <div className="space-y-1">
-              <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+              <label className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                 <Image className="w-3 h-3" /> {t('topsSettings.premiumBgLabel')}
               </label>
               <div className="flex flex-wrap gap-1.5 py-1">
@@ -157,22 +158,15 @@ export function TopsSettings({
             {/* 3. Watermark settings */}
             <div className="space-y-2 border-t border-border/20 pt-2">
               <div className="flex items-center justify-between">
-                <label className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1 select-none">
+                <label className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1 select-none">
                   {showWatermark ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-muted-foreground" />} {t('topsSettings.watermarkLabel')}
                 </label>
-                <Button
-                  onClick={() => setShowWatermark(!showWatermark)}
-                  variant="ghost"
-                  className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none p-0 min-h-0 min-w-0 ${
-                    showWatermark ? 'bg-primary' : 'bg-zinc-800'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      showWatermark ? 'translate-x-3.5' : 'translate-x-0'
-                    }`}
-                  />
-                </Button>
+                <Switch
+                  checked={showWatermark}
+                  onCheckedChange={setShowWatermark}
+                  size="sm"
+                  aria-label={t('topsSettings.watermarkLabel')}
+                />
               </div>
 
               {showWatermark && (
@@ -182,7 +176,7 @@ export function TopsSettings({
                     placeholder={t('topsSettings.watermarkPlaceholder')}
                     value={customWatermark}
                     onChange={(e) => setCustomWatermark(e.target.value)}
-                    className="h-7 text-[10px] rounded-lg bg-background/30 border-border/30 focus:ring-amber-500 focus:border-amber-500 placeholder:text-muted-foreground py-1 px-2"
+                    className="h-7 text-xs rounded-lg bg-background/30 border-border/30 focus:ring-amber-500 focus:border-amber-500 placeholder:text-muted-foreground py-1 px-2"
                   />
                 </div>
               )}
@@ -199,7 +193,7 @@ export function TopsSettings({
                   setSelectedBg('default')
                   setAspectRatio('standard')
                 }}
-                className="text-[9.5px] font-extrabold text-muted-foreground hover:text-destructive transition-colors cursor-pointer h-auto p-0 hover:no-underline"
+                className="text-xs font-extrabold text-muted-foreground hover:text-destructive transition-colors cursor-pointer h-auto p-0 hover:no-underline"
               >
                 {t('topsSettings.deactivatePro')}
               </Button>

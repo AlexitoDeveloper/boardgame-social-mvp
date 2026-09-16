@@ -114,7 +114,7 @@ export function ExploreHeader({
             <SlidersHorizontal className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t('explore.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center bg-primary text-primary-foreground">
+              <span className="text-xs font-black rounded-full h-5 w-5 flex items-center justify-center bg-primary text-primary-foreground">
                 {activeFiltersCount}
               </span>
             )}
@@ -136,7 +136,7 @@ export function ExploreHeader({
               {/* Player filter group */}
               <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
                 <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-xs uppercase tracking-wider select-none">
-                  <Users className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span>{t('explore.playersFilter')}</span>
                 </span>
                 <div className="grid grid-cols-5 gap-1">
@@ -157,21 +157,20 @@ export function ExploreHeader({
               {/* Complexity filter group with semantic colors */}
               <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
                 <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-xs uppercase tracking-wider select-none">
-                  <Brain className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <Brain className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span>{t('explore.complexityFilter')}</span>
                 </span>
                 <div className="grid grid-cols-4 gap-1">
                   {[
-                    { key: '', label: t('explore.all'), variant: 'default' as const },
-                    { key: 'familiar', label: t('explore.familiar'), variant: 'emerald' as const },
-                    { key: 'medio', label: t('explore.medium'), variant: 'amber' as const },
-                    { key: 'experto', label: t('explore.expert'), variant: 'purple' as const },
+                    { key: '', label: t('explore.all') },
+                    { key: 'familiar', label: t('explore.familiar') },
+                    { key: 'medio', label: t('explore.medium') },
+                    { key: 'experto', label: t('explore.expert') },
                   ].map((opt) => (
                     <FilterChip
                       key={opt.key}
                       onClick={() => onComplexityFilterChange(opt.key)}
                       selected={complexityFilter === opt.key}
-                      variant={opt.variant}
                       size="sm"
                       className="w-full"
                     >
@@ -186,7 +185,6 @@ export function ExploreHeader({
                 <FilterChip
                   onClick={() => onSpanishOnlyChange(!spanishOnly)}
                   selected={spanishOnly}
-                  variant="primary"
                   size="default"
                   icon={Globe}
                   className="w-full sm:w-auto h-11 px-4"

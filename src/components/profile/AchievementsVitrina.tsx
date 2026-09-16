@@ -171,7 +171,7 @@ export function AchievementsVitrina({
               </div>
               
               {/* Mini label below */}
-              <span className={`text-[8px] font-extrabold uppercase tracking-wide mt-1.5 text-center truncate w-full ${
+              <span className={`text-xs font-extrabold uppercase tracking-wide mt-1.5 text-center truncate w-full ${
                 hasUnlocked 
                   ? isActive ? 'text-primary font-black' : 'text-foreground font-black'
                   : 'text-zinc-500'
@@ -179,7 +179,7 @@ export function AchievementsVitrina({
                 {hasUnlocked ? ach.currentTier?.name : t('profile.achievements.lockedBadge')}
               </span>
               
-              <span className="text-[7.5px] font-semibold text-muted-foreground/80 scale-90">
+              <span className="text-xs font-semibold text-muted-foreground/80 scale-90">
                 {ach.id === 'reliable' ? `${stats.karma}%` : `${ach.progressVal}`}
               </span>
             </div>
@@ -255,12 +255,12 @@ export function AchievementsVitrina({
                 
                 <div className="flex-1 space-y-1.5 min-w-0">
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-[9.5px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
+                    <span className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
                       {hasUnlocked
                         ? t('profile.achievements.unlockedTitle', { tier: tierLabel })
                         : t('profile.achievements.lockedTitle')}
                     </span>
-                    <span className={`text-[9px] font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 shrink-0 ${
+                    <span className={`text-xs font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 shrink-0 ${
                       hasUnlocked ? 'text-primary' : 'text-muted-foreground'
                     }`}>
                       {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
@@ -269,14 +269,14 @@ export function AchievementsVitrina({
                   
                   <div>
                     <h4 className="font-extrabold text-xs text-foreground">{tierName}</h4>
-                    <p className="text-[10px] text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
+                    <p className="text-xs text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
                   </div>
                 </div>
               </div>
 
               {/* Progress bar towards next tier */}
               <div className="space-y-1 pt-1 border-t border-border/10">
-                <div className="flex justify-between items-center text-[8.5px] font-bold text-muted-foreground uppercase tracking-wide">
+                <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase tracking-wide">
                   <span>{nextLevelDesc}</span>
                   <span className="text-foreground">{progressPercent}%</span>
                 </div>
@@ -286,7 +286,7 @@ export function AchievementsVitrina({
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <span className="text-[8px] text-muted-foreground/80 block font-semibold leading-tight">
+                <span className="text-xs text-muted-foreground/80 block font-semibold leading-tight">
                   {progressText}
                 </span>
               </div>

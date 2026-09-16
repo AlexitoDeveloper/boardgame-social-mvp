@@ -71,7 +71,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
           >
             {displayTitle}
           </h4>
-          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground font-semibold">
+          <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-semibold">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3 text-primary" />
               {game.min_players || 2}-{game.max_players || 5} jug.
@@ -97,7 +97,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
           >
             {hasMyVote && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             <span>{voteCount}</span>
-            <span className="text-[10px] font-bold opacity-80 uppercase">
+            <span className="text-xs font-bold opacity-80 uppercase">
               {voteCount === 1 ? 'voto' : 'votos'}
             </span>
           </div>
@@ -107,13 +107,13 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
       {/* Real-time voters names list */}
       {voters.length > 0 && (
         <div className="mt-2 pt-2 border-t border-border/20 flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Votado por:
           </span>
           {voters.map((voter, idx) => (
             <span
               key={idx}
-              className="text-[10.5px] font-bold px-2 py-0.5 rounded-lg bg-background/80 border border-border/40 text-foreground/90"
+              className="text-xs font-bold px-2 py-0.5 rounded-lg bg-background/80 border border-border/40 text-foreground/90"
             >
               {voter}
             </span>

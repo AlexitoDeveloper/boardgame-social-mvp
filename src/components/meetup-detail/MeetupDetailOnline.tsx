@@ -37,7 +37,7 @@ export function MeetupDetailOnline({ platform, voiceLink, isAuthorized }: Meetup
             <Laptop className="w-5 h-5 animate-pulse [animation-duration:4s]" />
           </div>
           <div className="space-y-0.5">
-            <h3 className="font-extrabold text-[11px] text-primary uppercase tracking-wider">{t('meetup.gamePlatformLabel')}</h3>
+            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider">{t('meetup.gamePlatformLabel')}</h3>
             <p className="text-md font-black text-foreground">{platform || t('meetup.toBeDefinedPlatform')}</p>
           </div>
         </div>

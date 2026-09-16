@@ -89,7 +89,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                   <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                     {t('nav.createMeetup')}
                   </h4>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                     {t('nav.createMeetupDesc')}
                   </p>
                 </div>
@@ -108,7 +108,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                   <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                     {t('nav.createGroup')}
                   </h4>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                     {t('nav.createGroupDesc')}
                   </p>
                 </div>
@@ -127,7 +127,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                   <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                     {t('profile.stats.createRanking')}
                   </h4>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                     {t('nav.createRankingDesc')}
                   </p>
                 </div>

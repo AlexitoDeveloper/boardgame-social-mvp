@@ -82,7 +82,7 @@ export function GroupHallOfFameTab({ groupId }: GroupHallOfFameTabProps) {
           <CardContent className="p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
               <Dices className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+              <span className="text-xs font-bold uppercase tracking-wider">
                 {t('groups.sessionsTotal')}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function GroupHallOfFameTab({ groupId }: GroupHallOfFameTabProps) {
           <CardContent className="p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+              <span className="text-xs font-bold uppercase tracking-wider">
                 {t('groups.uniqueGamesTotal')}
               </span>
             </div>
@@ -110,7 +110,7 @@ export function GroupHallOfFameTab({ groupId }: GroupHallOfFameTabProps) {
           <CardContent className="p-3 text-center">
             <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
               <Users className="w-3.5 h-3.5 text-sky-400" />
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+              <span className="text-xs font-bold uppercase tracking-wider">
                 {t('groups.rankedPlayers')}
               </span>
             </div>

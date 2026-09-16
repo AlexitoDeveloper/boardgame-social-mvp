@@ -23,7 +23,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
         <h3 className="text-lg font-black tracking-tight text-foreground">
           {t('explore.liveMeetups')}
         </h3>
-        <span className="text-[10px] sm:text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
+        <span className="text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
           {t('explore.live')}
         </span>
       </div>
@@ -65,17 +65,17 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Avatar className="w-5 h-5 border border-border">
                            <AvatarImage src={meetup.users?.avatar_url || meetup.creator?.avatar_url || undefined} />
-                          <AvatarFallback className="text-[8px] bg-primary/10 text-primary font-bold">
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
                             {(meetup.users?.username || meetup.creator?.username)?.slice(0,2)?.toUpperCase() || 'H'}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-[10px] font-extrabold text-foreground/80 truncate">
+                        <span className="text-xs font-extrabold text-foreground/80 truncate">
                           {meetup.users?.username || meetup.creator?.username || t('common.anonymous')}
                         </span>
                       </div>
                       <Tag 
                         variant={isFull ? "secondary-solid" : "default-solid"} 
-                        className="text-[9px] py-0 px-1.5 h-4.5 font-bold uppercase tracking-wider shrink-0"
+                        className="text-xs py-0 px-1.5 h-4.5 font-bold uppercase tracking-wider shrink-0"
                       >
                         {isFull ? t('common.full') : t('common.spotsCount', { current: totalAttendees, max: meetup.max_players })}
                       </Tag>
@@ -87,13 +87,13 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
                     </h4>
 
                     {/* Game Title Tag */}
-                    <div className="text-[10px] font-bold text-primary tracking-wide truncate">
+                    <div className="text-xs font-bold text-primary tracking-wide truncate">
                       🎮 {gameTitle}
                     </div>
                   </div>
 
                   {/* Details block */}
-                  <div className="space-y-1.5 pt-2 border-t border-border/20 text-[10px] font-semibold text-muted-foreground">
+                  <div className="space-y-1.5 pt-2 border-t border-border/20 text-xs font-semibold text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="w-3.5 h-3.5 text-primary shrink-0" />
                       <span className="truncate">

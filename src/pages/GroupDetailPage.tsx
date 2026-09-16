@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
 import { Form } from '../components/ui/form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
+import { Switch } from '../components/ui/switch'
 import { Tabs } from '../components/ui/tabs'
 import { useGroupDetail } from '../hooks/useGroupDetail'
 import { useAuth } from '../lib/authContext'
@@ -318,7 +319,7 @@ export function GroupDetailPage() {
 
           <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
-              <Users className="h-7 w-7 text-primary shrink-0" />
+              <Users className="h-7 w-7 text-muted-foreground shrink-0" />
               <span>{group.name}</span>
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -327,16 +328,16 @@ export function GroupDetailPage() {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold pt-2">
-            <Users className="h-4 w-4 text-primary shrink-0" />
+            <Users className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>{members.length} {members.length === 1 ? t('groups.memberActive') : t('groups.membersActive')}</span>
           </div>
         </div>
 
         {/* Invite Code card */}
-        <div className="p-6 rounded-2xl bg-primary/5 border border-primary/15 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="p-6 rounded-2xl bg-card/65 border border-border/40 shadow-sm flex flex-col justify-between space-y-4">
           <div className="space-y-1">
-            <h4 className="text-xs font-black uppercase text-primary tracking-widest">{t('groups.inviteCode')}</h4>
-            <p className="text-[10px] text-muted-foreground font-semibold leading-normal">
+            <h4 className="text-xs font-black uppercase text-foreground/80 tracking-widest">{t('groups.inviteCode')}</h4>
+            <p className="text-xs text-muted-foreground font-semibold leading-normal">
               {t('groups.inviteCodeDesc')}
             </p>
           </div>
@@ -354,9 +355,9 @@ export function GroupDetailPage() {
               <Button
                 onClick={() => setIsQrModalOpen(true)}
                 variant="outline"
-                className="w-full rounded-xl font-bold text-xs h-9 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-border/40 hover:border-primary/50"
+                className="w-full rounded-xl font-bold text-xs h-9 flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-border/40 hover:border-border/80"
               >
-                <QrCode className="w-3.5 h-3.5 text-primary" />
+                <QrCode className="w-3.5 h-3.5 text-muted-foreground" />
                 <span>{t('groups.showQrCode', 'Código QR')}</span>
               </Button>
             </div>
@@ -467,7 +468,7 @@ export function GroupDetailPage() {
 
           <Form onSubmit={handleCreatePollSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollTitleLabel')}</label>
+              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollTitleLabel')}</label>
               <Input
                 type="text"
                 placeholder={t('groups.pollTitlePlaceholder')}
@@ -480,7 +481,7 @@ export function GroupDetailPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDescLabel')}</label>
+              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDescLabel')}</label>
               <Textarea
                 placeholder={t('groups.pollDescPlaceholder')}
                 value={pollDesc}
@@ -492,26 +493,29 @@ export function GroupDetailPage() {
             </div>
 
             <div className="flex items-center justify-between px-1 py-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider">{t('groups.proposeMeetupDate')}</label>
-              <Input
-                type="checkbox"
+              <label htmlFor="poll-has-date-switch" className="text-xs font-black uppercase text-muted-foreground tracking-wider cursor-pointer">
+                {t('groups.proposeMeetupDate')}
+              </label>
+              <Switch
+                id="poll-has-date-switch"
                 checked={hasPollDate}
-                onChange={(e) => setHasPollDate(e.target.checked)}
-                className="accent-primary h-4 w-4 rounded border-border cursor-pointer flex-none bg-transparent p-0 border-none shadow-none focus-visible:ring-0 focus-visible:border-transparent"
+                onCheckedChange={setHasPollDate}
                 disabled={pollLoading}
+                size="sm"
+                aria-label={t('groups.proposeMeetupDate')}
               />
             </div>
 
             {hasPollDate && (
               <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-200">
-                <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDateLabel')}</label>
+                <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">{t('groups.pollDateLabel')}</label>
                 <CalendarDatePicker value={pollDate} onChange={setPollDate} />
               </div>
             )}
 
             {/* Selection list of games */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
+              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">
                 {t('groups.nominateGamesLabel', { count: selectedGameIds.length })}
               </label>
               <div className="relative mb-2">

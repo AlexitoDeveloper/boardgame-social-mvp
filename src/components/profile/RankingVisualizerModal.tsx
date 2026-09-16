@@ -177,7 +177,7 @@ export function RankingVisualizerModal({
                 <h3 className={`font-black text-white px-1 leading-snug truncate w-full flex-1 text-left ${isLandscape ? 'text-xs' : 'text-sm sm:text-base'}`}>
                   {selectedRanking.title}
                 </h3>
-                <span className="text-[8.5px] sm:text-[9.5px] font-black text-primary uppercase tracking-widest flex items-center gap-1 select-none self-end sm:self-auto px-1">
+                <span className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 select-none self-end sm:self-auto px-1">
                   <Sparkles className="w-2.5 h-2.5" /> boardgamesocial.app
                 </span>
               </div>
@@ -189,7 +189,7 @@ export function RankingVisualizerModal({
                     {Array.isArray(rData.tiers) && rData.tiers.map((tier: any) => (
                       <div key={tier.id} className={`flex ${isLandscape ? 'min-h-[44px]' : 'min-h-[76px]'}`}>
                         <div className={`flex items-center justify-center font-extrabold text-center select-none ${tier.color} text-white shrink-0 ${
-                          isLandscape ? 'w-12 text-[10px] p-1' : 'w-16 sm:w-20 text-xs p-2'
+                          isLandscape ? 'w-12 text-xs p-1' : 'w-16 sm:w-20 text-xs p-2'
                         }`}>
                           {tier.name}
                         </div>
@@ -209,7 +209,7 @@ export function RankingVisualizerModal({
                                   crossOrigin="anonymous"
                                 />
                               ) : (
-                                <div className="absolute inset-0 flex items-center justify-center p-0.5 text-[8px] font-black text-center bg-black/60 text-white">
+                                <div className="absolute inset-0 flex items-center justify-center p-0.5 text-xs font-black text-center bg-black/60 text-white">
                                   {getGameTitle(g)}
                                 </div>
                               )}
@@ -227,7 +227,7 @@ export function RankingVisualizerModal({
                         className={`flex items-center ${isLandscape ? 'gap-1.5 p-1' : 'gap-2.5 p-2'} rounded-xl border border-white/5 bg-white/5`}
                       >
                         <div className={`rounded-lg flex items-center justify-center font-sans font-extrabold border shrink-0 bg-primary/20 border-primary/35 text-primary ${
-                          isLandscape ? 'w-5 h-5 text-[10px]' : 'w-7 h-7 text-xs'
+                          isLandscape ? 'w-5 h-5 text-xs' : 'w-7 h-7 text-xs'
                         }`}>
                           {idx + 1}
                         </div>
@@ -242,15 +242,15 @@ export function RankingVisualizerModal({
                                   crossOrigin="anonymous"
                                 />
                               ) : (
-                                <span className="text-[7px] text-zinc-500 font-extrabold">{getGameTitle(game).slice(0,2)}</span>
+                                <span className="text-xs text-zinc-500 font-extrabold">{getGameTitle(game).slice(0,2)}</span>
                               )}
                             </div>
-                            <span className="font-extrabold text-zinc-100 truncate text-[11px] sm:text-xs">
+                            <span className="font-extrabold text-zinc-100 truncate text-xs">
                               {getGameTitle(game)}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-zinc-650 font-bold italic">{t('tops.vacant')}</span>
+                          <span className="text-xs text-zinc-650 font-bold italic">{t('tops.vacant')}</span>
                         )}
                       </div>
                     ))}
@@ -259,7 +259,7 @@ export function RankingVisualizerModal({
               </div>
 
               {/* Footer watermark details inside canvas */}
-              <div className="border-t border-white/5 pt-2 flex items-center justify-between text-[9px] text-zinc-400">
+              <div className="border-t border-white/5 pt-2 flex items-center justify-between text-xs text-zinc-400">
                 <span>{t('tops.watermarkLabelBottom')}</span>
                 <span className="font-extrabold text-white">#BoardgameSocial</span>
               </div>

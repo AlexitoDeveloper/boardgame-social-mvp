@@ -57,7 +57,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       <div className="flex-1 min-w-0 text-center md:text-left flex flex-col justify-between h-full space-y-4">
         <div className="space-y-2">
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-[10px] sm:text-xs font-black uppercase tracking-wider select-none animate-pulse">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-black uppercase tracking-wider select-none animate-pulse">
             <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
             <span>{t('explore.recommendedTitle')}</span>
           </div>
@@ -75,7 +75,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           {/* Subtitle / Edition */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-semibold text-muted-foreground">
             {isSpanish && (
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[10px]">
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-xs">
                 {t('explore.spanishEdition')}
               </span>
             )}
@@ -90,7 +90,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
             <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.rating')}</span>
+              <span className="text-xs text-muted-foreground leading-none">{t('explore.rating')}</span>
               <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedRating}</span>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
             <Users className="w-4 h-4 text-primary shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground leading-none">{t('common.players')}</span>
+              <span className="text-xs text-muted-foreground leading-none">{t('common.players')}</span>
               <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
                 {game.min_players === game.max_players 
                   ? game.min_players 
@@ -110,7 +110,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
             <Hourglass className="w-4 h-4 text-teal-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.duration')}</span>
+              <span className="text-xs text-muted-foreground leading-none">{t('explore.duration')}</span>
               <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
                 {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}
               </span>
@@ -120,8 +120,8 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
             <BarChart className="w-4 h-4 text-purple-500 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground leading-none">{t('explore.difficulty')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-[10px] text-muted-foreground">/5</span></span>
+              <span className="text-xs text-muted-foreground leading-none">{t('explore.difficulty')}</span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-xs text-muted-foreground">/5</span></span>
             </div>
           </div>
         </div>

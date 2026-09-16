@@ -35,13 +35,13 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
         <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
           {rating && (
-            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-black text-white shadow-sm border border-amber-400/20">
+            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-black text-white shadow-sm border border-amber-400/20">
               <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
               {rating}
             </span>
           )}
           {game.has_spanish_edition && (
-            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
+            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
               <Globe className="h-2.5 w-2.5 shrink-0" />
               ESP
             </span>
@@ -80,7 +80,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             </h4>
 
             {/* Quick Specs */}
-            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-semibold">
+            <div className="flex items-center gap-2 text-xs text-gray-300 font-semibold">
               {players && (
                 <span className="flex items-center gap-0.5">
                   <Users className="h-2.5 w-2.5 text-primary shrink-0" />

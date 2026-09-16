@@ -267,7 +267,7 @@ export function EditProfileModal({
                     </div>
                   </div>
                 </div>
-                <span className="text-[9px] text-muted-foreground font-semibold block leading-normal mt-1 select-none">
+                <span className="text-xs text-muted-foreground font-semibold block leading-normal mt-1 select-none">
                   {t('profile.editModal.avatarHelp')}
                 </span>
               </div>
