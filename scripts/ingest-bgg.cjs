@@ -469,8 +469,9 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
         }
       }
       
-      // BGG Image URL
-      let bggImageUrl = item.image || item.thumbnail || null;
+      // BGG Image URLs
+      const origImageUrl = item.image || item.thumbnail || null;
+      let imageUrlEs = null;
       let hasSpanishEdition = false;
       let titleEs = null;       // Spanish title
       let publisher = null;     // Original publisher
@@ -509,8 +510,18 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
 
           // Try to extract Spanish title (does NOT modify title — only sets title_es)
           const canonicalSpanishTitle = spanishVersion.canonicalname?.['@_value'];
-          if (canonicalSpanishTitle?.trim()) {
-            const trimmedTitleEs = canonicalSpanishTitle.trim();
+          let candidateTitle = canonicalSpanishTitle;
+          if (!candidateTitle) {
+            let sNames = spanishVersion.name;
+            if (sNames) {
+              if (!Array.isArray(sNames)) sNames = [sNames];
+              const pName = sNames.find(n => n?.['@_type'] === 'primary') || sNames[0];
+              candidateTitle = pName?.['@_value'];
+            }
+          }
+
+          if (candidateTitle?.trim()) {
+            const trimmedTitleEs = candidateTitle.trim();
             if (!isGenericEditionName(trimmedTitleEs)) {
               titleEs = trimmedTitleEs;
               console.log(`[Parser] Spanish title (canonical): ${titleEs} (original: ${title})`);
@@ -520,8 +531,8 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
           }
 
           if (spanishVersion.image || spanishVersion.thumbnail) {
-            bggImageUrl = spanishVersion.image || spanishVersion.thumbnail;
-            console.log(`[Parser] Found Spanish version with specific cover: ${bggImageUrl}`);
+            imageUrlEs = spanishVersion.image || spanishVersion.thumbnail;
+            console.log(`[Parser] Found Spanish version with specific cover: ${imageUrlEs}`);
           }
           
           let links = spanishVersion.link;
@@ -536,14 +547,7 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
       
       console.log(`\n--- Processing game: ${title} (BGG ID: ${bggId}) ---`);
       
-      // Process and upload image to Supabase Storage
-      let finalImageUrl = null;
-      if (bggImageUrl) {
-        finalImageUrl = await processAndUploadImage(bggId, bggImageUrl);
-        await sleep(500);
-      }
-      
-      // 6. Insert into Supabase games table
+      // 6. Insert into Supabase games table (direct BGG CDN URLs to avoid Storage quotas)
       console.log(`[DB] Inserting/Upserting ${title} into games...`);
       const { data: insertedData, error: insertError } = await supabase
         .from('games')
@@ -553,7 +557,9 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
           title_es: titleEs, // Spanish title (null if no Spanish edition)
           publisher,         // Original publisher
           year_published: yearPublished,
-          image_url: finalImageUrl,
+          image_url: origImageUrl,
+          image_url_es: imageUrlEs,
+          spanish_checked_at: new Date().toISOString(),
           min_players: minPlayers,
           max_players: maxPlayers,
           playing_time: playingTime,

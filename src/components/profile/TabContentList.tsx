@@ -106,21 +106,21 @@ export function TabContentList({
                             )}
                           </div>
                           {gamesList.length > 1 && (
-                            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[9px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-sm z-10 select-none">
+                            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs font-black px-1.5 py-0.5 rounded-md border border-background shadow-sm z-10 select-none">
                               +{gamesList.length - 1}
                             </div>
                           )}
                         </div>
                         <div className="min-w-0 text-left space-y-1">
                           <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
-                          <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground font-bold flex items-center gap-1">
                             <CalendarDays className="w-3.5 h-3.5 text-primary shrink-0" />
                             {formatDate(meetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className="text-[10px] font-black text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">{t('profile.verMesa')}</span>
+                        <span className="text-xs font-black text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">{t('profile.verMesa')}</span>
                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
                       </div>
                     </div>
@@ -174,7 +174,7 @@ export function TabContentList({
                             )}
                           </div>
                           {gamesList.length > 1 && (
-                            <div className={`absolute -bottom-1 -right-1 text-[9px] font-black px-1.5 py-0.5 rounded-md border shadow-sm z-10 select-none ${
+                            <div className={`absolute -bottom-1 -right-1 text-xs font-black px-1.5 py-0.5 rounded-md border shadow-sm z-10 select-none ${
                               isWinner
                                 ? 'bg-rose-500 text-rose-foreground border-rose-950'
                                 : 'bg-primary text-primary-foreground border-background'
@@ -186,7 +186,7 @@ export function TabContentList({
                         <div className="min-w-0 text-left space-y-1">
                           <span className="font-extrabold text-sm block text-foreground truncate group-hover:text-primary transition-colors">{meetup.title}</span>
                           <div className="flex items-center flex-wrap gap-x-2.5 gap-y-1">
-                            <span className="text-[10px] text-muted-foreground font-bold flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground font-bold flex items-center gap-1">
                               <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                               {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                             </span>
@@ -259,7 +259,7 @@ export function TabContentList({
                   <div className="flex items-center gap-2">
                     <ListOrdered className="w-4 h-4 text-primary shrink-0" />
                     <span>{t('profile.stats.rankings')}</span>
-                    <span className="text-[10px] font-black text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-black text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
                       {savedRankings.length}
                     </span>
                   </div>
@@ -291,11 +291,11 @@ export function TabContentList({
                           <div className="space-y-1 flex-1 min-w-0 pr-3">
                             <h4 className="font-extrabold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
                               <span className="truncate">{ranking.title || t('tops.untitled')}</span>
-                              <Badge variant="primary-soft" className="shrink-0 text-[9px]">
+                              <Badge variant="primary-soft" className="shrink-0 text-xs">
                                 {ranking.mode === 'tier' ? 'Tier List' : 'Top 10'}
                               </Badge>
                             </h4>
-                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-bold">
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
                               <Calendar className="w-3 h-3 text-primary shrink-0" />
                               {formatDate(ranking.created_at || Date.now(), { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                             </div>
@@ -337,7 +337,7 @@ export function TabContentList({
               <div className="flex justify-between items-center bg-card/35 backdrop-blur-md border border-border/20 rounded-2xl p-4 shadow-sm hover:border-primary/20 transition-all duration-300">
                 <div className="text-left space-y-0.5">
                   <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t('profile.collection.importBgg')}</h4>
-                  <p className="text-[10px] text-muted-foreground leading-normal font-semibold">{t('profile.collection.importBggDesc')}</p>
+                  <p className="text-xs text-muted-foreground leading-normal font-semibold">{t('profile.collection.importBggDesc')}</p>
                 </div>
                 <Button
                   size="sm"
@@ -369,18 +369,18 @@ export function TabContentList({
                   <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                     <Button 
                       size="sm" 
-                      onClick={() => setIsAddGameModalOpen?.(true)}
-                      className="cursor-pointer"
-                      icon={Plus}
-                      label={t('profile.collection.addGame', 'Añadir Juego')}
-                    />
-                    <Button 
-                      size="sm" 
                       variant="outline"
                       onClick={() => setIsImportModalOpen(true)}
                       className="cursor-pointer"
                       icon={Download}
                       label={t('profile.collection.syncButton')}
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={() => setIsAddGameModalOpen?.(true)}
+                      className="cursor-pointer"
+                      icon={Plus}
+                      label={t('profile.collection.addGame', 'Añadir Juego')}
                     />
                   </div>
                 )}
@@ -388,18 +388,11 @@ export function TabContentList({
             ) : (
               <div className="space-y-3">
                 <div className="flex justify-between items-center px-1 select-none">
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                  <span className="text-xs font-black uppercase text-muted-foreground tracking-widest">
                     {collectionGames.length} {collectionGames.length === 1 ? t('profile.collection.gameCount') : t('profile.collection.gamesCount')}
                   </span>
                   {isOwnProfileEditable && (
                     <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => setIsAddGameModalOpen?.(true)}
-                        className="cursor-pointer"
-                        icon={Plus}
-                        label={t('profile.collection.addGame', 'Añadir Juego')}
-                      />
                       <Button
                         size="sm"
                         variant="outline"
@@ -407,6 +400,13 @@ export function TabContentList({
                         className="cursor-pointer"
                         icon={Download}
                         label={t('profile.collection.syncButton')}
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => setIsAddGameModalOpen?.(true)}
+                        className="cursor-pointer"
+                        icon={Plus}
+                        label={t('profile.collection.addGame', 'Añadir Juego')}
                       />
                     </div>
                   )}
@@ -462,7 +462,7 @@ export function TabContentList({
                         <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
                           {getGameTitle(game)}
                         </h4>
-                        <span className="text-[10px] text-muted-foreground font-bold block mt-0.5">
+                        <span className="text-xs text-muted-foreground font-bold block mt-0.5">
                           {game.year_published || 'N/A'}
                         </span>
                       </div>
@@ -473,7 +473,7 @@ export function TabContentList({
             )}
 
             {/* BGG attribution footer under collection games */}
-            <div className="text-[9px] text-center text-muted-foreground/40 font-semibold select-none pt-4">
+            <div className="text-xs text-center text-muted-foreground/40 font-semibold select-none pt-4">
               {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
             </div>
           </MotionDiv>

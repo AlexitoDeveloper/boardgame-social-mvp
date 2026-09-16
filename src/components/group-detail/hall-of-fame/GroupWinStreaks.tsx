@@ -31,7 +31,7 @@ export function GroupWinStreaks({ streaks }: GroupWinStreaksProps) {
             {t('groups.winStreaksTitle')}
           </h3>
         </div>
-        <Badge variant="outline" className="border-orange-500/30 text-orange-400 bg-orange-500/10 text-[10px] font-mono">
+        <Badge variant="outline" className="border-orange-500/30 text-orange-400 bg-orange-500/10 text-xs font-mono">
           <Zap className="w-3 h-3 mr-1" />
           {t('groups.onFire')}
         </Badge>
@@ -76,7 +76,7 @@ export function GroupWinStreaks({ streaks }: GroupWinStreaksProps) {
                   <span>{streak.streakCount}</span>
                   <Flame className="w-5 h-5 text-orange-500 fill-orange-500" />
                 </div>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                <span className="text-xs uppercase font-bold text-muted-foreground">
                   {t('groups.streakLabel')}
                 </span>
               </div>

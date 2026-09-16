@@ -10,8 +10,9 @@ interface GameCoverCardProps {
 }
 
 export function GameCoverCard({ game }: GameCoverCardProps) {
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
   const title = getGameTitle(game)
+  const coverUrl = getGameCover(game)
   
   // Try rating_geek first, then rating_average
   const rating = game.rating_geek 
@@ -35,42 +36,37 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
         <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
           {rating && (
-            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-black text-white shadow-sm border border-amber-400/20">
+            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-black text-white shadow-sm border border-amber-400/20">
               <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
               {rating}
             </span>
           )}
           {game.has_spanish_edition && (
-            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
+            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
               <Globe className="h-2.5 w-2.5 shrink-0" />
               ESP
             </span>
           )}
         </div>
-        {/* Cover Image */}
-        {game.image_url ? (
-          <div className="absolute inset-0 w-full h-full">
-            {/* Blurred background copy for cropped edges fill */}
+        {/* Cover Image or Dummy Cover */}
+        <div className="absolute inset-0 w-full h-full">
+          {coverUrl && (
             <OptimizedImage
-              src={game.image_url}
+              src={coverUrl}
               alt=""
               widthSize={50}
-              className="absolute inset-0 h-full w-full object-cover blur-xl opacity-40 scale-110 pointer-events-none transition-all duration-500 group-hover:brightness-[0.3]"
+              hidePlaceholderText
+              className="absolute inset-0 h-full w-full object-cover blur-xl opacity-35 scale-110 pointer-events-none transition-all duration-500 group-hover:brightness-[0.3]"
             />
-            {/* Contained front cover artwork */}
-            <OptimizedImage
-              src={game.image_url}
-              alt={title}
-              widthSize={250}
-              fit="contain"
-              className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-[0.5]"
-            />
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/30 p-4 text-center">
-            <span className="text-xs font-bold text-muted-foreground line-clamp-3 px-2">{title}</span>
-          </div>
-        )}
+          )}
+          <OptimizedImage
+            src={coverUrl}
+            alt={title}
+            widthSize={250}
+            fit="contain"
+            className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-[0.5]"
+          />
+        </div>
         {/* Hover Details Overlay */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10 select-none">
           <div className="space-y-1.5 text-white">
@@ -80,7 +76,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             </h4>
 
             {/* Quick Specs */}
-            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-semibold">
+            <div className="flex items-center gap-2 text-xs text-gray-300 font-semibold">
               {players && (
                 <span className="flex items-center gap-0.5">
                   <Users className="h-2.5 w-2.5 text-primary shrink-0" />

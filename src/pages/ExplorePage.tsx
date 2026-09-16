@@ -8,6 +8,7 @@ import { Library } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
 import { FeaturedGameHero } from '../components/FeaturedGameHero'
+import { HomeVersionSwitcher } from '../components/home-compare/HomeVersionSwitcher'
 import { useTranslation } from 'react-i18next'
 
 export function ExplorePage() {
@@ -24,6 +25,9 @@ export function ExplorePage() {
     novedades,
     paraDos,
     classics,
+    fastGames,
+    heavyGames,
+    partyGames,
     top10,
     top10Month,
     communityRankings,
@@ -63,6 +67,9 @@ export function ExplorePage() {
 
   return (
     <section className="space-y-6 pb-20">
+      {/* Compare Switcher */}
+      <HomeVersionSwitcher current="classic" />
+
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
@@ -211,11 +218,26 @@ export function ExplorePage() {
                   {/* Novedades */}
                   <GameCarousel games={novedades} title={t('explore.newSpain')} />
 
+                  {/* Partidas Rápidas */}
+                  {fastGames.length > 0 && (
+                    <GameCarousel games={fastGames} title={t('explore.fastGames')} />
+                  )}
+
                   {/* Juegos para 2 */}
                   <GameCarousel games={paraDos} title={t('explore.for2Players')} />
 
+                  {/* Euros y Estrategia Pesada */}
+                  {heavyGames.length > 0 && (
+                    <GameCarousel games={heavyGames} title={t('explore.heavyGames')} />
+                  )}
+
                   {/* Top 10 Monthly (Played count based) */}
                   <GameCarousel games={top10Month} title={t('explore.top10Month')} variant="top10" />
+
+                  {/* Fiesta y Grupos Grandes */}
+                  {partyGames.length > 0 && (
+                    <GameCarousel games={partyGames} title={t('explore.partyGames')} />
+                  )}
 
                   {/* Community Rankings (Created by users) */}
                   {communityRankings.length > 0 && (

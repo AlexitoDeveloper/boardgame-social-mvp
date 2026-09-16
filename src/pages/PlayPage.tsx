@@ -474,11 +474,11 @@ export function PlayPage() {
 
       {/* Decision Engine Card ("¿A qué jugamos hoy?") */}
       <div className="rounded-[28px] glass-panel border border-border/40 p-6 sm:p-8 relative overflow-hidden shadow-xl space-y-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/5 via-transparent to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/15 text-primary text-[11px] font-black uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground border border-border/40 text-xs font-bold uppercase tracking-wider mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
             <span>{t('play.decisionTitle')}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground font-display">
@@ -494,7 +494,7 @@ export function PlayPage() {
           {/* 1. Players selector */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-primary" />
+              <Users className="w-3.5 h-3.5 text-muted-foreground" />
               <span>{t('play.playersLabel')}</span>
             </label>
             <div className="flex gap-2 items-center flex-wrap pt-0.5">
@@ -521,20 +521,19 @@ export function PlayPage() {
           {/* 2. Duration selector with semantic color coding */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-primary" />
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
               <span>{t('play.durationLabel')}</span>
             </label>
             <div className="grid grid-cols-2 gap-1.5">
               {[
-                { id: 'any', label: t('play.anyTime'), variant: 'default' as const },
-                { id: 'quick', label: t('play.quickTime'), variant: 'emerald' as const },
-                { id: 'medium', label: t('play.mediumTime'), variant: 'amber' as const },
-                { id: 'long', label: t('play.longTime'), variant: 'purple' as const },
+                { id: 'any', label: t('play.anyTime') },
+                { id: 'quick', label: t('play.quickTime') },
+                { id: 'medium', label: t('play.mediumTime') },
+                { id: 'long', label: t('play.longTime') },
               ].map((opt) => (
                 <FilterChip
                   key={opt.id}
                   selected={selectedDuration === opt.id}
-                  variant={opt.variant}
                   size="sm"
                   onClick={() => {
                     setSelectedDuration(opt.id)
@@ -550,7 +549,7 @@ export function PlayPage() {
           {/* 3. Collection / Group selector */}
           <div className="space-y-2">
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Dices className="w-3.5 h-3.5 text-primary" />
+              <Dices className="w-3.5 h-3.5 text-muted-foreground" />
               <span>{t('play.groupFilterLabel')}</span>
             </label>
             <Select
@@ -571,7 +570,7 @@ export function PlayPage() {
             </Select>
 
             <div className="flex items-center justify-between pt-1">
-              <p className="text-[10px] text-muted-foreground font-medium font-mono-tabular">
+              <p className="text-xs text-muted-foreground font-medium font-mono-tabular">
                 {loadingGames ? (
                   'Cargando juegos...'
                 ) : (
@@ -585,7 +584,7 @@ export function PlayPage() {
                   onClick={() => {
                     setShowSyncModal(true)
                   }}
-                  className="h-auto p-0 text-xs font-bold text-primary hover:underline hover:bg-transparent cursor-pointer flex items-center gap-1"
+                  className="h-auto p-0 text-xs font-bold text-muted-foreground hover:text-foreground hover:underline hover:bg-transparent cursor-pointer flex items-center gap-1"
                   icon={Download}
                   label={t('profile.collection.syncButton')}
                   aria-label={t('profile.collection.syncButton')}
@@ -599,13 +598,12 @@ export function PlayPage() {
         <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border/20 relative z-10">
           <FilterChip
             selected={onlyUnplayed}
-            variant="amber"
             size="default"
             onClick={() => setOnlyUnplayed((prev) => !prev)}
             icon={PackageCheck}
             badge={
               onlyUnplayed ? (
-                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-[10px] font-black uppercase">
+                <span className="px-1.5 py-0.5 rounded-md bg-purple-500/25 text-purple-700 dark:text-purple-300 text-xs font-black uppercase">
                   {t('play.active', 'Activo')}
                 </span>
               ) : undefined
@@ -635,15 +633,15 @@ export function PlayPage() {
 
           <Button
             type="button"
-            variant="outline"
+            variant="purple"
             size="lg"
             disabled={isSpinning || loadingGames || filteredGames.length === 0}
             onClick={() => {
               setShowVotingModal(true)
             }}
-            className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 border-border/40 hover:border-primary/40 flex items-center justify-center gap-2 transition-all shadow-xs"
+            className="w-full sm:w-auto rounded-2xl font-bold text-sm h-12 px-6 flex items-center justify-center gap-2 transition-all shadow-sm"
           >
-            <Vote className="w-4 h-4 text-primary" />
+            <Vote className="w-4 h-4 text-white" />
             <span>{t('play.expressVoting', 'Votación Exprés (30s)')}</span>
           </Button>
 
@@ -670,13 +668,13 @@ export function PlayPage() {
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-md shrink-0 border border-border/30"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-card flex items-center justify-center border border-border/30 shrink-0 text-primary">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-card flex items-center justify-center border border-border/30 shrink-0 text-muted-foreground">
                   <Dices className="w-8 h-8" />
                 </div>
               )}
 
               <div className="flex-1 text-center sm:text-left space-y-1.5 min-w-0">
-                <span className="text-[10px] font-black uppercase text-primary tracking-wider">
+                <span className="text-xs font-black uppercase text-primary tracking-wider">
                   {t('play.suggestedTitle')}
                 </span>
                 <h3 className="text-lg font-black text-foreground truncate">
@@ -684,18 +682,18 @@ export function PlayPage() {
                 </h3>
                 <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-muted-foreground font-semibold">
                   <span className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-primary" />
+                    <Users className="w-3.5 h-3.5 text-muted-foreground" />
                     {suggestedGame.min_players || 2}-{suggestedGame.max_players || 5} jug.
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                     {suggestedGame.playing_time || 45} min
                   </span>
                 </div>
 
                 {availableExpansionsForSuggested.length > 0 && (
                   <div className="pt-0.5 flex flex-wrap gap-1 justify-center sm:justify-start">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-lg">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-lg">
                       <Sparkles className="w-3 h-3" />
                       +{availableExpansionsForSuggested.length} {availableExpansionsForSuggested.length === 1 ? 'expansión compatible en la ludoteca' : 'expansiones compatibles en la ludoteca'}
                     </span>
@@ -705,11 +703,11 @@ export function PlayPage() {
 
               <Button
                 onClick={() => navigate(`/mesa/nueva?gameId=${suggestedGame.bgg_id}`)}
-                className="rounded-xl font-bold text-xs h-10 px-4 shrink-0 shadow-sm"
-              >
-                <span>{t('play.startMeetupWithGame')}</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-              </Button>
+                className="rounded-xl font-bold text-xs h-10 px-4 shrink-0 shadow-sm flex items-center gap-1.5"
+                icon={Plus}
+                label={t('common.hostTable')}
+                aria-label={t('common.hostTable')}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -719,12 +717,12 @@ export function PlayPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-            <Play className="w-4 h-4 text-primary" />
+            <Play className="w-4 h-4 text-muted-foreground" />
             <span>{t('play.activeSessionsTitle')}</span>
           </h2>
           <Link
             to="/chats"
-            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1"
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>{t('play.goToChat')}</span>
@@ -747,7 +745,7 @@ export function PlayPage() {
                 <div
                   key={meetup.id}
                   onClick={() => navigate(`/mesa/${meetup.id}`)}
-                  className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-md flex items-center gap-3.5 group"
+                  className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-border/80 transition-all cursor-pointer shadow-sm hover:shadow-md flex items-center gap-3.5 group"
                 >
                   {gameImg ? (
                     <img
@@ -756,7 +754,7 @@ export function PlayPage() {
                       className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border/20 group-hover:scale-105 transition-transform"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <div className="w-14 h-14 rounded-xl bg-muted text-muted-foreground flex items-center justify-center shrink-0">
                       <Dices className="w-6 h-6" />
                     </div>
                   )}
@@ -767,7 +765,7 @@ export function PlayPage() {
                         {gameTitle}
                       </h4>
                       {isToday && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-extrabold text-[9px] uppercase tracking-wider">
+                        <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-extrabold text-xs uppercase tracking-wider">
                           Hoy
                         </span>
                       )}
@@ -775,12 +773,12 @@ export function PlayPage() {
                     <p className="text-xs text-muted-foreground font-medium">
                       {formatDate(meetup.date, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, i18n.language as any)}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/80 font-semibold truncate">
+                    <p className="text-xs text-muted-foreground/80 font-semibold truncate">
                       {meetup.is_online ? 'Online' : (meetup.location || meetup.city || 'Mesa presencial')} • {meetup.joined_players?.length || 1}/{meetup.max_players} jug.
                     </p>
                   </div>
 
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
                 </div>
               )
             })}
@@ -810,14 +808,15 @@ export function PlayPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
+            <Users className="w-4 h-4 text-muted-foreground" />
             <span>{t('play.groupLounges')}</span>
           </h2>
           <Link
             to="/grupos"
-            className="text-xs font-bold text-primary hover:underline"
+            className="text-xs font-bold text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1"
           >
-            {t('play.viewGroup')}
+            <Users className="w-3.5 h-3.5" />
+            <span>{t('play.viewGroups')}</span>
           </Link>
         </div>
 
@@ -827,20 +826,22 @@ export function PlayPage() {
               <div
                 key={grp.id}
                 onClick={() => navigate(`/grupos/${grp.id}`)}
-                className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-md space-y-1.5 group"
+                className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-border/80 transition-all cursor-pointer shadow-sm hover:shadow-md flex items-center justify-between gap-3 group"
               >
-                <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                  {grp.name}
-                </h4>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {grp.description || 'Sin descripción'}
-                </p>
-                <div className="flex items-center justify-between pt-1 text-[10px] font-bold text-muted-foreground">
-                  <span>{grp.member_count || 1} miembros</span>
-                  <span className="text-primary group-hover:translate-x-0.5 transition-transform flex items-center">
-                    Entrar <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
-                  </span>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {grp.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {grp.description || t('groups.noDescription')}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5 pt-0.5">
+                    <Users className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <span>{grp.member_count || 1} {grp.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
+                  </p>
                 </div>
+
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
               </div>
             ))}
           </div>

@@ -55,7 +55,7 @@ function TierGameItem({
       {/* Falls back to text title if image fails or is missing */}
       {!proxiedUrl || hasError ? (
         <div className={`absolute inset-0 flex items-center justify-center p-1 font-bold text-center text-white bg-black/70 transition-colors line-clamp-3 leading-tight ${
-          isLandscape ? 'text-[6px]' : 'text-[8px] sm:text-[10px]'
+          isLandscape ? 'text-xs' : 'text-xs'
         }`}>
           {getGameTitle(game)}
         </div>
@@ -63,7 +63,7 @@ function TierGameItem({
         /* Hover cover showing trash icon and label instead of name covering it */
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-all duration-200">
           <Trash2 className={isLandscape ? 'w-3 h-3 text-white' : 'w-4 h-4 text-white drop-shadow'} />
-          {!isLandscape && <span className="text-[7px] uppercase font-bold text-white tracking-widest mt-0.5">{t('common.remove')}</span>}
+          {!isLandscape && <span className="text-xs uppercase font-bold text-white tracking-widest mt-0.5">{t('common.remove')}</span>}
         </div>
       )}
     </div>
@@ -112,7 +112,7 @@ function Top10GameItem({
               onError={() => setHasError(true)}
             />
           ) : (
-            <span className="text-[8px] font-bold text-center text-zinc-400 p-0.5 line-clamp-2 leading-tight">
+            <span className="text-xs font-bold text-center text-zinc-400 p-0.5 line-clamp-2 leading-tight">
               {getGameTitle(game)}
             </span>
           )}
@@ -557,7 +557,7 @@ export function TopsCanvas({
                             isLandscape={isLandscape}
                           />
                           {isPlaceable && !isLandscape && (
-                            <span className="text-[10px] font-extrabold text-primary uppercase mr-2 tracking-wider animate-pulse shrink-0">
+                            <span className="text-xs font-extrabold text-primary uppercase mr-2 tracking-wider animate-pulse shrink-0">
                               {t('tops.replace')}
                             </span>
                           )}
@@ -579,7 +579,7 @@ export function TopsCanvas({
 
             {/* Bottom branding footer */}
             {(!isPremium || showWatermark) && (
-              <div className="border-t border-white/10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 select-none">
+              <div className="border-t border-white/10 pt-4 flex items-center justify-between text-xs text-zinc-300 select-none">
                 <span>{(isPremium && customWatermark) ? customWatermark : t('tops.watermarkPlaceholder')}</span>
                 {(!isPremium || !customWatermark) && <span className="font-extrabold text-white">#BoardgameSocial</span>}
               </div>

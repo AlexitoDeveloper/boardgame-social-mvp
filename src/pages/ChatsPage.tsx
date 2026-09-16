@@ -18,7 +18,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Form } from '../components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { Tag } from '../components/ui/tag'
+import { Badge } from '../components/ui/badge'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { Meetup, MeetupMessage, Game } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -404,7 +404,7 @@ export function ChatsPage() {
         <div className="w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full">
           <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
             <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-              <MessageSquare className="w-5 h-5 text-primary" /> {t('chats.title')}
+              <MessageSquare className="w-5 h-5 text-muted-foreground" /> {t('chats.title')}
             </h1>
           </div>
           {renderSidebarSkeleton()}
@@ -427,11 +427,11 @@ export function ChatsPage() {
       }`}>
         <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
           <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-            <MessageSquare className="w-5 h-5 text-primary" /> {t('chats.title')}
+            <MessageSquare className="w-5 h-5 text-muted-foreground" /> {t('chats.title')}
           </h1>
-          <Tag variant="default-solid" className="font-extrabold text-[10px] px-2 py-0.5 rounded-full">
+          <Badge variant="secondary" className="text-xs px-2.5 py-0.5">
             {visibleMeetups.length} {visibleMeetups.length === 1 ? t('chats.roomCount_one') : t('chats.roomCount_other')}
-          </Tag>
+          </Badge>
         </div>
 
         <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar">
@@ -486,7 +486,7 @@ export function ChatsPage() {
 
                     <div className="min-w-0 flex-1 space-y-1">
                       <p className={`text-xs truncate ${isActive ? 'text-primary font-black' : 'text-foreground font-black'}`}>{m.title}</p>
-                      <p className={`text-[10px] truncate ${hasUnread ? 'text-foreground font-black' : 'text-muted-foreground font-medium'}`}>
+                      <p className={`text-xs truncate ${hasUnread ? 'text-foreground font-black' : 'text-muted-foreground font-medium'}`}>
                         {lastMsg ? (
                           <>
                             <span className="text-primary font-bold">{lastMsg.sender_name}:</span> {lastMsg.content}
@@ -501,7 +501,7 @@ export function ChatsPage() {
                   {/* Right side Stack: Timestamp & Badge / Quick Delete */}
                   <div className="flex flex-col items-end justify-between shrink-0 h-9 text-right relative min-w-[3.5rem]">
                     {lastMsg ? (
-                      <span className="text-[9px] font-bold text-muted-foreground">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {formatTime(lastMsg.created_at)}
                       </span>
                     ) : (
@@ -509,7 +509,7 @@ export function ChatsPage() {
                     )}
                     <div className="flex items-center gap-1.5 mt-auto">
                       {unreadCount > 0 && (
-                        <span className="w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[9px] font-black shadow-sm shadow-primary/30 shrink-0 aspect-square">
+                        <span className="w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shadow-sm shadow-primary/30 shrink-0 aspect-square">
                           {unreadCount}
                         </span>
                       )}
@@ -577,7 +577,7 @@ export function ChatsPage() {
                       <span className="truncate">{activeMeetup.title}</span>
                       <Info className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0 group-hover/info:text-primary transition-colors" />
                     </h2>
-                    <p className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
+                    <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
                       <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                       {formatDate(activeMeetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
                     </p>
@@ -612,7 +612,7 @@ export function ChatsPage() {
               <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground/60 space-y-2 p-6 bg-zinc-950/5 dark:bg-black/15">
                 <MessageSquare className="w-12 h-12 opacity-25" />
                 <p className="text-xs font-bold">{t('chats.emptyActiveRoom')}</p>
-                <p className="text-[10px] text-muted-foreground max-w-[200px]">{t('chats.emptyActiveRoomDesc')}</p>
+                <p className="text-xs text-muted-foreground max-w-[200px]">{t('chats.emptyActiveRoomDesc')}</p>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-950/5 dark:bg-black/15">
@@ -627,7 +627,7 @@ export function ChatsPage() {
                     <div key={msg.id} className="space-y-3">
                       {showDateLabel && (
                         <div className="flex justify-center select-none py-1.5">
-                          <span className="bg-background/80 border border-border/30 rounded-full px-3 py-0.5 text-[8.5px] font-black text-muted-foreground shadow-sm uppercase tracking-wider">
+                          <span className="bg-background/80 border border-border/30 rounded-full px-3 py-0.5 text-xs font-black text-muted-foreground shadow-sm uppercase tracking-wider">
                             {formatDateLabel(msg.created_at)}
                           </span>
                         </div>
@@ -638,7 +638,7 @@ export function ChatsPage() {
                         {!isMyMessage && (
                           <Avatar className="w-7 h-7 border border-border shrink-0 mt-0.5 shadow-sm">
                             <AvatarImage src={msg.avatar_url || undefined} />
-                            <AvatarFallback className="bg-primary/20 text-primary text-[8px] font-bold">
+                            <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
                               {msg.sender_name.slice(0, 2).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -647,8 +647,8 @@ export function ChatsPage() {
                         <div className="space-y-1 max-w-full min-w-0">
                           {/* Sender name label (only for others) */}
                           {!isMyMessage && (
-                            <p className="text-[9.5px] font-black text-primary text-left tracking-wide px-1.5 uppercase truncate" title={msg.sender_name}>
-                              {msg.sender_name} {msg.guest_id && <span className="text-[7.5px] text-muted-foreground lowercase font-medium">({t('chats.guestTag')})</span>}
+                            <p className="text-xs font-black text-primary text-left tracking-wide px-1.5 uppercase truncate" title={msg.sender_name}>
+                              {msg.sender_name} {msg.guest_id && <span className="text-xs text-muted-foreground lowercase font-medium">({t('chats.guestTag')})</span>}
                             </p>
                           )}
 
@@ -662,7 +662,7 @@ export function ChatsPage() {
                           </div>
 
                           {/* Time below bubble */}
-                          <span className={`text-[8.5px] block font-bold text-muted-foreground/75 px-1.5 ${
+                          <span className={`text-xs block font-bold text-muted-foreground/75 px-1.5 ${
                             isMyMessage ? 'text-right' : 'text-left'
                           }`}>
                             {formatTime(msg.created_at)}

@@ -14,6 +14,9 @@
     /* Vibrant Emerald Gaming Felt Accent */
     --primary: 158 70% 40%;
     --primary-foreground: 0 0% 100%;
+    /* Royal Purple Secondary Accent */
+    --secondary: 270 91% 96%;
+    --secondary-foreground: 273 67% 39%;
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 0 0% 100%;
     --muted: 210 28% 95%;
@@ -34,6 +37,9 @@
     /* Vibrant Emerald Gaming Felt Accent (#10B981) */
     --primary: 158 70% 43%;
     --primary-foreground: 0 0% 100%;
+    /* Royal Purple Secondary Accent (#D8B4FE / 10.5:1 contrast) */
+    --secondary: 271 70% 18%;
+    --secondary-foreground: 270 95% 82%;
     --success: 152 65% 42%;
     --success-foreground: 0 0% 100%;
     --muted: 222 30% 15%;
@@ -147,6 +153,22 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
   }
+
+  /* Accessibility floor: minimum typography size 12px (0.75rem) */
+  [class*="text-[6px]"],
+  [class*="text-[7px]"],
+  [class*="text-[7.5px]"],
+  [class*="text-[8px]"],
+  [class*="text-[8.5px]"],
+  [class*="text-[9px]"],
+  [class*="text-[9.5px]"],
+  [class*="text-[10px]"],
+  [class*="text-[10.5px]"],
+  [class*="text-[11px]"] {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
 }
+
 
 

@@ -74,11 +74,11 @@ export function StatsDashboard({ stats }: StatsDashboardProps) {
         </div>
         <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5 min-w-0 text-left">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsWinRate')}</span>
+            <span className="text-xs font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsWinRate')}</span>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-black tracking-tight text-foreground">{stats.winRate}%</span>
             </div>
-            <p className="text-[10px] text-muted-foreground font-bold leading-normal truncate">
+            <p className="text-xs text-muted-foreground font-bold leading-normal truncate">
               {t('profile.statsWinRateDetail', { won: stats.won, played: stats.played })}
             </p>
           </div>
@@ -100,11 +100,11 @@ export function StatsDashboard({ stats }: StatsDashboardProps) {
         </div>
         <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4 relative z-10">
           <div className="space-y-1.5 min-w-0 text-left">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsAttendance')}</span>
+            <span className="text-xs font-black text-muted-foreground uppercase tracking-widest block">{t('profile.statsAttendance')}</span>
             <div className="flex items-baseline gap-1">
               <span className="text-3xl font-black tracking-tight text-foreground">{stats.karma}%</span>
             </div>
-            <p className="text-[10px] text-muted-foreground font-bold leading-normal truncate">
+            <p className="text-xs text-muted-foreground font-bold leading-normal truncate">
               {t('profile.statsAttendanceDetail', { played: stats.played, missed: stats.missed })}
             </p>
           </div>

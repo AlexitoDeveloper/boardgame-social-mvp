@@ -59,7 +59,7 @@ export function GroupGameRecords({ records }: GroupGameRecordsProps) {
                     {record.gameTitle}
                   </h4>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-1.5 py-0 font-bold gap-1">
+                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs px-1.5 py-0 font-bold gap-1">
                       <Sparkles className="w-2.5 h-2.5" />
                       {t('groups.recordLabel')}
                     </Badge>
@@ -71,7 +71,7 @@ export function GroupGameRecords({ records }: GroupGameRecordsProps) {
                   <div className="font-mono text-xl sm:text-2xl font-black text-amber-400 tracking-tight">
                     {record.highScore}
                   </div>
-                  <div className="text-[10px] uppercase font-bold text-muted-foreground">
+                  <div className="text-xs uppercase font-bold text-muted-foreground">
                     {t('groups.pointsShort')}
                   </div>
                 </div>
@@ -82,7 +82,7 @@ export function GroupGameRecords({ records }: GroupGameRecordsProps) {
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Avatar className="w-5 h-5 border border-border">
                     <AvatarImage src={record.holderAvatar || ''} alt={record.holderName} />
-                    <AvatarFallback className="text-[9px] font-bold">
+                    <AvatarFallback className="text-xs font-bold">
                       {record.holderName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -92,7 +92,7 @@ export function GroupGameRecords({ records }: GroupGameRecordsProps) {
                 </div>
 
                 {record.date && (
-                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono">
                     <Calendar className="w-3 h-3" />
                     <span>{record.date.slice(0, 10)}</span>
                   </div>

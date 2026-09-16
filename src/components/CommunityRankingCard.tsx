@@ -67,15 +67,15 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt={username} />
             ) : null}
-            <AvatarFallback className="text-[9px] bg-muted font-bold">
+            <AvatarFallback className="text-xs bg-muted font-bold">
               {username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col min-w-0">
-            <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground transition-colors truncate">
+            <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors truncate">
               {username}
             </span>
-            <span className="text-[8px] text-zinc-500 font-medium">
+            <span className="text-xs text-zinc-500 font-medium">
               {formatDate(ranking.created_at, { day: 'numeric', month: 'short' }, language)}
             </span>
           </div>

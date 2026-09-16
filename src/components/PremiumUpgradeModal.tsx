@@ -100,7 +100,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
                   </div>
                   <div className="space-y-0.5 text-left">
                     <h4 className="text-xs font-black text-foreground">{feature.title}</h4>
-                    <p className="text-[10px] text-zinc-400 leading-normal font-medium">{feature.desc}</p>
+                    <p className="text-xs text-zinc-400 leading-normal font-medium">{feature.desc}</p>
                   </div>
                 </div>
               )
@@ -127,7 +127,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="w-full text-[10px] font-bold cursor-pointer"
+              className="w-full text-xs font-bold cursor-pointer"
             >
               Quizás más tarde
             </Button>

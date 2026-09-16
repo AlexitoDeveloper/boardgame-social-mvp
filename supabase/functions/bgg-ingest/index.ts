@@ -3,8 +3,6 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { XMLParser } from "https://esm.sh/fast-xml-parser@4.3.4";
-import { Jimp } from "npm:jimp@1.6.1";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -134,50 +132,52 @@ async function fetchBggCollection(username: string, bggToken?: string): Promise<
   throw new Error("La API de BoardGameGeek está tardando demasiado en procesar tu colección. Por favor, vuelve a intentarlo en unos instantes.");
 }
 
-async function processAndUploadImage(supabase: any, bggId: number, imageUrl: string): Promise<string | null> {
-  if (!imageUrl) return null;
-  
-  try {
-    console.log(`[Storage] Downloading cover for game ${bggId} from: ${imageUrl}...`);
-    const imgResponse = await fetch(imageUrl);
-    if (!imgResponse.ok) {
-      throw new Error(`Failed to download image: status ${imgResponse.status}`);
+const SPANISH_PUBLISHERS = [
+  "tranjis games", "devir", "zacatrus", "ludonova", "gdm games", "gdm",
+  "edge entertainment", "asmodee spain", "asmodee ibérica", "asmodee iberica",
+  "gen x games", "maldito games", "tcg factory", "arrakis games", "eclipse editorial",
+  "doit games", "mont tàber", "mont taber", "brain picnic", "sd games", "dmz games",
+  "salt & pepper games", "looping games", "primigenio", "masqueoca", "ediciones masqueoca",
+  "ludis hispania", "tiki ediciones", "perro lopo", "drakon ideas", "santiago games",
+  "falomir juegos", "cefa toys", "borras", "juegos borras", "diset", "educo", "mercurio",
+  "mercurio distribuciones"
+];
+
+function getPublisherName(v: any): string | null {
+  let links = v.link || [];
+  if (!Array.isArray(links)) links = [links];
+  const pubLink = links.find((l: any) => l["@_type"] === "boardgamepublisher");
+  return pubLink?.["@_value"]?.toLowerCase().trim() || null;
+}
+
+function selectBestSpanishVersion(versionItems: any): any | null {
+  if (!versionItems) return null;
+  const list = Array.isArray(versionItems) ? versionItems : [versionItems];
+
+  const sorted = [...list].sort((a: any, b: any) => {
+    const yearA = Number(a.yearpublished?.["@_value"] || 0);
+    const yearB = Number(b.yearpublished?.["@_value"] || 0);
+    if (yearB !== yearA) {
+      return yearB - yearA;
     }
-    
-    const arrayBuffer = await imgResponse.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
-    
-    console.log(`[Jimp] Processing/optimizing image for game ${bggId}...`);
-    const image = await Jimp.read(buffer);
-    
-    if (image.width > 600) {
-      image.resize({ w: 600 });
-      console.log(`[Jimp] Resized image to 600px width.`);
-    }
-    
-    const optimizedBuffer = await image.getBuffer("image/jpeg");
-    const fileName = `covers/${bggId}.jpg`;
-    
-    console.log(`[Storage] Uploading optimized image ${fileName} to bucket 'game-covers'...`);
-    const { error } = await supabase.storage
-      .from("game-covers")
-      .upload(fileName, optimizedBuffer, {
-        contentType: "image/jpeg",
-        upsert: true
-      });
-      
-    if (error) throw error;
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from("game-covers")
-      .getPublicUrl(fileName);
-      
-    console.log(`[Storage] Upload complete. Public URL: ${publicUrl}`);
-    return publicUrl;
-  } catch (err: any) {
-    console.error(`[Storage Error] Could not process/upload image for game ${bggId}:`, err.message);
-    return imageUrl;
-  }
+
+    const pubA = getPublisherName(a);
+    const pubB = getPublisherName(b);
+    const isPubASpanish = pubA ? SPANISH_PUBLISHERS.some((sp) => pubA.includes(sp)) : false;
+    const isPubBSpanish = pubB ? SPANISH_PUBLISHERS.some((sp) => pubB.includes(sp)) : false;
+
+    if (isPubASpanish && !isPubBSpanish) return -1;
+    if (!isPubASpanish && isPubBSpanish) return 1;
+
+    return 0;
+  });
+
+  return sorted.find((v: any) => {
+    let links = v.link;
+    if (!links) return false;
+    if (!Array.isArray(links)) links = [links];
+    return links.some((l: any) => l["@_type"] === "language" && l["@_value"] === "Spanish");
+  });
 }
 
 Deno.serve(async (request) => {
@@ -331,7 +331,8 @@ Deno.serve(async (request) => {
           title: g.title,
           year_published: g.year_published,
           image_url: g.image_url,
-          is_expansion: g.is_expansion
+          is_expansion: g.is_expansion,
+          spanish_checked_at: null
         }));
 
       if (newGamesData.length > 0) {
@@ -554,12 +555,13 @@ Deno.serve(async (request) => {
         }
       }
 
-      // Default BGG image
-      let bggImageUrl = item.image || item.thumbnail || null;
+      // Default BGG image (original international cover)
+      const bggImageUrl = item.image || item.thumbnail || null;
       let hasSpanishEdition = false;
-      let titleEs: string | null = null;   // Spanish title
-      let publisher: string | null = null; // Original publisher
-      let esPublisher: string | null = null; // Spanish publisher
+      let titleEs: string | null = null;       // Spanish title
+      let imageUrlEs: string | null = null;    // Spanish cover URL
+      let publisher: string | null = null;     // Original publisher
+      let esPublisher: string | null = null;   // Spanish publisher
 
       // Extract original publisher from main game links
       const origPubLink = links.find((l: any) => l["@_type"] === "boardgamepublisher");
@@ -567,41 +569,37 @@ Deno.serve(async (request) => {
 
       // Extract Spanish edition version specifics
       if (item.versions && item.versions.item) {
-        let versionItems = item.versions.item;
-        if (!Array.isArray(versionItems)) {
-          versionItems = [versionItems];
-        }
-        
-        // Reversing versionItems to prioritize the most recent Spanish edition
-        const spanishVersion = [...versionItems].reverse().find((v: any) => {
-          let vLinks = v.link;
-          if (!vLinks) return false;
-          if (!Array.isArray(vLinks)) vLinks = [vLinks];
-          return vLinks.some((l: any) => l["@_type"] === "language" && l["@_value"] === "Spanish");
-        });
+        const spanishVersion = selectBestSpanishVersion(item.versions.item);
 
         if (spanishVersion) {
           hasSpanishEdition = true;
-          
-          // Try to extract Spanish title (does NOT modify title — only sets title_es)
-          let spanishNames = spanishVersion.name;
-          if (spanishNames) {
-            if (!Array.isArray(spanishNames)) {
-              spanishNames = [spanishNames];
-            }
-            const primaryEspName = spanishNames.find((n: any) => n?.["@_type"] === "primary") || spanishNames[0];
-            const esTitle = primaryEspName?.["@_value"];
-            if (esTitle) {
-              if (!isGenericEditionName(esTitle)) {
-                titleEs = esTitle;
-              }
+
+          // 1. Extract Spanish title (checks canonicalname first, then name)
+          const canonicalTitle = spanishVersion.canonicalname?.["@_value"];
+          let candidateTitle = canonicalTitle;
+
+          if (!candidateTitle) {
+            let spanishNames = spanishVersion.name;
+            if (spanishNames) {
+              if (!Array.isArray(spanishNames)) spanishNames = [spanishNames];
+              const primaryName = spanishNames.find((n: any) => n?.["@_type"] === "primary") || spanishNames[0];
+              candidateTitle = primaryName?.["@_value"];
             }
           }
 
-          if (spanishVersion.image || spanishVersion.thumbnail) {
-            bggImageUrl = spanishVersion.image || spanishVersion.thumbnail;
+          if (candidateTitle?.trim()) {
+            const trimmedTitleEs = candidateTitle.trim();
+            if (!isGenericEditionName(trimmedTitleEs)) {
+              titleEs = trimmedTitleEs;
+            }
           }
-          
+
+          // 2. Extract Spanish edition box cover
+          if (spanishVersion.image || spanishVersion.thumbnail) {
+            imageUrlEs = spanishVersion.image || spanishVersion.thumbnail;
+          }
+
+          // 3. Extract Spanish publisher
           let vLinks = spanishVersion.link;
           if (!Array.isArray(vLinks)) vLinks = [vLinks];
           const publisherLink = vLinks.find((l: any) => l["@_type"] === "boardgamepublisher");
@@ -611,10 +609,7 @@ Deno.serve(async (request) => {
         }
       }
 
-      console.log(`[Parser] Processing: "${title}" (BGG ID: ${bggId}). Expansion: ${isExpansion}`);
-
-      // Use BGG CDN URL directly to save Supabase Storage space (1GB Free Tier limit)
-      const finalImageUrl = bggImageUrl;
+      console.log(`[Parser] Processing: "${title}" (BGG ID: ${bggId}). Expansion: ${isExpansion}, Has ES Edition: ${hasSpanishEdition}`);
 
       // Insert into games table
       const { data: upserted, error: insertError } = await supabase
@@ -625,7 +620,9 @@ Deno.serve(async (request) => {
           title_es: titleEs,  // Spanish title (null if no Spanish edition)
           publisher,          // Original publisher
           year_published: yearPublished,
-          image_url: finalImageUrl,
+          image_url: bggImageUrl,      // Original BGG box cover
+          image_url_es: imageUrlEs,    // Spanish edition box cover from BGG CDN
+          spanish_checked_at: new Date().toISOString(),
           min_players: minPlayers,
           max_players: maxPlayers,
           playing_time: playingTime,

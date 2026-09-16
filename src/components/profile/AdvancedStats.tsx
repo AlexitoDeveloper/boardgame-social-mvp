@@ -140,13 +140,13 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
             {titleConfig.emoji}
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">
+            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-0.5">
               {t('profile.advancedStats.yourTitle')}
             </p>
             <p className="text-sm font-black text-foreground leading-tight">
               {t(`profile.advancedStats.title_${titleId}_label`)}
             </p>
-            <p className="text-[10px] text-muted-foreground font-medium mt-0.5 leading-normal">
+            <p className="text-xs text-muted-foreground font-medium mt-0.5 leading-normal">
               {t(`profile.advancedStats.title_${titleId}_desc`)}
             </p>
           </div>
@@ -160,7 +160,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           <CardContent className="p-4 space-y-2.5">
             <div className="flex items-center gap-1.5">
               <Skull className="w-3.5 h-3.5 text-rose-500" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">{t('profile.advancedStats.nemesisLabel')}</span>
+              <span className="text-xs font-black uppercase tracking-widest text-rose-500">{t('profile.advancedStats.nemesisLabel')}</span>
             </div>
             {nemesis ? (
               <div className="space-y-1.5">
@@ -172,11 +172,11 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{nemesis.username}</p>
-                <p className="text-[9px] text-rose-500 font-bold text-center">{t('profile.advancedStats.nemesisBeat', { count: nemesis.count })}</p>
+                <p className="text-xs text-rose-500 font-bold text-center">{t('profile.advancedStats.nemesisBeat', { count: nemesis.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">
-                <p className="text-[10px] text-muted-foreground font-medium leading-normal">
+                <p className="text-xs text-muted-foreground font-medium leading-normal">
                   {hasEnoughData ? t('profile.advancedStats.noNemesis') : t('profile.advancedStats.playMoreGames')}
                 </p>
               </div>
@@ -189,7 +189,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           <CardContent className="p-4 space-y-2.5">
             <div className="flex items-center gap-1.5">
               <Crown className="w-3.5 h-3.5 text-amber-500 fill-current" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-amber-500">{t('profile.advancedStats.victimLabel')}</span>
+              <span className="text-xs font-black uppercase tracking-widest text-amber-500">{t('profile.advancedStats.victimLabel')}</span>
             </div>
             {victim ? (
               <div className="space-y-1.5">
@@ -201,11 +201,11 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{victim.username}</p>
-                <p className="text-[9px] text-amber-500 font-bold text-center">{t('profile.advancedStats.victimBeat', { count: victim.count })}</p>
+                <p className="text-xs text-amber-500 font-bold text-center">{t('profile.advancedStats.victimBeat', { count: victim.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">
-                <p className="text-[10px] text-muted-foreground font-medium leading-normal">
+                <p className="text-xs text-muted-foreground font-medium leading-normal">
                   {hasEnoughData ? t('profile.advancedStats.noVictim') : t('profile.advancedStats.playMoreGames')}
                 </p>
               </div>
@@ -260,10 +260,10 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           ) : (
             <div className="h-[160px] flex flex-col items-center justify-center gap-2 text-center">
               <Swords className="w-8 h-8 text-muted-foreground/40" />
-              <p className="text-[11px] text-muted-foreground font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 {t('profile.advancedStats.radarNeedsData')}
               </p>
-              <p className="text-[10px] text-muted-foreground/60 font-medium">
+              <p className="text-xs text-muted-foreground/60 font-medium">
                 {t('profile.advancedStats.radarProgress', { played: stats.played })}
               </p>
             </div>
@@ -271,8 +271,8 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
           <div className="mt-2 grid grid-cols-5 gap-1 text-center">
             {radarData.map(d => (
               <div key={d.axis} className="space-y-0.5">
-                <div className="text-[9px] font-black text-muted-foreground truncate">{d.axis}</div>
-                <div className="text-[10px] font-extrabold text-primary">{d.value}%</div>
+                <div className="text-xs font-black text-muted-foreground truncate">{d.axis}</div>
+                <div className="text-xs font-extrabold text-primary">{d.value}%</div>
               </div>
             ))}
           </div>

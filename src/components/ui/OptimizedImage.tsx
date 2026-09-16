@@ -1,15 +1,16 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Image as ImageIcon, Loader2 } from "lucide-react"
+import { Dices } from "lucide-react"
 
 export interface OptimizedImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src: string | null | undefined;
   alt: string;
   className?: string;
-  widthSize?: number; // e.g. 120, 250, 400
-  heightSize?: number; // e.g. 120, 250, 400
+  widthSize?: number;
+  heightSize?: number;
   fit?: "cover" | "contain" | "inside" | "outside";
   fallbackClassName?: string;
+  hidePlaceholderText?: boolean;
 }
 
 export function OptimizedImage({
@@ -20,70 +21,97 @@ export function OptimizedImage({
   heightSize,
   fit = "cover",
   fallbackClassName,
+  hidePlaceholderText = false,
   ...props
 }: OptimizedImageProps) {
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState(false)
+  const imgRef = React.useRef<HTMLImageElement | null>(null)
 
-  // Reset states when src changes
+  // Check if image is already completed in browser cache
+  const checkCompletion = React.useCallback((node: HTMLImageElement | null) => {
+    imgRef.current = node
+    if (!node) return
+
+    if (node.complete) {
+      if (node.naturalWidth === 0 && node.naturalHeight === 0) {
+        setError(true)
+        setLoading(false)
+      } else if (node.naturalWidth > 0) {
+        setLoading(false)
+        setError(false)
+      }
+    }
+  }, [])
+
+  // Reset states only when src changes
   React.useEffect(() => {
+    if (!src || src === 'null' || src === 'undefined' || src.trim() === '') {
+      setError(true)
+      setLoading(false)
+      return
+    }
+
+    // Check if the current DOM node has already loaded this src from cache
+    if (imgRef.current && imgRef.current.complete) {
+      if (imgRef.current.naturalWidth > 0) {
+        setLoading(false)
+        setError(false)
+        return
+      }
+    }
+
     setLoading(true)
     setError(false)
   }, [src])
 
-  if (!src || error) {
+  // Dummy cover fallback when image is genuinely missing or failed to load
+  if (!src || src === 'null' || src === 'undefined' || src.trim() === '' || error) {
     return (
       <div
         className={cn(
-          "flex items-center justify-center bg-muted/30 border border-border/30 rounded-xl text-muted-foreground",
+          "flex flex-col items-center justify-center p-3 text-center rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 border border-border/40 text-muted-foreground select-none relative overflow-hidden shadow-inner w-full h-full",
           fallbackClassName || className
         )}
       >
-        <ImageIcon className="h-5 w-5 opacity-40 shrink-0" />
+        <div className="p-2.5 rounded-2xl bg-primary/10 border border-primary/20 mb-1 text-primary/60 shrink-0">
+          <Dices className="h-6 w-6" />
+        </div>
+        {!hidePlaceholderText && alt && (
+          <span className="text-[11px] font-bold text-foreground/75 line-clamp-2 px-1 leading-tight tracking-tight">
+            {alt}
+          </span>
+        )}
       </div>
     )
   }
 
-  // Check if we should proxy the URL (only external http/https URLs)
-  const isExternal = src.startsWith("http://") || src.startsWith("https://")
-  const isLocalHost = src.includes("localhost") || src.includes("127.0.0.1")
-  
-  let finalSrc = src
-  if (isExternal && !isLocalHost) {
-    // Generate optimized CDN url using weserv.nl
-    const params = new URLSearchParams()
-    params.set("url", src)
-    if (widthSize) params.set("w", widthSize.toString())
-    if (heightSize) params.set("h", heightSize.toString())
-    params.set("fit", fit)
-    params.set("output", "webp") // Dynamic WebP compression
-    params.set("q", "85") // Quality
-    finalSrc = `https://images.weserv.nl/?${params.toString()}`
-  }
-
   return (
-    <div className={cn("relative overflow-hidden shrink-0 flex items-center justify-center", className)}>
-      {/* Loading Skeleton */}
+    <div className={cn("relative overflow-hidden shrink-0 flex items-center justify-center bg-muted/20", className)}>
+      {/* Subtle pulse skeleton while image loads */}
       {loading && (
-        <div className="absolute inset-0 bg-muted/30 flex items-center justify-center animate-pulse z-10">
-          <Loader2 className="h-4 w-4 animate-spin text-primary/40" />
-        </div>
+        <div className="absolute inset-0 bg-muted/40 animate-pulse z-10" />
       )}
       
       <img
-        src={finalSrc}
+        ref={checkCompletion}
+        src={src}
         alt={alt}
         className={cn(
-          "h-full w-full object-cover transition-opacity duration-300",
-          loading ? "opacity-0" : "opacity-100",
-          className
+          "h-full w-full transition-opacity duration-300",
+          fit === "contain" ? "object-contain" : fit === "inside" ? "object-scale-down" : "object-cover",
+          loading ? "opacity-0" : "opacity-100"
         )}
-        onLoad={() => setLoading(false)}
+        onLoad={() => {
+          setLoading(false)
+          setError(false)
+        }}
         onError={() => {
           setLoading(false)
           setError(true)
         }}
-        crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
+        loading={props.loading || "lazy"}
         {...props}
       />
     </div>

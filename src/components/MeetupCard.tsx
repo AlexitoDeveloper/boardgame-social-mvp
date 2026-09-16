@@ -319,7 +319,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
 
           {/* Información del juego */}
           {gamesList.length === 0 ? (
-            <div className="text-[11px] font-bold text-amber-500 tracking-wide flex items-center gap-1.5">
+            <div className="text-xs font-bold text-amber-500 tracking-wide flex items-center gap-1.5">
               <span>{t('common.game')}:</span>
               <Tag variant="warning-solid">
                 {t('create.noGamesSelected')}
@@ -405,12 +405,12 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           >
             <Avatar className="w-7 h-7 border border-background shadow-sm group-hover/creator:scale-105 transition-transform duration-300">
               <AvatarImage src={meetup.users?.avatar_url || undefined} />
-              <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-bold">
+              <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
                 {meetup.users?.username?.slice(0,2)?.toUpperCase() || 'H'}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-[9px] text-muted-foreground/80 font-medium leading-none mb-0.5">{t('common.host')}</span>
+              <span className="text-xs text-muted-foreground/80 font-medium leading-none mb-0.5">{t('common.host')}</span>
               <span className="text-xs font-extrabold text-foreground group-hover/creator:text-primary transition-colors leading-none">
                 {meetup.users?.username || t('common.anonymous')}
               </span>

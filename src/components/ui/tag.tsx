@@ -13,7 +13,7 @@ const tagVariants = cva(
         "default-solid":
           "border-transparent bg-primary text-primary-foreground",
         secondary:
-          "border-border/30 bg-muted/70 text-muted-foreground hover:bg-muted/90",
+          "border-border/40 bg-muted/90 text-foreground",
         "secondary-solid":
           "border-border/40 bg-card text-card-foreground shadow-sm",
         success:
@@ -29,16 +29,16 @@ const tagVariants = cva(
         "warning-solid":
           "border-transparent bg-amber-500 text-white",
         purple:
-          "border-purple-500/25 bg-purple-500/10 text-purple-400",
+          "border-purple-500/30 bg-purple-500/15 text-purple-700 dark:text-purple-300",
         "purple-solid":
           "border-transparent bg-purple-600 text-white",
         outline:
           "border-border/40 text-foreground bg-transparent",
       },
       size: {
-        default: "h-6 px-2.5 text-[11px] rounded-lg",
-        sm: "h-5 px-2 text-[9.5px] rounded-md",
-        xs: "h-4.5 px-1.5 text-[8.5px] rounded-md font-extrabold",
+        default: "h-6 px-2.5 text-xs rounded-lg",
+        sm: "h-5 px-2 text-xs rounded-md",
+        xs: "h-4.5 px-1.5 text-xs rounded-md font-extrabold",
       },
     },
     defaultVariants: {

@@ -1,4 +1,4 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -11,7 +11,7 @@ const badgeVariants = cva(
         default:
           "border-transparent bg-primary text-primary-foreground shadow-xs",
         secondary:
-          "border-transparent bg-muted/70 text-muted-foreground hover:bg-muted/90",
+          "border-border/40 bg-muted/90 text-foreground",
         "primary-soft":
           "bg-primary/10 text-primary border-primary/20",
         success:
@@ -27,14 +27,14 @@ const badgeVariants = cva(
         "warning-solid":
           "border-transparent bg-amber-500 text-white shadow-xs",
         purple:
-          "bg-purple-500/10 text-purple-400 border-purple-500/25",
+          "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30",
         "purple-solid":
           "border-transparent bg-purple-600 text-white shadow-xs",
         outline: "border-border/40 text-foreground bg-transparent",
       },
       size: {
-        sm: "px-2 py-0.5 text-[9px] rounded-md",
-        default: "px-2.5 py-0.5 text-[10px] rounded-full",
+        sm: "px-2 py-0.5 text-xs rounded-md",
+        default: "px-2.5 py-0.5 text-xs rounded-full",
         lg: "px-3 py-1 text-xs rounded-xl",
       },
     },

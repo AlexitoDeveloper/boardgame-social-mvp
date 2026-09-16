@@ -75,7 +75,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
             <h3 className="font-extrabold text-sm md:text-base text-foreground tracking-tight">
               Foto del Tablero Final
             </h3>
-            <p className="text-[11px] text-muted-foreground font-medium">
+            <p className="text-xs text-muted-foreground font-medium">
               Inmortaliza el despliegue al acabar la partida
             </p>
           </div>
@@ -109,7 +109,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
             <ImageIcon className="w-6 h-6" />
           </div>
           <p className="text-xs font-bold text-foreground">Sube o toma una foto del tablero</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5 mb-4">
+          <p className="text-xs text-muted-foreground mt-0.5 mb-4">
             Aparecerá en el resumen compartido de WhatsApp
           </p>
 

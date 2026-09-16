@@ -43,7 +43,7 @@ export function Tabs<T extends string>({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(opt.id)}
             className={cn(
-              "flex-1 py-1.5 sm:py-2 rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1 sm:gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none",
+              "flex-1 h-8 sm:h-9 rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1 sm:gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none",
               isActive ? "text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >
@@ -59,8 +59,8 @@ export function Tabs<T extends string>({
               <span className={cn(hideLabelsOnMobile && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
-                  "px-1.5 py-0.5 rounded-full text-[10px] font-bold border border-current shrink-0",
-                  isActive ? "bg-primary-foreground/15 border-transparent" : "bg-muted text-muted-foreground border-border/40"
+                  "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black leading-none shrink-0 border",
+                  isActive ? "bg-primary-foreground/20 text-primary-foreground border-transparent" : "bg-muted text-muted-foreground border-border/40"
                 )}>
                   {opt.count}
                 </span>

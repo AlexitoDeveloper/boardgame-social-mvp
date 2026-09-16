@@ -61,7 +61,7 @@ export function GroupPodium({ members }: GroupPodiumProps) {
                 {second.username}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono">
+                <Badge variant="secondary" className="text-xs px-1.5 py-0 font-mono">
                   {second.wins} {t('common.wins')}
                 </Badge>
               </div>
@@ -103,7 +103,7 @@ export function GroupPodium({ members }: GroupPodiumProps) {
                 {first.username}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
-                <Badge variant="default" className="bg-amber-500/20 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2 py-0 font-mono font-bold">
+                <Badge variant="default" className="bg-amber-500/20 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-2 py-0 font-mono font-bold">
                   {first.wins} {t('common.wins')}
                 </Badge>
               </div>
@@ -140,7 +140,7 @@ export function GroupPodium({ members }: GroupPodiumProps) {
                 {third.username}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono">
+                <Badge variant="secondary" className="text-xs px-1.5 py-0 font-mono">
                   {third.wins} {t('common.wins')}
                 </Badge>
               </div>
@@ -178,7 +178,7 @@ export function GroupPodium({ members }: GroupPodiumProps) {
                     <p className="text-sm font-semibold truncate text-foreground">
                       {member.username}
                     </p>
-                    <p className="text-[11px] text-muted-foreground font-mono">
+                    <p className="text-xs text-muted-foreground font-mono">
                       {member.totalPlayed} {t('groups.gamesShort')}
                     </p>
                   </div>

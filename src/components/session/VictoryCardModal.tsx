@@ -152,7 +152,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-sm text-foreground">Tarjeta de Victoria</h3>
-              <p className="text-[11px] text-muted-foreground font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 Comparte el resultado con tu grupo
               </p>
             </div>
@@ -183,12 +183,12 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             {/* Header info */}
             <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3 mb-4 relative z-10">
               <div className="min-w-0 flex-1">
-                <span className="text-[9px] uppercase font-black tracking-widest text-emerald-400 block">
+                <span className="text-xs uppercase font-black tracking-widest text-emerald-400 block">
                   Acta de Partida
                 </span>
                 <h4 className="text-base font-black truncate text-white">{meetup.title}</h4>
               </div>
-              <span className="text-[10px] text-zinc-400 font-bold flex items-center gap-1 shrink-0">
+              <span className="text-xs text-zinc-400 font-bold flex items-center gap-1 shrink-0">
                 <Calendar className="w-3 h-3 text-emerald-400" />
                 {formatDate(meetup.date, { day: 'numeric', month: 'short' }, language)}
               </span>
@@ -212,7 +212,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <span className="text-[9px] uppercase font-bold text-zinc-400">Juego</span>
+                    <span className="text-xs uppercase font-bold text-zinc-400">Juego</span>
                     <h5 className="text-sm font-black truncate text-white leading-tight">
                       {gameTitle}
                     </h5>
@@ -225,7 +225,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Crown className="w-5 h-5 text-amber-400 animate-pulse shrink-0" />
                     <div>
-                      <span className="text-[9px] uppercase font-black tracking-wider text-amber-400 block">
+                      <span className="text-xs uppercase font-black tracking-wider text-amber-400 block">
                         Campeón
                       </span>
                       <span className="text-xs font-black text-white">{winner.name}</span>
@@ -235,7 +235,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                     <span className="text-lg font-mono font-black text-amber-300">
                       {winner.score}
                     </span>
-                    <span className="text-[9px] font-bold text-zinc-400 ml-1">pts</span>
+                    <span className="text-xs font-bold text-zinc-400 ml-1">pts</span>
                   </div>
                 </div>
               )}
@@ -244,7 +244,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             {/* Classification ranking */}
             {sortedScores.length > 0 && (
               <div className="space-y-1.5 relative z-10 mb-4">
-                <span className="text-[9px] uppercase font-black tracking-widest text-zinc-400 block px-1">
+                <span className="text-xs uppercase font-black tracking-widest text-zinc-400 block px-1">
                   Clasificación
                 </span>
                 <div className="space-y-1">
@@ -259,13 +259,13 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                       )}
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[10px] font-mono font-black text-zinc-400 w-4">
+                        <span className="text-xs font-mono font-black text-zinc-400 w-4">
                           #{idx + 1}
                         </span>
                         <span className="truncate font-bold text-white">{player.name}</span>
                       </div>
                       <div className="font-mono font-black text-emerald-400">
-                        {player.score} <span className="text-[9px] text-zinc-400">pts</span>
+                        {player.score} <span className="text-xs text-zinc-400">pts</span>
                       </div>
                     </div>
                   ))}
@@ -287,7 +287,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             )}
 
             {/* Watermark */}
-            <div className="text-center pt-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest border-t border-white/10 relative z-10">
+            <div className="text-center pt-2 text-xs text-zinc-500 font-bold uppercase tracking-widest border-t border-white/10 relative z-10">
               The Table Companion • BoardGame Social
             </div>
           </div>

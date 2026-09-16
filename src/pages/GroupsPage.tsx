@@ -169,7 +169,7 @@ export function GroupsPage() {
             variant="outline"
             className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11"
           >
-            <Code className="h-4 w-4 text-primary" />
+            <Code className="h-4 w-4 text-muted-foreground" />
             <span>{t('groups.joinWithCode')}</span>
           </Button>
 
@@ -287,7 +287,7 @@ export function GroupsPage() {
                     {/* Stats & Actions */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/20">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold font-mono-tabular">
-                        <Users className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span>{group.member_count || 1} {group.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
                       </div>
 
@@ -297,7 +297,7 @@ export function GroupsPage() {
                           onClick={(e) => {
                             handleShareWhatsApp(e, group.name, group.invite_code)
                           }}
-                          className="h-auto flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
+                          className="h-auto flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
                           title={t('groups.inviteWhatsApp')}
                           aria-label={t('groups.inviteWhatsApp')}
                           variant="ghost"
@@ -311,7 +311,7 @@ export function GroupsPage() {
                           onClick={(e) => {
                             handleCopyCode(e, group.invite_code, group.id)
                           }}
-                          className="h-auto flex items-center gap-1 text-[10px] font-black uppercase text-primary bg-primary/10 border border-primary/20 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"
+                          className="h-auto flex items-center gap-1 text-xs font-bold uppercase text-muted-foreground bg-muted/30 border border-border/30 hover:bg-muted/60 hover:text-foreground px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"
                           title={t('groups.copyInviteLink')}
                           aria-label={copiedId === group.id ? t('groups.copied') : t('groups.copyInviteLink')}
                           variant="ghost"
@@ -406,7 +406,7 @@ export function GroupsPage() {
 
           <Form onSubmit={handleCreateSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
+              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">
                 {t('groups.groupNameLabel')}
               </label>
               <Input
@@ -421,7 +421,7 @@ export function GroupsPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-black uppercase text-muted-foreground tracking-wider px-1">
+              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">
                 {t('groups.groupDescLabel')}
               </label>
               <Textarea

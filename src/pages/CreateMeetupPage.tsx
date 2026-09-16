@@ -576,7 +576,7 @@ export function CreateMeetupPage() {
         >
           <ArrowLeft className="w-4 h-4" /> {t('common.back')}
         </Button>
-        <span className="text-[10px] font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
+        <span className="text-xs font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
           {isEditMode ? t('create.editTitle') : `${t('create.activeMeetups')}: ${activeMeetupsCount !== null ? activeMeetupsCount : 0}/${limit}`}
         </span>
       </div>
@@ -717,7 +717,7 @@ export function CreateMeetupPage() {
                             )}
                             <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
-                              <span className="ml-1 px-1 py-0.5 text-[8px] font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/25 rounded-md shrink-0">
+                              <span className="ml-1 px-1 py-0.5 text-xs font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/25 rounded-md shrink-0">
                                 {t('common.expansion')}
                               </span>
                             )}
@@ -775,7 +775,7 @@ export function CreateMeetupPage() {
                                         className="w-8 h-8 rounded-lg object-cover shadow-sm shrink-0"
                                       />
                                     ) : (
-                                      <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-[9px] font-extrabold text-muted-foreground shrink-0">?</div>
+                                      <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-xs font-extrabold text-muted-foreground shrink-0">?</div>
                                     )}
                                     <span className="truncate flex-1 select-none text-foreground/95">{exp.title}</span>
                                   </label>
@@ -864,7 +864,7 @@ export function CreateMeetupPage() {
                       >
                         <div className="space-y-1.5">
                           <Label htmlFor="platform" className="font-bold flex items-center gap-1">
-                            <Laptop className="w-3.5 h-3.5 text-primary" /> {t('create.platformLabel')}
+                            <Laptop className="w-3.5 h-3.5 text-muted-foreground" /> {t('create.platformLabel')}
                           </Label>
                           <Input 
                             id="platform"
@@ -877,7 +877,7 @@ export function CreateMeetupPage() {
 
                         <div className="space-y-1.5">
                           <Label htmlFor="voiceLink" className="font-bold flex items-center gap-1">
-                            <PhoneCall className="w-3.5 h-3.5 text-primary" /> {t('create.voiceLabel')}
+                            <PhoneCall className="w-3.5 h-3.5 text-muted-foreground" /> {t('create.voiceLabel')}
                           </Label>
                           <Input 
                             id="voiceLink"
@@ -894,14 +894,14 @@ export function CreateMeetupPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="date" className="font-bold flex items-center gap-1">
-                        <CalendarDays className="w-3.5 h-3.5 text-primary" /> {t('create.dateLabel')}
+                        <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" /> {t('create.dateLabel')}
                       </Label>
                       <CalendarDatePicker value={date} onChange={setDate} />
                     </div>
 
                     <div className="space-y-1.5">
                       <Label htmlFor="maxPlayers" className="font-bold flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-primary" /> {t('create.maxPlayersLabel')}
+                        <Users className="w-3.5 h-3.5 text-muted-foreground" /> {t('create.maxPlayersLabel')}
                       </Label>
                       <Input 
                         id="maxPlayers"

@@ -193,7 +193,7 @@ export function MeetupDetailSidebar({
 
         {/* Game results cards */}
         <div className="space-y-2.5">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.resultsTitle')}</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.resultsTitle')}</p>
           {gamesList.map((game) => {
             const winningId = game.winner_user_id || game.winner_guest_id
             const winner = winningId ? attendees.find(a => a.id === winningId) : null
@@ -210,7 +210,7 @@ export function MeetupDetailSidebar({
                   />
                   <div className="min-w-0">
                     <p className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</p>
-                    <p className="text-[9px] text-muted-foreground font-semibold">{t('meetup.winner')}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">{t('meetup.winner')}</p>
                   </div>
                 </div>
                 
@@ -222,7 +222,7 @@ export function MeetupDetailSidebar({
                         <span className="truncate max-w-[85px]">{winner.username}</span>
                       </div>
                       {game.winner_score && (
-                        <span className="text-[10px] font-extrabold text-primary tracking-wide bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md truncate max-w-[120px]">
+                        <span className="text-xs font-extrabold text-primary tracking-wide bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md truncate max-w-[120px]">
                           {game.winner_score}
                         </span>
                       )}
@@ -233,7 +233,7 @@ export function MeetupDetailSidebar({
                         {t('meetup.draw')}
                       </div>
                       {game.winner_score && (
-                        <span className="text-[10px] font-semibold text-muted-foreground tracking-wide truncate max-w-[120px]">
+                        <span className="text-xs font-semibold text-muted-foreground tracking-wide truncate max-w-[120px]">
                           {game.winner_score}
                         </span>
                       )}
@@ -246,7 +246,7 @@ export function MeetupDetailSidebar({
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border/20">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t('meetup.attendedTitle')} ({attendedList.length})</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t('meetup.attendedTitle')} ({attendedList.length})</p>
           <div className="flex flex-wrap gap-1.5">
             {attendedList.map(a => (
               <div key={a.id} className="px-2.5 py-1 rounded-lg bg-background/50 border border-border/40 text-xs font-medium text-foreground flex items-center gap-1.5">
@@ -299,7 +299,7 @@ export function MeetupDetailSidebar({
         <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
           {/* 1. Who attended */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.whoAttended')}</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.whoAttended')}</label>
             <div className="space-y-1.5">
               {attendees.map(a => {
                 const isUser = !a.is_guest
@@ -313,7 +313,7 @@ export function MeetupDetailSidebar({
                   >
                     <div className="flex items-center gap-2">
                       <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
-                      <span>{a.username} {a.is_guest && <span className="text-[9px] text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
+                      <span>{a.username} {a.is_guest && <span className="text-xs text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
                     </div>
                     {isChecked ? (
                       <CheckSquare className="w-4 h-4 text-primary" />
@@ -328,7 +328,7 @@ export function MeetupDetailSidebar({
 
           {/* 2. Winners per game */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.winnersPerGame')}</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.winnersPerGame')}</label>
             <div className="space-y-4">
               {gamesList.map((game) => {
                 const gameWinnerId = gameWinners[game.bgg_id] || null
@@ -372,7 +372,7 @@ export function MeetupDetailSidebar({
                           >
                             <div className="flex items-center gap-2">
                               <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
-                              <span>{a.username} {a.is_guest && <span className="text-[9px] text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
+                              <span>{a.username} {a.is_guest && <span className="text-xs text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
                             </div>
                             {gameWinnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current shrink-0 animate-pulse" />}
                           </div>
@@ -381,7 +381,7 @@ export function MeetupDetailSidebar({
 
                     {/* Winner score input */}
                     <div className="mt-2 text-left space-y-1">
-                      <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.scorePlaceholder')}</label>
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.scorePlaceholder')}</label>
                       <Input
                         type="text"
                         placeholder="Ej. 104 pts, 15-12, Coop Win..."
@@ -401,20 +401,20 @@ export function MeetupDetailSidebar({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 pt-3 border-t border-border/20 shrink-0">
-          <Button 
-            onClick={handleSubmitComplete}
-            variant="default"
-            className="w-full h-9"
-          >
-            {t('common.confirmSave')}
-          </Button>
+        <div className="flex flex-row gap-2 pt-3 border-t border-border/20 shrink-0">
           <Button 
             onClick={() => setIsCompleting(false)}
             variant="outline" 
-            className="w-full h-9"
+            className="flex-1 h-9"
           >
             {t('common.cancel')}
+          </Button>
+          <Button 
+            onClick={handleSubmitComplete}
+            variant="default"
+            className="flex-1 h-9"
+          >
+            {t('common.confirmSave')}
           </Button>
         </div>
       </div>
@@ -456,7 +456,7 @@ export function MeetupDetailSidebar({
           >
             {joining ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : t('meetup.guestLeave')}
           </Button>
-          <p className="text-[10px] text-muted-foreground text-center font-medium leading-normal mt-2">
+          <p className="text-xs text-muted-foreground text-center font-medium leading-normal mt-2">
             {t('meetup.guestRegisterWarning')}
           </p>
         </div>
@@ -473,7 +473,7 @@ export function MeetupDetailSidebar({
           >
             {t('meetup.tableFull')}
           </Button>
-          <p className="text-[10px] text-muted-foreground text-center font-semibold pt-1">
+          <p className="text-xs text-muted-foreground text-center font-semibold pt-1">
             {t('meetup.guestLoginToJoin')}
           </p>
         </div>
@@ -483,7 +483,7 @@ export function MeetupDetailSidebar({
     return (
       <Form onSubmit={handleGuestJoinSubmit} className="space-y-3 pt-1">
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.guestTitle')}</label>
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.guestTitle')}</label>
           <div className="flex gap-2 flex-col">
             <Input
               type="text"
@@ -503,7 +503,7 @@ export function MeetupDetailSidebar({
             </Button>
           </div>
         </div>
-        <p className="text-[10px] text-muted-foreground text-center font-semibold pt-1">
+        <p className="text-xs text-muted-foreground text-center font-semibold pt-1">
           {t('meetup.guestRegisterWarning')}
         </p>
       </Form>
@@ -695,6 +695,14 @@ export function MeetupDetailSidebar({
                       </div>
                       <div className="flex gap-2">
                         <Button 
+                          onClick={() => setConfirmCancel(false)}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          {t('meetup.noCancel')}
+                        </Button>
+                        <Button 
                           onClick={handleCancelMeetup}
                           disabled={canceling}
                           variant="destructive"
@@ -702,14 +710,6 @@ export function MeetupDetailSidebar({
                           className="flex-1 h-8"
                         >
                           {canceling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('meetup.yesCancel')}
-                        </Button>
-                        <Button 
-                          onClick={() => setConfirmCancel(false)}
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                        >
-                          {t('meetup.noCancel')}
                         </Button>
                       </div>
                     </div>
@@ -733,7 +733,7 @@ export function MeetupDetailSidebar({
             </div>
             <div className="space-y-1.5">
               <p className="font-extrabold text-xs text-foreground">{t('common.toDecide')}</p>
-              <p className="text-[10px] text-muted-foreground leading-normal">
+              <p className="text-xs text-muted-foreground leading-normal">
                 {t('meetup.freeGameDesc')}
               </p>
             </div>
@@ -749,7 +749,7 @@ export function MeetupDetailSidebar({
                     {getGameTitle(game)}
                   </CardTitle>
                   {game.is_expansion && (
-                    <Tag variant="purple" className="shrink-0 text-[9px] px-1 py-0 shadow-sm">
+                    <Tag variant="purple" className="shrink-0 text-xs px-1 py-0 shadow-sm">
                       {t('common.expansion')}
                     </Tag>
                   )}
@@ -783,7 +783,7 @@ export function MeetupDetailSidebar({
                 {/* Specs */}
                 <div className="grid grid-cols-2 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-muted/30 border border-border/20">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase">{t('common.players')}</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase">{t('common.players')}</p>
                     <p className="text-xs font-extrabold text-primary mt-0.5">
                       {game.min_players === game.max_players 
                         ? `${game.min_players}` 
@@ -791,7 +791,7 @@ export function MeetupDetailSidebar({
                     </p>
                   </div>
                   <div className="p-2.5 rounded-xl bg-muted/30 border border-border/20">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase">{t('explore.duration')}</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase">{t('explore.duration')}</p>
                     <p className="text-xs font-extrabold text-primary mt-0.5">
                       {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/D'}
                     </p>
@@ -801,7 +801,7 @@ export function MeetupDetailSidebar({
                 {/* Editorial Info */}
                 {getGamePublisher(game) && (
                   <div className="px-3 py-2 rounded-xl bg-muted/20 border border-border/15 text-center">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">{t('common.publisher')}</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t('common.publisher')}</p>
                     <p className="text-xs font-extrabold text-foreground mt-0.5">{getGamePublisher(game)}</p>
                   </div>
                 )}

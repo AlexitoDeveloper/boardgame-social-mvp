@@ -1,4 +1,4 @@
-import { Plus, Calendar, Crown, Sparkles, Check } from 'lucide-react'
+import { Plus, Calendar, Crown, Check } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -133,7 +133,7 @@ export function GroupPollsTab({
                         }}
                         variant="outline"
                         size="sm"
-                        className="rounded-xl text-[10px] font-black uppercase tracking-wider h-8 cursor-pointer"
+                        className="rounded-xl text-xs font-black uppercase tracking-wider h-8 cursor-pointer"
                       >
                         {t('groups.closePoll')}
                       </Button>
@@ -149,13 +149,13 @@ export function GroupPollsTab({
                               onCreateMeetupRedirect(poll.title, winningGameIds[0], winnerTitle)
                             }}
                             size="sm"
-                            className="rounded-xl text-[10px] font-black uppercase tracking-wider h-8 shadow-sm flex items-center gap-1"
-                          >
-                            <Sparkles className="h-3 w-3" />
-                            <span>{t('groups.createTable')}</span>
-                          </Button>
+                            className="rounded-xl text-xs font-black uppercase tracking-wider h-8 shadow-sm flex items-center gap-1"
+                            icon={Plus}
+                            label={t('common.hostTable')}
+                            aria-label={t('common.hostTable')}
+                          />
                         ) : (
-                          <span className="text-[10px] text-muted-foreground font-extrabold uppercase">{t('groups.noWinners')}</span>
+                          <span className="text-xs text-muted-foreground font-extrabold uppercase">{t('groups.noWinners')}</span>
                         )}
                       </div>
                     )}
@@ -205,24 +205,24 @@ export function GroupPollsTab({
                                 {getGameTitle(opt.game)}
                               </span>
                               {isWinner && (
-                                <Badge variant="warning" className="text-[8px] px-1.5 py-0.5">
+                                <Badge variant="warning" className="text-xs px-1.5 py-0.5">
                                   <Crown className="h-2 w-2 fill-amber-500" /> {t('groups.winner')}
                                 </Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-1 mt-0.5">
-                              <span className="text-[10px] text-muted-foreground font-semibold">
+                              <span className="text-xs text-muted-foreground font-semibold">
                                 {totalVotes} {totalVotes === 1 ? t('groups.vote_one') : t('groups.vote_other')}
                               </span>
                               {totalVotes > 0 && (
                                 <>
-                                  <span className="text-muted-foreground/30 text-[9px]">•</span>
+                                  <span className="text-muted-foreground/30 text-xs">•</span>
                                   {/* Avatars row */}
                                   <div className="flex -space-x-1.5">
                                     {opt.votes.map((v, idx) => (
                                       <Avatar key={idx} className="w-4 h-4 border border-card shrink-0">
                                         <AvatarImage src={v.avatar_url || undefined} />
-                                        <AvatarFallback className="text-[6px] bg-muted font-bold">
+                                        <AvatarFallback className="text-xs bg-muted font-bold">
                                           {v.username.slice(0, 1).toUpperCase()}
                                         </AvatarFallback>
                                       </Avatar>
@@ -240,7 +240,7 @@ export function GroupPollsTab({
                             onClick={() => voteGame(poll.id, opt.game_id)}
                             variant={hasVoted ? 'default' : 'outline'}
                             size="sm"
-                            className={`rounded-xl font-bold text-[11px] h-8 px-4 z-10 shrink-0 flex items-center gap-1 cursor-pointer transition-all ${
+                            className={`rounded-xl font-bold text-xs h-8 px-4 z-10 shrink-0 flex items-center gap-1 cursor-pointer transition-all ${
                               hasVoted
                                 ? 'bg-primary text-primary-foreground border-primary shadow-sm shadow-primary/20'
                                 : 'text-foreground border-border/80 hover:bg-muted/40'

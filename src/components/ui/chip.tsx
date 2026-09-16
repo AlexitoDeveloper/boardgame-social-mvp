@@ -8,24 +8,15 @@ const chipVariants = cva(
   {
     variants: {
       variant: {
-        // Neutral elevated: clean high contrast without saturating primary CTA
+        // Unified Purple / Violet Accent (high contrast, distinct from primary green CTAs, perfectly legible on dark navy background)
         default:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-foreground data-[selected=true]:text-background data-[selected=true]:border-foreground data-[selected=true]:shadow-xs",
-        // Soft brand primary accent
+          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
         primary:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/30 data-[selected=true]:shadow-xs",
-        // Emerald semantic (e.g. quick duration, light complexity, active filter)
+          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/35 data-[selected=true]:shadow-xs",
         emerald:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-emerald-500/15 data-[selected=true]:text-emerald-600 dark:data-[selected=true]:text-emerald-400 data-[selected=true]:border-emerald-500/30 data-[selected=true]:shadow-xs",
-        // Amber semantic (e.g. medium duration / medium complexity)
-        amber:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-amber-500/15 data-[selected=true]:text-amber-600 dark:data-[selected=true]:text-amber-400 data-[selected=true]:border-amber-500/30 data-[selected=true]:shadow-xs",
-        // Purple semantic (e.g. expert complexity / long duration)
+          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/35 data-[selected=true]:shadow-xs",
         purple:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-600 dark:data-[selected=true]:text-purple-400 data-[selected=true]:border-purple-500/30 data-[selected=true]:shadow-xs",
-        // Rose semantic (e.g. shelf of shame / warnings)
-        rose:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-rose-500/15 data-[selected=true]:text-rose-600 dark:data-[selected=true]:text-rose-400 data-[selected=true]:border-rose-500/30 data-[selected=true]:shadow-xs",
+          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
       },
       size: {
         xs: "h-7 px-2 text-xs rounded-lg [&_svg]:size-3",

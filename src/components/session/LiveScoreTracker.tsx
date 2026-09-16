@@ -167,7 +167,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
             <h3 className="font-extrabold text-sm md:text-base text-foreground tracking-tight">
               Marcador de Mesa
             </h3>
-            <p className="text-[11px] text-muted-foreground font-medium">
+            <p className="text-xs text-muted-foreground font-medium">
               Anotad los puntos de la partida en vivo
             </p>
           </div>
@@ -236,21 +236,21 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
           />
           <Button
             type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAddGuest(false)}
+            className="h-9 text-xs font-bold rounded-xl shrink-0"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
             size="sm"
             onClick={handleAddGuest}
             disabled={!newGuestName.trim()}
             className="h-9 text-xs font-bold rounded-xl shrink-0"
           >
             Añadir
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAddGuest(false)}
-            className="h-9 px-2 rounded-xl text-xs shrink-0"
-          >
-            Cancelar
           </Button>
         </motion.div>
       )}
@@ -281,7 +281,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className={cn(
-                        'w-7 h-7 rounded-lg border flex items-center justify-center text-[10px] font-black uppercase shrink-0',
+                        'w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-black uppercase shrink-0',
                         badge.bg,
                         badge.text,
                         badge.border
@@ -297,7 +297,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                         {isLeader && <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
                       </div>
                       {player.guestId && (
-                        <span className="text-[10px] text-muted-foreground font-medium block">
+                        <span className="text-xs text-muted-foreground font-medium block">
                           Invitado
                         </span>
                       )}
@@ -340,7 +340,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                       }}
                       className="w-20 h-10 font-mono font-black text-xl text-foreground text-center rounded-xl bg-background/50 border-border/40 focus:border-primary focus:ring-1 focus:ring-primary"
                     />
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                    <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">
                       pts
                     </span>
                   </div>

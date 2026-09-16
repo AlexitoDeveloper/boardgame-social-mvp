@@ -49,17 +49,17 @@ export function GroupMembersTab({
                       {member.username}
                     </span>
                     {isMe && (
-                      <Badge variant="secondary" className="text-[8px] px-1.5 py-0.5 leading-none">
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5 leading-none">
                         {t('common.you')}
                       </Badge>
                     )}
                     {isMemberCreator && (
-                      <Badge variant="warning" className="text-[8px] px-1.5 py-0.5 leading-none flex items-center gap-0.5">
+                      <Badge variant="warning" className="text-xs px-1.5 py-0.5 leading-none flex items-center gap-0.5">
                         <Crown className="w-2.5 h-2.5 fill-amber-500" /> {t('common.creator')}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[10px] text-muted-foreground font-semibold mt-1">
+                  <p className="text-xs text-muted-foreground font-semibold mt-1">
                     {t('groups.memberSince')} {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
                   </p>
                 </div>
@@ -70,7 +70,7 @@ export function GroupMembersTab({
                 <Button
                   onClick={() => handleKick(member.user_id, member.username)}
                   variant="ghost"
-                  className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-[10px] h-8 px-2.5"
+                  className="rounded-xl text-destructive hover:bg-destructive/10 font-bold text-xs h-8 px-2.5"
                 >
                   {t('common.kick')}
                 </Button>

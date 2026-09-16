@@ -169,11 +169,11 @@ export function MeetupDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowFirstPlayerModal(true)}
-            className="rounded-xl flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 text-xs h-9 cursor-pointer px-3"
+            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
             title="Elegir primer jugador al azar"
             aria-label="Elegir primer jugador al azar"
           >
-            <Dices className="w-4 h-4 text-emerald-400" />
+            <Dices className="w-4 h-4 text-muted-foreground" />
             <span className="hidden sm:inline">1er Jugador</span>
           </Button>
 
@@ -181,11 +181,11 @@ export function MeetupDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowVictoryCardModal(true)}
-            className="rounded-xl flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 text-xs h-9 cursor-pointer px-3"
+            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
             title="Ver y compartir tarjeta de resultado"
             aria-label="Tarjeta de Resultado"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
             <span className="hidden sm:inline">Tarjeta Resultado</span>
           </Button>
 
@@ -195,7 +195,7 @@ export function MeetupDetailPage() {
             onClick={handleShare}
             aria-label={copySuccess ? t('common.copied') : t('common.share')}
             title={copySuccess ? t('common.copied') : t('common.share')}
-            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-primary/5 transition-all text-xs h-9 cursor-pointer bg-card px-3"
+            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 transition-all text-xs h-9 cursor-pointer bg-card px-3"
           >
             {copySuccess ? (
               <>
@@ -204,7 +204,7 @@ export function MeetupDetailPage() {
               </>
             ) : (
               <>
-                <Share2 className="w-4 h-4 text-primary" />
+                <Share2 className="w-4 h-4 text-muted-foreground" />
                 <span className="hidden xs:inline">{t('common.share')}</span>
               </>
             )}
@@ -297,7 +297,7 @@ export function MeetupDetailPage() {
       </div>
 
       {/* Legal Attribution */}
-      <div className="text-center pt-8 text-[11px] text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">
+      <div className="text-center pt-8 text-xs text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">
         {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
       </div>
 
@@ -400,7 +400,7 @@ export function MeetupDetailPage() {
                   {/* Left Column: Settings (ordered second on mobile) */}
                   <div className="md:col-span-2 space-y-5 text-left order-2 md:order-1">
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.socialFormat')}</span>
+                      <span className="text-xs font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.socialFormat')}</span>
                       <div className="grid grid-cols-2 gap-2">
                         <Button
                           onClick={() => setSelectedRatio('story')}
@@ -432,7 +432,7 @@ export function MeetupDetailPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.backgroundTheme')}</span>
+                      <span className="text-xs font-black uppercase text-muted-foreground tracking-widest block">{t('meetup.backgroundTheme')}</span>
                       <div className="grid grid-cols-2 gap-2">
                         {Object.keys(BACKGROUNDS).map((themeKey) => (
                           <Button
@@ -440,7 +440,7 @@ export function MeetupDetailPage() {
                             onClick={() => setSelectedTheme(themeKey)}
                             variant="ghost"
                             className={cn(
-                              "px-3 py-2.5 rounded-xl border text-[11px] font-extrabold capitalize text-left flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm h-auto hover:bg-transparent",
+                              "px-3 py-2.5 rounded-xl border text-xs font-extrabold capitalize text-left flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm h-auto hover:bg-transparent",
                               selectedTheme === themeKey
                                 ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5 shadow-inner"
                                 : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
@@ -454,10 +454,10 @@ export function MeetupDetailPage() {
                     </div>
                     
                     <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-1.5 font-semibold">
-                      <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
+                      <p className="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
                         {t('meetup.tipsTitle')}
                       </p>
-                      <p className="text-[10.5px] text-muted-foreground leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         {t('meetup.tipsDesc')}
                       </p>
                     </div>
@@ -481,7 +481,7 @@ export function MeetupDetailPage() {
                       {/* Preview Canvas Header */}
                       <div className="flex justify-between items-center border-b border-white/10 pb-3 w-full shrink-0">
                         <div className="text-left min-w-0 flex-1">
-                          <span className="text-[8px] font-black text-primary uppercase tracking-widest block mb-0.5">{t('meetup.summaryLabel')}</span>
+                          <span className="text-xs font-black text-primary uppercase tracking-widest block mb-0.5">{t('meetup.summaryLabel')}</span>
                           <h4 className="font-black text-white leading-tight truncate text-sm sm:text-base w-full">
                             {meetup.title}
                           </h4>
@@ -517,10 +517,10 @@ export function MeetupDetailPage() {
                                         </div>
                                       )}
                                       <div className="min-w-0 text-left font-inter">
-                                        <h5 className="font-extrabold text-white truncate text-[11px] sm:text-xs">
+                                        <h5 className="font-extrabold text-white truncate text-xs">
                                           {getGameTitle(game)}
                                         </h5>
-                                        <span className="text-[8px] text-zinc-400 font-bold block mt-0.5">
+                                        <span className="text-xs text-zinc-400 font-bold block mt-0.5">
                                           {game.year_published || 'N/A'}
                                         </span>
                                       </div>
@@ -529,23 +529,23 @@ export function MeetupDetailPage() {
                                     <div className="flex items-center gap-1.5 shrink-0 font-inter">
                                       {winner ? (
                                         <>
-                                          <div className="flex items-center gap-1 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-1.5 py-0.5 text-[8.5px] rounded-md">
+                                          <div className="flex items-center gap-1 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-1.5 py-0.5 text-xs rounded-md">
                                             <Crown className="w-2.5 h-2.5 fill-current shrink-0 text-amber-400" />
                                             <span className="truncate max-w-[65px] sm:max-w-[85px]">{winner.username}</span>
                                           </div>
                                           {game.winner_score && (
-                                            <span className="font-black bg-primary text-white border border-primary/20 shrink-0 text-[8.5px] px-1.5 py-0.5 rounded-md">
+                                            <span className="font-black bg-primary text-white border border-primary/20 shrink-0 text-xs px-1.5 py-0.5 rounded-md">
                                               {game.winner_score}
                                             </span>
                                           )}
                                         </>
                                       ) : (
                                         <>
-                                          <span className="border border-white/10 bg-white/5 text-zinc-300 font-extrabold uppercase tracking-wide px-1.5 py-0.5 text-[8.5px] rounded-md">
+                                          <span className="border border-white/10 bg-white/5 text-zinc-300 font-extrabold uppercase tracking-wide px-1.5 py-0.5 text-xs rounded-md">
                                             {t('meetup.draw')}
                                           </span>
                                           {game.winner_score && (
-                                            <span className="font-black bg-white/10 text-zinc-300 border border-white/10 shrink-0 text-[8.5px] px-1.5 py-0.5 rounded-md">
+                                            <span className="font-black bg-white/10 text-zinc-300 border border-white/10 shrink-0 text-xs px-1.5 py-0.5 rounded-md">
                                               {game.winner_score}
                                             </span>
                                           )}
@@ -561,7 +561,7 @@ export function MeetupDetailPage() {
                       })()}
 
                       {/* Preview Canvas Footer */}
-                      <div className="border-t border-white/10 pt-3 flex items-center justify-between text-[10px] text-zinc-300 font-bold select-none shrink-0">
+                      <div className="border-t border-white/10 pt-3 flex items-center justify-between text-xs text-zinc-300 font-bold select-none shrink-0">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
                           <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, i18n.language as any)} • Boardgame Social</span>

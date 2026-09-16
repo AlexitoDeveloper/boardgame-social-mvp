@@ -263,7 +263,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
           </div>
           <div>
             <h2 className="text-sm font-black tracking-tight">Primer Jugador</h2>
-            <p className="text-[11px] text-muted-foreground font-medium">
+            <p className="text-xs text-muted-foreground font-medium">
               {touches.length === 0 ? 'Colocad los dedos sobre la pantalla' : `${touches.length} dedos en mesa`}
             </p>
           </div>
@@ -388,7 +388,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 <Trophy className="w-8 h-8 animate-bounce" />
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
+                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
                 <h3 className="text-xl font-black text-white">{winnerPlayer.name}</h3>
                 <p className="text-xs text-muted-foreground font-medium">¡Comienza la partida!</p>
               </div>
@@ -418,7 +418,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 <MeepleSvg fill={COLOR_MAP[winnerTouch.color].hex} className="w-10 h-10 drop-shadow" />
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
+                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
                 <h3 className="text-lg font-black text-white">
                   Meeple {COLOR_MAP[winnerTouch.color].name}
                 </h3>
@@ -489,7 +489,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
         onTouchEnd={(e) => e.stopPropagation()}
         onTouchCancel={(e) => e.stopPropagation()}
       >
-        <span className="text-[11px] text-muted-foreground font-medium">
+        <span className="text-xs text-muted-foreground font-medium">
           ¿En ordenador o sin táctil?
         </span>
 

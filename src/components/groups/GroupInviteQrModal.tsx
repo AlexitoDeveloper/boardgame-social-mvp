@@ -110,21 +110,21 @@ export const GroupInviteQrModal: FC<GroupInviteQrModalProps> = ({
 
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopy}
-              className="flex-1 rounded-xl font-bold text-xs cursor-pointer gap-1.5"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? t('common.copied', '¡Copiado!') : t('groups.copyInviteLink', 'Copiar enlace')}</span>
-            </Button>
-            <Button
-              variant="default"
+              variant="ghost"
               size="sm"
               onClick={onClose}
               className="rounded-xl font-bold text-xs px-4 cursor-pointer"
             >
               {t('common.close', 'Cerrar')}
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleCopy}
+              className="flex-1 rounded-xl font-bold text-xs cursor-pointer gap-1.5 shadow-sm"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? t('common.copied', '¡Copiado!') : t('groups.copyInviteLink', 'Copiar enlace')}</span>
             </Button>
           </div>
         </div>

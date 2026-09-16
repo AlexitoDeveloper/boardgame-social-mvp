@@ -132,7 +132,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg w-full p-5 sm:p-6 bg-card border border-border/40 shadow-2xl rounded-3xl overflow-hidden space-y-4">
         <DialogHeader className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-black uppercase tracking-wider w-fit">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-wider w-fit">
             <Dices className="w-3.5 h-3.5" />
             <span>{isGroupContext ? 'Ludoteca del Grupo' : 'Mi Ludoteca'}</span>
           </div>
@@ -227,7 +227,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                           <h4 className="text-xs sm:text-sm font-bold text-foreground truncate">
                             {game.title_es || game.title}
                           </h4>
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-semibold">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
                             {game.year_published && <span>{game.year_published}</span>}
                             {game.min_players && (
                               <span>
@@ -235,7 +235,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                               </span>
                             )}
                             {game.isFromBgg && (
-                              <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                              <Badge variant="outline" className="text-xs px-1.5 py-0">
                                 BGG
                               </Badge>
                             )}
@@ -245,7 +245,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
 
                       <div className="shrink-0">
                         {isInCollection ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
                             <Check className="w-3.5 h-3.5" />
                             <span>En ludoteca</span>
                           </span>
