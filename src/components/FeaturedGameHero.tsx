@@ -1,12 +1,17 @@
 import { motion } from 'framer-motion'
-import { Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
+import { Plus, Star } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from './ui/button'
+import { Badge } from './ui/badge'
 import { OptimizedImage } from './ui/OptimizedImage'
 import { ExpansionBadge } from './ui/expansion-badge'
 import { Game } from '../types'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
+import { FeaturedGameStats } from './FeaturedGameStats'
+import { FeaturedGameHeroSkeleton } from './FeaturedGameHeroSkeleton'
+
+export { FeaturedGameHeroSkeleton }
 
 interface FeaturedGameHeroProps {
   game: Game | null;
@@ -52,19 +57,20 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, type: 'spring', damping: 25 }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.4, type: 'spring', damping: 25, stiffness: 300 }}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="w-full relative rounded-3xl overflow-hidden border border-border bg-card backdrop-blur-md p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group cursor-pointer hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/40"
+      className="w-full relative rounded-3xl overflow-hidden border border-border/40 bg-card/80 backdrop-blur-xl p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-xl group cursor-pointer hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/40"
     >
-      {/* Decorative Neon Glows in background */}
-      <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-gradient-to-br from-primary/10 to-teal-500/5 rounded-full blur-[80px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 left-0 w-[50%] h-[50%] bg-gradient-to-tr from-purple-500/5 to-primary/5 rounded-full blur-[80px] pointer-events-none -z-10" />
+      {/* Decorative Neon Aura Glows in background */}
+      <div className="absolute -top-12 -right-12 w-72 h-72 bg-gradient-to-br from-primary/15 via-emerald-500/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute -bottom-12 -left-12 w-72 h-72 bg-gradient-to-tr from-purple-500/10 via-primary/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* Game Cover on Left */}
-      <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-border bg-muted shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+      <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-44 md:h-44 shrink-0 rounded-2xl overflow-hidden border border-border/40 bg-muted shadow-2xl relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
         <OptimizedImage
           src={coverUrl}
           alt={displayTitle}
@@ -79,13 +85,13 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       <div className="flex-1 min-w-0 text-center md:text-left flex flex-col justify-between h-full space-y-4">
         <div className="space-y-2">
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-black uppercase tracking-wider select-none">
-            <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-primary/30" />
+          <Badge variant="primary-soft" className="gap-1.5 px-3 py-1 text-xs border-primary/25">
+            <Star className="w-3.5 h-3.5 fill-primary/30" strokeWidth={2} aria-hidden="true" />
             <span>{t('explore.recommendedTitle')}</span>
-          </div>
+          </Badge>
 
           {/* Title */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground leading-tight break-words text-pretty">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black font-display tracking-tight text-foreground leading-tight break-words text-pretty">
             {displayTitle}
             {game.year_published && (
               <span className="text-muted-foreground/60 text-sm sm:text-base md:text-lg font-normal ml-2">
@@ -111,53 +117,12 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 py-2 border-y border-border max-w-xl mx-auto md:mx-0">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
-            <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground leading-none">{t('explore.rating')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedRating}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
-            <Users className="w-4 h-4 text-primary shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground leading-none">{t('common.players')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
-                {game.min_players === game.max_players 
-                  ? game.min_players 
-                  : `${game.min_players}-${game.max_players}`}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
-            <Hourglass className="w-4 h-4 text-teal-500 shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground leading-none">{t('explore.duration')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
-                {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-foreground/80">
-            <Brain className="w-4 h-4 text-purple-500 shrink-0" />
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground leading-none">{t('explore.difficulty')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
-                {hasComplexity ? (
-                  <>
-                    {formattedComplexity} <span className="text-xs text-muted-foreground">/5</span>
-                  </>
-                ) : (
-                  <span className="text-xs font-semibold text-muted-foreground">{t('gameDetail.unratedComplexity')}</span>
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
+        <FeaturedGameStats
+          game={game}
+          formattedRating={formattedRating}
+          formattedComplexity={formattedComplexity}
+          hasComplexity={hasComplexity}
+        />
 
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
@@ -166,8 +131,8 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
             onClick={(e) => e.stopPropagation()} 
             className="shrink-0"
           >
-            <Button size="sm" className="font-bold cursor-pointer rounded-xl h-10 px-5 flex items-center gap-1.5 shadow-lg shadow-primary/10 hover:shadow-primary/20">
-              <Plus className="w-4.5 h-4.5" />
+            <Button size="default" className="font-bold cursor-pointer rounded-xl h-11 px-5 flex items-center gap-2 shadow-lg shadow-primary/10 hover:shadow-primary/20">
+              <Plus className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
               <span>{t('common.hostTable')}</span>
             </Button>
           </Link>
@@ -176,7 +141,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
             onClick={(e) => e.stopPropagation()} 
             className="shrink-0"
           >
-            <Button size="sm" variant="outline" className="font-semibold cursor-pointer rounded-xl h-10 px-5">
+            <Button size="default" variant="outline" className="font-semibold cursor-pointer rounded-xl h-11 px-5">
               {t('common.details')}
             </Button>
           </Link>

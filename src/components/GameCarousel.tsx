@@ -10,7 +10,11 @@ interface GameCarouselProps {
   variant?: 'default' | 'top10';
 }
 
-export function GameCarousel({ games, title, variant = 'default' }: GameCarouselProps) {
+export function GameCarousel({ 
+  games, 
+  title, 
+  variant = 'default',
+}: GameCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
@@ -54,7 +58,7 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
   return (
     <div className="space-y-2 relative group/carousel py-1">
       {/* Title */}
-      <h3 className="text-lg font-black tracking-tight px-1 text-foreground">{title}</h3>
+      <h3 className="text-lg font-black font-display tracking-tight text-foreground px-1">{title}</h3>
 
       {/* Outer Wrapper */}
       <div className="relative w-full">
@@ -62,12 +66,12 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
         {showLeftArrow && (
           <Button
             onClick={() => scroll('left')}
-            variant="ghost"
+            variant="secondary"
             size="icon"
-            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-card/90 text-foreground p-0 rounded-full cursor-pointer transition-transform duration-200 hidden md:flex items-center justify-center border border-border/60 hover:scale-110 active:scale-95 shadow-xl backdrop-blur-md hover:bg-card"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </Button>
         )}
 
@@ -75,19 +79,19 @@ export function GameCarousel({ games, title, variant = 'default' }: GameCarousel
         {showRightArrow && (
           <Button
             onClick={() => scroll('right')}
-            variant="ghost"
+            variant="secondary"
             size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 bg-background/80 dark:bg-black/60 text-foreground dark:text-white p-2 rounded-full cursor-pointer transition-all duration-200 hidden md:flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm"
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-card/90 text-foreground p-0 rounded-full cursor-pointer transition-transform duration-200 hidden md:flex items-center justify-center border border-border/60 hover:scale-110 active:scale-95 shadow-xl backdrop-blur-md hover:bg-card"
             aria-label="Scroll right"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </Button>
         )}
 
         {/* Scroll Container */}
         <div
           ref={containerRef}
-          className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
+          className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-4 px-1.5 snap-x snap-mandatory scroll-smooth no-scrollbar -mt-2"
         >
           {games.map((game, index) => {
             if (variant === 'top10') {

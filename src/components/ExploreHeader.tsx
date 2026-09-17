@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Search as SearchIcon, Globe, Users, Brain, X, SlidersHorizontal } from 'lucide-react'
+import { Search as SearchIcon, X, SlidersHorizontal } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { FilterChip } from './ui/chip'
 import { useTranslation } from 'react-i18next'
+import { ExploreFilterDrawer } from './explore/ExploreFilterDrawer'
+import { ExploreHeaderSkeleton } from './explore/ExploreHeaderSkeleton'
+
+export { ExploreHeaderSkeleton }
 
 interface ExploreHeaderProps {
   search: string;
@@ -63,27 +66,32 @@ export function ExploreHeader({
       {/* Search Input Row */}
       <div className="flex items-center gap-2.5 w-full">
         <div className="relative flex-1 max-w-full sm:max-w-md">
-          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+          <SearchIcon 
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" 
+            strokeWidth={2}
+            aria-hidden="true"
+          />
           <Input
             type="text"
             placeholder={t('explore.searchPlaceholder')}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-10 pr-10 h-11 text-sm rounded-xl"
           />
           {search && (
             <Button
               onClick={() => onSearchChange('')}
               variant="ghost"
               size="icon-sm"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground"
+              aria-label={t('explore.clearSearch', 'Limpiar búsqueda')}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground h-8 w-8 min-h-[32px] min-w-[32px]"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Button>
           )}
         </div>
 
-        {/* Buttons Row (Clear Filters & Expand Filters Toggles) */}
+        {/* Action Buttons Row */}
         <div className="flex items-center justify-end gap-2 shrink-0">
           <AnimatePresence>
             {hasActiveFilters && (
@@ -95,11 +103,12 @@ export function ExploreHeader({
                 <Button
                   onClick={clearFilters}
                   variant="destructive"
-                  size="sm"
-                  className="gap-1.5"
+                  size="default"
+                  className="gap-1.5 h-11 px-3.5 rounded-xl"
+                  aria-label={t('explore.clear', 'Limpiar filtros')}
                 >
                   <span className="hidden xs:inline">{t('explore.clear')}</span>
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                 </Button>
               </motion.div>
             )}
@@ -108,10 +117,12 @@ export function ExploreHeader({
           <Button
             onClick={() => setShowFilters(v => !v)}
             variant={showFilters ? 'secondary' : 'outline'}
-            size="sm"
-            className="gap-1.5 shrink-0"
+            size="default"
+            className="gap-2 shrink-0 h-11 px-4 rounded-xl"
+            aria-label={showFilters ? t('explore.hideFilters', 'Ocultar filtros') : t('explore.filters', 'Filtros')}
+            aria-expanded={showFilters}
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
+            <SlidersHorizontal className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             <span className="hidden sm:inline">{t('explore.filters')}</span>
             {activeFiltersCount > 0 && (
               <span className="text-xs font-black rounded-full h-5 w-5 flex items-center justify-center bg-primary text-primary-foreground">
@@ -132,71 +143,19 @@ export function ExploreHeader({
             className="overflow-hidden"
             transition={{ duration: 0.2 }}
           >
-            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 text-xs">
-              {/* Player filter group */}
-              <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
-                <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-xs uppercase tracking-wider select-none">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span>{t('explore.playersFilter')}</span>
-                </span>
-                <div className="grid grid-cols-5 gap-1">
-                  {['', '1', '2', '3-4', '5+'].map((val) => (
-                    <FilterChip
-                      key={val}
-                      onClick={() => onPlayerFilterChange(val)}
-                      selected={playerFilter === val}
-                      size="sm"
-                      className="w-full"
-                    >
-                      {val === '' ? t('explore.all') : val}
-                    </FilterChip>
-                  ))}
-                </div>
-              </div>
-
-              {/* Complexity filter group with semantic colors */}
-              <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
-                <span className="text-muted-foreground px-1 flex items-center gap-1 font-bold text-xs uppercase tracking-wider select-none">
-                  <Brain className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span>{t('explore.complexityFilter')}</span>
-                </span>
-                <div className="grid grid-cols-4 gap-1">
-                  {[
-                    { key: '', label: t('explore.all') },
-                    { key: 'familiar', label: t('explore.familiar') },
-                    { key: 'medio', label: t('explore.medium') },
-                    { key: 'experto', label: t('explore.expert') },
-                  ].map((opt) => (
-                    <FilterChip
-                      key={opt.key}
-                      onClick={() => onComplexityFilterChange(opt.key)}
-                      selected={complexityFilter === opt.key}
-                      size="sm"
-                      className="w-full"
-                    >
-                      {opt.label}
-                    </FilterChip>
-                  ))}
-                </div>
-              </div>
-
-              {/* Spanish Toggle */}
-              <div className="flex-1 sm:flex-initial w-full sm:min-w-0 flex items-end min-w-0">
-                <FilterChip
-                  onClick={() => onSpanishOnlyChange(!spanishOnly)}
-                  selected={spanishOnly}
-                  size="default"
-                  icon={Globe}
-                  className="w-full sm:w-auto h-11 px-4"
-                >
-                  <span>{t('explore.spanishOnly')}</span>
-                </FilterChip>
-              </div>
-            </div>
+            <ExploreFilterDrawer
+              playerFilter={playerFilter}
+              onPlayerFilterChange={onPlayerFilterChange}
+              complexityFilter={complexityFilter}
+              onComplexityFilterChange={onComplexityFilterChange}
+              spanishOnly={spanishOnly}
+              onSpanishOnlyChange={onSpanishOnlyChange}
+            />
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   )
 }
+
 export default ExploreHeader;
