@@ -7,7 +7,6 @@ import {
 } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
-import { Badge } from '../components/ui/badge'
 import { Tabs } from '../components/ui/tabs'
 import { useTranslation } from 'react-i18next'
 import { useGameLocale } from '../hooks/useGameLocale'
@@ -88,18 +87,16 @@ export function GameDetailPage() {
     { id: 'details', label: t('gameDetail.technicalSheet'), icon: Info },
     { 
       id: 'community', 
-      label: t('gameDetail.communityAndPlays'), 
+      label: t('gameDetail.community', 'Comunidad'), 
       icon: Users, 
       count: upcomingMeetups.length > 0 ? upcomingMeetups.length : (owners.length > 0 ? owners.length : undefined) 
     },
     ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: t('gameDetail.expansions'), icon: Puzzle, count: expansions.length > 0 ? expansions.length : undefined }] : [])
   ] as const
 
-  const currentTabObj = tabs.find(tab => tab.id === activeTab)
-
   return (
     <div className="relative min-h-dvh pb-16 space-y-6">
-      {/* Sticky top bar with synchronized context */}
+      {/* Sticky top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
           variant="outline" 
@@ -111,11 +108,6 @@ export function GameDetailPage() {
           aria-label={t('common.back')}
           title={t('common.back')}
         />
-        <div className="flex items-center gap-2">
-          <Badge variant="primary-soft" size="default">
-            {currentTabObj?.label || t('gameDetail.technicalSheet')}
-          </Badge>
-        </div>
       </div>
 
       {/* Hero Header */}
@@ -172,8 +164,8 @@ export function GameDetailPage() {
               options={tabs as any}
               activeTab={activeTab}
               onChange={(tabId) => setActiveTab(tabId as any)}
-              className="max-w-xl mb-4"
-              hideLabelsOnMobile
+              className="w-full sm:max-w-xl mb-4"
+              scrollable
             />
 
             <div className="min-h-[300px]">

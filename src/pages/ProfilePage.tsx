@@ -6,13 +6,12 @@ import { Tabs } from '../components/ui/tabs'
 import { useProfile } from '../hooks/useProfile'
 import { ProfileSkeleton } from '../components/profile/ProfileSkeleton'
 import { ProfileShowcaseCard } from '../components/profile/ProfileShowcaseCard'
-import { AchievementsVitrina } from '../components/profile/AchievementsVitrina'
-import { TabContentList } from '../components/profile/TabContentList'
+import { TabContentList, ProfileTabType } from '../components/profile/TabContentList'
 import { EditProfileModal } from '../components/profile/EditProfileModal'
 import { BggSyncModal } from '../components/library/BggSyncModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
 import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
-import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal, Settings } from 'lucide-react'
+import { ArrowLeft, Edit, UserX, Dices, CalendarDays, Settings, Award, BarChart2, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ProfileSettingsModal } from '../components/profile/ProfileSettingsModal'
 
@@ -55,7 +54,7 @@ export function ProfilePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Active Tab state
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'collection' | 'mas'>('upcoming')
+  const [activeTab, setActiveTab] = useState<ProfileTabType>('upcoming')
 
   // Set selected ranking if URL param matches
   useEffect(() => {
@@ -160,25 +159,18 @@ export function ProfilePage() {
         setProfile={setProfile}
       />
 
-      {/* Achievements Vitrina */}
-      <AchievementsVitrina
-        organizedCount={organizedCount}
-        stats={stats}
-        savedRankingsCount={savedRankings.length}
-      />
-
-
-      {/* Navigation Tabs */}
-      <Tabs
+      {/* Navigation Tabs (Próximas, Historial, Ludoteca, Vitrina, Estadísticas) */}
+      <Tabs<ProfileTabType>
         options={[
-          { id: 'upcoming', label: t('profile.tabs.upcoming'), icon: CalendarDays, count: upcomingMeetups.length },
-          { id: 'completed', label: t('profile.tabs.completed'), icon: History, count: completedMeetups.length },
-          { id: 'collection', label: t('profile.tabs.collection'), icon: Dices, count: collectionGames.length },
-          { id: 'mas', label: t('profile.tabs.more'), icon: MoreHorizontal }
+          { id: 'upcoming', label: t('profile.tabs.upcoming', 'Próximas'), icon: CalendarDays, count: upcomingMeetups.length },
+          { id: 'completed', label: t('profile.tabs.completed', 'Historial'), icon: History, count: completedMeetups.length },
+          { id: 'collection', label: t('profile.tabs.collection', 'Ludoteca'), icon: Dices, count: collectionGames.length },
+          { id: 'vitrina', label: t('profile.tabs.vitrina', 'Vitrina'), icon: Award },
+          { id: 'stats', label: t('profile.tabs.stats', 'Estadísticas'), icon: BarChart2 }
         ]}
         activeTab={activeTab}
-        onChange={setActiveTab}
-        hideLabelsOnMobile
+        onChange={(tab) => setActiveTab(tab)}
+        scrollable
       />
 
       {/* Tab Panels */}
@@ -196,6 +188,7 @@ export function ProfilePage() {
         stats={stats}
         meetups={meetups}
         profileId={profileId}
+        organizedCount={organizedCount}
         handleRemoveFromCollection={async (e, bggId) => {
           e.preventDefault()
           e.stopPropagation()

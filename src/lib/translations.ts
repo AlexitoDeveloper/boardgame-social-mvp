@@ -315,9 +315,12 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
     },
     profile: {
       tabs: {
+        meetups: "Partidas",
         upcoming: "Próximas",
         completed: "Historial",
         collection: "Ludoteca",
+        vitrina: "Vitrina",
+        stats: "Estadísticas",
         more: "Más"
       },
       stats: {
@@ -326,6 +329,11 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         noRankings: "No hay rankings guardados.",
         createRanking: "Crear Ranking"
       },
+      statsHIndex: "Índice H",
+      statsHIndexDesc: "{{count}} juegos jugados al menos {{count}} veces",
+      statsTotalPlays: "Total Partidas",
+      statsTotalPlaysDesc: "Partidas completadas",
+      statsFavoriteFaction: "Categoría / Mecánica Top",
       collection: {
         importBgg: "Importar Colección BGG",
         importBggDesc: "Sincroniza tus juegos de BoardGameGeek al instante.",
@@ -339,7 +347,13 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         gamesCount: "juegos en la ludoteca",
         gameCount: "juego en la ludoteca",
         attribution: "Datos de ludoteca proporcionados por",
-        removeFromCollection: "Quitar de mi ludoteca"
+        removeFromCollection: "Quitar de mi ludoteca",
+        filterAll: "Todos",
+        filterOwned: "En Ludoteca",
+        filterWantToPlay: "Quiero Jugar",
+        filterUnplayed: "Shelf of Shame",
+        unplayedDesc: "Juegos en ludoteca sin partidas registradas",
+        searchPlaceholder: "Buscar en la colección..."
       },
       upcomingEmpty: "No hay partidas programadas.",
       upcomingEmptyDesc: "Busca mesas abiertas en el tablero para unerte.",
@@ -564,6 +578,14 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       addGameToGroup: "Añadir Juego",
       sharedLudoteca: "Ludoteca Compartida",
       meetupsAndVotes: "Quedadas y Votos",
+      upcomingMeetupsTab: "Quedadas",
+      upcomingMeetups: "Quedadas del Grupo",
+      upcomingMeetupsDesc: "Partidas y eventos programados con los miembros",
+      scheduleMeetup: "Organizar Partida",
+      noMeetupsScheduled: "No hay quedadas programadas",
+      noMeetupsScheduledDesc: "Sé el primero en proponer una quedada para este grupo y reúne a tus amigos en la mesa.",
+      createFirstMeetup: "Crear Primera Quedada",
+      privateGroup: "Grupo Privado",
       members: "Miembros",
       groupMeetupRedirectDesc: "Quedada del grupo para jugar a {{gameTitle}}.",
       openPollTitle: "Abrir Votación",
@@ -1442,9 +1464,12 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
     },
     profile: {
       tabs: {
+        meetups: "Meetups",
         upcoming: "Upcoming",
         completed: "History",
         collection: "Collection",
+        vitrina: "Vitrina",
+        stats: "Stats",
         more: "More"
       },
       stats: {
@@ -1453,6 +1478,11 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         noRankings: "No saved rankings.",
         createRanking: "Create Ranking"
       },
+      statsHIndex: "H-Index",
+      statsHIndexDesc: "{{count}} games played at least {{count}} times",
+      statsTotalPlays: "Total Plays",
+      statsTotalPlaysDesc: "Completed plays",
+      statsFavoriteFaction: "Top Category / Mechanic",
       collection: {
         importBgg: "Import BGG Collection",
         importBggDesc: "Sync your BoardGameGeek games instantly.",
@@ -1466,7 +1496,13 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         gamesCount: "games in collection",
         gameCount: "game in collection",
         attribution: "Collection data provided by",
-        removeFromCollection: "Remove from collection"
+        removeFromCollection: "Remove from collection",
+        filterAll: "All",
+        filterOwned: "Owned",
+        filterWantToPlay: "Want to Play",
+        filterUnplayed: "Shelf of Shame",
+        unplayedDesc: "Collection games with no recorded plays",
+        searchPlaceholder: "Search collection..."
       },
       upcomingEmpty: "No scheduled meetups.",
       upcomingEmptyDesc: "Search for open tables on the board to join.",
@@ -1689,8 +1725,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       qrModalTitle: "Join Group",
       qrModalDesc: "Scan this QR code with your mobile camera to join the group instantly.",
       addGameToGroup: "Add Game",
-      sharedLudoteca: "Shared Collection",
+      sharedLudoteca: "Shared Library",
       meetupsAndVotes: "Meetups & Votes",
+      upcomingMeetupsTab: "Meetups",
+      upcomingMeetups: "Group Meetups",
+      upcomingMeetupsDesc: "Scheduled games and events with members",
+      scheduleMeetup: "Schedule Game Night",
+      noMeetupsScheduled: "No meetups scheduled",
+      noMeetupsScheduledDesc: "Be the first to schedule a game meetup for this group and bring your friends to the table.",
+      createFirstMeetup: "Create First Meetup",
+      privateGroup: "Private Group",
       members: "Members",
       groupMeetupRedirectDesc: "Group meetup to play {{gameTitle}}.",
       openPollTitle: "Open Poll",
