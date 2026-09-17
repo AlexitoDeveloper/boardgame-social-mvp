@@ -22,6 +22,7 @@ import { useGameLocale } from '../hooks/useGameLocale'
 import { formatDate } from '../lib/dateLocale'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { ExpansionBadge } from '../components/ui/expansion-badge'
 
 // Import subcomponents
 import { MeetupDetailHero } from '../components/meetup-detail/MeetupDetailHero'
@@ -527,7 +528,9 @@ export function MeetupDetailPage() {
                                     </div>
 
                                     <div className="flex items-center gap-1.5 shrink-0 font-inter">
-                                      {winner ? (
+                                      {game.is_expansion ? (
+                                        <ExpansionBadge size="xs" />
+                                      ) : winner ? (
                                         <>
                                           <div className="flex items-center gap-1 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-1.5 py-0.5 text-xs rounded-md">
                                             <Crown className="w-2.5 h-2.5 fill-current shrink-0 text-amber-400" />
@@ -635,7 +638,9 @@ export function MeetupDetailPage() {
                                       </div>
 
                                       <div className="flex items-center gap-3 shrink-0 font-inter">
-                                        {winner ? (
+                                        {game.is_expansion ? (
+                                          <ExpansionBadge size="sm" />
+                                        ) : winner ? (
                                           <>
                                             <div className="flex items-center gap-1.5 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-3.5 py-1.5 text-sm rounded-xl">
                                               <Crown className="w-4 h-4 fill-current shrink-0 text-amber-400" />
