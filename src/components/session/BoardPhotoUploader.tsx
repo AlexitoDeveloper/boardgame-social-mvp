@@ -53,12 +53,12 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
     setErrorMessage(null);
 
     if (photos.length >= MAX_PHOTOS) {
-      setErrorMessage('Límite alcanzado: máximo 4 fotos por partida.');
+      setErrorMessage(t('meetup.boardPhotosMaxLimitError', { max: MAX_PHOTOS }));
       return;
     }
 
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      setErrorMessage('La imagen supera el límite de 5MB. Elige una de menor tamaño.');
+      setErrorMessage(t('meetup.boardPhotosMaxSizeError', { max: MAX_SIZE_MB }));
       return;
     }
 
@@ -134,7 +134,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
             <div key={idx} className='relative group rounded-2xl overflow-hidden border border-border/40 aspect-square bg-slate-950'>
               <img
                 src={url}
-                alt={`Foto ${idx + 1}`}
+                alt={t('meetup.boardPhotosPhotoAlt', { index: idx + 1 })}
                 className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
               />
               <div

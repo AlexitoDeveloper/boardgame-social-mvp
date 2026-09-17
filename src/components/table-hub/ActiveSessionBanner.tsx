@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Trophy, Play, ArrowRight, Dices, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -12,10 +13,13 @@ interface ActiveSessionBannerProps {
 }
 
 export function ActiveSessionBanner({ activeSession, lastFinishedSession }: ActiveSessionBannerProps) {
+  const { t } = useTranslation()
+
   if (activeSession) {
     const game = activeSession.games?.[0]?.games || activeSession.games || null
-    const gameTitle = game?.title_es || game?.title || activeSession.game_name || 'Partida en curso'
+    const gameTitle = game?.title_es || game?.title || activeSession.game_name || t('tableHub.activeBanner.ongoingGame')
     const cover = game?.image_url_es || game?.image_url || null
+    const playersCount = activeSession.joined_players?.length || activeSession.max_players || 4
 
     return (
       <Card className="relative overflow-hidden rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/15 via-card/70 to-card/90 backdrop-blur-2xl p-5 sm:p-6 shadow-xl">
@@ -31,12 +35,12 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
 
             <div className="space-y-1">
               <Badge className="bg-primary/20 text-primary border border-primary/30 uppercase text-[10px] font-black tracking-wider animate-pulse">
-                🔴 Sesión Activa en Mesa
+                {t('tableHub.activeBanner.activeSessionBadge')}
               </Badge>
               <h3 className="text-xl font-black text-foreground">{gameTitle}</h3>
               <p className="text-xs text-muted-foreground flex items-center justify-center sm:justify-start gap-2">
                 <Users className="w-3.5 h-3.5 text-primary" />
-                {activeSession.joined_players?.length || activeSession.max_players || 4} jugadores en mesa
+                {t('tableHub.activeBanner.playersAtTable', { count: playersCount })}
               </p>
             </div>
           </div>
@@ -44,7 +48,7 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
           <Button asChild className="rounded-xl font-bold shadow-lg shadow-primary/25 shrink-0 w-full sm:w-auto">
             <Link to={`/mesa/${activeSession.id}`}>
               <Play className="w-4 h-4 mr-1.5 fill-current" />
-              Continuar Partida
+              {t('tableHub.activeBanner.continueGame')}
             </Link>
           </Button>
         </div>
@@ -54,7 +58,7 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
 
   if (lastFinishedSession) {
     const game = lastFinishedSession.games?.[0]?.games || lastFinishedSession.games || null
-    const gameTitle = game?.title_es || game?.title || lastFinishedSession.game_name || 'Partida'
+    const gameTitle = game?.title_es || game?.title || lastFinishedSession.game_name || t('tableHub.activeBanner.ongoingGame')
     const cover = game?.image_url_es || game?.image_url || null
 
     return (
@@ -70,18 +74,18 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
           <div>
             <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-muted-foreground font-bold">
               <Trophy className="w-3.5 h-3.5 text-amber-500" />
-              Última victoria registrada
+              {t('tableHub.activeBanner.lastVictoryTitle')}
             </div>
             <h4 className="text-base font-black text-foreground">{gameTitle}</h4>
             <p className="text-xs text-muted-foreground">
-              {lastFinishedSession.date ? formatDate(lastFinishedSession.date) : 'Reciente'}
+              {lastFinishedSession.date ? formatDate(lastFinishedSession.date) : t('tableHub.activeBanner.recent')}
             </p>
           </div>
         </div>
 
         <Button asChild variant="outline" size="sm" className="rounded-xl font-bold shrink-0">
           <Link to={`/mesa/${lastFinishedSession.id}`}>
-            Ver Podio y Puntos
+            {t('tableHub.activeBanner.viewPodium')}
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Link>
         </Button>

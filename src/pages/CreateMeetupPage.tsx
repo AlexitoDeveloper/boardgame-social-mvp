@@ -914,7 +914,7 @@ export function CreateMeetupPage() {
                           </Label>
                           <Input 
                             id="platform"
-                            placeholder="Ej: Board Game Arena, TTS, Discord..."
+                            placeholder={t('create.platformPlaceholder')}
                             value={platform}
                             onChange={(e) => setPlatform(e.target.value)}
                             required 
@@ -927,7 +927,7 @@ export function CreateMeetupPage() {
                           </Label>
                           <Input 
                             id="voiceLink"
-                            placeholder="Ej: https://discord.gg/... o meet.google.com/..."
+                            placeholder={t('create.voicePlaceholder')}
                             value={voiceLink}
                             onChange={(e) => setVoiceLink(e.target.value)}
                           />

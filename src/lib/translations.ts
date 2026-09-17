@@ -218,7 +218,14 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       boardPhotosProcessing: "Procesando...",
       boardPhotosZoom: "Ampliar",
       boardPhotosDelete: "Eliminar foto",
-      boardPhotosErrorProcessing: "Error al procesar la imagen."
+      boardPhotosErrorProcessing: "Error al procesar la imagen.",
+      boardPhotosMaxLimitError: "Límite alcanzado: máximo {{max}} fotos por partida.",
+      boardPhotosMaxSizeError: "La imagen supera el límite de {{max}}MB. Elige una de menor tamaño.",
+      boardPhotosPhotoAlt: "Foto {{index}}",
+      firstPlayerTooltip: "Elegir primer jugador al azar",
+      firstPlayerBtn: "1er Jugador",
+      victoryCardTooltip: "Ver y compartir tarjeta de resultado",
+      victoryCardBtn: "Tarjeta Resultado"
     },
     create: {
       hostTitle: "Crear Mesa de Juego",
@@ -284,7 +291,9 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       validationPlatformRequired: "Indica la plataforma online (ej: BGA, Discord...).",
       validationDateRequired: "Selecciona una fecha y hora para la partida.",
       validationFutureDateRequired: "La fecha de la partida debe ser en el futuro.",
-      validationPlayersRange: "El número de jugadores debe estar entre 2 y 50."
+      validationPlayersRange: "El número de jugadores debe estar entre 2 y 50.",
+      platformPlaceholder: "Ej: Board Game Arena, TTS, Discord...",
+      voicePlaceholder: "Ej: https://discord.gg/... o meet.google.com/..."
     },
     profile: {
       tabs: {
@@ -776,7 +785,8 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       unknown: "Desconocido",
       unratedComplexity: "Sin calificar",
       actionsTitle: "Acciones Rápidas",
-      organizeMeetup: "Abrir Mesa"
+      organizeMeetup: "Abrir Mesa",
+      viewOnBgg: "Ver en BoardGameGeek"
     },
     radar: {
       title: "Tablero",
@@ -860,6 +870,132 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
     },
     appShell: {
       bggAttribution: "Datos proporcionados por"
+    },
+    tableHub: {
+      diceRoller: {
+        title: "Dados 3D de Mesa",
+        desc: "Lanza dados físicos virtuales con sonido real de mesa de madera.",
+        oneDie: "1 DADO (1D6)",
+        twoDice: "2 DADOS (2D6)",
+        rollingOnTable: "Rodando en mesa...",
+        tapHint: "Toca los dados o pulsa el botón",
+        result: "Resultado:",
+        rollingButton: "Rodando dados...",
+        rollButton: "Lanzar Dados",
+        previousRolls: "Tiradas Anteriores:"
+      },
+      firstPlayerModal: {
+        title: "¿Quién empieza la partida?",
+        desc: "Sortea de forma justa y rápida el jugador inicial de la ronda.",
+        drawing: "Sorteando...",
+        turnBegins: "👑 ¡Comienza el turno!",
+        playerPlaceholder: "Jugador {{index}}",
+        addPlayer: "+ Añadir Jugador",
+        spinning: "Girando...",
+        pickButton: "Sortear Inicial"
+      },
+      firstPlayer: {
+        title: "Primer Jugador",
+        touchHint: "Colocad los dedos sobre la pantalla",
+        touchCount: "{{count}} dedos en mesa",
+        repeat: "Repetir",
+        closeAria: "Cerrar selector",
+        gameBegins: "¡Comienza la partida!",
+        confirm: "Confirmar",
+        meepleNamed: "Meeple {{color}}",
+        yourTurnToOpen: "¡Tu turno de abrir mesa!",
+        holdFingers: "Mantened los dedos fijos...",
+        needAnother: "Se necesita al menos otro jugador tocando la pantalla",
+        instructionsTitle: "Pon un dedo en la pantalla",
+        instructionsDesc: "Cada participante apoya su dedo. Tras 2 segundos el sistema elegirá al azar quién inicia la partida.",
+        desktopHint: "¿En ordenador o sin táctil?",
+        randomRoll: "Sortear entre la mesa ({{count}})",
+        colors: {
+          red: "Rojo",
+          blue: "Azul",
+          yellow: "Amarillo",
+          green: "Verde",
+          purple: "Morado",
+          orange: "Naranja"
+        }
+      },
+      turnTimer: {
+        title: "Reloj de Turno Digital",
+        desc: "Control de tiempo para agilizar turnos y evitar el análisis-parálisis.",
+        turnNumber: "Turno #{{count}}",
+        passTurn: "Paso Turno (Reiniciar reloj)",
+        pause: "Pausar",
+        resume: "Reanudar",
+        reset: "Reiniciar"
+      },
+      liveScoreModal: {
+        title: "Marcador de Puntos en Vivo",
+        desc: "Anota y suma los puntos ronda por ronda para cada jugador de la mesa.",
+        defaultPlayer: "Jugador {{index}}"
+      },
+      tools: {
+        sectionTitle: "Herramientas Prácticas de Mesa",
+        firstPlayerTitle: "Primer Jugador",
+        firstPlayerDesc: "Selector táctil con meeples",
+        liveScoreTitle: "Marcador en Vivo",
+        liveScoreDesc: "Puntuación y podio en directo",
+        diceRollerTitle: "Tirador de Dados",
+        diceRollerDesc: "1d6, 2d6, d10, d20 con suma",
+        turnTimerTitle: "Reloj de Turno",
+        turnTimerDesc: "Temporizador anti-AP"
+      },
+      activeBanner: {
+        ongoingGame: "Partida en curso",
+        activeSessionBadge: "🔴 Sesión Activa en Mesa",
+        playersAtTable: "{{count}} jugadores en mesa",
+        continueGame: "Continuar Partida",
+        lastVictoryTitle: "Última victoria registrada",
+        recent: "Reciente",
+        viewPodium: "Ver Podio y Puntos"
+      }
+    },
+    session: {
+      liveScore: {
+        title: "Marcador de Mesa",
+        desc: "Anotad los puntos de la partida en vivo",
+        guest: "Invitado",
+        saved: "Guardado",
+        guestPlaceholder: "Nombre del amigo o invitado...",
+        add: "Añadir",
+        noPlayers: "No hay jugadores anotados en este marcador.",
+        removeGuest: "Eliminar invitado",
+        minus5: "-5 puntos",
+        minus1: "-1 punto",
+        plus1: "+1 punto",
+        plus5: "+5 puntos"
+      }
+    },
+    lightbox: {
+      defaultTitle: "Foto de la partida",
+      zoomIn: "Ampliar zoom",
+      zoomOut: "Reducir zoom",
+      close: "Cerrar",
+      prev: "Anterior",
+      next: "Siguiente"
+    },
+    victoryCard: {
+      defaultGameTitle: "Juego de mesa",
+      modalTitle: "Tarjeta de Victoria",
+      modalDesc: "Comparte el resultado con tu grupo",
+      closeModal: "Cerrar modal",
+      matchReport: "Acta de Partida",
+      game: "Juego",
+      champion: "Campeón",
+      classification: "Clasificación",
+      finalBoard: "Tablero final",
+      watermark: "The Table Companion • BoardGame Social",
+      shareSummaryTitle: "🎲 *Resumen de Partida: {{title}}*",
+      shareGame: "📖 Juego: *{{game}}*",
+      shareWinner: "🏆 Ganador: *{{name}}* ({{score}} pts)",
+      shareStandings: "📊 *Clasificación:*",
+      shareDate: "📅 Fecha: {{date}}",
+      generatedWith: "Generado con The Table Companion",
+      victoryIn: "Victoria en {{title}}"
     }
   },
   en: {
@@ -1079,7 +1215,14 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       boardPhotosProcessing: "Processing...",
       boardPhotosZoom: "Enlarge",
       boardPhotosDelete: "Delete photo",
-      boardPhotosErrorProcessing: "Error processing image."
+      boardPhotosErrorProcessing: "Error processing image.",
+      boardPhotosMaxLimitError: "Limit reached: maximum {{max}} photos per meetup.",
+      boardPhotosMaxSizeError: "The image exceeds the {{max}}MB limit. Choose a smaller file.",
+      boardPhotosPhotoAlt: "Photo {{index}}",
+      firstPlayerTooltip: "Pick first player randomly",
+      firstPlayerBtn: "1st Player",
+      victoryCardTooltip: "View and share victory card",
+      victoryCardBtn: "Result Card"
     },
     create: {
       hostTitle: "Host Game Table",
@@ -1145,7 +1288,9 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       validationPlatformRequired: "Please specify the online platform (e.g. BGA, Discord...).",
       validationDateRequired: "Please select a date and time for the meetup.",
       validationFutureDateRequired: "The meetup date must be in the future.",
-      validationPlayersRange: "Number of players must be between 2 and 50."
+      validationPlayersRange: "Number of players must be between 2 and 50.",
+      platformPlaceholder: "e.g. Board Game Arena, TTS, Discord...",
+      voicePlaceholder: "e.g. https://discord.gg/... or meet.google.com/..."
     },
     profile: {
       tabs: {
@@ -1169,6 +1314,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         emptyDescOwn: "Add games from their spec page or import your BGG collection.",
         emptyDescOther: "This player hasn't added games to their collection yet.",
         importLudoteca: "Import Collection",
+        addGame: "Add Game",
         gamesCount: "games in collection",
         gameCount: "game in collection",
         attribution: "Collection data provided by",
@@ -1391,6 +1537,10 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       inviteCode: "Invite Code",
       inviteCodeDesc: "Share this code with your friends so they can join and merge their collection.",
       copyCode: "Copy code",
+      showQrCode: "QR Code",
+      qrModalTitle: "Join Group",
+      qrModalDesc: "Scan this QR code with your mobile camera to join the group instantly.",
+      addGameToGroup: "Add Game",
       sharedLudoteca: "Shared Collection",
       meetupsAndVotes: "Meetups & Votes",
       members: "Members",
@@ -1632,7 +1782,8 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       unknown: "Unknown",
       unratedComplexity: "Unrated",
       actionsTitle: "Quick Actions",
-      organizeMeetup: "Host Table"
+      organizeMeetup: "Host Table",
+      viewOnBgg: "View on BoardGameGeek"
     },
     radar: {
       title: "Board",
@@ -1716,6 +1867,132 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
     },
     appShell: {
       bggAttribution: "Data provided by"
+    },
+    tableHub: {
+      diceRoller: {
+        title: "3D Table Dice",
+        desc: "Roll virtual physical dice with realistic wooden table sound.",
+        oneDie: "1 DIE (1D6)",
+        twoDice: "2 DICE (2D6)",
+        rollingOnTable: "Rolling on table...",
+        tapHint: "Tap dice or press the button",
+        result: "Result:",
+        rollingButton: "Rolling dice...",
+        rollButton: "Roll Dice",
+        previousRolls: "Previous Rolls:"
+      },
+      firstPlayerModal: {
+        title: "Who starts the game?",
+        desc: "Quickly and fairly pick the starting player of the round.",
+        drawing: "Picking...",
+        turnBegins: "👑 Turn begins!",
+        playerPlaceholder: "Player {{index}}",
+        addPlayer: "+ Add Player",
+        spinning: "Spinning...",
+        pickButton: "Pick Starter"
+      },
+      firstPlayer: {
+        title: "First Player",
+        touchHint: "Place your fingers on the screen",
+        touchCount: "{{count}} fingers on table",
+        repeat: "Repeat",
+        closeAria: "Close selector",
+        gameBegins: "The game begins!",
+        confirm: "Confirm",
+        meepleNamed: "Meeple {{color}}",
+        yourTurnToOpen: "Your turn to open table!",
+        holdFingers: "Hold your fingers still...",
+        needAnother: "At least one other player must touch the screen",
+        instructionsTitle: "Place a finger on the screen",
+        instructionsDesc: "Each participant rests a finger. After 2 seconds, the system will randomly pick who starts the game.",
+        desktopHint: "On desktop or without touch?",
+        randomRoll: "Draw among table ({{count}})",
+        colors: {
+          red: "Red",
+          blue: "Blue",
+          yellow: "Yellow",
+          green: "Green",
+          purple: "Purple",
+          orange: "Orange"
+        }
+      },
+      turnTimer: {
+        title: "Digital Turn Timer",
+        desc: "Time control to speed up turns and prevent analysis paralysis.",
+        turnNumber: "Turn #{{count}}",
+        passTurn: "Pass Turn (Reset timer)",
+        pause: "Pause",
+        resume: "Resume",
+        reset: "Reset"
+      },
+      liveScoreModal: {
+        title: "Live Score Tracker",
+        desc: "Record and add points round by round for each table player.",
+        defaultPlayer: "Player {{index}}"
+      },
+      tools: {
+        sectionTitle: "Table Practical Tools",
+        firstPlayerTitle: "First Player",
+        firstPlayerDesc: "Touch selector with meeples",
+        liveScoreTitle: "Live Score",
+        liveScoreDesc: "Live score and podium",
+        diceRollerTitle: "Dice Roller",
+        diceRollerDesc: "1d6, 2d6, d10, d20 with sum",
+        turnTimerTitle: "Turn Timer",
+        turnTimerDesc: "Anti-AP timer"
+      },
+      activeBanner: {
+        ongoingGame: "Game in progress",
+        activeSessionBadge: "🔴 Active Table Session",
+        playersAtTable: "{{count}} players at table",
+        continueGame: "Continue Game",
+        lastVictoryTitle: "Last recorded victory",
+        recent: "Recent",
+        viewPodium: "View Podium & Scores"
+      }
+    },
+    session: {
+      liveScore: {
+        title: "Table Score Tracker",
+        desc: "Record game points in real time",
+        guest: "Guest",
+        saved: "Saved",
+        guestPlaceholder: "Friend or guest name...",
+        add: "Add",
+        noPlayers: "No players recorded on this score tracker.",
+        removeGuest: "Remove guest",
+        minus5: "-5 points",
+        minus1: "-1 point",
+        plus1: "+1 point",
+        plus5: "+5 points"
+      }
+    },
+    lightbox: {
+      defaultTitle: "Game photo",
+      zoomIn: "Zoom in",
+      zoomOut: "Zoom out",
+      close: "Close",
+      prev: "Previous",
+      next: "Next"
+    },
+    victoryCard: {
+      defaultGameTitle: "Board game",
+      modalTitle: "Victory Card",
+      modalDesc: "Share the result with your group",
+      closeModal: "Close modal",
+      matchReport: "Match Report",
+      game: "Game",
+      champion: "Champion",
+      classification: "Standings",
+      finalBoard: "Final board",
+      watermark: "The Table Companion • BoardGame Social",
+      shareSummaryTitle: "🎲 *Game Summary: {{title}}*",
+      shareGame: "📖 Game: *{{game}}*",
+      shareWinner: "🏆 Winner: *{{name}}* ({{score}} pts)",
+      shareStandings: "📊 *Standings:*",
+      shareDate: "📅 Date: {{date}}",
+      generatedWith: "Generated with The Table Companion",
+      victoryIn: "Victory in {{title}}"
     }
   }
 }
