@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useMemo, FormEvent } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
 import { useTranslation } from 'react-i18next'
@@ -12,7 +12,7 @@ import { Label } from '../components/ui/label'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall } from 'lucide-react'
+import { Loader2, CalendarDays, MapPin, Users, ArrowLeft, Laptop, PhoneCall, Info, AlertTriangle } from 'lucide-react'
 import { CalendarDatePicker } from '../components/CalendarDatePicker'
 import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { USE_MOCKS } from '../lib/config'
@@ -73,6 +73,37 @@ export function CreateMeetupPage() {
   const [loadingLimit, setLoadingLimit] = useState(true)
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
 
+  const isGameDependent = (g: Game) => Boolean(g.is_expansion || g.base_game_id || g.bgg_base_game_id)
+
+  const formValidationError = useMemo(() => {
+    if (!title.trim()) {
+      return t('create.validationTitleRequired')
+    }
+    if (!isOnline && !city.trim()) {
+      return t('create.validationCityRequired')
+    }
+    if (isOnline && !platform.trim()) {
+      return t('create.validationPlatformRequired')
+    }
+    if (!date) {
+      return t('create.validationDateRequired')
+    }
+    const selectedDate = new Date(date)
+    if (isNaN(selectedDate.getTime()) || selectedDate.getTime() <= Date.now()) {
+      return t('create.validationFutureDateRequired')
+    }
+    const players = Number(maxPlayers)
+    if (isNaN(players) || players < 2 || players > 50) {
+      return t('create.validationPlayersRange')
+    }
+    if (selectedGames.length > 0 && selectedGames.every(isGameDependent)) {
+      return t('create.onlyExpansionsWarning')
+    }
+    return null
+  }, [title, isOnline, city, platform, date, maxPlayers, selectedGames, t])
+
+  const isFormValid = formValidationError === null
+
   useEffect(() => {
     async function checkMeetupLimit() {
       if (!user) {
@@ -89,16 +120,19 @@ export function CreateMeetupPage() {
           return
         }
 
-        // 1. Fetch user premium status
+        // 1. Fetch user premium status and default city
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('is_premium')
+          .select('is_premium, city')
           .eq('id', user.id)
           .single()
 
         if (userError) throw userError
         const isPremium = !!userData?.is_premium
         setIsPremiumUser(isPremium)
+        if (!isEditMode && userData?.city && !city) {
+          setCity(userData.city)
+        }
 
         // 2. Count active meetups (non-completed and future date)
         const { count, error: countError } = await supabase
@@ -460,8 +494,15 @@ export function CreateMeetupPage() {
       return
     }
 
+    if (selectedGames.length > 0 && selectedGames.every(isGameDependent)) {
+      setErrorMsg(t('create.onlyExpansionsWarning'))
+      return
+    }
+
     setIsSubmitting(true)
     setErrorMsg('')
+
+    const sanitizedLocation = isOnline ? null : (location.trim() || 'Por acordar')
 
     try {
       const userId = user?.id
@@ -480,7 +521,7 @@ export function CreateMeetupPage() {
               description: description.trim() || null,
               is_online: isOnline,
               city: isOnline ? null : city.trim(),
-              location: isOnline ? null : location.trim(),
+              location: sanitizedLocation,
               platform: isOnline ? platform.trim() : null,
               voice_link: isOnline ? voiceLink.trim() : null,
               date: new Date(date).toISOString(),
@@ -518,7 +559,7 @@ export function CreateMeetupPage() {
             description: description.trim() || null,
             is_online: isOnline,
             city: isOnline ? null : city.trim(),
-            location: isOnline ? null : location.trim(),
+            location: sanitizedLocation,
             platform: isOnline ? platform.trim() : null,
             voice_link: isOnline ? voiceLink.trim() : null,
             date: new Date(date).toISOString(),
@@ -682,7 +723,14 @@ export function CreateMeetupPage() {
                   isImporting={isImporting}
                   handleSelectGame={handleSelectGame}
                   handleSearchBgg={handleSearchBgg}
-                  onContinue={() => setShowDetails(true)}
+                  onContinue={() => {
+                    if (selectedGames.length > 0 && selectedGames.every(isGameDependent)) {
+                      setErrorMsg(t('create.onlyExpansionsWarning'));
+                      return;
+                    }
+                    setErrorMsg('');
+                    setShowDetails(true);
+                  }}
                 />
               ) : (
                 <MotionForm 
@@ -842,13 +890,12 @@ export function CreateMeetupPage() {
                         />
 
                         <div className="space-y-1.5">
-                          <Label htmlFor="location" className="font-bold">{t('create.locationLabel')}</Label>
+                          <Label htmlFor="location" className="font-bold">{t('create.locationOptionalLabel')}</Label>
                           <Input 
                             id="location"
-                            placeholder={t('create.locationPlaceholder')}
+                            placeholder={t('create.locationOptionalPlaceholder')}
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
-                            required 
                           />
                         </div>
                       </MotionDiv>
@@ -914,9 +961,35 @@ export function CreateMeetupPage() {
                     </div>
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-3">
-                    <Button type="submit" variant="premium" className="w-full shadow-lg" disabled={isSubmitting}>
+                  {/* Submit Button & Inline Feedback */}
+                  <div className="pt-3 space-y-2.5">
+                    <AnimatePresence>
+                      {errorMsg && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          className="text-destructive bg-destructive/10 px-4 py-2.5 rounded-xl font-semibold text-xs border border-destructive/20 flex items-center gap-2"
+                        >
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          <span>{errorMsg}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {!isFormValid && (
+                      <div className="text-muted-foreground bg-muted/40 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-border/40 flex items-center gap-2">
+                        <Info className="w-4 h-4 shrink-0 text-amber-500" />
+                        <span>{formValidationError}</span>
+                      </div>
+                    )}
+
+                    <Button 
+                      type="submit" 
+                      variant="premium" 
+                      className="w-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" 
+                      disabled={!isFormValid || isSubmitting}
+                    >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <Loader2 className="w-5 h-5 animate-spin"/> {t('create.saving')}

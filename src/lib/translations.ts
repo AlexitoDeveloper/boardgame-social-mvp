@@ -274,7 +274,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       voiceLabel: "Enlace de Voz (Opcional)",
       saving: "Guardando cambios...",
       creating: "Abriendo mesa...",
-      createButtonFull: "Abrir Mesa en el Tablero"
+      createButtonFull: "Abrir Mesa en el Tablero",
+      onlyExpansionsWarning: "No puedes abrir una mesa únicamente con expansiones. Añade al menos un juego base.",
+      locationOptionalLabel: "Lugar / Dirección física (Opcional)",
+      locationOptionalPlaceholder: "Ej: Club Lúdico, Calle Mayor 12, o deja en blanco para acordar en el chat...",
+      validationTitleRequired: "Indica un título para la quedada.",
+      validationCityRequired: "Indica la ciudad para la partida presencial.",
+      validationPlatformRequired: "Indica la plataforma online (ej: BGA, Discord...).",
+      validationDateRequired: "Selecciona una fecha y hora para la partida.",
+      validationFutureDateRequired: "La fecha de la partida debe ser en el futuro.",
+      validationPlayersRange: "El número de jugadores debe estar entre 2 y 50."
     },
     profile: {
       tabs: {
@@ -1124,7 +1133,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       voiceLabel: "Voice Link (Optional)",
       saving: "Saving changes...",
       creating: "Opening table...",
-      createButtonFull: "Host Table on the Board"
+      createButtonFull: "Host Table on the Board",
+      onlyExpansionsWarning: "You cannot host a table with only expansions. Please add at least one base game.",
+      locationOptionalLabel: "Location / Physical address (Optional)",
+      locationOptionalPlaceholder: "e.g. Gaming Club, Main St 12, or leave blank to agree in chat...",
+      validationTitleRequired: "Please enter a title for the meetup.",
+      validationCityRequired: "Please enter a city for the in-person meetup.",
+      validationPlatformRequired: "Please specify the online platform (e.g. BGA, Discord...).",
+      validationDateRequired: "Please select a date and time for the meetup.",
+      validationFutureDateRequired: "The meetup date must be in the future.",
+      validationPlayersRange: "Number of players must be between 2 and 50."
     },
     profile: {
       tabs: {
