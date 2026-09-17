@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, Loader2, X } from 'lucide-react'
+import { Trash2, Loader2, X, AlertTriangle, ArrowRight } from 'lucide-react'
 import { GameSearchBar } from '../GameSearchBar'
 import { OptimizedImage } from '../ui/OptimizedImage'
 import { Button } from '../ui/button'
@@ -41,6 +41,9 @@ export function GameSelectionSection({
 }: GameSelectionSectionProps) {
   const { t } = useTranslation()
   const { getGameTitle } = useGameLocale()
+
+  const isGameDependent = (g: Game) => Boolean(g.is_expansion || g.base_game_id || g.bgg_base_game_id)
+  const hasOnlyExpansions = selectedGames.length > 0 && selectedGames.every(isGameDependent)
   return (
     <MotionDiv
       key="game-stage"
@@ -144,14 +147,26 @@ export function GameSelectionSection({
           )}
         </div>
 
+        {/* Warning if only expansions selected */}
+        {hasOnlyExpansions && (
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{t('create.onlyExpansionsWarning')}</span>
+          </div>
+        )}
+
         {/* Continue Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/20">
+        <div className="pt-4 border-t border-border/20">
           <Button 
             type="button"
+            variant={selectedGames.length > 0 ? "default" : "secondary"}
+            size="default"
             onClick={onContinue}
-            className="flex-1 h-11 text-xs font-bold shadow-md cursor-pointer"
+            disabled={hasOnlyExpansions}
+            className="w-full shadow-md"
           >
-            {selectedGames.length > 0 ? t('create.continueWithGames') : t('create.continueWithoutGame')}
+            <span>{selectedGames.length > 0 ? t('create.continueWithGames') : t('create.continueWithoutGame')}</span>
+            <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
       </div>

@@ -14,6 +14,7 @@ import {
   BarChart2
 } from 'lucide-react'
 import { Badge } from '../ui/badge'
+import { ExpansionBadge } from '../ui/expansion-badge'
 import { Button } from '../ui/button'
 import { Meetup, Game } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
@@ -462,9 +463,12 @@ export function TabContentList({
                         <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
                           {getGameTitle(game)}
                         </h4>
-                        <span className="text-xs text-muted-foreground font-bold block mt-0.5">
-                          {game.year_published || 'N/A'}
-                        </span>
+                        <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                          {game.is_expansion && <ExpansionBadge size="xs" />}
+                          <span className="text-xs text-muted-foreground font-bold block">
+                            {game.year_published || 'N/A'}
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   ))}

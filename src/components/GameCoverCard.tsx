@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
 import { OptimizedImage } from './ui/OptimizedImage'
+import { ExpansionBadge } from './ui/expansion-badge'
 import { useGameLocale } from '../hooks/useGameLocale'
 
 interface GameCoverCardProps {
@@ -46,6 +47,9 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
               <Globe className="h-2.5 w-2.5 shrink-0" />
               ESP
             </span>
+          )}
+          {game.is_expansion && (
+            <ExpansionBadge size="xs" />
           )}
         </div>
         {/* Cover Image or Dummy Cover */}

@@ -2,6 +2,7 @@ import { Trophy, Star, Brain, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Game } from '@/types'
 import { Card } from '@/components/ui/card'
+import { sanitizeGameText } from '@/lib/gameLocale'
 import { GameQuickStats } from './GameQuickStats'
 
 interface GameDetailsTabProps {
@@ -117,12 +118,12 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm font-semibold text-foreground/80">
             {game.publisher && (
               <p>
-                {t('gameDetail.intlPublisher')}: <span className="font-bold text-foreground block mt-1">{game.publisher}</span>
+                {t('gameDetail.intlPublisher')}: <span className="font-bold text-foreground block mt-1">{sanitizeGameText(game.publisher)}</span>
               </p>
             )}
             {game.es_publisher && (
               <p>
-                {t('gameDetail.spainPublisher')}: <span className="font-bold text-primary block mt-1">{game.es_publisher}</span>
+                {t('gameDetail.spainPublisher')}: <span className="font-bold text-primary block mt-1">{sanitizeGameText(game.es_publisher)}</span>
               </p>
             )}
           </div>

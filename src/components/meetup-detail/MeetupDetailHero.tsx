@@ -97,17 +97,24 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
               <span>{ t('meetup.onlineMatch', { platform: meetup.platform || 'BGA / TTS' }) }</span>
             </span>
           ) : (
-            <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${meetup.location || ''}, ${meetup.city || ''}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-            >
-              <MapPin className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span className="underline decoration-dotted decoration-primary/50 underline-offset-4">
-                {meetup.location}, {meetup.city}
+            meetup.location && meetup.location.toLowerCase() !== 'por acordar' ? (
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${meetup.location}, ${meetup.city || ''}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+              >
+                <MapPin className="h-4.5 w-4.5 text-primary shrink-0" />
+                <span className="underline decoration-dotted decoration-primary/50 underline-offset-4">
+                  {meetup.location}, {meetup.city}
+                </span>
+              </a>
+            ) : (
+              <span className="flex items-center gap-2 text-muted-foreground font-medium">
+                <MapPin className="h-4.5 w-4.5 text-primary shrink-0" />
+                <span>{meetup.city ? `${meetup.city} • ${t('meetup.toDecideInChat')}` : t('meetup.toDecideInChat')}</span>
               </span>
-            </a>
+            )
           )}
         </div>
 

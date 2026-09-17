@@ -1,6 +1,8 @@
 import { useState, FC, ChangeEvent } from 'react'
 import { Camera, Trash2, Loader2, Image as ImageIcon, ZoomIn, AlertCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
 import { Input } from '../ui/input'
 import { supabase } from '../../lib/supabaseClient'
 import { ImageLightboxModal } from './ImageLightboxModal'
@@ -38,6 +40,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
   isEditable = true,
   onPhotoUploaded,
 }) => {
+  const { t } = useTranslation();
   const [photos, setPhotos] = useState<string[]>(() => parsePhotos(currentPhotoUrl));
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -87,7 +90,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
       await onPhotoUploaded(serializePhotos(nextPhotos));
     } catch (err) {
       console.error('Error uploading photo:', err);
-      setErrorMessage('Error al procesar la imagen.');
+      setErrorMessage(t('meetup.boardPhotosErrorProcessing'));
     } finally {
       setIsUploading(false);
     }
@@ -105,22 +108,17 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
     <div className='bg-card border border-border/40 rounded-3xl p-5 md:p-6 shadow-sm space-y-4'>
       <div className='flex items-center justify-between gap-2 border-b border-border/30 pb-3'>
         <div className='flex items-center gap-2.5'>
-          <div className='w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary'>
+          <div className='w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0'>
             <Camera className='w-5 h-5' />
           </div>
-          <div>
-            <h3 className='font-extrabold text-sm md:text-base text-foreground tracking-tight'>
-              Fotos de la Partida
-            </h3>
-            <p className='text-xs text-muted-foreground font-medium'>
-              Inmortaliza el despliegue del tablero (máximo {MAX_PHOTOS} fotos)
-            </p>
-          </div>
+          <h3 className='font-extrabold text-sm md:text-base text-foreground tracking-tight'>
+            {t('meetup.boardPhotosTitle')}
+          </h3>
         </div>
 
-        <div className='text-xs font-bold text-muted-foreground bg-muted/30 px-2.5 py-1 rounded-xl border border-border/30'>
+        <Badge variant='secondary' size='sm' className='font-bold text-muted-foreground'>
           {photos.length} / {MAX_PHOTOS}
-        </div>
+        </Badge>
       </div>
 
       {errorMessage && (
@@ -142,10 +140,10 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
               <div
                 onClick={() => setLightboxIndex(idx)}
                 className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-zoom-in text-white gap-1 p-2'
-                title='Ver en grande'
+                title={t('meetup.boardPhotosZoom')}
               >
                 <ZoomIn className='w-5 h-5 drop-shadow' />
-                <span className='text-[10px] font-bold drop-shadow'>Ampliar</span>
+                <span className='text-[10px] font-bold drop-shadow'>{t('meetup.boardPhotosZoom')}</span>
               </div>
               {isEditable && (
                 <Button
@@ -157,7 +155,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
                     handleRemovePhoto(idx);
                   }}
                   className='absolute top-1.5 right-1.5 h-7 w-7 p-0 rounded-lg bg-black/70 hover:bg-destructive text-white opacity-90 hover:opacity-100 transition-colors z-10'
-                  title='Eliminar foto'
+                  title={t('meetup.boardPhotosDelete')}
                 >
                   <Trash2 className='w-3.5 h-3.5' />
                 </Button>
@@ -173,10 +171,12 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
             <ImageIcon className='w-5 h-5' />
           </div>
           <p className='text-xs font-bold text-foreground'>
-            {photos.length === 0 ? 'Sube una foto del tablero final' : 'Añade otra foto del tablero ({MAX_PHOTOS - photos.length} restantes)'}
+            {photos.length === 0
+              ? t('meetup.boardPhotosEmptyDropzone')
+              : t('meetup.boardPhotosAddMore', { remaining: MAX_PHOTOS - photos.length })}
           </p>
           <p className='text-[11px] text-muted-foreground mt-0.5 mb-3'>
-            Límite de 5MB por imagen • Formato JPG, PNG o WEBP
+            {t('meetup.boardPhotosLimitHint')}
           </p>
 
           <label className='inline-flex'>
@@ -192,12 +192,12 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
               {isUploading ? (
                 <>
                   <Loader2 className='w-3.5 h-3.5 animate-spin' />
-                  <span>Procesando...</span>
+                  <span>{t('meetup.boardPhotosProcessing')}</span>
                 </>
               ) : (
                 <>
                   <Camera className='w-3.5 h-3.5' />
-                  <span>Hacer o subir foto</span>
+                  <span>{t('meetup.boardPhotosTakeOrUpload')}</span>
                 </>
               )}
             </span>
@@ -211,7 +211,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
           initialIndex={lightboxIndex}
           isOpen={lightboxIndex !== null}
           onClose={() => setLightboxIndex(null)}
-          title='Foto del tablero final'
+          title={t('meetup.boardPhotosTitle')}
         />
       )}
     </div>

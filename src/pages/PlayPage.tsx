@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Dices, Users, Clock, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote, Download } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button'
+import { Tag } from '../components/ui/tag'
 import { FilterChip } from '../components/ui/chip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useAuth } from '../lib/authContext'
@@ -693,9 +694,9 @@ export function PlayPage() {
 
                 {availableExpansionsForSuggested.length > 0 && (
                   <div className="pt-0.5 flex flex-wrap gap-1 justify-center sm:justify-start">
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 dark:text-purple-300 bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 rounded-lg">
-                      +{availableExpansionsForSuggested.length} {availableExpansionsForSuggested.length === 1 ? 'expansión compatible en la ludoteca' : 'expansiones compatibles en la ludoteca'}
-                    </span>
+                    <Tag variant="purple" size="sm">
+                      +{availableExpansionsForSuggested.length} {availableExpansionsForSuggested.length === 1 ? 'expansión compatible' : 'expansiones compatibles'}
+                    </Tag>
                   </div>
                 )}
               </div>

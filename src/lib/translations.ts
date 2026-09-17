@@ -208,7 +208,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       noLink: "Sin Enlace",
       voiceProtectedTitle: "Canal de Voz Protegido",
       voiceProtectedDesc: "Únete a esta mesa como jugador o invitado para desbloquear el acceso a la llamada de voz (Discord, Meet, etc.).",
-      bggAttribution: "Datos proporcionados por"
+      bggAttribution: "Datos proporcionados por",
+      boardPhotosTitle: "Fotos de la Partida",
+      boardPhotosEmptyDropzone: "Sube una foto del tablero final",
+      boardPhotosAddMore: "Añade otra foto del tablero ({{remaining}} restantes)",
+      boardPhotosLimitHint: "Límite de 5MB por imagen • Formato JPG, PNG o WEBP",
+      boardPhotosTakeOrUpload: "Hacer o subir foto",
+      boardPhotosProcessing: "Procesando...",
+      boardPhotosZoom: "Ampliar",
+      boardPhotosDelete: "Eliminar foto",
+      boardPhotosErrorProcessing: "Error al procesar la imagen."
     },
     create: {
       hostTitle: "Crear Mesa de Juego",
@@ -265,7 +274,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       voiceLabel: "Enlace de Voz (Opcional)",
       saving: "Guardando cambios...",
       creating: "Abriendo mesa...",
-      createButtonFull: "Abrir Mesa en el Tablero"
+      createButtonFull: "Abrir Mesa en el Tablero",
+      onlyExpansionsWarning: "No puedes abrir una mesa únicamente con expansiones. Añade al menos un juego base.",
+      locationOptionalLabel: "Lugar / Dirección física (Opcional)",
+      locationOptionalPlaceholder: "Ej: Club Lúdico, Calle Mayor 12, o deja en blanco para acordar en el chat...",
+      validationTitleRequired: "Indica un título para la quedada.",
+      validationCityRequired: "Indica la ciudad para la partida presencial.",
+      validationPlatformRequired: "Indica la plataforma online (ej: BGA, Discord...).",
+      validationDateRequired: "Selecciona una fecha y hora para la partida.",
+      validationFutureDateRequired: "La fecha de la partida debe ser en el futuro.",
+      validationPlayersRange: "El número de jugadores debe estar entre 2 y 50."
     },
     profile: {
       tabs: {
@@ -706,6 +724,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       backToExplore: "Volver a Explorar",
       technicalSheet: "Ficha Técnica",
       community: "Comunidad",
+      communityAndPlays: "Partidas y Comunidad",
       meetups: "Quedadas",
       expansions: "Expansiones",
       bggRank: "Ranking BGG",
@@ -725,6 +744,9 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       emptyLudotecaTitle: "Nadie tiene este juego en su ludoteca todavía.",
       emptyLudotecaDesc: "Agrégalo a tu perfil utilizando el botón lateral.",
       upcomingPlays: "Partidas Programadas",
+      openTable: "mesa abierta",
+      openTables: "mesas abiertas",
+      onlineVia: "En línea vía {{platform}}",
       organizedBy: "Organiza {{username}}",
       viewMeetupDetails: "Ver Detalles Mesa",
       noScheduledPlaysTitle: "No hay partidas agendadas",
@@ -1045,7 +1067,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       noLink: "No Link",
       voiceProtectedTitle: "Protected Voice Channel",
       voiceProtectedDesc: "Join this table as a player or guest to unlock access to the voice call (Discord, Meet, etc.).",
-      bggAttribution: "Data provided by"
+      bggAttribution: "Data provided by",
+      boardPhotosTitle: "Session Photos",
+      boardPhotosEmptyDropzone: "Upload a photo of the final board",
+      boardPhotosAddMore: "Add another photo of the board ({{remaining}} remaining)",
+      boardPhotosLimitHint: "5MB limit per image • JPG, PNG or WEBP format",
+      boardPhotosTakeOrUpload: "Take or upload photo",
+      boardPhotosProcessing: "Processing...",
+      boardPhotosZoom: "Enlarge",
+      boardPhotosDelete: "Delete photo",
+      boardPhotosErrorProcessing: "Error processing image."
     },
     create: {
       hostTitle: "Host Game Table",
@@ -1102,7 +1133,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       voiceLabel: "Voice Link (Optional)",
       saving: "Saving changes...",
       creating: "Opening table...",
-      createButtonFull: "Host Table on the Board"
+      createButtonFull: "Host Table on the Board",
+      onlyExpansionsWarning: "You cannot host a table with only expansions. Please add at least one base game.",
+      locationOptionalLabel: "Location / Physical address (Optional)",
+      locationOptionalPlaceholder: "e.g. Gaming Club, Main St 12, or leave blank to agree in chat...",
+      validationTitleRequired: "Please enter a title for the meetup.",
+      validationCityRequired: "Please enter a city for the in-person meetup.",
+      validationPlatformRequired: "Please specify the online platform (e.g. BGA, Discord...).",
+      validationDateRequired: "Please select a date and time for the meetup.",
+      validationFutureDateRequired: "The meetup date must be in the future.",
+      validationPlayersRange: "Number of players must be between 2 and 50."
     },
     profile: {
       tabs: {
@@ -1538,6 +1578,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       backToExplore: "Back to Explore",
       technicalSheet: "Technical Sheet",
       community: "Community",
+      communityAndPlays: "Plays & Community",
       meetups: "Meetups",
       expansions: "Expansions",
       bggRank: "BGG Rank",
@@ -1557,6 +1598,9 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       emptyLudotecaTitle: "No one has this game in their collection yet.",
       emptyLudotecaDesc: "Add it to your profile using the side button.",
       upcomingPlays: "Scheduled Meetups",
+      openTable: "open table",
+      openTables: "open tables",
+      onlineVia: "Online via {{platform}}",
       organizedBy: "Hosted by {{username}}",
       viewMeetupDetails: "View Table Details",
       noScheduledPlaysTitle: "No scheduled meetups",
