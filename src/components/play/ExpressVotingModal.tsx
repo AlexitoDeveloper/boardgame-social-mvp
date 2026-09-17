@@ -40,7 +40,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
   roomId = 'mesa-activa',
   onGameSelected,
 }) => {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
 
   // Up to 5 pool games
@@ -62,11 +62,11 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
     if (user?.email) return user.email.split('@')[0]
     let storedName = sessionStorage.getItem('bg_voting_guest_name')
     if (!storedName) {
-      storedName = `Jugador ${currentUserId.slice(-3)}`
+      storedName = `${t('play.votingModal.guestPlayer')} ${currentUserId.slice(-3)}`
       sessionStorage.setItem('bg_voting_guest_name', storedName)
     }
     return storedName
-  }, [user, currentUserId])
+  }, [user, currentUserId, t])
 
   // Map of userId -> UserVote
   const [userVotes, setUserVotes] = useState<Record<string, UserVote>>({})
@@ -262,9 +262,10 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
   }
 
   const handleShareRoom = async () => {
-    const url = window.location.href
+    const baseUrl = `${window.location.origin}/jugar`
+    const shareUrl = `${baseUrl}?votingRoom=${encodeURIComponent(roomId)}`
     if (navigator.clipboard) {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(shareUrl)
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2000)
     }
@@ -280,10 +281,10 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
             <div className="space-y-1">
               <DialogTitle className="text-lg sm:text-xl font-extrabold tracking-tight flex items-center gap-2">
                 <Timer className="w-5 h-5 text-emerald-400" />
-                <span>Votación Exprés en Tiempo Real</span>
+                <span>{t('play.votingModal.title')}</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground font-medium">
-                1 voto por persona • Cada dispositivo vota de forma individual
+                {t('play.votingModal.subtitle')}
               </DialogDescription>
             </div>
 
@@ -295,11 +296,11 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                   size="sm"
                   onClick={handleShareRoom}
                   className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1 cursor-pointer border-border/40"
-                  title="Compartir enlace para que otros voten en sus móviles"
-                  aria-label={copiedLink ? 'Enlace copiado' : 'Compartir'}
+                  title={t('play.votingModal.shareLinkTitle')}
+                  aria-label={copiedLink ? t('play.votingModal.linkCopied') : t('play.votingModal.share')}
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-                  <span className="hidden sm:inline">{copiedLink ? 'Enlace copiado' : 'Compartir'}</span>
+                  <span className="hidden sm:inline">{copiedLink ? t('play.votingModal.linkCopied') : t('play.votingModal.share')}</span>
                 </Button>
 
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-muted/60 border border-border/40 font-mono font-black text-xs text-foreground">
@@ -342,7 +343,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
 
                 <div className="space-y-1">
                   <span className="text-xs uppercase font-black tracking-widest text-emerald-400">
-                    Juego Ganador por Mayoría
+                    {t('play.votingModal.majorityWinner')}
                   </span>
                   <h3 className="text-xl sm:text-2xl font-black text-foreground">
                     {i18n.language === 'es' && winningGame.title_es
@@ -350,7 +351,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                       : winningGame.title}
                   </h3>
                   <p className="text-xs text-muted-foreground font-medium">
-                    Con {votesPerGame[winningGame.bgg_id]?.count || 0} de {totalVotesCast} votos de la mesa
+                    {t('play.votingModal.winnerVotes', { count: votesPerGame[winningGame.bgg_id]?.count || 0, total: totalVotesCast })}
                   </p>
                 </div>
 
@@ -378,7 +379,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                     className="h-11 px-4 rounded-xl font-bold text-xs gap-1.5 cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span>Volver a votar</span>
+                    <span>{t('play.votingModal.voteAgain')}</span>
                   </Button>
 
                   <Button
@@ -387,7 +388,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                     onClick={() => onGameSelected(winningGame)}
                     className="flex-1 h-11 rounded-xl font-bold text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
                   >
-                    <span>Abrir Mesa con este juego</span>
+                    <span>{t('play.votingModal.openTableWithGame')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -404,10 +405,10 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
                   <span className="flex items-center gap-1.5 font-bold">
                     <Users className="w-3.5 h-3.5 text-primary" />
-                    {totalVotesCast === 1 ? '1 persona ha votado' : `${totalVotesCast} personas han votado`}
+                    {totalVotesCast === 1 ? t('play.votingModal.onePersonVoted') : t('play.votingModal.peopleVoted', { count: totalVotesCast })}
                   </span>
                   <span className="font-semibold text-xs">
-                    {myVote ? 'Tu voto está emitido (pulsa para cambiarlo)' : 'Elige 1 juego de la lista'}
+                    {myVote ? t('play.votingModal.voteCastHint') : t('play.votingModal.chooseGameHint')}
                   </span>
                 </div>
 
@@ -441,7 +442,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
         {!isFinished && (
           <div className="p-4 border-t border-border/30 bg-muted/10 flex items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground font-medium truncate">
-              Votando como <strong className="text-foreground">{currentUserName}</strong>
+              {t('play.votingModal.votingAs')} <strong className="text-foreground">{currentUserName}</strong>
             </span>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -452,7 +453,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 onClick={onClose}
                 className="h-9 px-3 rounded-xl text-xs font-bold"
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
 
               <Button
@@ -463,7 +464,7 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 disabled={totalVotesCast === 0}
                 className="h-9 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
               >
-                Cerrar Votación Ahora
+                {t('play.votingModal.closeVotingNow')}
               </Button>
             </div>
           </div>

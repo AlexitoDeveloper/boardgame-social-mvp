@@ -19,6 +19,7 @@ export function AppShell() {
     showBggOnboarding,
     setShowBggOnboarding,
     isChatPage,
+    hasActiveChat,
     handleSignOut,
   } = useShellNavigation()
 
@@ -40,14 +41,16 @@ export function AppShell() {
         className={cn(
           'flex-1 min-w-0 w-full max-w-full px-4 pb-24 pb-[max(5.5rem,calc(4.5rem+env(safe-area-inset-bottom)))] pt-[max(1rem,env(safe-area-inset-top))] md:p-8 md:pb-8',
           isChatPage &&
-            'px-0 pt-0 pb-[calc(3rem+env(safe-area-inset-bottom))] h-dvh overflow-hidden flex flex-col md:p-8 md:pb-8 md:h-dvh md:overflow-hidden bg-card/95 md:bg-transparent'
+            (hasActiveChat
+              ? 'px-0 pt-0 pb-0 h-dvh overflow-hidden flex flex-col md:p-8 md:pb-8 md:h-dvh md:overflow-hidden bg-card/95 md:bg-transparent'
+              : 'px-0 pt-0 pb-[calc(3rem+env(safe-area-inset-bottom))] h-dvh overflow-hidden flex flex-col md:p-8 md:pb-8 md:h-dvh md:overflow-hidden bg-card/95 md:bg-transparent')
         )}
       >
         <Outlet />
       </main>
 
-      {/* Mobile Ergonomic Bottom Navigation Bar (5 Canonical Tabs) */}
-      <MobileBottomBar user={user} unreadChats={unreadChats} />
+      {/* Mobile Ergonomic Bottom Navigation Bar (hidden inside active chat) */}
+      {!hasActiveChat && <MobileBottomBar user={user} unreadChats={unreadChats} />}
 
       {/* Floating Drawers & Modals */}
       <MobileQuickActions

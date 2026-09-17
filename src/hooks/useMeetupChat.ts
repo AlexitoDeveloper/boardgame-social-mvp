@@ -1,274 +1,227 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { User } from '@supabase/supabase-js'
-import { Meetup, UserProfile, MeetupMessage } from '../types'
+import { useAuth } from '../lib/authContext'
+import { Meetup, MeetupMessage, Game } from '../types'
 import { USE_MOCKS } from '../lib/config'
 
-export function useMeetupChat(
-  meetupId: string | undefined,
-  currentUser: User | null,
-  guestReservation: { id: string; name: string } | null,
-  meetup: Meetup | null,
-  attendees: UserProfile[]
-) {
-  const [messages, setMessages] = useState<MeetupMessage[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
+export function useMeetupChat(activeMeetupId: string | null) {
+  const { user } = useAuth()
 
-  const isMock = USE_MOCKS && meetupId ? meetupId.startsWith('mock-') : false
+  const [meetups, setMeetups] = useState<Meetup[]>([])
+  const [allMessages, setAllMessages] = useState<MeetupMessage[]>([])
+  const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [readTimestamps, setReadTimestamps] = useState<Record<string, string>>({})
+  const [hiddenChats, setHiddenChats] = useState<string[]>([])
 
-  // Determine if current user is an attendee (registered or shadow guest)
-  const isAttendee = useCallback(() => {
-    if (!meetupId || !meetup) return false
-
-    // Registered user
-    if (currentUser) {
-      const isCreator = meetup.creator_id === currentUser.id
-      const isJoined = meetup.joined_players?.includes(currentUser.id)
-      return isCreator || isJoined
-    }
-
-    // Shadow guest user
-    if (guestReservation) {
-      return attendees.some(attendee => attendee.id === guestReservation.id)
-    }
-
-    return false
-  }, [meetupId, meetup, currentUser, guestReservation, attendees])
-
-  // Get initial fallback messages for mock meetups
-  const getMockDefaultMessages = (mId: string): MeetupMessage[] => {
-    const defaultMessages: Record<string, MeetupMessage[]> = {
-      'mock-m1': [
-        {
-          id: 'mock-msg-init1',
-          meetup_id: mId,
-          user_id: 'mock-u1',
-          guest_id: null,
-          sender_name: 'boardgamer_alex',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-          content: '¡Hola a todos! Qué ganas de jugar a Terraforming Mars. ¿Alguien se trae la expansión de Preludio?',
-          created_at: new Date(Date.now() - 3600000 * 2).toISOString() // 2 hours ago
-        },
-        {
-          id: 'mock-msg-init2',
-          meetup_id: mId,
-          user_id: 'mock-u2',
-          guest_id: null,
-          sender_name: 'meeple_sara',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara',
-          content: '¡Yo la tengo! Me la llevo sin falta. ¿Trae alguien fundas para las cartas?',
-          created_at: new Date(Date.now() - 3600000 * 1.5).toISOString() // 1.5 hours ago
-        },
-        {
-          id: 'mock-msg-init3',
-          meetup_id: mId,
-          user_id: 'mock-u3',
-          guest_id: null,
-          sender_name: 'hex_and_counter',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter',
-          content: 'Perfecto, yo llevaré el juego base organizado en su inserto para agilizar el setup.',
-          created_at: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
-        }
-      ],
-      'mock-m2': [
-        {
-          id: 'mock-msg-init-m2-1',
-          meetup_id: mId,
-          user_id: 'mock-u3',
-          guest_id: null,
-          sender_name: 'hex_and_counter',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter',
-          content: 'Buenas, es mi primera partida a Wingspan. ¿Os importa explicar las reglas básicas antes de empezar?',
-          created_at: new Date(Date.now() - 3600000 * 4).toISOString()
-        },
-        {
-          id: 'mock-msg-init-m2-2',
-          meetup_id: mId,
-          user_id: 'mock-u1',
-          guest_id: null,
-          sender_name: 'boardgamer_alex',
-          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-          content: '¡Claro que no! Se explica en 10 minutos, es muy amigable. Trae algo de picar si quieres.',
-          created_at: new Date(Date.now() - 3600000 * 3.5).toISOString()
-        }
-      ]
-    }
-    return defaultMessages[mId] || []
-  }
-
-  // Load chat messages and listen to realtime updates
+  // Load hidden chats from localStorage
   useEffect(() => {
-    if (!meetupId) return
-
-    setLoading(true)
-    setError(null)
-
-    if (isMock) {
-      // Mock flow using localStorage
-      const storageKey = `boardgame_social_mock_chat_${meetupId}`
-      const savedMessagesStr = localStorage.getItem(storageKey)
-      if (savedMessagesStr) {
-        setMessages(JSON.parse(savedMessagesStr))
-      } else {
-        const defaults = getMockDefaultMessages(meetupId)
-        setMessages(defaults)
-        localStorage.setItem(storageKey, JSON.stringify(defaults))
+    const hiddenStr = localStorage.getItem('boardgame_social_hidden_chats')
+    if (hiddenStr) {
+      try {
+        setHiddenChats(JSON.parse(hiddenStr))
+      } catch {
+        setHiddenChats([])
       }
-      setLoading(false)
-    } else {
-      // Supabase Realtime Flow
-      const fetchHistory = async () => {
-        try {
-          const { data, error: fetchError } = await supabase
+    }
+  }, [])
+
+  // Load read timestamps from localStorage
+  useEffect(() => {
+    const stamps: Record<string, string> = {}
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith('boardgame_social_chat_last_read_')) {
+        stamps[key.replace('boardgame_social_chat_last_read_', '')] = localStorage.getItem(key) || ''
+      }
+    }
+    setReadTimestamps(stamps)
+  }, [])
+
+  const markAsRead = useCallback((meetupId: string) => {
+    const nowStr = new Date().toISOString()
+    localStorage.setItem(`boardgame_social_chat_last_read_${meetupId}`, nowStr)
+    setReadTimestamps(prev => ({ ...prev, [meetupId]: nowStr }))
+    window.dispatchEvent(new Event('chat_read_update'))
+  }, [])
+
+  const getReservation = useCallback((meetupId: string) => {
+    const str = localStorage.getItem('boardgame_social_guest_reservations')
+    const parsed = str ? JSON.parse(str) : {}
+    return parsed[meetupId] || null
+  }, [])
+
+  // Fetch meetups and messages
+  useEffect(() => {
+    if (!user) return
+
+    async function loadChatsData() {
+      setLoading(true)
+      setErrorMsg('')
+
+      const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
+      const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
+      const guestMeetupIds = Object.keys(guestReservations)
+
+      const orParts = [`creator_id.eq.${user?.id}`, `joined_players.cs.{${user?.id}}`]
+      if (guestMeetupIds.length > 0) orParts.push(`id.in.(${guestMeetupIds.join(',')})`)
+
+      try {
+        const { data: meetupsData, error: meetupsError } = await supabase
+          .from('meetups')
+          .select('*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
+          .or(orParts.join(','))
+          .order('date', { ascending: false })
+
+        if (meetupsError) throw meetupsError
+
+        const fetchedMeetups = (meetupsData || []).map((m: any) => {
+          const mg = m.meetup_games || []
+          const mGames = mg.map((item: any) => item.games ? { ...item.games, winner_user_id: item.winner_user_id, winner_guest_id: item.winner_guest_id } : null).filter(Boolean) as Game[]
+          return { ...m, games: mGames }
+        }) as Meetup[]
+
+        setMeetups(fetchedMeetups)
+
+        if (fetchedMeetups.length > 0) {
+          const meetupIds = fetchedMeetups.map(m => m.id)
+          const { data: messagesData, error: messagesError } = await supabase
             .from('meetup_messages')
             .select('*')
-            .eq('meetup_id', meetupId)
+            .in('meetup_id', meetupIds)
             .order('created_at', { ascending: true })
 
-          if (fetchError) throw fetchError
-          setMessages(data || [])
-        } catch (err: any) {
-          console.error('Error fetching chat history:', err)
-          setError(err.message || 'No se pudo cargar el historial del chat.')
-        } finally {
-          setLoading(false)
+          if (messagesError) throw messagesError
+          setAllMessages((messagesData as MeetupMessage[]) || [])
         }
-      }
-
-      fetchHistory()
-
-      // Set up Realtime subscription
-      const channel = supabase
-        .channel(`meetup_chat_${meetupId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'meetup_messages',
-            filter: `meetup_id=eq.${meetupId}`
-          },
-          (payload) => {
-            const newMessage = payload.new as MeetupMessage
-            setMessages((prev) => {
-              // Avoid duplicate messages
-              if (prev.some((m) => m.id === newMessage.id)) return prev
-              return [...prev, newMessage]
-            })
-          }
-        )
-        .subscribe()
-
-      return () => {
-        supabase.removeChannel(channel)
+      } catch (err: any) {
+        console.error('Error loading chat conversations:', err)
+        setErrorMsg(err.message || 'Error al obtener tus salas de chat.')
+      } finally {
+        setLoading(false)
       }
     }
-  }, [meetupId, isMock])
 
-  // Send message function
-  const sendMessage = async (content: string) => {
-    if (!meetupId) return
+    loadChatsData()
+  }, [user])
+
+  // Realtime subscription for incoming messages
+  useEffect(() => {
+    if (meetups.length === 0) return
+    const meetupIds = meetups.map(m => m.id)
+
+    const channel = supabase
+      .channel('chats_page_global_realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'meetup_messages' }, (payload) => {
+        const newMsg = payload.new as MeetupMessage
+        if (!meetupIds.includes(newMsg.meetup_id)) return
+
+        setAllMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
+
+        // Auto-unhide if new message arrives
+        setHiddenChats(prev => {
+          if (!prev.includes(newMsg.meetup_id)) return prev
+          const updated = prev.filter(id => id !== newMsg.meetup_id)
+          localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
+          return updated
+        })
+
+        if (activeMeetupId === newMsg.meetup_id) {
+          markAsRead(activeMeetupId)
+        } else {
+          window.dispatchEvent(new Event('chat_read_update'))
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [meetups, activeMeetupId, markAsRead])
+
+  // Send message to active meetup
+  const sendMessage = useCallback(async (content: string): Promise<boolean> => {
+    if (!activeMeetupId || !content.trim() || !user) return false
     const trimmed = content.trim()
-    if (!trimmed) return
+    setSending(true)
 
-    if (!isAttendee()) {
-      throw new Error('Debes estar unido a la partida para enviar mensajes.')
+    const guestRes = getReservation(activeMeetupId)
+    const activeM = meetups.find(m => m.id === activeMeetupId)
+    if (!activeM) {
+      setSending(false)
+      return false
     }
 
-    // Determine sender identity and avatar URL
-    let user_id: string | null = null
-    let guest_id: string | null = null
-    let sender_name = 'Anónimo'
-    let avatar_url: string | null = null
+    const user_id = guestRes ? null : user.id
+    const guest_id = guestRes ? guestRes.id : null
+    const sender_name = guestRes ? guestRes.name : (user.user_metadata?.username || user.email?.split('@')[0] || 'Tú')
+    const avatar_url = guestRes
+      ? `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(guestRes.name)}`
+      : (user.user_metadata?.avatar_url || null)
 
-    if (currentUser) {
-      user_id = currentUser.id
-      sender_name = currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'Tú'
-      avatar_url = currentUser.user_metadata?.avatar_url || null
-    } else if (guestReservation) {
-      guest_id = guestReservation.id
-      sender_name = guestReservation.name
-      avatar_url = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(guestReservation.name)}`
-    } else {
-      throw new Error('No se pudo identificar al remitente del mensaje.')
-    }
-
-    if (isMock) {
-      // Save message locally
-      const storageKey = `boardgame_social_mock_chat_${meetupId}`
-      const newMsg: MeetupMessage = {
-        id: `mock-msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        meetup_id: meetupId,
+    try {
+      const { error } = await supabase.from('meetup_messages').insert({
+        meetup_id: activeMeetupId,
         user_id,
         guest_id,
         sender_name,
         avatar_url,
-        content: trimmed,
-        created_at: new Date().toISOString()
-      }
-
-      setMessages((prev) => {
-        const updated = [...prev, newMsg]
-        localStorage.setItem(storageKey, JSON.stringify(updated))
-        return updated
+        content: trimmed
       })
-
-      // Simulate a mock bot reply after 1.5 seconds for premium/live feel
-      setTimeout(() => {
-        // Pick a random attendee that isn't the current user to reply
-        const otherAttendees = attendees.filter(a => a.id !== (user_id || guest_id))
-        if (otherAttendees.length > 0) {
-          const responder = otherAttendees[Math.floor(Math.random() * otherAttendees.length)]
-          const responses = [
-            '¡Entendido! Allí nos vemos.',
-            'Perfecto, ¡ya me estoy preparando!',
-            'Genial, yo llevaré algo de picar por si acaso.',
-            'De acuerdo. Si alguien llega tarde que avise por aquí.',
-            '¡Suena muy bien! Nos vemos luego.'
-          ]
-          const botReply: MeetupMessage = {
-            id: `mock-msg-bot-${Date.now()}`,
-            meetup_id: meetupId,
-            user_id: responder.is_guest ? null : responder.id,
-            guest_id: responder.is_guest ? responder.id : null,
-            sender_name: responder.username,
-            avatar_url: responder.avatar_url,
-            content: responses[Math.floor(Math.random() * responses.length)],
-            created_at: new Date().toISOString()
-          }
-
-          setMessages((prev) => {
-            const updated = [...prev, botReply]
-            localStorage.setItem(storageKey, JSON.stringify(updated))
-            return updated
-          })
-        }
-      }, 1500)
-    } else {
-      // Supabase db insert
-      const { error: insertError } = await supabase
-        .from('meetup_messages')
-        .insert({
-          meetup_id: meetupId,
-          user_id,
-          guest_id,
-          sender_name,
-          avatar_url,
-          content: trimmed
-        })
-
-      if (insertError) {
-        throw new Error(insertError.message || 'Error al enviar el mensaje.')
-      }
+      if (error) throw error
+      markAsRead(activeMeetupId)
+      return true
+    } catch (err: any) {
+      console.error('Error sending message:', err)
+      setErrorMsg(err.message || 'Error al enviar el mensaje.')
+      return false
+    } finally {
+      setSending(false)
     }
-  }
+  }, [activeMeetupId, user, meetups, getReservation, markAsRead])
+
+  const hideConversation = useCallback((meetupId: string) => {
+    const updated = [...hiddenChats, meetupId]
+    setHiddenChats(updated)
+    localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
+  }, [hiddenChats])
+
+  const deleteMeetup = useCallback(async (meetupId: string) => {
+    const isMock = USE_MOCKS && meetupId.startsWith('mock-')
+    if (isMock) {
+      setMeetups(prev => prev.filter(m => m.id !== meetupId))
+      return
+    }
+    const { error } = await supabase.from('meetups').delete().eq('id', meetupId)
+    if (error) throw error
+    setMeetups(prev => prev.filter(m => m.id !== meetupId))
+  }, [])
+
+  const visibleMeetups = useMemo(() => meetups.filter(m => !hiddenChats.includes(m.id)), [meetups, hiddenChats])
+  const activeMeetup = useMemo(() => meetups.find(m => m.id === activeMeetupId) || null, [meetups, activeMeetupId])
+  const activeGame = useMemo(() => {
+    if (!activeMeetup?.games) return null
+    return (Array.isArray(activeMeetup.games) ? activeMeetup.games[0] : activeMeetup.games) as Game
+  }, [activeMeetup])
+  const activeChatMessages = useMemo(() => allMessages.filter(m => m.meetup_id === activeMeetupId), [allMessages, activeMeetupId])
 
   return {
-    messages,
+    meetups,
+    visibleMeetups,
+    allMessages,
+    activeMeetup,
+    activeGame,
+    activeChatMessages,
     loading,
-    error,
+    sending,
+    errorMsg,
+    readTimestamps,
+    markAsRead,
     sendMessage,
-    isAttendee: isAttendee()
+    hideConversation,
+    deleteMeetup,
+    getReservation,
+    setErrorMsg
   }
 }

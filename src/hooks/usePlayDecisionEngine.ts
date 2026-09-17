@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import confetti from 'canvas-confetti'
 import { useAuth } from '../lib/authContext'
 import { useTranslation } from 'react-i18next'
+import { tableAudio } from '../lib/tableAudio'
 import {
   SimpleGame,
   isGameExpansion,
@@ -11,6 +12,8 @@ import {
 export type { SimpleGame }
 export { isGameExpansion }
 
+export type ComplexityLevel = 'any' | 'light' | 'medium' | 'heavy'
+
 export function usePlayDecisionEngine() {
   const { user } = useAuth()
   const { t } = useTranslation()
@@ -18,6 +21,7 @@ export function usePlayDecisionEngine() {
   // Filter States
   const [selectedPlayers, setSelectedPlayers] = useState<number | null>(null)
   const [selectedDuration, setSelectedDuration] = useState<string>('any')
+  const [selectedComplexity, setSelectedComplexity] = useState<ComplexityLevel>('any')
   const [selectedGroupId, setSelectedGroupId] = useState<string>('personal')
   const [onlyUnplayed, setOnlyUnplayed] = useState<boolean>(false)
 
@@ -28,6 +32,7 @@ export function usePlayDecisionEngine() {
 
   // Decision outcome & roulette state
   const [suggestedGame, setSuggestedGame] = useState<SimpleGame | null>(null)
+  const [spinningGame, setSpinningGame] = useState<SimpleGame | null>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [spinError, setSpinError] = useState<string | null>(null)
 
@@ -62,7 +67,13 @@ export function usePlayDecisionEngine() {
       if (selectedPlayers !== null) {
         const minP = game.min_players || 1
         const maxP = game.max_players || 10
-        if (selectedPlayers < minP || selectedPlayers > maxP) return false
+        if (selectedPlayers === 1) {
+          if (minP > 1) return false
+        } else if (selectedPlayers === 6) {
+          if (maxP < 6) return false
+        } else {
+          if (selectedPlayers < minP || selectedPlayers > maxP) return false
+        }
       }
 
       if (selectedDuration !== 'any') {
@@ -73,31 +84,40 @@ export function usePlayDecisionEngine() {
         if (selectedDuration === 'afternoon' && time < 90) return false
       }
 
+      if (selectedComplexity !== 'any') {
+        const c = typeof game.complexity === 'number' && game.complexity > 0 ? game.complexity : 2.5
+        if (selectedComplexity === 'light' && c > 2.2) return false
+        if (selectedComplexity === 'medium' && (c <= 2.2 || c > 3.3)) return false
+        if (selectedComplexity === 'heavy' && c <= 3.3) return false
+      }
+
       return true
     })
-  }, [gamesPool, selectedPlayers, selectedDuration, onlyUnplayed])
+  }, [gamesPool, selectedPlayers, selectedDuration, selectedComplexity, onlyUnplayed])
 
   // Available expansions in the pool for the currently suggested game
   const availableExpansionsForSuggested = useMemo(() => {
-    if (!suggestedGame) return []
+    const target = suggestedGame || spinningGame
+    if (!target) return []
     return gamesPool.filter((g) => {
       if (!isGameExpansion(g)) return false
-      if (g.bgg_base_game_id && g.bgg_base_game_id === suggestedGame.bgg_id) return true
+      if (g.bgg_base_game_id && g.bgg_base_game_id === target.bgg_id) return true
       const gTitle = (g.title || '').toLowerCase()
-      const sTitle = (suggestedGame.title || '').toLowerCase()
+      const sTitle = (target.title || '').toLowerCase()
       return gTitle.startsWith(sTitle) || gTitle.includes(sTitle)
     })
-  }, [suggestedGame, gamesPool])
+  }, [suggestedGame, spinningGame, gamesPool])
 
   // Reset all filters
   const resetFilters = useCallback(() => {
     setSelectedPlayers(null)
     setSelectedDuration('any')
+    setSelectedComplexity('any')
     setOnlyUnplayed(false)
     setSpinError(null)
   }, [])
 
-  // Inertial mechanical roulette spin
+  // Smooth inertial mechanical roulette spin with WebAudio and confetti
   const spinRoulette = useCallback(() => {
     setSpinError(null)
     if (filteredGames.length === 0) {
@@ -106,46 +126,59 @@ export function usePlayDecisionEngine() {
     }
 
     setIsSpinning(true)
-    const delays = [40, 40, 45, 50, 55, 65, 75, 90, 110, 135, 170, 215, 270, 340, 430]
+    tableAudio.playDiceRoll()
+
+    const winnerIdx = Math.floor(Math.random() * filteredGames.length)
+    const winner = filteredGames[winnerIdx]
+
+    // Step delays simulating mechanical deceleration
+    const delays = [50, 55, 65, 80, 100, 130, 170, 220, 290, 380]
     let step = 0
 
     const executeStep = () => {
-      const randomIdx = Math.floor(Math.random() * filteredGames.length)
-      setSuggestedGame(filteredGames[randomIdx])
-
       step++
       if (step < delays.length) {
+        const randomIdx = Math.floor(Math.random() * filteredGames.length)
+        setSpinningGame(filteredGames[randomIdx])
         setTimeout(executeStep, delays[step])
       } else {
+        setSuggestedGame(winner)
+        setSpinningGame(null)
         setIsSpinning(false)
+        tableAudio.playTurnBell()
         try {
           confetti({
-            particleCount: 40,
-            spread: 60,
-            origin: { y: 0.7 },
-            colors: ['#10B981', '#3B82F6', '#EF4444', '#F59E0B'],
+            particleCount: 50,
+            spread: 65,
+            origin: { y: 0.65 },
+            colors: ['#10B981', '#3B82F6', '#EC4899', '#F59E0B'],
           })
         } catch {}
       }
     }
 
+    // Set first preview immediately
+    setSpinningGame(filteredGames[Math.floor(Math.random() * filteredGames.length)])
     setTimeout(executeStep, delays[0])
   }, [filteredGames, t])
 
   return {
     selectedPlayers,
     selectedDuration,
+    selectedComplexity,
     selectedGroupId,
     onlyUnplayed,
     gamesPool,
     filteredGames,
     loadingGames,
     suggestedGame,
+    spinningGame,
     isSpinning,
     spinError,
     availableExpansionsForSuggested,
     setSelectedPlayers,
     setSelectedDuration,
+    setSelectedComplexity,
     setSelectedGroupId,
     setOnlyUnplayed,
     setSuggestedGame,

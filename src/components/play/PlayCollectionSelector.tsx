@@ -57,7 +57,7 @@ export const PlayCollectionSelector: FC<PlayCollectionSelectorProps> = ({
             <Skeleton className="h-4 w-28 rounded-md" />
           ) : (
             <p className="text-xs text-muted-foreground font-semibold font-mono-tabular">
-              {filteredCount} {filteredCount === 1 ? 'juego disponible' : 'juegos disponibles'}
+              {filteredCount === 1 ? t('play.oneGameAvailable') : t('play.gamesAvailable', { count: filteredCount })}
             </p>
           )}
 
@@ -70,7 +70,7 @@ export const PlayCollectionSelector: FC<PlayCollectionSelectorProps> = ({
               className="h-7 px-2 text-xs font-bold text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1.5"
             >
               <Download className="w-3.5 h-3.5 text-primary" aria-hidden="true" />
-              <span>{t('profile.collection.syncButton', 'Sincronizar BGG')}</span>
+              <span>{t('profile.collection.syncButton')}</span>
             </Button>
           )}
         </div>
@@ -86,19 +86,19 @@ export const PlayCollectionSelector: FC<PlayCollectionSelectorProps> = ({
           badge={
             onlyUnplayed ? (
               <span className="px-1.5 py-0.5 rounded-md bg-purple-500/25 text-purple-700 dark:text-purple-300 text-xs font-black uppercase">
-                {t('play.active', 'Activo')}
+                {t('play.active')}
               </span>
             ) : undefined
           }
           className="h-10 px-3.5"
         >
-          <span>{t('play.shelfOfShame', 'Estantería de la Vergüenza')}</span>
+          <span>{t('play.shelfOfShame')}</span>
         </FilterChip>
 
         <p className="text-xs text-muted-foreground font-medium">
           {onlyUnplayed
-            ? t('play.unplayedFilterActive', 'Priorizando juegos no estrenados del grupo')
-            : t('play.allLibraryIncluded', 'Explorando toda la ludoteca disponible')}
+            ? t('play.unplayedFilterActive')
+            : t('play.allLibraryIncluded')}
         </p>
       </div>
     </div>

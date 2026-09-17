@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Lock, Loader2, MessageSquare } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
-import { useMeetupChat } from '../../hooks/useMeetupChat'
+import { useSingleMeetupChat } from '../../hooks/useSingleMeetupChat'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Form } from '../ui/form'
@@ -26,7 +26,7 @@ export function MeetupDetailChat({
   attendees
 }: MeetupDetailChatProps) {
   const { t, i18n } = useTranslation()
-  const { messages, loading, error, sendMessage, isAttendee } = useMeetupChat(
+  const { messages, loading, error, sendMessage, isAttendee } = useSingleMeetupChat(
     meetupId,
     currentUser,
     guestReservation,

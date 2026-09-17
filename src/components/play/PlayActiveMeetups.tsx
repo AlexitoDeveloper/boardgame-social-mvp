@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { Play, MessageSquare, Plus, ArrowRight, Dices, CheckCircle2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Play, Plus, ArrowRight, Dices, CheckCircle2 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Skeleton } from '../ui/skeleton'
 import { useAuth } from '../../lib/authContext'
@@ -126,15 +126,8 @@ export const PlayActiveMeetups: FC = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
           <Play className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-          <span>{t('play.activeSessionsTitle')}</span>
+          <span>{t('play.activeSessionsTitle', 'Tus Partidas Próximas')}</span>
         </h2>
-        <Link
-          to="/chats"
-          className="text-xs font-bold text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1"
-        >
-          <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>{t('play.goToChat')}</span>
-        </Link>
       </div>
 
       {loadingMeetups ? (
@@ -174,7 +167,7 @@ export const PlayActiveMeetups: FC = () => {
                     </h4>
                     {isToday && (
                       <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-black text-xs uppercase tracking-wider">
-                        Hoy
+                        {t('common.today')}
                       </span>
                     )}
                   </div>
@@ -186,8 +179,8 @@ export const PlayActiveMeetups: FC = () => {
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground/80 font-semibold truncate">
-                    {meetup.is_online ? 'Online' : meetup.location || meetup.city || 'Mesa presencial'} •{' '}
-                    {meetup.joined_players?.length || 1}/{meetup.max_players} jug.
+                    {meetup.is_online ? t('common.online') : meetup.location || meetup.city || t('common.inPersonTable')} •{' '}
+                    {meetup.joined_players?.length || 1}/{meetup.max_players} {t('common.playersAbbr')}
                   </p>
                 </div>
 

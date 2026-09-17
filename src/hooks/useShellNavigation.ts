@@ -15,6 +15,7 @@ export function useShellNavigation() {
   const [showBggOnboarding, setShowBggOnboarding] = useState(false)
 
   const isChatPage = location.pathname.startsWith('/chats')
+  const hasActiveChat = isChatPage && new URLSearchParams(location.search).has('id')
   const isProfileActive = location.pathname.startsWith('/perfil')
 
   // Reset vertical scroll on every route transition & close open quick actions
@@ -191,6 +192,7 @@ export function useShellNavigation() {
     showBggOnboarding,
     setShowBggOnboarding,
     isChatPage,
+    hasActiveChat,
     isProfileActive,
     pathname: location.pathname,
     handleSignOut,
