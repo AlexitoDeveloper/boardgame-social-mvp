@@ -8,7 +8,10 @@
     "dev:mock": "vite --mode mock",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bgg:enrich": "node scripts/enrich-games-metadata.cjs",
+    "bgg:ingest": "node scripts/ingest-bgg.cjs",
+    "bgg:backfill": "node scripts/backfill-spanish-titles.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",

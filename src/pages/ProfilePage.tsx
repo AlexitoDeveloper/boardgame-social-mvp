@@ -12,8 +12,9 @@ import { EditProfileModal } from '../components/profile/EditProfileModal'
 import { BggSyncModal } from '../components/library/BggSyncModal'
 import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
 import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
-import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal } from 'lucide-react'
+import { ArrowLeft, Edit, UserX, History, Dices, CalendarDays, MoreHorizontal, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ProfileSettingsModal } from '../components/profile/ProfileSettingsModal'
 
 export function ProfilePage() {
   const { t } = useTranslation()
@@ -51,6 +52,7 @@ export function ProfilePage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false)
   const [selectedRanking, setSelectedRanking] = useState<any | null>(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Active Tab state
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'collection' | 'mas'>('upcoming')
@@ -131,6 +133,16 @@ export function ProfilePage() {
               className="cursor-pointer text-foreground"
               icon={Edit}
               label={t('profile.editData')}
+            />
+          )}
+          {isOwnProfile && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsSettingsOpen(true)}
+              className="cursor-pointer text-foreground"
+              icon={Settings}
+              aria-label="Ajustes y preferencias"
             />
           )}
         </div>
@@ -230,6 +242,11 @@ export function ProfilePage() {
       <RankingVisualizerModal
         selectedRanking={selectedRanking}
         onClose={() => setSelectedRanking(null)}
+      />
+
+      <ProfileSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </section>
   )

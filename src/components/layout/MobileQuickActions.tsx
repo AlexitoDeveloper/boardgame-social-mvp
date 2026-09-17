@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ListOrdered, Users, Sparkles, X, Plus } from 'lucide-react'
+import { ListOrdered, Users, Zap, X, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 
@@ -59,7 +59,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
             {/* Header */}
             <div className="flex justify-between items-center pb-2 border-b border-border/20">
               <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                <Zap className="w-4 h-4 text-primary" />
                 {t('nav.quickActions')}
               </h3>
               <Button
@@ -98,25 +98,6 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => handleAction('/grupos?create=true')}
-                className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
-              >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <Users className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 text-left">
-                  <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                    {t('nav.createGroup')}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
-                    {t('nav.createGroupDesc')}
-                  </p>
-                </div>
-              </Button>
-
-              <Button
-                type="button"
-                variant="ghost"
                 onClick={() => handleAction('/tops')}
                 className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
               >
@@ -125,10 +106,29 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                 </div>
                 <div className="min-w-0 text-left">
                   <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                    {t('profile.stats.createRanking')}
+                    {t('nav.tops')}
                   </h4>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
                     {t('nav.createRankingDesc')}
+                  </p>
+                </div>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => handleAction('/grupos')}
+                className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                    {t('nav.groups')}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-tight">
+                    {t('nav.createGroupDesc')}
                   </p>
                 </div>
               </Button>

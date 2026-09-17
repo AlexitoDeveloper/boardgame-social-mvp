@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, FC } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { X, Dices, RotateCcw, Trophy, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 import { MeepleColor } from '../../types'
 
@@ -27,13 +28,13 @@ interface FirstPlayerSelectorProps {
 
 const PALETTE_COLORS: MeepleColor[] = ['red', 'blue', 'yellow', 'green', 'purple', 'orange']
 
-const COLOR_MAP: Record<MeepleColor, { bg: string; border: string; hex: string; name: string }> = {
-  red: { bg: 'bg-red-500', border: 'border-red-400', hex: '#EF4444', name: 'Rojo' },
-  blue: { bg: 'bg-blue-500', border: 'border-blue-400', hex: '#3B82F6', name: 'Azul' },
-  yellow: { bg: 'bg-amber-400', border: 'border-amber-300', hex: '#F59E0B', name: 'Amarillo' },
-  green: { bg: 'bg-emerald-500', border: 'border-emerald-400', hex: '#10B981', name: 'Verde' },
-  purple: { bg: 'bg-purple-500', border: 'border-purple-400', hex: '#A855F7', name: 'Morado' },
-  orange: { bg: 'bg-orange-500', border: 'border-orange-400', hex: '#F97316', name: 'Naranja' },
+const COLOR_MAP: Record<MeepleColor, { bg: string; border: string; hex: string }> = {
+  red: { bg: 'bg-red-500', border: 'border-red-400', hex: '#EF4444' },
+  blue: { bg: 'bg-blue-500', border: 'border-blue-400', hex: '#3B82F6' },
+  yellow: { bg: 'bg-amber-400', border: 'border-amber-300', hex: '#F59E0B' },
+  green: { bg: 'bg-emerald-500', border: 'border-emerald-400', hex: '#10B981' },
+  purple: { bg: 'bg-purple-500', border: 'border-purple-400', hex: '#A855F7' },
+  orange: { bg: 'bg-orange-500', border: 'border-orange-400', hex: '#F97316' },
 }
 
 const MeepleSvg: FC<{ className?: string; fill?: string; stroke?: string; strokeWidth?: number }> = ({
@@ -57,6 +58,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
   attendees = [],
   onSelectFirstPlayer,
 }) => {
+  const { t } = useTranslation()
   const [touches, setTouches] = useState<TouchPoint[]>([])
   const [isCountingDown, setIsCountingDown] = useState(false)
   const [countdownProgress, setCountdownProgress] = useState(0)
@@ -135,7 +137,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               colors: ['#10B981', '#3B82F6', '#EF4444', '#F59E0B'],
             })
 
-            onSelectFirstPlayer?.(null, `Meeple ${COLOR_MAP[chosen.color].name}`)
+            onSelectFirstPlayer?.(null, t('tableHub.firstPlayer.meepleNamed', { color: t(`tableHub.firstPlayer.colors.${chosen.color}`) }))
             return currentTouches
           })
           setIsCountingDown(false)
@@ -262,9 +264,9 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
             <Dices className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-black tracking-tight">Primer Jugador</h2>
+            <h2 className="text-sm font-black tracking-tight">{t('tableHub.firstPlayer.title')}</h2>
             <p className="text-xs text-muted-foreground font-medium">
-              {touches.length === 0 ? 'Colocad los dedos sobre la pantalla' : `${touches.length} dedos en mesa`}
+              {touches.length === 0 ? t('tableHub.firstPlayer.touchHint') : t('tableHub.firstPlayer.touchCount', { count: touches.length })}
             </p>
           </div>
         </div>
@@ -279,7 +281,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               className="h-8 text-xs font-bold gap-1 rounded-xl bg-slate-900 border-white/20 text-white hover:bg-slate-800 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Repetir</span>
+              <span>{t('tableHub.firstPlayer.repeat')}</span>
             </Button>
           )}
 
@@ -291,7 +293,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               e.stopPropagation()
               onClose()
             }}
-            aria-label="Cerrar selector"
+            aria-label={t('tableHub.firstPlayer.closeAria')}
             className="h-9 w-9 p-0 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -309,14 +311,14 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
             <div
               key={t.id}
               style={{ left: `${t.x}px`, top: `${t.y}px` }}
-              className="absolute -translate-x-1/2 -translate-y-1/2 w-32 h-32 flex items-center justify-center pointer-events-none"
+              className="absolute -translate-x-1/2 -translate-y-1/2 w-40 h-40 flex items-center justify-center pointer-events-none"
             >
               {/* Pulsing outer aura Meeple */}
               <motion.div
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{
-                  scale: isWinner ? [1, 1.4, 1.25] : isCountingDown ? [1, 1.25, 1] : [1, 1.15, 1],
-                  opacity: isWinner ? 0.9 : isCountingDown ? [0.4, 0.8, 0.4] : [0.25, 0.55, 0.25],
+                  scale: isWinner ? [1, 1.3, 1.15] : isCountingDown ? [1, 1.2, 1] : [1, 1.12, 1],
+                  opacity: isWinner ? 0.85 : isCountingDown ? [0.35, 0.7, 0.35] : [0.2, 0.45, 0.2],
                 }}
                 transition={{
                   repeat: isWinner ? 0 : Infinity,
@@ -328,40 +330,45 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 <MeepleSvg
                   fill={styling.hex}
                   stroke={styling.hex}
-                  strokeWidth={24}
-                  className="w-28 h-28 opacity-40 blur-[3px]"
+                  strokeWidth={20}
+                  className="w-32 h-32 opacity-30 blur-[2.5px]"
                 />
               </motion.div>
 
-              {/* Main solid Meeple under finger */}
+              {/* Main solid Meeple - 96px (w-24 h-24): optimal multi-touch visibility without overlap */}
               <motion.div
                 initial={{ scale: 0.2, rotate: -15 }}
                 animate={{
-                  scale: isWinner ? 1.35 : 1,
+                  scale: isWinner ? 1.3 : 1,
                   rotate: isWinner ? [0, -10, 10, -5, 5, 0] : 0,
                 }}
                 transition={{
                   rotate: isWinner ? { duration: 0.6, ease: 'easeOut' } : undefined,
                   scale: { type: 'spring', damping: 15, stiffness: 260 },
                 }}
-                className="relative z-10 w-20 h-20 flex items-center justify-center pointer-events-none filter drop-shadow-2xl"
+                className="relative z-10 w-28 h-28 flex items-center justify-center pointer-events-none filter drop-shadow-xl"
               >
                 <MeepleSvg
                   fill={styling.hex}
-                  stroke="rgba(255,255,255,0.7)"
+                  stroke="rgba(255,255,255,0.85)"
                   strokeWidth={16}
-                  className="w-16 h-16"
+                  className="w-24 h-24"
                 />
 
-                {/* Winner Trophy badge placed directly above the Meeple */}
+                {/* Fingertip contact point anchor ring */}
+                <div className="absolute w-9 h-9 rounded-full border border-white/60 bg-white/15 backdrop-blur-xs flex items-center justify-center shadow-inner pointer-events-none">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/80 animate-ping opacity-50" />
+                </div>
+
+                {/* Winner Trophy badge placed directly above the Meeple head */}
                 {isWinner && (
                   <motion.div
                     initial={{ scale: 0, y: -5 }}
-                    animate={{ scale: 1, y: -18 }}
+                    animate={{ scale: 1, y: -22 }}
                     transition={{ delay: 0.1, type: 'spring', damping: 12 }}
-                    className="absolute -top-1 left-1/2 -translate-x-1/2 flex items-center justify-center w-7 h-7 rounded-full bg-amber-400 text-slate-950 shadow-xl border-2 border-white"
+                    className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-amber-400 text-slate-950 shadow-xl border-2 border-white"
                   >
-                    <Trophy className="w-3.5 h-3.5 text-slate-950 fill-slate-950" />
+                    <Trophy className="w-4 h-4 text-slate-950 fill-slate-950" />
                   </motion.div>
                 )}
               </motion.div>
@@ -388,9 +395,9 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 <Trophy className="w-8 h-8 animate-bounce" />
               </div>
               <div className="space-y-1">
-                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
+                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">{t('tableHub.firstPlayer.title')}</span>
                 <h3 className="text-xl font-black text-white">{winnerPlayer.name}</h3>
-                <p className="text-xs text-muted-foreground font-medium">¡Comienza la partida!</p>
+                <p className="text-xs text-muted-foreground font-medium">{t('tableHub.firstPlayer.gameBegins')}</p>
               </div>
               <Button
                 type="button"
@@ -400,7 +407,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 }}
                 className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
               >
-                Confirmar
+                {t('tableHub.firstPlayer.confirm')}
               </Button>
             </motion.div>
           ) : winnerTouch ? (
@@ -418,11 +425,11 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 <MeepleSvg fill={COLOR_MAP[winnerTouch.color].hex} className="w-10 h-10 drop-shadow" />
               </div>
               <div className="space-y-1">
-                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">Primer Jugador</span>
+                <span className="text-xs uppercase font-black tracking-widest text-emerald-400">{t('tableHub.firstPlayer.title')}</span>
                 <h3 className="text-lg font-black text-white">
-                  Meeple {COLOR_MAP[winnerTouch.color].name}
+                  {t('tableHub.firstPlayer.meepleNamed', { color: t(`tableHub.firstPlayer.colors.${winnerTouch.color}`) })}
                 </h3>
-                <p className="text-xs text-muted-foreground font-medium">¡Tu turno de abrir mesa!</p>
+                <p className="text-xs text-muted-foreground font-medium">{t('tableHub.firstPlayer.yourTurnToOpen')}</p>
               </div>
               <Button
                 type="button"
@@ -432,7 +439,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
                 }}
                 className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
               >
-                Confirmar
+                {t('tableHub.firstPlayer.confirm')}
               </Button>
             </motion.div>
           ) : isCountingDown ? (
@@ -444,7 +451,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               className="space-y-3"
             >
               <span className="text-xs font-black uppercase tracking-wider text-emerald-400 animate-pulse">
-                Mantened los dedos fijos...
+                {t('tableHub.firstPlayer.holdFingers')}
               </span>
               <div className="w-48 h-2 bg-slate-800 rounded-full overflow-hidden mx-auto border border-white/10">
                 <div
@@ -460,7 +467,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               animate={{ opacity: 1 }}
               className="text-muted-foreground text-xs font-semibold"
             >
-              Se necesita al menos otro jugador tocando la pantalla
+              {t('tableHub.firstPlayer.needAnother')}
             </motion.div>
           ) : (
             <motion.div
@@ -472,9 +479,9 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 mx-auto flex items-center justify-center text-white/40">
                 <Users className="w-6 h-6" />
               </div>
-              <p className="text-sm font-bold text-white">Pon un dedo en la pantalla</p>
+              <p className="text-sm font-bold text-white">{t('tableHub.firstPlayer.instructionsTitle')}</p>
               <p className="text-xs text-muted-foreground">
-                Cada participante apoya su dedo. Tras 2 segundos el sistema elegirá al azar quién inicia la partida.
+                {t('tableHub.firstPlayer.instructionsDesc')}
               </p>
             </motion.div>
           )}
@@ -490,7 +497,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
         onTouchCancel={(e) => e.stopPropagation()}
       >
         <span className="text-xs text-muted-foreground font-medium">
-          ¿En ordenador o sin táctil?
+          {t('tableHub.firstPlayer.desktopHint')}
         </span>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -503,7 +510,7 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               className="flex-1 sm:flex-initial h-9 text-xs font-bold gap-1.5 rounded-xl border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
             >
               <Dices className="w-4 h-4 text-emerald-400" />
-              <span>Sortear entre la mesa ({attendees.length})</span>
+              <span>{t('tableHub.firstPlayer.randomRoll', { count: attendees.length })}</span>
             </Button>
           )}
         </div>

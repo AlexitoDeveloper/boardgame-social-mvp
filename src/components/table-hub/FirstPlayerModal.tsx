@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Crown, RotateCw } from 'lucide-react'
 import confetti from 'canvas-confetti'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -12,7 +13,13 @@ interface FirstPlayerModalProps {
 }
 
 export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) {
-  const [players, setPlayers] = useState<string[]>(['Jugador 1', 'Jugador 2', 'Jugador 3', 'Jugador 4'])
+  const { t } = useTranslation()
+  const [players, setPlayers] = useState<string[]>(() => [
+    t('tableHub.firstPlayerModal.playerPlaceholder', { index: 1 }),
+    t('tableHub.firstPlayerModal.playerPlaceholder', { index: 2 }),
+    t('tableHub.firstPlayerModal.playerPlaceholder', { index: 3 }),
+    t('tableHub.firstPlayerModal.playerPlaceholder', { index: 4 }),
+  ])
   const [chosenPlayer, setChosenPlayer] = useState<string | null>(null)
   const [isSpinning, setIsSpinning] = useState(false)
 
@@ -24,7 +31,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
 
   const handleAddPlayer = () => {
     if (players.length < 8) {
-      setPlayers([...players, `Jugador ${players.length + 1}`])
+      setPlayers([...players, t('tableHub.firstPlayerModal.playerPlaceholder', { index: players.length + 1 })])
     }
   }
 
@@ -64,10 +71,10 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-black">
             <Crown className="w-5 h-5 text-amber-500" />
-            ¿Quién empieza la partida?
+            {t('tableHub.firstPlayerModal.title')}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Sortea de forma justa y rápida el jugador inicial de la ronda.
+            {t('tableHub.firstPlayerModal.desc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -80,7 +87,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
                 : 'bg-amber-500/15 border-amber-500/30 scale-100 shadow-xl'
             }`}>
               <span className="text-[11px] font-black uppercase tracking-wider text-amber-500">
-                {isSpinning ? 'Sorteando...' : '👑 ¡Comienza el turno!'}
+                {isSpinning ? t('tableHub.firstPlayerModal.drawing') : t('tableHub.firstPlayerModal.turnBegins')}
               </span>
               <h3 className="text-2xl font-black text-foreground mt-0.5">
                 {chosenPlayer}
@@ -99,7 +106,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
                   value={name}
                   onChange={(e) => handleUpdateName(i, e.target.value)}
                   className="h-8 text-xs font-semibold"
-                  placeholder={`Jugador ${i + 1}`}
+                  placeholder={t('tableHub.firstPlayerModal.playerPlaceholder', { index: i + 1 })}
                 />
                 {players.length > 2 && (
                   <Button
@@ -123,7 +130,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
               disabled={players.length >= 8}
               className="text-xs font-bold"
             >
-              + Añadir Jugador
+              {t('tableHub.firstPlayerModal.addPlayer')}
             </Button>
 
             <Button
@@ -132,7 +139,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
               className="font-bold text-xs shadow-md shadow-primary/20"
             >
               <RotateCw className={`w-3.5 h-3.5 mr-1.5 ${isSpinning ? 'animate-spin' : ''}`} />
-              {isSpinning ? 'Girando...' : 'Sortear Inicial'}
+              {isSpinning ? t('tableHub.firstPlayerModal.spinning') : t('tableHub.firstPlayerModal.pickButton')}
             </Button>
           </div>
         </div>

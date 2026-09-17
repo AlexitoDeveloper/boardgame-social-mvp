@@ -3,6 +3,7 @@ import { Card} from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
 import { Tag } from './ui/tag'
+import { ExpansionBadge } from './ui/expansion-badge'
 import { MapPin, CalendarDays, Users, Loader2, Laptop, Dices, ChevronLeft, ChevronRight } from 'lucide-react'
 import { User } from '@supabase/supabase-js'
 import { Meetup } from '../types'
@@ -345,9 +346,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
               </motion.span>
               {currentGame?.is_expansion && (
                 <motion.div layout className="inline-flex">
-                  <Tag variant="purple">
-                    {t('common.expansion')}
-                  </Tag>
+                  <ExpansionBadge size="sm" />
                 </motion.div>
               )}
               {gamesList.length > 1 && (

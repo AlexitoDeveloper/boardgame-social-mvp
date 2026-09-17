@@ -4,7 +4,7 @@ import { TableToolsBar } from '../components/table-hub/TableToolsBar'
 import { ActiveSessionBanner } from '../components/table-hub/ActiveSessionBanner'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
-import { Dices, Play, Sparkles } from 'lucide-react'
+import { Dices, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export function TableHubPage() {
@@ -62,7 +62,7 @@ export function TableHubPage() {
       <Card className="rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/10 via-card/70 to-card/90 p-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1.5 text-center md:text-left">
           <div className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-primary">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Dices className="w-3.5 h-3.5 text-primary" />
             Motor de Elección de Mesa
           </div>
           <h3 className="text-xl font-black text-foreground">

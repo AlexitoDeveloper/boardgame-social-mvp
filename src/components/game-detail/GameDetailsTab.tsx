@@ -2,6 +2,8 @@ import { Trophy, Star, Brain, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Game } from '@/types'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { sanitizeGameText } from '@/lib/gameLocale'
 import { GameQuickStats } from './GameQuickStats'
 
 interface GameDetailsTabProps {
@@ -13,7 +15,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
 
   const avgRating = game.rating_average ? game.rating_average.toFixed(1) : 'N/A'
   const geekRating = game.rating_geek ? game.rating_geek.toFixed(1) : 'N/A'
-  const complexity = game.complexity || 0
+  const complexity = game.complexity && game.complexity > 0 ? Number(game.complexity) : 0
 
   let complexityBarColor = 'bg-muted-foreground'
 
@@ -74,12 +76,20 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
               {t('explore.difficulty')}
             </span>
-            <div className="flex items-baseline gap-1">
-              <h3 className="text-3xl font-black tracking-tight text-foreground">
-                {complexity > 0 ? complexity.toFixed(1) : 'N/A'}
-              </h3>
-              <span className="text-xs text-muted-foreground font-semibold">/5</span>
-            </div>
+            {complexity > 0 ? (
+              <div className="flex items-baseline gap-1">
+                <h3 className="text-3xl font-black tracking-tight text-foreground">
+                  {complexity.toFixed(1)}
+                </h3>
+                <span className="text-xs text-muted-foreground font-semibold">/5</span>
+              </div>
+            ) : (
+              <div className="pt-1">
+                <Badge variant="secondary" size="sm" className="text-xs font-semibold text-muted-foreground bg-muted/60">
+                  {t('gameDetail.unratedComplexity')}
+                </Badge>
+              </div>
+            )}
           </div>
 
           {/* Integrated progress bar within card */}
@@ -99,7 +109,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">
-              {t('gameDetail.unknown')}
+              {t('gameDetail.unratedComplexity')}
             </p>
           )}
         </Card>
@@ -117,12 +127,12 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm font-semibold text-foreground/80">
             {game.publisher && (
               <p>
-                {t('gameDetail.intlPublisher')}: <span className="font-bold text-foreground block mt-1">{game.publisher}</span>
+                {t('gameDetail.intlPublisher')}: <span className="font-bold text-foreground block mt-1">{sanitizeGameText(game.publisher)}</span>
               </p>
             )}
             {game.es_publisher && (
               <p>
-                {t('gameDetail.spainPublisher')}: <span className="font-bold text-primary block mt-1">{game.es_publisher}</span>
+                {t('gameDetail.spainPublisher')}: <span className="font-bold text-primary block mt-1">{sanitizeGameText(game.es_publisher)}</span>
               </p>
             )}
           </div>

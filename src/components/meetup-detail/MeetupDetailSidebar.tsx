@@ -12,18 +12,16 @@ import {
   Loader2,
   MessageSquare,
   NotebookPen,
-  Swords,
   CalendarCheck2,
   CheckSquare,
   Square,
   Share2,
   Dices,
-  Sparkles
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { Tag } from '../ui/tag'
+import { ExpansionBadge } from '../ui/expansion-badge'
 import { Form } from '../ui/form'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
@@ -93,8 +91,13 @@ export function MeetupDetailSidebar({
       const initialWinners: Record<number, string | null> = {}
       const initialScores: Record<number, string | null> = {}
       gamesList.forEach(g => {
-        initialWinners[g.bgg_id] = g.winner_user_id || g.winner_guest_id || null
-        initialScores[g.bgg_id] = g.winner_score || null
+        if (!g.is_expansion) {
+          initialWinners[g.bgg_id] = g.winner_user_id || g.winner_guest_id || null
+          initialScores[g.bgg_id] = g.winner_score || null
+        } else {
+          initialWinners[g.bgg_id] = null
+          initialScores[g.bgg_id] = null
+        }
       })
       setGameWinners(initialWinners)
       setGameWinnersScores(initialScores)
@@ -170,7 +173,15 @@ export function MeetupDetailSidebar({
   }
 
   const handleSubmitComplete = () => {
-    handleCompleteMeetup(gameWinners, gameWinnersScores, attendedPlayers, attendedGuests)
+    const sanitizedWinners = { ...gameWinners }
+    const sanitizedScores = { ...gameWinnersScores }
+    gamesList.forEach(g => {
+      if (g.is_expansion) {
+        sanitizedWinners[g.bgg_id] = null
+        sanitizedScores[g.bgg_id] = null
+      }
+    })
+    handleCompleteMeetup(sanitizedWinners, sanitizedScores, attendedPlayers, attendedGuests)
     setIsCompleting(false)
   }
 
@@ -185,8 +196,8 @@ export function MeetupDetailSidebar({
 
     return (
       <div className="space-y-4">
-        <div className="text-center p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-500 font-bold text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider">
-          <Swords className="w-4 h-4 text-emerald-500 fill-current animate-bounce" />
+        <div className="text-center p-2.5 bg-muted/60 border border-border/50 rounded-xl text-foreground/80 font-bold text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider">
+          <CalendarCheck2 className="w-4 h-4 text-primary" />
           {t('meetup.tableClosed')}
         </div>
 
@@ -209,12 +220,16 @@ export function MeetupDetailSidebar({
                   />
                   <div className="min-w-0">
                     <p className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</p>
-                    <p className="text-xs text-muted-foreground font-semibold">{t('meetup.winner')}</p>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      {game.is_expansion ? t('meetup.expansionModuleNotice', 'Expansión / módulo de partida') : t('meetup.winner')}
+                    </p>
                   </div>
                 </div>
                 
                 <div className="shrink-0 flex flex-col items-end gap-1 max-w-[140px]">
-                  {winner ? (
+                  {game.is_expansion ? (
+                    <ExpansionBadge size="xs" />
+                  ) : winner ? (
                     <>
                       <div className="flex items-center gap-1 px-2 py-0.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-500 font-bold text-xs">
                         <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
@@ -334,65 +349,77 @@ export function MeetupDetailSidebar({
                 
                 return (
                   <div key={game.bgg_id} className="p-3 rounded-2xl border border-border/40 bg-muted/20 backdrop-blur-sm space-y-2">
-                    <div className="flex items-center gap-2.5">
-                      <OptimizedImage
-                        src={game.image_url}
-                        alt={getGameTitle(game)}
-                        widthSize={60}
-                        heightSize={60}
-                        className="w-8 h-8 rounded object-cover border border-border/20 shrink-0"
-                      />
-                      <span className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</span>
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <OptimizedImage
+                          src={game.image_url}
+                          alt={getGameTitle(game)}
+                          widthSize={60}
+                          heightSize={60}
+                          className="w-8 h-8 rounded object-cover border border-border/20 shrink-0"
+                        />
+                        <span className="text-xs font-black text-foreground truncate">{getGameTitle(game)}</span>
+                      </div>
+                      {game.is_expansion && <ExpansionBadge size="xs" />}
                     </div>
                     
-                    <div className="grid grid-cols-1 gap-1">
-                      <div 
-                        onClick={() => selectGameWinner(game.bgg_id, null)}
-                        className={`flex items-center p-2 rounded-lg border cursor-pointer select-none text-xs font-bold transition-colors ${
-                          gameWinnerId === null 
-                            ? 'border-primary bg-primary/5 text-primary' 
-                            : 'border-border/30 bg-background/20 hover:bg-muted/30 text-foreground'
-                        }`}
-                      >
-                        <span>{t('meetup.coopDraw')}</span>
+                    {game.is_expansion ? (
+                      <div className="p-2.5 rounded-xl border border-border/30 bg-background/30 text-xs text-muted-foreground font-medium flex items-center gap-2">
+                        <ExpansionBadge size="xs" />
+                        <span>{t('meetup.expansionModuleNotice', 'Expansión / módulo de partida')}</span>
                       </div>
-
-                      {attendees
-                        .filter(a => a.is_guest ? attendedGuests.includes(a.id) : attendedPlayers.includes(a.id))
-                        .map(a => (
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 gap-1">
                           <div 
-                            key={a.id} 
-                            onClick={() => selectGameWinner(game.bgg_id, a.id)}
-                            className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer select-none text-xs font-semibold transition-colors ${
-                              gameWinnerId === a.id 
-                                ? 'border-primary bg-primary/5 text-primary font-bold' 
+                            onClick={() => selectGameWinner(game.bgg_id, null)}
+                            className={`flex items-center p-2 rounded-lg border cursor-pointer select-none text-xs font-bold transition-colors ${
+                              gameWinnerId === null 
+                                ? 'border-primary bg-primary/5 text-primary' 
                                 : 'border-border/30 bg-background/20 hover:bg-muted/30 text-foreground'
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
-                              <span>{a.username} {a.is_guest && <span className="text-xs text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
-                            </div>
-                            {gameWinnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current shrink-0 animate-pulse" />}
+                            <span>{t('meetup.coopDraw')}</span>
                           </div>
-                        ))}
-                    </div>
 
-                    {/* Winner score input */}
-                    <div className="mt-2 text-left space-y-1">
-                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.scorePlaceholder')}</label>
-                      <Input
-                        type="text"
-                        placeholder="Ej. 104 pts, 15-12, Coop Win..."
-                        value={gameWinnersScores[game.bgg_id] || ''}
-                        onChange={(e) => setGameWinnersScores(prev => ({
-                          ...prev,
-                          [game.bgg_id]: e.target.value
-                        }))}
-                        className="h-8 text-xs bg-background/40 border-border/30 rounded-lg text-foreground focus:ring-1 focus:ring-primary"
-                        maxLength={35}
-                      />
-                    </div>
+                          {attendees
+                            .filter(a => a.is_guest ? attendedGuests.includes(a.id) : attendedPlayers.includes(a.id))
+                            .map(a => (
+                              <div 
+                                key={a.id} 
+                                onClick={() => selectGameWinner(game.bgg_id, a.id)}
+                                className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer select-none text-xs font-semibold transition-colors ${
+                                  gameWinnerId === a.id 
+                                    ? 'border-primary bg-primary/5 text-primary font-bold' 
+                                    : 'border-border/30 bg-background/20 hover:bg-muted/30 text-foreground'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <img src={a.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(a.username)}`} alt={a.username} className="w-5 h-5 rounded-full" />
+                                  <span>{a.username} {a.is_guest && <span className="text-xs text-muted-foreground">({t('common.guest').toLowerCase()})</span>}</span>
+                                </div>
+                                {gameWinnerId === a.id && <Crown className="w-3.5 h-3.5 text-primary fill-current shrink-0 animate-pulse" />}
+                              </div>
+                            ))}
+                        </div>
+
+                        {/* Winner score input */}
+                        <div className="mt-2 text-left space-y-1">
+                          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.scorePlaceholder')}</label>
+                          <Input
+                            type="text"
+                            placeholder="Ej. 104 pts, 15-12, Coop Win..."
+                            value={gameWinnersScores[game.bgg_id] || ''}
+                            onChange={(e) => setGameWinnersScores(prev => ({
+                              ...prev,
+                              [game.bgg_id]: e.target.value
+                            }))}
+                            className="h-8 text-xs bg-background/40 border-border/30 rounded-lg text-foreground focus:ring-1 focus:ring-primary"
+                            maxLength={35}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 )
               })}
@@ -616,9 +643,9 @@ export function MeetupDetailSidebar({
                     onClick={onFirstPlayerClick}
                     variant="outline"
                     size="sm"
-                    className="h-9 text-xs font-bold gap-1.5 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 rounded-xl cursor-pointer"
+                    className="h-9 text-xs font-bold gap-1.5 border-border/40 bg-card hover:bg-muted/50 text-foreground rounded-xl cursor-pointer"
                   >
-                    <Dices className="w-3.5 h-3.5 text-emerald-400" />
+                    <Dices className="w-3.5 h-3.5 text-primary" />
                     <span>1er Jugador</span>
                   </Button>
                 )}
@@ -629,9 +656,9 @@ export function MeetupDetailSidebar({
                     onClick={onVictoryCardClick}
                     variant="outline"
                     size="sm"
-                    className="h-9 text-xs font-bold gap-1.5 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 rounded-xl cursor-pointer"
+                    className="h-9 text-xs font-bold gap-1.5 border-border/40 bg-card hover:bg-muted/50 text-foreground rounded-xl cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <Share2 className="w-3.5 h-3.5" />
                     <span>Tarjeta WA</span>
                   </Button>
                 )}
@@ -722,12 +749,12 @@ export function MeetupDetailSidebar({
 
       {/* Boardgame Info Cards */}
       {gamesList.length === 0 ? (
-        <Card className="border-border/30 bg-card/65 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl hover:border-amber-500/25 transition-all">
+        <Card className="border-border/30 bg-card/65 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl hover:border-primary/30 transition-all">
           <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2 border-b border-border/20">
-            <CardTitle className="text-sm font-extrabold tracking-tight uppercase text-amber-500">{t('meetup.freeGameTitle')}</CardTitle>
+            <CardTitle className="text-sm font-extrabold tracking-tight uppercase text-foreground">{t('meetup.freeGameTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="p-5 text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-muted-foreground">
               <MessageSquare className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
@@ -763,9 +790,7 @@ export function MeetupDetailSidebar({
                       </CardTitle>
                     )}
                     {game.is_expansion && (
-                      <Tag variant="purple" className="shrink-0 text-xs px-1 py-0 shadow-sm">
-                        {t('common.expansion')}
-                      </Tag>
+                      <ExpansionBadge size="xs" className="shadow-sm" />
                     )}
                   </div>
                 </CardHeader>

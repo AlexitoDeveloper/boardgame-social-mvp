@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { useExploreGames } from '../hooks/useExploreGames'
 import { ExploreHeader } from '../components/ExploreHeader'
-import { GameCarousel } from '../components/GameCarousel'
-import { GameCoverCard } from '../components/GameCoverCard'
-import { CommunityRankingCard } from '../components/CommunityRankingCard'
-import { Library } from 'lucide-react'
+import { ExploreSearchResults } from '../components/explore/ExploreSearchResults'
+import { ExploreCarousels } from '../components/explore/ExploreCarousels'
+import { ExploreLoadingState } from '../components/explore/ExploreLoadingState'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '../lib/utils'
-import { FeaturedGameHero } from '../components/FeaturedGameHero'
-import { HomeVersionSwitcher } from '../components/home-compare/HomeVersionSwitcher'
 import { useTranslation } from 'react-i18next'
 
 export function ExplorePage() {
@@ -36,43 +32,11 @@ export function ExplorePage() {
     featuredGame
   } = useExploreGames(search, playerFilter, complexityFilter, spanishOnly)
 
-  // Skeleton loaders for grids
-  const renderSkeletonGrid = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <div 
-          key={i} 
-          className="aspect-[2/3] w-full rounded-xl bg-muted/40 animate-pulse border border-border/10" 
-        />
-      ))}
-    </div>
-  )
-
-  // Skeleton loaders for carousels
-  const renderSkeletonCarousel = (isTop10 = false) => (
-    <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-hidden py-2">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div 
-          key={i} 
-          className={cn(
-            "aspect-[2/3] rounded-xl bg-muted/40 animate-pulse border border-border/10 shrink-0",
-            isTop10 
-              ? "w-[130px] sm:w-[150px] md:w-[170px] ml-12" 
-              : "w-[140px] sm:w-[160px] md:w-[180px]"
-          )}
-        />
-      ))}
-    </div>
-  )
-
   return (
     <section className="space-y-6 pb-20">
-      {/* Compare Switcher */}
-      <HomeVersionSwitcher current="classic" />
-
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-black font-display tracking-tight text-foreground">
           {t('nav.home')}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -101,54 +65,11 @@ export function ExplorePage() {
       {/* Main View Transition Area */}
       <div className="min-h-[400px]">
         {isFiltering ? (
-          /* Search Grid View */
-          <div>
-            <h2 className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">
-              {t('explore.searchTitle', { count: searchResults.length })}
-            </h2>
-
-            <AnimatePresence mode="wait">
-              {loadingSearch ? (
-                <motion.div
-                  key="search-skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {renderSkeletonGrid()}
-                </motion.div>
-              ) : searchResults.length === 0 ? (
-                <motion.div
-                  key="search-empty"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-center py-24 border border-dashed border-border/60 rounded-2xl bg-muted/10"
-                >
-                  <Library className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-muted-foreground font-bold text-base">{t('explore.noSearchResultsTitle')}</p>
-                  <p className="text-xs text-foreground/50 mt-1">{t('explore.noSearchResultsDesc')}</p>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="search-results"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-                >
-                  {searchResults.map((game) => (
-                    <GameCoverCard key={game.bgg_id} game={game} />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <ExploreSearchResults
+            loading={loadingSearch}
+            searchResults={searchResults}
+          />
         ) : (
-          /* Carousels View */
           <div className="space-y-5">
             <AnimatePresence mode="wait">
               {loadingCarousels ? (
@@ -158,47 +79,8 @@ export function ExplorePage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-5"
                 >
-                  {/* Hero / Featured Game Skeleton */}
-                  <div className="w-full h-48 rounded-3xl bg-muted/40 animate-pulse border border-border/10 shrink-0" />
-                  {/* Top 10 Week Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    {renderSkeletonCarousel(true)}
-                  </div>
-                  {/* Novedades Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    {renderSkeletonCarousel()}
-                  </div>
-                  {/* Juegos para 2 Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    {renderSkeletonCarousel()}
-                  </div>
-                  {/* Top 10 Month Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    {renderSkeletonCarousel(true)}
-                  </div>
-                  {/* Community Rankings Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-hidden py-2">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div 
-                          key={i} 
-                          className="h-[180px] w-[220px] sm:w-[260px] md:w-[280px] rounded-2xl bg-muted/40 animate-pulse border border-border/10 shrink-0" 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  {/* Classics Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 w-48 bg-muted/40 animate-pulse rounded-lg" />
-                    {renderSkeletonCarousel()}
-                  </div>
+                  <ExploreLoadingState />
                 </motion.div>
               ) : (
                 <motion.div
@@ -207,61 +89,19 @@ export function ExplorePage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  className="space-y-5"
                 >
-                  {/* Juego Recomendado del Día */}
-                  {featuredGame && <FeaturedGameHero game={featuredGame} />}
-
-                  {/* Top 10 Weekly (Played count based) */}
-                  <GameCarousel games={top10} title={t('explore.top10Week')} variant="top10" />
-
-                  {/* Novedades */}
-                  <GameCarousel games={novedades} title={t('explore.newSpain')} />
-
-                  {/* Partidas Rápidas */}
-                  {fastGames.length > 0 && (
-                    <GameCarousel games={fastGames} title={t('explore.fastGames')} />
-                  )}
-
-                  {/* Juegos para 2 */}
-                  <GameCarousel games={paraDos} title={t('explore.for2Players')} />
-
-                  {/* Euros y Estrategia Pesada */}
-                  {heavyGames.length > 0 && (
-                    <GameCarousel games={heavyGames} title={t('explore.heavyGames')} />
-                  )}
-
-                  {/* Top 10 Monthly (Played count based) */}
-                  <GameCarousel games={top10Month} title={t('explore.top10Month')} variant="top10" />
-
-                  {/* Fiesta y Grupos Grandes */}
-                  {partyGames.length > 0 && (
-                    <GameCarousel games={partyGames} title={t('explore.partyGames')} />
-                  )}
-
-                  {/* Community Rankings (Created by users) */}
-                  {communityRankings.length > 0 && (
-                    <div className="space-y-3 py-2">
-                      <h3 className="text-lg font-black tracking-tight px-1 text-foreground">
-                        {t('explore.communityRankingsTitle')}
-                      </h3>
-                      <div 
-                        className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
-                      >
-                        {communityRankings.map((ranking) => (
-                          <div 
-                            key={ranking.id}
-                            className="snap-start shrink-0 w-[220px] sm:w-[260px] md:w-[280px]"
-                          >
-                            <CommunityRankingCard ranking={ranking} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Classics */}
-                  <GameCarousel games={classics} title={t('explore.classicsBgg')} />
+                  <ExploreCarousels
+                    featuredGame={featuredGame}
+                    top10={top10}
+                    novedades={novedades}
+                    fastGames={fastGames}
+                    paraDos={paraDos}
+                    heavyGames={heavyGames}
+                    top10Month={top10Month}
+                    partyGames={partyGames}
+                    communityRankings={communityRankings}
+                    classics={classics}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -271,4 +111,5 @@ export function ExplorePage() {
     </section>
   )
 }
+
 export default ExplorePage;

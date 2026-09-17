@@ -1,6 +1,7 @@
 import { useState, FC, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Trophy, Plus, Minus, UserPlus, Trash2, Crown, Save, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { PlayerScore, MeepleColor } from '../../types'
@@ -30,6 +31,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
   isEditable = true,
   onSaveScores,
 }) => {
+  const { t } = useTranslation()
   const [scores, setScores] = useState<PlayerScore[]>([])
   const [newGuestName, setNewGuestName] = useState('')
   const [showAddGuest, setShowAddGuest] = useState(false)
@@ -165,10 +167,10 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
           </div>
           <div>
             <h3 className="font-extrabold text-sm md:text-base text-foreground tracking-tight">
-              Marcador de Mesa
+              {t('session.liveScore.title')}
             </h3>
             <p className="text-xs text-muted-foreground font-medium">
-              Anotad los puntos de la partida en vivo
+              {t('session.liveScore.desc')}
             </p>
           </div>
         </div>
@@ -183,7 +185,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
               className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1 cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Invitado</span>
+              <span className="hidden sm:inline">{t('session.liveScore.guest')}</span>
             </Button>
 
             {onSaveScores && (
@@ -201,12 +203,12 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                 {saveSuccess ? (
                   <>
                     <Check className="w-3.5 h-3.5" />
-                    <span>Guardado</span>
+                    <span>{t('session.liveScore.saved')}</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-3.5 h-3.5" />
-                    <span>Guardar</span>
+                    <span>{t('common.save')}</span>
                   </>
                 )}
               </Button>
@@ -225,7 +227,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
           <Input
             value={newGuestName}
             onChange={(e) => setNewGuestName(e.target.value)}
-            placeholder="Nombre del amigo o invitado..."
+            placeholder={t('session.liveScore.guestPlaceholder')}
             className="h-9 text-xs rounded-xl bg-background"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -241,7 +243,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
             onClick={() => setShowAddGuest(false)}
             className="h-9 text-xs font-bold rounded-xl shrink-0"
           >
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button
             type="button"
@@ -250,7 +252,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
             disabled={!newGuestName.trim()}
             className="h-9 text-xs font-bold rounded-xl shrink-0"
           >
-            Añadir
+            {t('session.liveScore.add')}
           </Button>
         </motion.div>
       )}
@@ -258,7 +260,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
       {/* Players Score Cards Grid */}
       {scores.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground text-xs font-medium bg-muted/20 rounded-2xl border border-dashed border-border/40">
-          No hay jugadores anotados en este marcador.
+          {t('session.liveScore.noPlayers')}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -298,7 +300,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                       </div>
                       {player.guestId && (
                         <span className="text-xs text-muted-foreground font-medium block">
-                          Invitado
+                          {t('session.liveScore.guest')}
                         </span>
                       )}
                     </div>
@@ -311,8 +313,8 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                       size="icon-xs"
                       onClick={() => handleRemovePlayer(idx)}
                       className="text-muted-foreground hover:text-destructive"
-                      title="Eliminar invitado"
-                      aria-label="Eliminar invitado"
+                      title={t('session.liveScore.removeGuest')}
+                      aria-label={t('session.liveScore.removeGuest')}
                       icon={Trash2}
                     />
                   )}
@@ -354,7 +356,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                         size="sm"
                         onClick={() => handleAdjustScore(idx, -5)}
                         className="h-8 px-2 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground"
-                        title="-5 puntos"
+                        title={t('session.liveScore.minus5')}
                       >
                         -5
                       </Button>
@@ -364,7 +366,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                         size="sm"
                         onClick={() => handleAdjustScore(idx, -1)}
                         className="h-8 w-8 p-0 rounded-lg text-xs font-bold text-muted-foreground hover:text-foreground"
-                        title="-1 punto"
+                        title={t('session.liveScore.minus1')}
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </Button>
@@ -374,7 +376,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                         size="sm"
                         onClick={() => handleAdjustScore(idx, 1)}
                         className="h-8 w-8 p-0 rounded-lg text-xs font-bold text-primary hover:bg-primary/10 border-primary/30"
-                        title="+1 punto"
+                        title={t('session.liveScore.plus1')}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </Button>
@@ -384,7 +386,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                         size="sm"
                         onClick={() => handleAdjustScore(idx, 5)}
                         className="h-8 px-2 rounded-lg text-xs font-bold text-primary hover:bg-primary/10 border-primary/30"
-                        title="+5 puntos"
+                        title={t('session.liveScore.plus5')}
                       >
                         +5
                       </Button>

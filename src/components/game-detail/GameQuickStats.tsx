@@ -10,10 +10,20 @@ interface GameQuickStatsProps {
 export function GameQuickStats({ game }: GameQuickStatsProps) {
   const { t } = useTranslation()
 
-  const players = game.min_players && game.max_players
-    ? game.min_players === game.max_players
-      ? `${game.min_players}`
-      : `${game.min_players}-${game.max_players}`
+  const minPlayers = game.min_players != null && game.min_players > 0 ? game.min_players : null
+  const maxPlayers = game.max_players != null && game.max_players > 0 ? game.max_players : null
+
+  let players = 'N/A'
+  if (minPlayers && maxPlayers) {
+    players = minPlayers === maxPlayers ? `${minPlayers}` : `${minPlayers}-${maxPlayers}`
+  } else if (minPlayers) {
+    players = `${minPlayers}+`
+  } else if (maxPlayers) {
+    players = `≤ ${maxPlayers}`
+  }
+
+  const playtime = game.playing_time != null && game.playing_time > 0
+    ? `${game.playing_time} ${t('explore.minutes')}`
     : 'N/A'
 
   return (
@@ -35,7 +45,7 @@ export function GameQuickStats({ game }: GameQuickStatsProps) {
             {t('explore.duration')}
           </span>
           <span className="text-sm sm:text-base font-extrabold text-foreground mt-0.5">
-            {game.playing_time ? `${game.playing_time} ${t('explore.minutes')}` : 'N/A'}
+            {playtime}
           </span>
         </div>
 

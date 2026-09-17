@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Timer, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { FilterChip } from '../ui/chip'
@@ -11,6 +12,7 @@ interface TurnTimerModalProps {
 }
 
 export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
+  const { t } = useTranslation()
   const [selectedDuration, setSelectedDuration] = useState<number>(60) // in seconds
   const [timeLeft, setTimeLeft] = useState<number>(60)
   const [isRunning, setIsRunning] = useState<boolean>(false)
@@ -78,10 +80,10 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-black">
             <Timer className="w-6 h-6 text-amber-400" />
-            Reloj de Turno Digital
+            {t('tableHub.turnTimer.title')}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Control de tiempo para agilizar turnos y evitar el análisis-parálisis.
+            {t('tableHub.turnTimer.desc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -111,7 +113,7 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
               : 'bg-muted/20 border-border/40'
           }`}>
             <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-              Turno #{turnCount}
+              {t('tableHub.turnTimer.turnNumber', { count: turnCount })}
             </span>
             <div className={`text-6xl font-black tracking-tight font-mono my-2 ${
               isTimeUp ? 'text-rose-500' : isLowTime ? 'text-amber-400' : 'text-foreground'
@@ -138,7 +140,7 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
               className="w-full font-black text-sm rounded-2xl shadow-xl shadow-primary/20 h-12"
             >
               <ArrowRight className="w-5 h-5 mr-2" />
-              Paso Turno (Reiniciar reloj)
+              {t('tableHub.turnTimer.passTurn')}
             </Button>
 
             <div className="flex items-center gap-2">
@@ -149,11 +151,11 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
               >
                 {isRunning ? (
                   <>
-                    <Pause className="w-4 h-4 mr-1.5" /> Pausar
+                    <Pause className="w-4 h-4 mr-1.5" /> {t('tableHub.turnTimer.pause')}
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4 mr-1.5 fill-current" /> Reanudar
+                    <Play className="w-4 h-4 mr-1.5 fill-current" /> {t('tableHub.turnTimer.resume')}
                   </>
                 )}
               </Button>
@@ -164,7 +166,7 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
                 className="font-bold rounded-xl text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="w-4 h-4 mr-1.5" />
-                Reiniciar
+                {t('tableHub.turnTimer.reset')}
               </Button>
             </div>
           </div>

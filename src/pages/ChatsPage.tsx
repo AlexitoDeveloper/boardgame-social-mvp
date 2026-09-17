@@ -1,799 +1,116 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../lib/authContext'
-import { formatDate, formatTime as formatTimeLocale } from '../lib/dateLocale'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { USE_MOCKS } from '../lib/config'
-import { 
-  MessageSquare, 
-  Send, 
-  ArrowLeft, 
-  Loader2,
-  Clock,
-  Info,
-  Trash2,
-  X
-} from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
-import { Form } from '../components/ui/form'
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
-import { Badge } from '../components/ui/badge'
-import { OptimizedImage } from '../components/ui/OptimizedImage'
-import { Meetup, MeetupMessage, Game } from '../types'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-
-const MotionDiv = motion.div
-
+import { MessageSquare } from 'lucide-react'
+import { useAuth } from '../lib/authContext'
+import { useMeetupChat } from '../hooks/useMeetupChat'
+import { Badge } from '../components/ui/badge'
+import { ChatConversationList } from '../components/chat/ChatConversationList'
+import { ChatHeader } from '../components/chat/ChatHeader'
+import { ChatMessageStream } from '../components/chat/ChatMessageStream'
+import { ChatMessageInputDock } from '../components/chat/ChatMessageInputDock'
+import { ChatDeleteDialog } from '../components/chat/ChatDeleteDialog'
+import { Meetup } from '../types'
 
 export function ChatsPage() {
   const { t } = useTranslation()
-  const { user, loading: authLoading, language } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const urlMeetupId = searchParams.get('id')
+  const activeMeetupId = searchParams.get('id')
 
-  const [meetups, setMeetups] = useState<Meetup[]>([])
-  const [allMessages, setAllMessages] = useState<MeetupMessage[]>([])
-  const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
-  const [activeMeetupId, setActiveMeetupId] = useState<string | null>(urlMeetupId)
-  const [messageText, setMessageText] = useState('')
+  const {
+    visibleMeetups, allMessages, activeMeetup, activeGame, activeChatMessages,
+    loading, sending, errorMsg, readTimestamps, markAsRead, sendMessage,
+    hideConversation, deleteMeetup, getReservation
+  } = useMeetupChat(activeMeetupId)
 
-  // Local read timestamps (meetupId -> ISO string)
-  const [readTimestamps, setReadTimestamps] = useState<Record<string, string>>({})
-
-  // Chat window scroll ref
-  const chatEndRef = useRef<HTMLDivElement>(null)
-
-  // Hidden chats and delete state
-  const [hiddenChats, setHiddenChats] = useState<string[]>([])
   const [deleteTargetMeetup, setDeleteTargetMeetup] = useState<Meetup | null>(null)
-  const [deletingChat, setDeletingChat] = useState(false)
 
-  // Load hidden chats from localStorage on mount
   useEffect(() => {
-    const hiddenStr = localStorage.getItem('boardgame_social_hidden_chats')
-    if (hiddenStr) {
-      try {
-        setHiddenChats(JSON.parse(hiddenStr))
-      } catch {
-        setHiddenChats([])
-      }
-    }
-  }, [])
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth')
-    }
+    if (!authLoading && !user) navigate('/auth')
   }, [user, authLoading, navigate])
 
-  // Load timestamps on mount
   useEffect(() => {
-    const stamps: Record<string, string> = {}
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key.startsWith('boardgame_social_chat_last_read_')) {
-        const mId = key.replace('boardgame_social_chat_last_read_', '')
-        stamps[mId] = localStorage.getItem(key) || ''
-      }
-    }
-    setReadTimestamps(stamps)
-  }, [])
+    if (activeMeetupId) markAsRead(activeMeetupId)
+  }, [activeMeetupId, markAsRead])
 
-  // Mark a meetup chat as read
-  const markAsRead = useCallback((meetupId: string) => {
-    const nowStr = new Date().toISOString()
-    localStorage.setItem(`boardgame_social_chat_last_read_${meetupId}`, nowStr)
-    setReadTimestamps(prev => ({ ...prev, [meetupId]: nowStr }))
-    
-    // Also dispatch a storage/custom event so other components (like AppShell) update immediately
-    window.dispatchEvent(new Event('chat_read_update'))
-  }, [])
-
-  // Load meetups and messages
   useEffect(() => {
-    if (!user) return
-
-    async function loadChatsData() {
-      setLoading(true)
-      setErrorMsg('')
-
-      // Extract local guest reservations
-      const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
-      const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
-      const guestMeetupIds = Object.keys(guestReservations)
-
-      const orParts = [
-        `creator_id.eq.${user?.id}`,
-        `joined_players.cs.{${user?.id}}`
-      ]
-      if (guestMeetupIds.length > 0) {
-        orParts.push(`id.in.(${guestMeetupIds.join(',')})`)
-      }
-
-      try {
-        // Fetch all meetups where user is creator, member, or guest
-        const { data: meetupsData, error: meetupsError } = await supabase
-          .from('meetups')
-          .select('*, users:users!meetups_creator_id_fkey (*), meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), meetup_guests:meetup_guests!meetup_guests_meetup_id_fkey (id, guest_name)')
-          .or(orParts.join(','))
-          .order('date', { ascending: false })
-
-        if (meetupsError) throw meetupsError
-
-        const fetchedMeetups = (meetupsData || []).map((m: any) => {
-          const mg = m.meetup_games || []
-          const mGames = mg.map((item: any) => {
-            if (!item.games) return null
-            return {
-              ...item.games,
-              winner_user_id: item.winner_user_id,
-              winner_guest_id: item.winner_guest_id
-            }
-          }).filter(Boolean) as Game[]
-          return {
-            ...m,
-            games: mGames
-          }
-        }) as Meetup[]
-
-        setMeetups(fetchedMeetups)
-
-        if (fetchedMeetups.length > 0) {
-          const meetupIds = fetchedMeetups.map(m => m.id)
-
-          // Fetch messages for all these meetups
-          const { data: messagesData, error: messagesError } = await supabase
-            .from('meetup_messages')
-            .select('*')
-            .in('meetup_id', meetupIds)
-            .order('created_at', { ascending: true })
-
-          if (messagesError) throw messagesError
-          setAllMessages((messagesData as MeetupMessage[]) || [])
-
-          // Set active meetup if specified in URL, otherwise default to first meetup on desktop
-          if (urlMeetupId && meetupIds.includes(urlMeetupId)) {
-            setActiveMeetupId(urlMeetupId)
-            markAsRead(urlMeetupId)
-          } else if (window.innerWidth >= 768 && !activeMeetupId) {
-            setActiveMeetupId(fetchedMeetups[0].id)
-            markAsRead(fetchedMeetups[0].id)
-          }
-        }
-      } catch (err: any) {
-        console.error("Error loading chat conversations:", err)
-        setErrorMsg(err.message || 'Error al obtener tus salas de chat.')
-      } finally {
-        setLoading(false)
-      }
+    if (window.innerWidth >= 768 && !activeMeetupId && visibleMeetups.length > 0) {
+      setSearchParams({ id: visibleMeetups[0].id }, { replace: true })
     }
+  }, [visibleMeetups, activeMeetupId, setSearchParams])
 
-    loadChatsData()
-  }, [user, urlMeetupId, markAsRead])
-
-  // Realtime subscription for new messages
-  useEffect(() => {
-    if (meetups.length === 0) return
-
-    const meetupIds = meetups.map(m => m.id)
-    
-    // Subscribe to all changes in meetup_messages
-    const channel = supabase
-      .channel('chats_page_global_realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'meetup_messages'
-        },
-        (payload) => {
-          const newMsg = payload.new as MeetupMessage
-          if (meetupIds.includes(newMsg.meetup_id)) {
-            setAllMessages(prev => {
-              if (prev.some(m => m.id === newMsg.id)) return prev
-              return [...prev, newMsg]
-            })
-
-            // Unhide conversation automatically if hidden
-            setHiddenChats(prev => {
-              if (prev.includes(newMsg.meetup_id)) {
-                const updated = prev.filter(id => id !== newMsg.meetup_id)
-                localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
-                return updated
-              }
-              return prev
-            })
-
-            // If this message belongs to the currently active chat, mark as read immediately
-            if (activeMeetupId === newMsg.meetup_id) {
-              markAsRead(activeMeetupId)
-            } else {
-              // Dispatch custom event to update badges in AppShell
-              window.dispatchEvent(new Event('chat_read_update'))
-            }
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [meetups, activeMeetupId, markAsRead])
-
-  // Scroll to bottom when messages or active meetup change
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [allMessages, activeMeetupId])
-
-  // Change active meetup
-  const handleSelectMeetup = (mId: string) => {
-    setActiveMeetupId(mId)
-    setSearchParams({ id: mId })
-    markAsRead(mId)
-  }
-
-  // Back to list (Mobile view reset)
-  const handleBackToList = () => {
-    setActiveMeetupId(null)
-    setSearchParams({})
-  }
-
-  // Get reservation info for a meetup
-  const getReservation = (mId: string) => {
-    const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
-    const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
-    return guestReservations[mId] || null
-  }
-
-  const handleDeleteConversationConfirm = async (action: 'hide' | 'delete') => {
-    if (!deleteTargetMeetup || !user) return
-    setDeletingChat(true)
-
-    const isMock = USE_MOCKS && deleteTargetMeetup.id.startsWith('mock-')
-    const meetupId = deleteTargetMeetup.id
-
-    if (action === 'hide') {
-      const updatedHidden = [...hiddenChats, meetupId]
-      setHiddenChats(updatedHidden)
-      localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updatedHidden))
-      
-      if (activeMeetupId === meetupId) {
-        handleBackToList()
-      }
-      setDeleteTargetMeetup(null)
-      setDeletingChat(false)
-      return
-    }
-
-    if (action === 'delete') {
-      if (isMock) {
-        setMeetups(prev => prev.filter(m => m.id !== meetupId))
-        if (activeMeetupId === meetupId) {
-          handleBackToList()
-        }
-        setDeleteTargetMeetup(null)
-        setDeletingChat(false)
-      } else {
-        try {
-          const { error } = await supabase
-            .from('meetups')
-            .delete()
-            .eq('id', meetupId)
-
-          if (error) throw error
-
-          setMeetups(prev => prev.filter(m => m.id !== meetupId))
-          if (activeMeetupId === meetupId) {
-            handleBackToList()
-          }
-          setDeleteTargetMeetup(null)
-        } catch (err: any) {
-          console.error('Error deleting meetup:', err)
-          setErrorMsg(err.message || 'Error al cancelar la partida.')
-        } finally {
-          setDeletingChat(false)
-        }
-      }
-    }
-  }
-
-  // Send message
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!activeMeetupId || !messageText.trim() || !user) return
-
-    const trimmed = messageText.trim()
-    setMessageText('')
-    setSending(true)
-
-    // Check if we are joined as guest
-    const guestRes = getReservation(activeMeetupId)
-    const activeMeetup = meetups.find(m => m.id === activeMeetupId)
-    if (!activeMeetup) {
-      setSending(false)
-      return
-    }
-
-    let user_id: string | null = user.id
-    let guest_id: string | null = null
-    let sender_name = user.user_metadata?.username || user.email?.split('@')[0] || 'Tú'
-    let avatar_url = user.user_metadata?.avatar_url || null
-
-    if (guestRes) {
-      user_id = null
-      guest_id = guestRes.id
-      sender_name = guestRes.name
-      avatar_url = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(guestRes.name)}`
-    }
-
-    try {
-      const { error } = await supabase
-        .from('meetup_messages')
-        .insert({
-          meetup_id: activeMeetupId,
-          user_id,
-          guest_id,
-          sender_name,
-          avatar_url,
-          content: trimmed
-        })
-
-      if (error) throw error
-      markAsRead(activeMeetupId)
-    } catch (err: any) {
-      console.error("Error sending message:", err)
-      setErrorMsg(err.message || 'Error al enviar el mensaje.')
-    } finally {
-      setSending(false)
-    }
-  }
-
-  // Filter meetups by excluding hidden chats
-  const visibleMeetups = meetups.filter(m => !hiddenChats.includes(m.id))
-
-  // Render variables
-  const activeMeetup = meetups.find(m => m.id === activeMeetupId)
-  const activeGame = activeMeetup?.games 
-    ? (Array.isArray(activeMeetup.games) ? activeMeetup.games[0] : activeMeetup.games) as Game
-    : null
-  
-  const activeChatMessages = allMessages.filter(m => m.meetup_id === activeMeetupId)
-
-  // Format message timestamps
-  const formatTime = (isoString: string) => {
-    return formatTimeLocale(isoString, { hour: '2-digit', minute: '2-digit' }, language)
-  }
-
-  const formatDateLabel = (isoString: string) => {
-    const d = new Date(isoString)
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(today.getDate() - 1)
-
-    if (d.toDateString() === today.toDateString()) return language === 'es' ? 'Hoy' : 'Today'
-    if (d.toDateString() === yesterday.toDateString()) return language === 'es' ? 'Ayer' : 'Yesterday'
-    return formatDate(isoString, { day: 'numeric', month: 'short' }, language)
-  }
-
-  const renderSidebarSkeleton = () => (
-    <div className="space-y-3 p-3.5 flex-1 overflow-y-auto no-scrollbar">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl border border-border/10 bg-muted/20 animate-pulse">
-          <div className="w-11 h-11 bg-muted/30 rounded-lg shrink-0" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-1/3 bg-muted/30 rounded" />
-            <div className="h-2.5 w-2/3 bg-muted/30 rounded" />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  if (loading && meetups.length === 0) {
-    return (
-      <section className="h-full flex-grow flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
-        {/* Left skeleton conversations list */}
-        <div className="w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full">
-          <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
-            <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-              <MessageSquare className="w-5 h-5 text-muted-foreground" /> {t('chats.title')}
-            </h1>
-          </div>
-          {renderSidebarSkeleton()}
-        </div>
-        {/* Right loading placeholder */}
-        <div className="hidden md:flex flex-grow flex-1 h-full min-h-0 flex-col bg-card/10 justify-center items-center text-center text-muted-foreground/60 space-y-3 p-8">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-xs font-semibold animate-pulse">{t('chats.loading')}</p>
-        </div>
-      </section>
-    )
-  }
+  const handleBack = () => setSearchParams({})
 
   return (
-    <section className="h-full flex-grow flex-1 min-h-0 w-full md:w-full md:mx-auto md:mt-0 max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
-      
-      {/* ── Left conversations list ────────────────────────── */}
-      <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full ${
-        activeMeetupId ? 'hidden md:flex' : 'flex'
-      }`}>
-        <div className="px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
-          <h1 className="text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
-            <MessageSquare className="w-5 h-5 text-muted-foreground" /> {t('chats.title')}
+    <section className="h-full flex-grow flex-1 min-h-0 w-full md:mx-auto max-w-5xl flex flex-col md:flex-row border-x-0 border-y-0 md:border md:border-border/30 bg-card/95 md:bg-card/65 backdrop-blur-2xl rounded-none md:rounded-2xl overflow-hidden shadow-none md:shadow-2xl relative">
+      {/* ── Left conversations list ── */}
+      <div className={`w-full md:w-80 md:min-w-[20rem] md:max-w-[20rem] md:shrink-0 border-r border-border/40 flex flex-col bg-card/45 h-full ${activeMeetupId ? 'hidden md:flex' : 'flex'}`}>
+        <div className="px-4 sm:px-5 pt-[calc(1rem+env(safe-area-inset-top))] pb-3.5 border-b border-border/30 flex items-center justify-between bg-card md:pt-4 shadow-2xs">
+          <h1 className="text-base sm:text-lg font-black tracking-tight flex items-center gap-2 text-foreground">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            <span>{t('chats.title')}</span>
           </h1>
-          <Badge variant="secondary" className="text-xs px-2.5 py-0.5">
+          <Badge variant="secondary" className="text-xs px-2.5 py-0.5 font-bold">
             {visibleMeetups.length} {visibleMeetups.length === 1 ? t('chats.roomCount_one') : t('chats.roomCount_other')}
           </Badge>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 custom-scrollbar">
-          {visibleMeetups.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground space-y-2">
-              <MessageSquare className="w-10 h-10 mx-auto opacity-30" />
-              <p className="text-sm font-bold">{t('chats.emptyRooms')}</p>
-              <p className="text-xs text-muted-foreground/85 leading-normal">
-                {t('chats.emptyRoomsDesc')}
-              </p>
-              <Button onClick={() => navigate('/')} size="sm" className="mt-3">
-                {t('chats.goToBoard')}
-              </Button>
-            </div>
-          ) : (
-            visibleMeetups.map((m) => {
-              const mGame = m.games ? (Array.isArray(m.games) ? m.games[0] : m.games) as Game : null
-              const mMessages = allMessages.filter(msg => msg.meetup_id === m.id)
-              const lastMsg = mMessages[mMessages.length - 1]
-              
-              // Calculate unread count
-              const lastReadStr = readTimestamps[m.id] || ''
-              const lastRead = lastReadStr ? new Date(lastReadStr).getTime() : 0
-              const unreadCount = mMessages.filter(msg => {
-                const isMyMessage = msg.user_id === user?.id || (msg.guest_id && msg.guest_id === getReservation(m.id)?.id)
-                return !isMyMessage && new Date(msg.created_at).getTime() > lastRead
-              }).length
-
-              const isActive = activeMeetupId === m.id
-              const hasUnread = unreadCount > 0
-
-              let itemStyles = "bg-card/45 dark:bg-card/10 border-border/25 hover:bg-card dark:hover:bg-muted/20 hover:border-border/40 hover:-translate-y-[1px]"
-
-              return (
-                <div
-                  key={m.id}
-                  onClick={() => handleSelectMeetup(m.id)}
-                  className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 text-left select-none group/sidebar-item ${itemStyles}`}
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {/* Game cover thumbnail */}
-                    <div className="w-11 h-11 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 shadow-sm bg-background/50">
-                      <OptimizedImage
-                        src={mGame?.image_url}
-                        alt={mGame?.title || 'Juego'}
-                        widthSize={80}
-                        heightSize={80}
-                        fit="contain"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <p className={`text-xs truncate ${isActive ? 'text-primary font-black' : 'text-foreground font-black'}`}>{m.title}</p>
-                      <p className={`text-xs truncate ${hasUnread ? 'text-foreground font-black' : 'text-muted-foreground font-medium'}`}>
-                        {lastMsg ? (
-                          <>
-                            <span className="text-primary font-bold">{lastMsg.sender_name}:</span> {lastMsg.content}
-                          </>
-                        ) : (
-                          t('chats.noMessages')
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right side Stack: Timestamp & Badge / Quick Delete */}
-                  <div className="flex flex-col items-end justify-between shrink-0 h-9 text-right relative min-w-[3.5rem]">
-                    {lastMsg ? (
-                      <span className="text-xs font-bold text-muted-foreground">
-                        {formatTime(lastMsg.created_at)}
-                      </span>
-                    ) : (
-                      <div className="h-3" />
-                    )}
-                    <div className="flex items-center gap-1.5 mt-auto">
-                      {unreadCount > 0 && (
-                        <span className="w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shadow-sm shadow-primary/30 shrink-0 aspect-square">
-                          {unreadCount}
-                        </span>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        aria-label={t('chats.deleteChat')}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setDeleteTargetMeetup(m)
-                        }}
-                        className="opacity-0 group-hover/sidebar-item:opacity-100 focus/sidebar-item:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          )}
-        </div>
+        <ChatConversationList
+          meetups={visibleMeetups}
+          allMessages={allMessages}
+          activeMeetupId={activeMeetupId}
+          readTimestamps={readTimestamps}
+          loading={loading}
+          onSelectMeetup={(id) => { setSearchParams({ id }); markAsRead(id) }}
+          onOpenDeleteDialog={setDeleteTargetMeetup}
+          getReservation={getReservation}
+        />
       </div>
 
-      {/* ── Right chat window ─────────────────────────────── */}
-      <div className={`flex-grow flex-1 h-full min-h-0 flex flex-col bg-card/10 relative min-w-0 ${
-        !activeMeetupId ? 'hidden md:flex' : 'flex'
-      }`}>
+      {/* ── Right chat window ── */}
+      <div className={`flex-grow flex-1 h-full min-h-0 flex flex-col bg-card/10 relative min-w-0 ${!activeMeetupId ? 'hidden md:flex' : 'flex'}`}>
         {activeMeetup ? (
           <>
-            {/* Header toolbar */}
-            <div className="px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-4 border-b border-border/30 flex items-center justify-between gap-3 bg-card md:pt-4">
-              <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                <Button 
-                  onClick={handleBackToList}
-                  variant="ghost" 
-                  size="sm"
-                  aria-label={t('common.back')}
-                  title={t('common.back')}
-                  className="md:hidden shrink-0 flex items-center gap-1 text-xs font-bold"
-                >
-                  <ArrowLeft className="w-4 h-4 text-foreground" />
-                  <span>{t('common.back')}</span>
-                </Button>
-
-                {/* Clickable info/link area that goes to details page */}
-                <div 
-                  onClick={() => navigate(`/mesa/${activeMeetup.id}`)}
-                  className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group/info"
-                  title="Ver Ficha de Partida"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-background border border-border/30 overflow-hidden shrink-0 flex items-center justify-center p-0.5 group-hover/info:border-primary/50 transition-colors shadow-sm">
-                    <OptimizedImage
-                      src={activeGame?.image_url}
-                      alt={activeGame?.title || 'Juego'}
-                      widthSize={80}
-                      heightSize={80}
-                      fit="contain"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-
-                  <div className="min-w-0 text-left flex-1">
-                    <h2 className="text-sm md:text-base font-black text-foreground truncate flex items-center gap-1.5 group-hover/info:text-primary transition-colors">
-                      <span className="truncate">{activeMeetup.title}</span>
-                      <Info className="w-3.5 h-3.5 text-muted-foreground/60 shrink-0 group-hover/info:text-primary transition-colors" />
-                    </h2>
-                    <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1 mt-0.5 truncate">
-                      <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-                      {formatDate(activeMeetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center shrink-0">
-                  <Button
-                    onClick={() => setDeleteTargetMeetup(activeMeetup)}
-                    variant="ghost"
-                    size="sm"
-                    className="cursor-pointer flex items-center gap-1.5"
-                    title={t('chats.deleteChat')}
-                    aria-label={t('chats.deleteChat')}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">{t('chats.deleteChat')}</span>
-                  </Button>
-              </div>
-            </div>
-
-            {/* Error notifications */}
+            <ChatHeader
+              meetup={activeMeetup}
+              game={activeGame}
+              onBack={handleBack}
+              onOpenDeleteDialog={() => setDeleteTargetMeetup(activeMeetup)}
+            />
             {errorMsg && (
-              <div className="bg-destructive/10 border-b border-destructive/20 px-4 py-2 text-xs font-semibold text-destructive text-center">
+              <div className="bg-destructive/10 border-b border-destructive/20 px-4 py-2 text-xs font-semibold text-destructive text-center shrink-0">
                 {errorMsg}
               </div>
             )}
-
-            {/* Message window */}
-            {activeChatMessages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground/60 space-y-2 p-6 bg-zinc-950/5 dark:bg-black/15">
-                <MessageSquare className="w-12 h-12 opacity-25" />
-                <p className="text-xs font-bold">{t('chats.emptyActiveRoom')}</p>
-                <p className="text-xs text-muted-foreground max-w-[200px]">{t('chats.emptyActiveRoomDesc')}</p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-zinc-950/5 dark:bg-black/15">
-                {activeChatMessages.map((msg, idx) => {
-                  const isMyMessage = msg.user_id === user?.id || (msg.guest_id && msg.guest_id === getReservation(activeMeetupId || '')?.id)
-                  
-                  // Group separator
-                  const prevMsg = idx > 0 ? activeChatMessages[idx - 1] : null
-                  const showDateLabel = !prevMsg || new Date(msg.created_at).toDateString() !== new Date(prevMsg.created_at).toDateString()
-
-                  return (
-                    <div key={msg.id} className="space-y-3">
-                      {showDateLabel && (
-                        <div className="flex justify-center select-none py-1.5">
-                          <span className="bg-background/80 border border-border/30 rounded-full px-3 py-0.5 text-xs font-black text-muted-foreground shadow-sm uppercase tracking-wider">
-                            {formatDateLabel(msg.created_at)}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className={`flex gap-2.5 max-w-[85%] ${isMyMessage ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}>
-                        {/* Avatar */}
-                        {!isMyMessage && (
-                          <Avatar className="w-7 h-7 border border-border shrink-0 mt-0.5 shadow-sm">
-                            <AvatarImage src={msg.avatar_url || undefined} />
-                            <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
-                              {msg.sender_name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
-
-                        <div className="space-y-1 max-w-full min-w-0">
-                          {/* Sender name label (only for others) */}
-                          {!isMyMessage && (
-                            <p className="text-xs font-black text-primary text-left tracking-wide px-1.5 uppercase truncate" title={msg.sender_name}>
-                              {msg.sender_name} {msg.guest_id && <span className="text-xs text-muted-foreground lowercase font-medium">({t('chats.guestTag')})</span>}
-                            </p>
-                          )}
-
-                          {/* Bubble */}
-                          <div className={`p-3 rounded-2xl shadow-sm text-xs text-left leading-relaxed text-black dark:text-white ${
-                            isMyMessage 
-                              ? 'bg-primary/15 rounded-tr-none' 
-                              : 'bg-card rounded-tl-none'
-                          }`}>
-                            <p className="whitespace-pre-wrap break-words font-medium">{msg.content}</p>
-                          </div>
-
-                          {/* Time below bubble */}
-                          <span className={`text-xs block font-bold text-muted-foreground/75 px-1.5 ${
-                            isMyMessage ? 'text-right' : 'text-left'
-                          }`}>
-                            {formatTime(msg.created_at)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-                <div ref={chatEndRef} />
-              </div>
-            )}
-
-            {/* Input area form */}
-            <Form onSubmit={handleSendMessage} className="p-3 border-t border-border/30 flex gap-2 items-center bg-card/30">
-              <Input
-                type="text"
-                placeholder={t('chats.writeMessagePlaceholder')}
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                maxLength={400}
-                className="flex-1 h-10 text-xs font-medium"
-              />
-              <Button
-                type="submit"
-                disabled={!messageText.trim()}
-                loading={sending}
-                icon={Send}
-                size="icon-sm"
-                aria-label={t('chats.sendMessage', 'Enviar mensaje')}
-                className="shrink-0 shadow-sm"
-              />
-            </Form>
+            <ChatMessageStream
+              messages={activeChatMessages}
+              guestReservation={getReservation(activeMeetup.id)}
+            />
+            <ChatMessageInputDock onSendMessage={sendMessage} sending={sending} />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground/50 space-y-3 p-8">
-            <MessageSquare className="w-16 h-16 opacity-15" />
-            <h3 className="text-sm font-black">{t('chats.noChatSelected')}</h3>
-            <p className="text-xs text-muted-foreground/85 max-w-[240px] leading-normal">
+            <MessageSquare className="w-14 h-14 opacity-20" />
+            <h3 className="text-sm font-black text-foreground/80">{t('chats.noChatSelected')}</h3>
+            <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
               {t('chats.noChatSelectedDesc')}
             </p>
           </div>
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {deleteTargetMeetup && (() => {
-          const userId = user?.id
-          const isCreator = deleteTargetMeetup.creator_id === userId
-          
-          let title = t('chats.deleteConfirmTitle')
-          let description = t('chats.deleteConfirmDesc')
-          let actionLabel = ""
-
-          if (isCreator) {
-            title = t('chats.deleteConfirmCreatorTitle')
-            description = t('chats.deleteConfirmCreatorDesc')
-            actionLabel = t('chats.deleteConfirmCreatorAction')
-          }
-
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md !mt-0">
-              <MotionDiv
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className="bg-card border border-border/50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl p-6 relative space-y-4 text-left"
-              >
-                <div className="flex justify-between items-center pb-2 border-b border-border/20">
-                  <h3 className="text-base font-black tracking-tight text-foreground flex items-center gap-2">
-                    <Trash2 className="w-5 h-5 text-destructive" /> {title}
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t('common.close')}
-                    onClick={() => setDeleteTargetMeetup(null)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <p className="text-xs font-semibold text-muted-foreground leading-relaxed">
-                  {description}
-                </p>
-
-                <div className="flex flex-col gap-2 pt-2">
-                  <Button
-                    onClick={() => handleDeleteConversationConfirm('hide')}
-                    disabled={deletingChat}
-                    className="w-full cursor-pointer"
-                  >
-                    {t('chats.hideConversationButton')}
-                  </Button>
-
-                  {isCreator && actionLabel && (
-                    <Button
-                      onClick={() => handleDeleteConversationConfirm('delete')}
-                      disabled={deletingChat}
-                      variant="destructive"
-                      className="w-full cursor-pointer shadow-sm"
-                    >
-                      {deletingChat ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                          {t('chats.cancelingLoader')}
-                        </>
-                      ) : (
-                        actionLabel
-                      )}
-                    </Button>
-                  )}
-
-                  <Button
-                    onClick={() => setDeleteTargetMeetup(null)}
-                    disabled={deletingChat}
-                    variant="ghost"
-                    className="w-full cursor-pointer"
-                  >
-                    {t('chats.close')}
-                  </Button>
-                </div>
-              </MotionDiv>
-            </div>
-          )
-        })()}
-      </AnimatePresence>
-
+      {/* Delete / Hide modal */}
+      <ChatDeleteDialog
+        meetup={deleteTargetMeetup}
+        userId={user?.id}
+        onClose={() => setDeleteTargetMeetup(null)}
+        onHide={(id) => { hideConversation(id); if (activeMeetupId === id) handleBack() }}
+        onDelete={async (id) => { await deleteMeetup(id); if (activeMeetupId === id) handleBack() }}
+      />
     </section>
   )
 }
 
-export default ChatsPage;
+export default ChatsPage

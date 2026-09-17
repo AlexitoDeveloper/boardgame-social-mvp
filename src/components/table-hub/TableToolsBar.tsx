@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Crown, Dices, Trophy, Timer, Sparkles } from 'lucide-react'
+import { Crown, Dices, Trophy, Timer } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/card'
 import { FirstPlayerSelector } from '../session/FirstPlayerSelector'
 import { LiveScoreModal } from './LiveScoreModal'
@@ -11,6 +12,7 @@ interface TableToolsBarProps {
 }
 
 export function TableToolsBar({ attendees }: TableToolsBarProps) {
+  const { t } = useTranslation()
   const [showFirstPlayer, setShowFirstPlayer] = useState(false)
   const [showLiveScore, setShowLiveScore] = useState(false)
   const [showDiceRoller, setShowDiceRoller] = useState(false)
@@ -18,29 +20,29 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
 
   const tools = [
     {
-      title: 'Primer Jugador',
-      desc: 'Selector táctil con meeples',
+      title: t('tableHub.tools.firstPlayerTitle'),
+      desc: t('tableHub.tools.firstPlayerDesc'),
       icon: Crown,
       color: 'text-amber-400 bg-amber-500/15 border-amber-500/25',
       onClick: () => setShowFirstPlayer(true),
     },
     {
-      title: 'Marcador en Vivo',
-      desc: 'Puntuación y podio en directo',
+      title: t('tableHub.tools.liveScoreTitle'),
+      desc: t('tableHub.tools.liveScoreDesc'),
       icon: Trophy,
       color: 'text-primary bg-primary/15 border-primary/25',
       onClick: () => setShowLiveScore(true),
     },
     {
-      title: 'Tirador de Dados',
-      desc: '1d6, 2d6, d10, d20 con suma',
+      title: t('tableHub.tools.diceRollerTitle'),
+      desc: t('tableHub.tools.diceRollerDesc'),
       icon: Dices,
       color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/25',
       onClick: () => setShowDiceRoller(true),
     },
     {
-      title: 'Reloj de Turno',
-      desc: 'Temporizador anti-AP',
+      title: t('tableHub.tools.turnTimerTitle'),
+      desc: t('tableHub.tools.turnTimerDesc'),
       icon: Timer,
       color: 'text-purple-400 bg-purple-500/15 border-purple-500/25',
       onClick: () => setShowTurnTimer(true),
@@ -51,9 +53,9 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
     <>
       <div className="space-y-2">
         <div className="flex items-center gap-1.5 px-1">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Dices className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">
-            Herramientas Prácticas de Mesa
+            {t('tableHub.tools.sectionTitle')}
           </h3>
         </div>
 
@@ -61,8 +63,16 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
           {tools.map((tool, i) => (
             <Card
               key={i}
+              role="button"
+              tabIndex={0}
               onClick={tool.onClick}
-              className="p-3.5 rounded-2xl border border-border/40 hover:border-primary/45 bg-card/60 backdrop-blur-md hover:bg-card/95 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg hover:scale-[1.02] group flex flex-col justify-between h-full select-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  tool.onClick()
+                }
+              }}
+              className="p-3.5 rounded-2xl border border-border/40 hover:border-primary/45 bg-card/60 backdrop-blur-md hover:bg-card/95 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg hover:scale-[1.02] group flex flex-col justify-between h-full select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${tool.color} mb-3 transition-transform group-hover:scale-110 shadow-sm`}>
                 <tool.icon className="w-5 h-5" />

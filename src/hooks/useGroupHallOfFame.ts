@@ -185,8 +185,12 @@ export function useGroupHallOfFame(groupId: string | undefined) {
           group_id,
           date,
           created_at,
+          title,
+          completed,
           player_scores,
           joined_players,
+          attended_players,
+          attended_guests,
           meetup_games (
             game_id,
             winner_user_id,
@@ -196,7 +200,8 @@ export function useGroupHallOfFame(groupId: string | undefined) {
               bgg_id,
               title,
               title_es,
-              image_url
+              image_url,
+              is_expansion
             )
           )
         `)
@@ -224,7 +229,16 @@ export function useGroupHallOfFame(groupId: string | undefined) {
       meetupsRows?.forEach((meetup: any) => {
         const scores: PlayerScore[] = Array.isArray(meetup.player_scores) ? meetup.player_scores : []
         const gamesInMeetup: any[] = meetup.meetup_games || []
+        const nonExpansionGames = gamesInMeetup.filter(mg => !mg.games?.is_expansion)
         const meetupDate = meetup.date || meetup.created_at
+
+        // Only count finished matches with results
+        const hasResults =
+          meetup.completed === true ||
+          scores.length > 0 ||
+          gamesInMeetup.some(mg => mg.winner_user_id || mg.winner_score)
+
+        if (!hasResults) return
 
         // Extract winner(s) and participants
         const sessionParticipants = new Set<string>()
@@ -238,17 +252,27 @@ export function useGroupHallOfFame(groupId: string | undefined) {
           }
         })
 
-        // Add participants from joined_players
+        // Add participants from attended_players & joined_players
+        if (Array.isArray(meetup.attended_players)) {
+          meetup.attended_players.forEach((pid: string) => sessionParticipants.add(pid))
+        }
         if (Array.isArray(meetup.joined_players)) {
           meetup.joined_players.forEach((pid: string) => sessionParticipants.add(pid))
         }
+        gamesInMeetup.forEach((mg: any) => {
+          if (mg.winner_user_id) sessionParticipants.add(mg.winner_user_id)
+        })
 
         if (sessionParticipants.size > 0 || gamesInMeetup.length > 0) {
           totalSessions++
         }
 
-        // Check each game in session
-        gamesInMeetup.forEach(mg => {
+        const effectiveGames = nonExpansionGames.length > 0
+          ? nonExpansionGames
+          : gamesInMeetup
+
+        // Check each base game in session (expansions filtered out)
+        effectiveGames.forEach((mg: any) => {
           const gameMeta = mg.games
           const gameId = mg.game_id || gameMeta?.bgg_id
           if (gameId) uniqueGameIds.add(gameId)
@@ -265,7 +289,7 @@ export function useGroupHallOfFame(groupId: string | undefined) {
             if (!currentRec || winnerScoreNum > currentRec.highScore) {
               recordsByGame.set(gameId, {
                 gameId,
-                gameTitle: gameMeta?.title_es || gameMeta?.title || 'Juego',
+                gameTitle: gameMeta?.title_es || gameMeta?.title || meetup.title || 'Juego',
                 gameImage: gameMeta?.image_url || null,
                 highScore: winnerScoreNum,
                 holderName: candidateHolder,
@@ -284,29 +308,29 @@ export function useGroupHallOfFame(groupId: string | undefined) {
 
         // Also check scores array for winners & game records
         scores.forEach(s => {
-          const pid = s.userId
+          const pid = s.userId || s.name
           if (s.isWinner && pid) {
-            if (!gamesInMeetup.some(mg => mg.winner_user_id === pid)) {
+            if (!effectiveGames.some((mg: any) => mg.winner_user_id === pid)) {
               winsMap.set(pid, (winsMap.get(pid) || 0) + 1)
             }
           }
 
-          if (s.score !== undefined && s.score !== null && !isNaN(Number(s.score))) {
+          if (s.score !== undefined && s.score !== null && !isNaN(Number(s.score)) && Number(s.score) > 0) {
             const numScore = Number(s.score)
-            gamesInMeetup.forEach(mg => {
+            effectiveGames.forEach((mg: any) => {
               const gameId = mg.game_id || mg.games?.bgg_id
               if (gameId) {
                 const currentRec = recordsByGame.get(gameId)
                 if (!currentRec || numScore > currentRec.highScore) {
-                  const prof = pid ? memberProfilesMap.get(pid) : null
+                  const prof = s.userId ? memberProfilesMap.get(s.userId) : null
                   recordsByGame.set(gameId, {
                     gameId,
-                    gameTitle: mg.games?.title_es || mg.games?.title || 'Juego',
+                    gameTitle: mg.games?.title_es || mg.games?.title || meetup.title || 'Juego',
                     gameImage: mg.games?.image_url || null,
                     highScore: numScore,
                     holderName: prof?.username || s.name || 'Jugador',
                     holderAvatar: prof?.avatar_url || null,
-                    holderId: pid || null,
+                    holderId: s.userId || null,
                     date: meetupDate
                   })
                 }
@@ -319,17 +343,17 @@ export function useGroupHallOfFame(groupId: string | undefined) {
         sessionParticipants.forEach(pid => {
           playedMap.set(pid, (playedMap.get(pid) || 0) + 1)
 
-          const wonInMeetup = gamesInMeetup.some(mg => mg.winner_user_id === pid) ||
-            scores.some(s => s.userId === pid && s.isWinner)
+          const wonInMeetup = effectiveGames.some((mg: any) => mg.winner_user_id === pid) ||
+            scores.some(s => (s.userId === pid || s.name === pid) && s.isWinner)
 
           const history = playerGameHistory.get(pid) || []
           history.push({ date: meetupDate, won: wonInMeetup })
           playerGameHistory.set(pid, history)
         })
 
-        // Head-to-Head calculations
+        // Head-to-Head calculations (Nemesis & Favorite Victim)
         if (currentUserId && sessionParticipants.has(currentUserId)) {
-          const userWon = gamesInMeetup.some(mg => mg.winner_user_id === currentUserId) ||
+          const userWon = effectiveGames.some((mg: any) => mg.winner_user_id === currentUserId) ||
             scores.some(s => s.userId === currentUserId && s.isWinner)
 
           sessionParticipants.forEach(otherPid => {
@@ -337,20 +361,18 @@ export function useGroupHallOfFame(groupId: string | undefined) {
             matchesTogether.set(otherPid, (matchesTogether.get(otherPid) || 0) + 1)
 
             const prof = memberProfilesMap.get(otherPid)
-            const otherName = prof?.username || 'Compañero'
+            const otherName = prof?.username || otherPid
             const otherAvatar = prof?.avatar_url || null
 
-            if (userWon) {
+            const otherWon = effectiveGames.some((mg: any) => mg.winner_user_id === otherPid) ||
+              scores.some(s => (s.userId === otherPid || s.name === otherPid) && s.isWinner)
+
+            if (userWon && !otherWon) {
               const prev = winsAgainst.get(otherPid) || { count: 0, name: otherName, avatar: otherAvatar }
               winsAgainst.set(otherPid, { ...prev, count: prev.count + 1 })
-            } else {
-              const otherWon = gamesInMeetup.some(mg => mg.winner_user_id === otherPid) ||
-                scores.some(s => s.userId === otherPid && s.isWinner)
-
-              if (otherWon) {
-                const prev = lossesAgainst.get(otherPid) || { count: 0, name: otherName, avatar: otherAvatar }
-                lossesAgainst.set(otherPid, { ...prev, count: prev.count + 1 })
-              }
+            } else if (!userWon && otherWon) {
+              const prev = lossesAgainst.get(otherPid) || { count: 0, name: otherName, avatar: otherAvatar }
+              lossesAgainst.set(otherPid, { ...prev, count: prev.count + 1 })
             }
           })
         }

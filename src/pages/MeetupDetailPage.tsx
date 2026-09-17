@@ -10,7 +10,7 @@ import {
   Loader2, 
   Info,
   X,
-  Sparkles,
+  Trophy,
   Download,
   Calendar,
   Crown,
@@ -22,6 +22,7 @@ import { useGameLocale } from '../hooks/useGameLocale'
 import { formatDate } from '../lib/dateLocale'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { ExpansionBadge } from '../components/ui/expansion-badge'
 
 // Import subcomponents
 import { MeetupDetailHero } from '../components/meetup-detail/MeetupDetailHero'
@@ -30,6 +31,7 @@ import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailA
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
 import { MeetupDetailOnline } from '../components/meetup-detail/MeetupDetailOnline'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
+import { MeetupDetailActionDock } from '../components/meetup-detail/MeetupDetailActionDock'
 import { FirstPlayerSelector } from '../components/session/FirstPlayerSelector'
 import { LiveScoreTracker } from '../components/session/LiveScoreTracker'
 import { BoardPhotoUploader } from '../components/session/BoardPhotoUploader'
@@ -149,7 +151,7 @@ export function MeetupDetailPage() {
   const isPast = new Date(meetup.date).getTime() < new Date().getTime()
 
   return (
-    <section className="space-y-6 max-w-4xl mx-auto p-0 pb-6 md:p-4 md:pb-24">
+    <section className="space-y-6 max-w-4xl mx-auto p-0 pb-28 md:p-4 md:pb-32 lg:pb-12">
       
       {/* Back navigation and share toolbar (sticky on mobile with safe-area spacing) */}
       <div className="sticky top-[-2px] z-30 flex items-center justify-between pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/90 backdrop-blur-md border-b border-border/20 transition-all duration-200">
@@ -170,11 +172,11 @@ export function MeetupDetailPage() {
             size="sm"
             onClick={() => setShowFirstPlayerModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
-            title="Elegir primer jugador al azar"
-            aria-label="Elegir primer jugador al azar"
+            title={t('meetup.firstPlayerTooltip')}
+            aria-label={t('meetup.firstPlayerTooltip')}
           >
             <Dices className="w-4 h-4 text-muted-foreground" />
-            <span className="hidden sm:inline">1er Jugador</span>
+            <span className="hidden sm:inline">{t('meetup.firstPlayerBtn')}</span>
           </Button>
 
           <Button
@@ -182,11 +184,11 @@ export function MeetupDetailPage() {
             size="sm"
             onClick={() => setShowVictoryCardModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
-            title="Ver y compartir tarjeta de resultado"
-            aria-label="Tarjeta de Resultado"
+            title={t('meetup.victoryCardTooltip')}
+            aria-label={t('meetup.victoryCardBtn')}
           >
-            <Sparkles className="w-4 h-4 text-muted-foreground" />
-            <span className="hidden sm:inline">Tarjeta Resultado</span>
+            <Trophy className="w-4 h-4 text-primary" />
+            <span className="hidden sm:inline">{t('meetup.victoryCardBtn')}</span>
           </Button>
 
           <Button
@@ -296,6 +298,20 @@ export function MeetupDetailPage() {
         />
       </div>
 
+      {/* Mobile Sticky Bottom Action Dock (Playtomic benchmark) */}
+      <MeetupDetailActionDock
+        meetup={meetup}
+        attendees={attendees}
+        isPast={isPast}
+        isJoined={isJoined}
+        isFull={isFull}
+        joining={joining}
+        spotsRemaining={spotsRemaining}
+        guestReservation={guestReservation}
+        handleJoinLeave={handleJoinLeave}
+        onNavigateToChat={() => navigate(`/chats?id=${meetup.id}`)}
+      />
+
       {/* Legal Attribution */}
       <div className="text-center pt-8 text-xs text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">
         {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
@@ -350,13 +366,13 @@ export function MeetupDetailPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#0b0f19] border border-white/10 rounded-2xl max-w-3xl w-[94%] lg:w-full h-[88dvh] lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-[88dvh] lg:max-h-[95vh]"
+                className="bg-card border border-white/10 rounded-2xl max-w-3xl w-[94%] lg:w-full h-[88dvh] lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-[88dvh] lg:max-h-[95vh]"
               >
                 {/* Modal Header bar */}
-                <div className="py-3 px-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/60 z-10 font-inter shrink-0">
+                <div className="py-3 px-4 border-b border-white/5 flex justify-between items-center bg-muted/40 z-10 font-inter shrink-0">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                    <h3 className="font-extrabold text-sm text-white truncate max-w-[150px] sm:max-w-md">
+                    <Share2 className="w-5 h-5 text-primary" />
+                    <h3 className="font-extrabold text-sm text-foreground truncate max-w-[150px] sm:max-w-md">
                       {t('meetup.exportSummary')}
                     </h3>
                   </div>
@@ -395,7 +411,7 @@ export function MeetupDetailPage() {
                 </div>
 
                 {/* Modal Main Content */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-6 grid grid-cols-1 md:grid-cols-5 gap-6 bg-[#070b13]/85 custom-scrollbar min-h-0 font-inter">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-6 grid grid-cols-1 md:grid-cols-5 gap-6 bg-background/95 custom-scrollbar min-h-0 font-inter">
                   
                   {/* Left Column: Settings (ordered second on mobile) */}
                   <div className="md:col-span-2 space-y-5 text-left order-2 md:order-1">
@@ -527,7 +543,9 @@ export function MeetupDetailPage() {
                                     </div>
 
                                     <div className="flex items-center gap-1.5 shrink-0 font-inter">
-                                      {winner ? (
+                                      {game.is_expansion ? (
+                                        <ExpansionBadge size="xs" />
+                                      ) : winner ? (
                                         <>
                                           <div className="flex items-center gap-1 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-1.5 py-0.5 text-xs rounded-md">
                                             <Crown className="w-2.5 h-2.5 fill-current shrink-0 text-amber-400" />
@@ -635,7 +653,9 @@ export function MeetupDetailPage() {
                                       </div>
 
                                       <div className="flex items-center gap-3 shrink-0 font-inter">
-                                        {winner ? (
+                                        {game.is_expansion ? (
+                                          <ExpansionBadge size="sm" />
+                                        ) : winner ? (
                                           <>
                                             <div className="flex items-center gap-1.5 border border-amber-500/25 bg-amber-500/10 text-amber-400 font-black uppercase tracking-wide px-3.5 py-1.5 text-sm rounded-xl">
                                               <Crown className="w-4 h-4 fill-current shrink-0 text-amber-400" />

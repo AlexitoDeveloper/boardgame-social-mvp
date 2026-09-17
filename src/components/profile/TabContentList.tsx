@@ -14,6 +14,7 @@ import {
   BarChart2
 } from 'lucide-react'
 import { Badge } from '../ui/badge'
+import { ExpansionBadge } from '../ui/expansion-badge'
 import { Button } from '../ui/button'
 import { Meetup, Game } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
@@ -266,6 +267,16 @@ export function TabContentList({
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-3">
+                    {isOwnProfile && (
+                      <div className="flex items-center justify-between pb-1 pt-0.5 border-b border-border/20">
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {savedRankings.length > 0 ? 'Tus rankings y tier lists' : 'Crea tu primera lista'}
+                        </span>
+                        <Link to="/tops">
+                          <Button size="sm" icon={Plus} label={t('common.create', 'Crear')} className="h-8 text-xs font-bold cursor-pointer" />
+                        </Link>
+                      </div>
+                    )}
                     {loadingRankings ? (
                       <div className="space-y-2">
                         {[...Array(2)].map((_, i) => (
@@ -277,7 +288,7 @@ export function TabContentList({
                         <p className="text-sm font-bold text-muted-foreground">{t('profile.stats.noRankings')}</p>
                         {isOwnProfile && (
                           <Link to="/tops" className="inline-block mt-3">
-                            <Button size="sm" icon={Plus} label={t('profile.stats.createRanking')} className="cursor-pointer" />
+                            <Button size="sm" icon={Plus} label={t('common.create', 'Crear')} className="cursor-pointer" />
                           </Link>
                         )}
                       </div>
@@ -462,9 +473,12 @@ export function TabContentList({
                         <h4 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-xs line-clamp-1 leading-snug">
                           {getGameTitle(game)}
                         </h4>
-                        <span className="text-xs text-muted-foreground font-bold block mt-0.5">
-                          {game.year_published || 'N/A'}
-                        </span>
+                        <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                          {game.is_expansion && <ExpansionBadge size="xs" />}
+                          <span className="text-xs text-muted-foreground font-bold block">
+                            {game.year_published || 'N/A'}
+                          </span>
+                        </div>
                       </div>
                     </Link>
                   ))}

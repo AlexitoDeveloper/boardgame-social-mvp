@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, QrCode, Trophy, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Users, Clipboard, Check, Trash2, LogOut, Layers, Calendar, Search, CheckSquare, Loader2, QrCode, Trophy, MessageCircle, Zap, Dices } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -17,6 +17,8 @@ import { GroupPollsTab } from '../components/group-detail/GroupPollsTab'
 import { GroupMembersTab } from '../components/group-detail/GroupMembersTab'
 import { GroupInviteQrModal } from '../components/groups/GroupInviteQrModal'
 import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
+import { QuickLogMatchModal } from '../components/session/QuickLogMatchModal'
+import { TableToolsBar } from '../components/table-hub/TableToolsBar'
 import { AppLanguage } from '../lib/gameLocale'
 import { formatDate } from '../lib/dateLocale'
 import { useTranslation } from 'react-i18next'
@@ -65,11 +67,12 @@ export function GroupDetailPage() {
     leaveGroup,
     kickMember,
     deleteGroup,
-    addGameToGroup
+    addGameToGroup,
+    refresh
   } = useGroupDetail(groupId)
 
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState<'ludoteca' | 'hall_of_fame' | 'polls' | 'members'>('ludoteca')
+  const [activeTab, setActiveTab] = useState<'ludoteca' | 'hall_of_fame' | 'table_tools' | 'polls' | 'members'>('ludoteca')
 
   // Search inside merged collection
   const [collectionSearch, setCollectionSearch] = useState('')
@@ -79,6 +82,7 @@ export function GroupDetailPage() {
   const [copiedLink, setCopiedLink] = useState(false)
   const [isQrModalOpen, setIsQrModalOpen] = useState(false)
   const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false)
+  const [isQuickLogModalOpen, setIsQuickLogModalOpen] = useState(false)
 
   // Create Poll Modal State
   const [isPollOpen, setIsPollOpen] = useState(false)
@@ -278,7 +282,17 @@ export function GroupDetailPage() {
           <ArrowLeft className="w-4 h-4" /> <span>{t('common.back')}</span>
         </Button>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {/* Quick Match CTA */}
+          <Button
+            size="sm"
+            onClick={() => setIsQuickLogModalOpen(true)}
+            icon={Zap}
+          >
+            <span>{t('quickLog.saveBtn')}</span>
+          </Button>
+
+
           {isCreator ? (
             <Button
               onClick={handleDelete}
@@ -393,6 +407,7 @@ export function GroupDetailPage() {
         options={[
           { id: 'ludoteca', label: t('groups.sharedLudoteca'), icon: Layers, count: mergedCollection.length },
           { id: 'hall_of_fame', label: t('groups.hallOfFame'), icon: Trophy },
+          { id: 'table_tools', label: t('quickLog.tableToolsTitle'), icon: Dices },
           { id: 'polls', label: t('groups.meetupsAndVotes'), icon: Calendar, count: polls.length },
           { id: 'members', label: t('groups.members'), icon: Users, count: members.length }
         ]}
@@ -415,6 +430,30 @@ export function GroupDetailPage() {
 
         {activeTab === 'hall_of_fame' && groupId && (
           <GroupHallOfFameTab groupId={groupId} />
+        )}
+
+        {activeTab === 'table_tools' && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+            <div className="p-4 sm:p-5 rounded-2xl bg-card/60 border border-border/30 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-foreground flex items-center gap-2">
+                  <Dices className="w-4 h-4 text-primary shrink-0" />
+                  <span>{t('quickLog.tableToolsTitle')}</span>
+                </h3>
+                <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                  {t('quickLog.tableToolsDesc')}
+                </p>
+              </div>
+            </div>
+
+            <TableToolsBar
+              attendees={members.map((m) => ({
+                id: m.user_id,
+                name: m.username,
+                avatarUrl: m.avatar_url,
+              }))}
+            />
+          </div>
         )}
 
         {activeTab === 'polls' && (
@@ -645,6 +684,24 @@ export function GroupDetailPage() {
         onAddGame={addGameToGroup}
         isGroupContext
       />
+
+      {/* Quick Match Logging Modal */}
+      <QuickLogMatchModal
+        isOpen={isQuickLogModalOpen}
+        onClose={() => setIsQuickLogModalOpen(false)}
+        groupId={groupId}
+        groupMembers={members.map((m) => ({
+          user_id: m.user_id,
+          username: m.username,
+          avatar_url: m.avatar_url,
+        }))}
+        groupGames={mergedCollection.map((mc) => mc.game)}
+        onSuccess={() => {
+          refresh()
+        }}
+      />
+
+
     </section>
   )
 }
