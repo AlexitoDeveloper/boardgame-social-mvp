@@ -15,6 +15,7 @@ interface TabsProps<T extends string> {
   onChange: (id: T) => void;
   className?: string;
   hideLabelsOnMobile?: boolean;
+  scrollable?: boolean;
 }
 
 export function Tabs<T extends string>({
@@ -23,13 +24,18 @@ export function Tabs<T extends string>({
   onChange,
   className,
   hideLabelsOnMobile = false,
+  scrollable = false,
 }: TabsProps<T>) {
   const layoutId = `tabs-pill-${options.map(o => o.id).join('-')}`
 
   return (
     <div
       role="tablist"
-      className={cn("bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 w-full select-none relative z-10", className)}
+      className={cn(
+        "bg-muted/40 p-1.5 rounded-2xl border border-border/20 flex gap-1.5 select-none relative z-10",
+        scrollable ? "w-full overflow-x-auto no-scrollbar scroll-smooth flex-nowrap" : "w-full",
+        className
+      )}
     >
       {options.map((opt) => {
         const isActive = activeTab === opt.id
@@ -43,7 +49,8 @@ export function Tabs<T extends string>({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(opt.id)}
             className={cn(
-              "flex-1 h-8 sm:h-9 rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1 sm:gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none",
+              scrollable ? "flex-1 shrink-0 px-3.5 min-w-max h-9 sm:h-10" : "flex-1 h-9 sm:h-10",
+              "rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none whitespace-nowrap",
               isActive ? "text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >
@@ -56,7 +63,7 @@ export function Tabs<T extends string>({
             )}
             <span className="relative z-10 flex items-center justify-center gap-1">
               {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
-              <span className={cn(hideLabelsOnMobile && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
+              <span className={cn(hideLabelsOnMobile && !scrollable && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
                   "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black leading-none shrink-0 border",

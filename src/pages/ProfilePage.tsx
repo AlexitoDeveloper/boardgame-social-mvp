@@ -178,7 +178,7 @@ export function ProfilePage() {
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
-        hideLabelsOnMobile
+        scrollable
       />
 
       {/* Tab Panels */}
