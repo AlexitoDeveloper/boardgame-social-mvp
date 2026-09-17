@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Dices, RotateCcw, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -14,6 +15,7 @@ interface DiceRollerModalProps {
 type DiceCount = 1 | 2
 
 export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
+  const { t } = useTranslation()
   const [diceCount, setDiceCount] = useState<DiceCount>(2)
   const [targetValues, setTargetValues] = useState<number[]>([4, 6])
   const [displayedValues, setDisplayedValues] = useState<number[]>([4, 6])
@@ -50,10 +52,10 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-black">
             <Dices className="w-6 h-6 text-primary" />
-            Dados 3D de Mesa
+            {t('tableHub.diceRoller.title')}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Lanza dados físicos virtuales con sonido real de mesa de madera.
+            {t('tableHub.diceRoller.desc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -67,7 +69,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
               size="sm"
               className="font-black px-4"
             >
-              1 DADO (1D6)
+              {t('tableHub.diceRoller.oneDie')}
             </FilterChip>
             <FilterChip
               selected={diceCount === 2}
@@ -76,7 +78,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
               size="sm"
               className="font-black px-4"
             >
-              2 DADOS (2D6)
+              {t('tableHub.diceRoller.twoDice')}
             </FilterChip>
           </div>
 
@@ -94,7 +96,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
 
             <div className="absolute bottom-2 inset-x-0 text-center pointer-events-none">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                {isRolling ? 'Rodando en mesa...' : 'Toca los dados o pulsa el botón'}
+                {isRolling ? t('tableHub.diceRoller.rollingOnTable') : t('tableHub.diceRoller.tapHint')}
               </span>
             </div>
           </div>
@@ -102,10 +104,12 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
           {/* Result Banner (Only shown once dice settle) */}
           <div className="text-center py-1">
             <div className="flex items-center justify-center gap-2 min-h-[36px]">
-              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">Resultado:</span>
+              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                {t('tableHub.diceRoller.result')}
+              </span>
               {isRolling ? (
                 <span className="text-xs font-black text-amber-400 animate-pulse uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 animate-spin" /> Rodando en mesa...
+                  <Sparkles className="w-4 h-4 animate-spin" /> {t('tableHub.diceRoller.rollingOnTable')}
                 </span>
               ) : (
                 <>
@@ -130,14 +134,14 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
             className="w-full font-black text-sm rounded-2xl shadow-xl shadow-primary/25 h-12"
           >
             <RotateCcw className={`w-4 h-4 mr-2 ${isRolling ? 'animate-spin' : ''}`} />
-            {isRolling ? 'Rodando dados...' : 'Lanzar Dados'}
+            {isRolling ? t('tableHub.diceRoller.rollingButton') : t('tableHub.diceRoller.rollButton')}
           </Button>
 
           {/* Recent Rolls History */}
           {history.length > 0 && (
             <div className="space-y-1.5 pt-1">
               <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
-                Tiradas Anteriores:
+                {t('tableHub.diceRoller.previousRolls')}
               </span>
               <div className="flex flex-wrap gap-2">
                 {history.map((h, i) => (

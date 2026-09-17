@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Crown, Dices, Trophy, Timer } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/card'
 import { FirstPlayerSelector } from '../session/FirstPlayerSelector'
 import { LiveScoreModal } from './LiveScoreModal'
@@ -11,6 +12,7 @@ interface TableToolsBarProps {
 }
 
 export function TableToolsBar({ attendees }: TableToolsBarProps) {
+  const { t } = useTranslation()
   const [showFirstPlayer, setShowFirstPlayer] = useState(false)
   const [showLiveScore, setShowLiveScore] = useState(false)
   const [showDiceRoller, setShowDiceRoller] = useState(false)
@@ -18,29 +20,29 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
 
   const tools = [
     {
-      title: 'Primer Jugador',
-      desc: 'Selector táctil con meeples',
+      title: t('tableHub.tools.firstPlayerTitle'),
+      desc: t('tableHub.tools.firstPlayerDesc'),
       icon: Crown,
       color: 'text-amber-400 bg-amber-500/15 border-amber-500/25',
       onClick: () => setShowFirstPlayer(true),
     },
     {
-      title: 'Marcador en Vivo',
-      desc: 'Puntuación y podio en directo',
+      title: t('tableHub.tools.liveScoreTitle'),
+      desc: t('tableHub.tools.liveScoreDesc'),
       icon: Trophy,
       color: 'text-primary bg-primary/15 border-primary/25',
       onClick: () => setShowLiveScore(true),
     },
     {
-      title: 'Tirador de Dados',
-      desc: '1d6, 2d6, d10, d20 con suma',
+      title: t('tableHub.tools.diceRollerTitle'),
+      desc: t('tableHub.tools.diceRollerDesc'),
       icon: Dices,
       color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/25',
       onClick: () => setShowDiceRoller(true),
     },
     {
-      title: 'Reloj de Turno',
-      desc: 'Temporizador anti-AP',
+      title: t('tableHub.tools.turnTimerTitle'),
+      desc: t('tableHub.tools.turnTimerDesc'),
       icon: Timer,
       color: 'text-purple-400 bg-purple-500/15 border-purple-500/25',
       onClick: () => setShowTurnTimer(true),
@@ -53,7 +55,7 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
         <div className="flex items-center gap-1.5 px-1">
           <Dices className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">
-            Herramientas Prácticas de Mesa
+            {t('tableHub.tools.sectionTitle')}
           </h3>
         </div>
 

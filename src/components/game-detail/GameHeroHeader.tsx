@@ -108,7 +108,7 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center group/bgg"
-              title="Ver en BoardGameGeek"
+              title={t('gameDetail.viewOnBgg')}
             >
               <Badge variant="outline" size="sm" className="group-hover/bgg:border-primary/50 group-hover/bgg:text-primary transition-colors">
                 BGG

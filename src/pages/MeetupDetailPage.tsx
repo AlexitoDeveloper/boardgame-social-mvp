@@ -171,11 +171,11 @@ export function MeetupDetailPage() {
             size="sm"
             onClick={() => setShowFirstPlayerModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
-            title="Elegir primer jugador al azar"
-            aria-label="Elegir primer jugador al azar"
+            title={t('meetup.firstPlayerTooltip')}
+            aria-label={t('meetup.firstPlayerTooltip')}
           >
             <Dices className="w-4 h-4 text-muted-foreground" />
-            <span className="hidden sm:inline">1er Jugador</span>
+            <span className="hidden sm:inline">{t('meetup.firstPlayerBtn')}</span>
           </Button>
 
           <Button
@@ -183,11 +183,11 @@ export function MeetupDetailPage() {
             size="sm"
             onClick={() => setShowVictoryCardModal(true)}
             className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
-            title="Ver y compartir tarjeta de resultado"
-            aria-label="Tarjeta de Resultado"
+            title={t('meetup.victoryCardTooltip')}
+            aria-label={t('meetup.victoryCardBtn')}
           >
             <Trophy className="w-4 h-4 text-primary" />
-            <span className="hidden sm:inline">Tarjeta Resultado</span>
+            <span className="hidden sm:inline">{t('meetup.victoryCardBtn')}</span>
           </Button>
 
           <Button

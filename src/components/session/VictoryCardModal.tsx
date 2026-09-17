@@ -49,7 +49,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
   const sortedScores = [...(scores || [])].sort((a, b) => b.score - a.score)
   const winner = sortedScores[0]
   const game = meetup.games?.[0]
-  const gameTitle = game?.title || game?.title_es || meetup.game_name || 'Juego de mesa'
+  const gameTitle = game?.title || game?.title_es || meetup.game_name || t('victoryCard.defaultGameTitle')
   const rawGameImage = game?.image_url || (meetup as any).game_image || null
 
   const proxiedGameImage = rawGameImage ? (
@@ -90,15 +90,15 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
 
   const handleShareNative = async () => {
     const textLines = [
-      `🎲 *Resumen de Partida: ${meetup.title}*`,
-      gameTitle ? `📖 Juego: *${gameTitle}*` : '',
-      winner ? `🏆 Ganador: *${winner.name}* (${winner.score} pts)` : '',
+      t('victoryCard.shareSummaryTitle', { title: meetup.title }),
+      gameTitle ? t('victoryCard.shareGame', { game: gameTitle }) : '',
+      winner ? t('victoryCard.shareWinner', { name: winner.name, score: winner.score }) : '',
       '',
-      '📊 *Clasificación:*',
+      t('victoryCard.shareStandings'),
       ...sortedScores.map((s, idx) => `${idx + 1}. ${s.name} — ${s.score} pts`),
       '',
-      `📅 Fecha: ${formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, language)}`,
-      'Generado con The Table Companion',
+      t('victoryCard.shareDate', { date: formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, language) }),
+      t('victoryCard.generatedWith'),
     ].filter(Boolean)
 
     const fullText = textLines.join('\n')
@@ -106,7 +106,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
-          title: `Victoria en ${meetup.title}`,
+          title: t('victoryCard.victoryIn', { title: meetup.title }),
           text: fullText,
           url: window.location.href,
         })
@@ -123,9 +123,9 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
 
   const handleCopySummary = async () => {
     const textLines = [
-      `🎲 *Resumen de Partida: ${meetup.title}*`,
-      gameTitle ? `📖 Juego: *${gameTitle}*` : '',
-      winner ? `🏆 Ganador: *${winner.name}* (${winner.score} pts)` : '',
+      t('victoryCard.shareSummaryTitle', { title: meetup.title }),
+      gameTitle ? t('victoryCard.shareGame', { game: gameTitle }) : '',
+      winner ? t('victoryCard.shareWinner', { name: winner.name, score: winner.score }) : '',
       ...sortedScores.map((s, idx) => `${idx + 1}. ${s.name} — ${s.score} pts`),
     ].filter(Boolean)
 
@@ -151,9 +151,9 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-extrabold text-sm text-foreground">Tarjeta de Victoria</h3>
+              <h3 className="font-extrabold text-sm text-foreground">{t('victoryCard.modalTitle')}</h3>
               <p className="text-xs text-muted-foreground font-medium">
-                Comparte el resultado con tu grupo
+                {t('victoryCard.modalDesc')}
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             variant="ghost"
             size="icon-sm"
             onClick={onClose}
-            aria-label="Cerrar modal"
+            aria-label={t('victoryCard.closeModal')}
             className="text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4" />
@@ -184,7 +184,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3 mb-4 relative z-10">
               <div className="min-w-0 flex-1">
                 <span className="text-xs uppercase font-black tracking-widest text-emerald-400 block">
-                  Acta de Partida
+                  {t('victoryCard.matchReport')}
                 </span>
                 <h4 className="text-base font-black truncate text-white">{meetup.title}</h4>
               </div>
@@ -212,7 +212,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <span className="text-xs uppercase font-bold text-zinc-400">Juego</span>
+                    <span className="text-xs uppercase font-bold text-zinc-400">{t('victoryCard.game')}</span>
                     <h5 className="text-sm font-black truncate text-white leading-tight">
                       {gameTitle}
                     </h5>
@@ -226,7 +226,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
                     <Crown className="w-5 h-5 text-amber-400 animate-pulse shrink-0" />
                     <div>
                       <span className="text-xs uppercase font-black tracking-wider text-amber-400 block">
-                        Campeón
+                        {t('victoryCard.champion')}
                       </span>
                       <span className="text-xs font-black text-white">{winner.name}</span>
                     </div>
@@ -245,7 +245,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
             {sortedScores.length > 0 && (
               <div className="space-y-1.5 relative z-10 mb-4">
                 <span className="text-xs uppercase font-black tracking-widest text-zinc-400 block px-1">
-                  Clasificación
+                  {t('victoryCard.classification')}
                 </span>
                 <div className="space-y-1">
                   {sortedScores.map((player, idx) => (
@@ -278,7 +278,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
               <div className="rounded-2xl overflow-hidden border border-white/10 aspect-video relative z-10 mb-3 bg-black">
                 <img
                   src={proxiedBoardPhoto}
-                  alt="Tablero final"
+                  alt={t('victoryCard.finalBoard')}
                   crossOrigin="anonymous"
                   onError={() => setBoardPhotoError(true)}
                   className="w-full h-full object-cover"
@@ -288,7 +288,7 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
 
             {/* Watermark */}
             <div className="text-center pt-2 text-xs text-zinc-500 font-bold uppercase tracking-widest border-t border-white/10 relative z-10">
-              The Table Companion • BoardGame Social
+              {t('victoryCard.watermark')}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react'
@@ -16,8 +17,10 @@ export function ImageLightboxModal({
   initialIndex = 0,
   isOpen,
   onClose,
-  title = 'Foto de la partida'
+  title
 }: ImageLightboxModalProps) {
+  const { t } = useTranslation()
+  const displayTitle = title || t('lightbox.defaultTitle')
   const [currentIndex, setCurrentIndex] = React.useState(initialIndex)
   const [isZoomed, setIsZoomed] = React.useState(false)
 
@@ -57,11 +60,11 @@ export function ImageLightboxModal({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className='max-w-[95vw] sm:max-w-4xl max-h-[92vh] p-0 border-border/40 bg-black/95 overflow-hidden flex flex-col items-center justify-between text-white shadow-2xl rounded-2xl'>
-        <DialogTitle className='sr-only'>{title}</DialogTitle>
+        <DialogTitle className='sr-only'>{displayTitle}</DialogTitle>
 
         <div className='w-full flex items-center justify-between px-4 py-3 bg-black/60 backdrop-blur-xs border-b border-white/10 z-20'>
           <div className='flex items-center gap-2'>
-            <span className='text-xs font-bold text-white/80'>{title}</span>
+            <span className='text-xs font-bold text-white/80'>{displayTitle}</span>
             {total > 1 && (
               <span className='text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-white/10 text-white/90'>
                 {currentIndex + 1} / {total}
@@ -74,7 +77,7 @@ export function ImageLightboxModal({
               size='sm'
               onClick={() => setIsZoomed((z) => !z)}
               className='h-8 w-8 p-0 text-white hover:bg-white/15 rounded-lg'
-              title={isZoomed ? 'Reducir zoom' : 'Ampliar zoom'}
+              title={isZoomed ? t('lightbox.zoomOut') : t('lightbox.zoomIn')}
             >
               {isZoomed ? <ZoomOut className='w-4 h-4' /> : <ZoomIn className='w-4 h-4' />}
             </Button>
@@ -83,7 +86,7 @@ export function ImageLightboxModal({
               size='sm'
               onClick={onClose}
               className='h-8 w-8 p-0 text-white hover:bg-white/15 rounded-lg'
-              title='Cerrar'
+              title={t('lightbox.close')}
             >
               <X className='w-4 h-4' />
             </Button>
@@ -97,7 +100,7 @@ export function ImageLightboxModal({
               size='sm'
               onClick={handlePrev}
               className='absolute left-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 p-0 rounded-full bg-black/60 hover:bg-black/80 border border-white/15 text-white shadow-lg'
-              title='Anterior'
+              title={t('lightbox.prev')}
             >
               <ChevronLeft className='w-5 h-5' />
             </Button>
@@ -105,7 +108,7 @@ export function ImageLightboxModal({
 
           <img
             src={currentImage}
-            alt={title}
+            alt={displayTitle}
             onClick={() => setIsZoomed((z) => !z)}
             className={"transition-transform duration-200 select-none rounded-lg max-h-[74vh] object-contain cursor-zoom-in " + (isZoomed ? "scale-150 cursor-zoom-out" : "scale-100")}
           />
@@ -116,7 +119,7 @@ export function ImageLightboxModal({
               size='sm'
               onClick={handleNext}
               className='absolute right-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 p-0 rounded-full bg-black/60 hover:bg-black/80 border border-white/15 text-white shadow-lg'
-              title='Siguiente'
+              title={t('lightbox.next')}
             >
               <ChevronRight className='w-5 h-5' />
             </Button>
