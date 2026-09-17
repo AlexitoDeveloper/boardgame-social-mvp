@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, Dices, Users, User, MessageSquare, ListOrdered, LucideIcon } from 'lucide-react'
+import { Home, Dices, Users, User, MessageSquare, Trophy, LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { cn } from '../../lib/utils'
@@ -25,7 +25,7 @@ const primaryNavItems: DesktopNavItemConfig[] = [
 
 const secondaryNavItems: DesktopNavItemConfig[] = [
   { to: '/chats', labelKey: 'nav.chats', icon: MessageSquare },
-  { to: '/tops', labelKey: 'nav.tops', icon: ListOrdered },
+  { to: '/tops', labelKey: 'nav.tops', icon: Trophy },
 ]
 
 interface DesktopNavbarProps {

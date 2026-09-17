@@ -54,9 +54,28 @@ export function MeetupDetailAttendees({
             {t('meetup.attendeesCount', { current: attendees.length, max: maxPlayers })}
           </CardDescription>
         </div>
-        <Badge variant="primary-soft" className="text-xs">
-          {t('meetup.spotsLeft', { count: spotsRemaining })}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center -space-x-2 shrink-0">
+            {attendees.slice(0, 4).map((a) => (
+              <div key={a.id} className="relative">
+                <Avatar className="w-7 h-7 border-2 border-background ring-1 ring-border/20">
+                  <AvatarImage src={a.avatar_url || undefined} />
+                  <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
+                    {a.username?.slice(0, 2).toUpperCase() || 'P'}
+                  </AvatarFallback>
+                </Avatar>
+                {a.id === creatorId && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center text-zinc-950 shadow-sm ring-1 ring-background">
+                    <Crown className="w-2 h-2 fill-current" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <Badge variant="primary-soft" className="text-xs">
+            {t('meetup.spotsLeft', { count: spotsRemaining })}
+          </Badge>
+        </div>
       </CardHeader>
       
       <CardContent className="p-4 pt-4 sm:p-6 sm:pt-6">

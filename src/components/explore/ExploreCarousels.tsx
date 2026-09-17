@@ -1,9 +1,12 @@
+import { Link } from 'react-router-dom'
+import { ListOrdered, Plus } from 'lucide-react'
 import { motion, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Game } from '../../types'
 import { FeaturedGameHero } from '../FeaturedGameHero'
 import { GameCarousel } from '../GameCarousel'
 import { CommunityRankingCard } from '../CommunityRankingCard'
+import { Button } from '../ui/button'
 
 type CommunityRankingItem = Parameters<typeof CommunityRankingCard>[0]['ranking']
 
@@ -134,13 +137,27 @@ export function ExploreCarousels({
         </motion.div>
       )}
 
-      {/* Community Rankings (Created by users) */}
-      {communityRankings.length > 0 && (
-        <motion.div variants={sectionVariants} className="space-y-2 py-1">
-          <h3 className="text-lg font-black font-display tracking-tight px-1 text-foreground">
-            {t('explore.communityRankingsTitle')}
+      {/* Community Rankings & Tops Spotlight */}
+      <motion.div variants={sectionVariants} className="space-y-3 py-1">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-lg font-black font-display tracking-tight text-foreground">
+            {t('explore.communityRankingsTitle', 'Rankings de la Comunidad')}
           </h3>
-          <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-4 px-1.5 snap-x snap-mandatory scroll-smooth no-scrollbar -mt-2">
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="h-8 rounded-full text-xs font-bold gap-1 border-primary/30 text-primary hover:bg-primary/10"
+          >
+            <Link to="/tops">
+              <Plus className="w-3.5 h-3.5" />
+              <span>{t('common.create', 'Crear')}</span>
+            </Link>
+          </Button>
+        </div>
+
+        {communityRankings.length > 0 ? (
+          <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1.5 snap-x snap-mandatory scroll-smooth no-scrollbar">
             {communityRankings.map((ranking) => (
               <div 
                 key={ranking.id}
@@ -150,8 +167,30 @@ export function ExploreCarousels({
               </div>
             ))}
           </div>
-        </motion.div>
-      )}
+        ) : (
+          <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-primary/10 via-card to-card border border-border/40 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-1 max-w-md">
+              <h4 className="text-sm font-bold text-foreground">
+                {t('tops.exploreBannerTitle', '¿Cuáles son tus juegos favoritos?')}
+              </h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t('tops.exploreBannerDesc', 'Diseña y exporta tu propia Tier List o Top 10 para compartir con tu grupo.')}
+              </p>
+            </div>
+            <Button
+              asChild
+              variant="default"
+              size="sm"
+              className="rounded-xl font-bold text-xs h-9 px-3.5 shadow-sm shadow-primary/20 shrink-0"
+            >
+              <Link to="/tops">
+                <ListOrdered className="w-3.5 h-3.5 mr-1" />
+                <span>{t('common.create', 'Crear')}</span>
+              </Link>
+            </Button>
+          </div>
+        )}
+      </motion.div>
 
       {/* Classics */}
       <motion.div variants={sectionVariants}>

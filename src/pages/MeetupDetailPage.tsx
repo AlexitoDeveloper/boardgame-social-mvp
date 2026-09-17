@@ -31,6 +31,7 @@ import { MeetupDetailAttendees } from '../components/meetup-detail/MeetupDetailA
 import { MeetupDetailLocation } from '../components/meetup-detail/MeetupDetailLocation'
 import { MeetupDetailOnline } from '../components/meetup-detail/MeetupDetailOnline'
 import { MeetupDetailSidebar } from '../components/meetup-detail/MeetupDetailSidebar'
+import { MeetupDetailActionDock } from '../components/meetup-detail/MeetupDetailActionDock'
 import { FirstPlayerSelector } from '../components/session/FirstPlayerSelector'
 import { LiveScoreTracker } from '../components/session/LiveScoreTracker'
 import { BoardPhotoUploader } from '../components/session/BoardPhotoUploader'
@@ -150,7 +151,7 @@ export function MeetupDetailPage() {
   const isPast = new Date(meetup.date).getTime() < new Date().getTime()
 
   return (
-    <section className="space-y-6 max-w-4xl mx-auto p-0 pb-6 md:p-4 md:pb-24">
+    <section className="space-y-6 max-w-4xl mx-auto p-0 pb-28 md:p-4 md:pb-32 lg:pb-12">
       
       {/* Back navigation and share toolbar (sticky on mobile with safe-area spacing) */}
       <div className="sticky top-[-2px] z-30 flex items-center justify-between pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/90 backdrop-blur-md border-b border-border/20 transition-all duration-200">
@@ -296,6 +297,20 @@ export function MeetupDetailPage() {
           onVictoryCardClick={() => setShowVictoryCardModal(true)}
         />
       </div>
+
+      {/* Mobile Sticky Bottom Action Dock (Playtomic benchmark) */}
+      <MeetupDetailActionDock
+        meetup={meetup}
+        attendees={attendees}
+        isPast={isPast}
+        isJoined={isJoined}
+        isFull={isFull}
+        joining={joining}
+        spotsRemaining={spotsRemaining}
+        guestReservation={guestReservation}
+        handleJoinLeave={handleJoinLeave}
+        onNavigateToChat={() => navigate(`/chats?id=${meetup.id}`)}
+      />
 
       {/* Legal Attribution */}
       <div className="text-center pt-8 text-xs text-muted-foreground/60 font-semibold select-none border-t border-border/10 mt-6 w-full">

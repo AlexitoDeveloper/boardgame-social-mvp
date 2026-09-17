@@ -90,7 +90,7 @@ export function MobileBottomBar({ user, unreadChats }: MobileBottomBarProps) {
         {/* 3. Grupos */}
         <MobileBottomNavItem to="/grupos" label={t('nav.groups')} icon={Users} />
 
-        {/* 4. Chats con badge */}
+        {/* 4. Chats con badge de no leídos */}
         <MobileBottomNavItem
           to="/chats"
           label={t('nav.chats')}

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, Languages, LogOut, Check } from 'lucide-react'
+import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
@@ -107,6 +107,28 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                 {language === 'en' && <Check className="h-3.5 w-3.5 ml-auto" />}
               </Button>
             </div>
+          </div>
+
+          {/* Creator Tools Quick Access */}
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+              {t('nav.tools', 'Herramientas')}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                onClose()
+                navigate('/tops')
+              }}
+              className="w-full h-11 rounded-xl flex items-center justify-between px-3 text-xs font-bold hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <ListOrdered className="h-4 w-4 text-primary" />
+                <span>{t('tops.topsTitle', 'Generador de Tops & Tier Lists')}</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Button>
           </div>
 
           {/* Sign Out Action */}

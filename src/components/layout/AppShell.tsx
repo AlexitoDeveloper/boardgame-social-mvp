@@ -46,7 +46,7 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      {/* Mobile Ergonomic Bottom Navigation Bar (5 Core Tabs, Icon-Only) */}
+      {/* Mobile Ergonomic Bottom Navigation Bar (5 Canonical Tabs) */}
       <MobileBottomBar user={user} unreadChats={unreadChats} />
 
       {/* Floating Drawers & Modals */}
