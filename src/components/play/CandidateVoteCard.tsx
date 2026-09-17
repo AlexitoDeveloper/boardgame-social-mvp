@@ -1,6 +1,7 @@
 import { FC } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Clock, Dices, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { VotingGame } from './ExpressVotingModal'
 import { cn } from '../../lib/utils'
 
@@ -25,6 +26,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
   disabled = false,
   onToggleVote,
 }) => {
+  const { t } = useTranslation()
   const handleClick = () => {
     if (disabled) return
     onToggleVote(game.bgg_id)
@@ -74,7 +76,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
           <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-semibold">
             <span className="flex items-center gap-1">
               <Users className="w-3 h-3 text-primary" />
-              {game.min_players || 2}-{game.max_players || 5} jug.
+              {game.min_players || 2}-{game.max_players || 5} {t('common.playersAbbr')}
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3 text-primary" />
@@ -98,7 +100,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
             {hasMyVote && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             <span>{voteCount}</span>
             <span className="text-xs font-bold opacity-80 uppercase">
-              {voteCount === 1 ? 'voto' : 'votos'}
+              {voteCount === 1 ? t('play.votingModal.vote') : t('play.votingModal.votes')}
             </span>
           </div>
         </div>
@@ -108,7 +110,7 @@ export const CandidateVoteCard: FC<CandidateVoteCardProps> = ({
       {voters.length > 0 && (
         <div className="mt-2 pt-2 border-t border-border/20 flex items-center gap-1.5 flex-wrap">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Votado por:
+            {t('play.votingModal.votedBy')}
           </span>
           {voters.map((voter, idx) => (
             <span

@@ -1,6 +1,8 @@
-import { Search, Layers, Sparkles, Plus } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Search, Layers, Sparkles, Plus, Users } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
+import { FilterChip } from '../ui/chip'
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar'
 import { GameCoverCard } from '../GameCoverCard'
 import { MergedGame } from '../../hooks/useGroupDetail'
@@ -23,6 +25,21 @@ export function GroupLudotecaTab({
   onOpenAddGame,
 }: GroupLudotecaTabProps) {
   const { t } = useTranslation()
+  const [playerCountFilter, setPlayerCountFilter] = useState<'all' | 2 | 3 | 4 | '5+'>('all')
+
+  const displayedMerged = useMemo(() => {
+    return filteredMerged.filter((item) => {
+      if (playerCountFilter === 'all') return true
+      const min = item.game.min_players ?? 1
+      const max = item.game.max_players ?? 99
+
+      if (playerCountFilter === '5+') {
+        return max >= 5
+      }
+
+      return min <= playerCountFilter && max >= playerCountFilter
+    })
+  }, [filteredMerged, playerCountFilter])
 
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
@@ -56,12 +73,43 @@ export function GroupLudotecaTab({
         </div>
       </div>
 
-      {filteredMerged.length === 0 ? (
+      {/* "¿A qué jugamos hoy?" Player Count Filter Chips */}
+      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+        <div className="flex items-center gap-1.5 text-xs font-black text-muted-foreground uppercase tracking-wider mr-1">
+          <Users className="w-3.5 h-3.5 text-primary" />
+          <span>{t('quickLog.whatToPlayToday')}</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {(
+            [
+              { id: 'all', label: t('quickLog.filterAll') },
+              { id: 2, label: '2p' },
+              { id: 3, label: '3p' },
+              { id: 4, label: '4p' },
+              { id: '5+', label: '5p+' },
+            ] as const
+          ).map((filter) => (
+            <FilterChip
+              key={filter.id}
+              onClick={() => setPlayerCountFilter(filter.id)}
+              selected={playerCountFilter === filter.id}
+              size="sm"
+            >
+              {filter.label}
+            </FilterChip>
+          ))}
+        </div>
+      </div>
+
+      {displayedMerged.length === 0 ? (
         <div className="text-center py-16 border border-dashed border-border/50 rounded-2xl bg-muted/15 max-w-md mx-auto space-y-3 p-6">
           <Layers className="h-10 w-10 text-muted-foreground/30 mx-auto" />
           <p className="text-muted-foreground font-bold text-sm">{t('groups.emptyLudoteca')}</p>
           <p className="text-xs text-foreground/50 max-w-sm mx-auto leading-normal">
-            {t('groups.emptyLudotecaDesc')}
+            {filteredMerged.length === 0
+              ? t('groups.emptyLudotecaDesc')
+              : t('quickLog.emptyFilteredLudoteca')}
           </p>
           {onOpenAddGame && (
             <Button
@@ -76,7 +124,7 @@ export function GroupLudotecaTab({
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filteredMerged.map((item) => (
+          {displayedMerged.map((item) => (
             <div key={item.game.bgg_id} className="space-y-2 flex flex-col justify-between">
               <GameCoverCard game={item.game} />
               <div className="text-xs bg-muted/30 p-2 rounded-xl border border-border/20 space-y-1.5">
@@ -113,3 +161,4 @@ export function GroupLudotecaTab({
     </div>
   )
 }
+

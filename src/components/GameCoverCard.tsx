@@ -4,10 +4,18 @@ import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
 import { OptimizedImage } from './ui/OptimizedImage'
 import { ExpansionBadge } from './ui/expansion-badge'
+import { Skeleton } from './ui/skeleton'
 import { useGameLocale } from '../hooks/useGameLocale'
+import { cn } from '../lib/utils'
 
 interface GameCoverCardProps {
   game: Game;
+}
+
+export function GameCoverCardSkeleton({ className }: { className?: string }) {
+  return (
+    <Skeleton className={cn("aspect-[2/3] w-full rounded-2xl border border-border/20", className)} />
+  )
 }
 
 export function GameCoverCard({ game }: GameCoverCardProps) {
@@ -27,31 +35,36 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
     : null;
 
   return (
-    <Link 
-      to={`/juegos/${game.bgg_id}`} 
-      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-2xl bg-card border border-border/30 shadow-md hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/45 transition-all duration-500 ease-out"
+    <motion.div
+      whileHover={{ y: -3, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+      className="relative w-full aspect-[2/3]"
     >
-      <motion.div
-        className="absolute inset-0 w-full h-full"
+      <Link 
+        to={`/juegos/${game.bgg_id}`} 
+        className="group relative block w-full h-full overflow-hidden rounded-2xl bg-card border border-border/40 shadow-md hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
       >
-        {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
-        <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
-          {rating && (
-            <span className="flex items-center gap-0.5 rounded-md bg-amber-500/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-black text-white shadow-sm border border-amber-400/20">
-              <Star className="h-2.5 w-2.5 fill-white text-white shrink-0" />
-              {rating}
-            </span>
-          )}
-          {game.has_spanish_edition && (
-            <span className="flex items-center gap-0.5 rounded-md bg-primary/90 backdrop-blur-sm px-1.5 py-0.5 text-xs font-bold text-primary-foreground shadow-sm border border-primary-foreground/10">
-              <Globe className="h-2.5 w-2.5 shrink-0" />
-              ESP
-            </span>
-          )}
-          {game.is_expansion && (
-            <ExpansionBadge size="xs" />
-          )}
-        </div>
+        <div className="absolute inset-0 w-full h-full">
+          {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
+          <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
+            {rating && (
+              <span className="flex items-center gap-1 rounded-lg bg-amber-500/90 dark:bg-amber-500/85 backdrop-blur-md px-1.5 py-0.5 text-xs font-black text-white shadow-sm border border-amber-300/30">
+                <Star className="h-3.5 w-3.5 fill-white text-white shrink-0" strokeWidth={2} aria-hidden="true" />
+                {rating}
+              </span>
+            )}
+            {game.has_spanish_edition && (
+              <span className="flex items-center gap-1 rounded-lg bg-primary/90 dark:bg-primary/85 backdrop-blur-md px-1.5 py-0.5 text-xs font-black text-primary-foreground shadow-sm border border-primary-foreground/20">
+                <Globe className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
+                ESP
+              </span>
+            )}
+            {game.is_expansion && (
+              <ExpansionBadge size="xs" />
+            )}
+          </div>
+
         {/* Cover Image or Dummy Cover */}
         <div className="absolute inset-0 w-full h-full">
           {coverUrl && (
@@ -71,6 +84,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-[0.5]"
           />
         </div>
+
         {/* Hover Details Overlay */}
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-10 select-none">
           <div className="space-y-1.5 text-white">
@@ -82,22 +96,24 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
             {/* Quick Specs */}
             <div className="flex items-center gap-2 text-xs text-gray-300 font-semibold">
               {players && (
-                <span className="flex items-center gap-0.5">
-                  <Users className="h-2.5 w-2.5 text-primary shrink-0" />
+                <span className="flex items-center gap-1">
+                  <Users className="h-3.5 w-3.5 text-primary shrink-0" strokeWidth={2} aria-hidden="true" />
                   {players}
                 </span>
               )}
               {game.complexity && (
-                <span className="flex items-center gap-0.5">
-                  <Brain className="h-2.5 w-2.5 text-primary shrink-0" />
+                <span className="flex items-center gap-1">
+                  <Brain className="h-3.5 w-3.5 text-primary shrink-0" strokeWidth={2} aria-hidden="true" />
                   {game.complexity.toFixed(1)}/5
                 </span>
               )}
             </div>
           </div>
         </div>
-      </motion.div>
-    </Link>
+        </div>
+      </Link>
+    </motion.div>
   )
 }
+
 export default GameCoverCard;
