@@ -76,15 +76,15 @@ export function ExploreHeader({
             placeholder={t('explore.searchPlaceholder')}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-10 h-11 text-sm rounded-xl"
+            className="pl-10 pr-11 h-12 sm:h-11 text-sm rounded-xl"
           />
           {search && (
             <Button
               onClick={() => onSearchChange('')}
               variant="ghost"
-              size="icon-sm"
+              size="icon"
               aria-label={t('explore.clearSearch', 'Limpiar búsqueda')}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground h-8 w-8 min-h-[32px] min-w-[32px]"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground h-10 w-10 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
             >
               <X className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Button>
@@ -104,7 +104,7 @@ export function ExploreHeader({
                   onClick={clearFilters}
                   variant="destructive"
                   size="default"
-                  className="gap-1.5 h-11 px-3.5 rounded-xl"
+                  className="gap-1.5 h-12 sm:h-11 px-3.5 rounded-xl cursor-pointer"
                   aria-label={t('explore.clear', 'Limpiar filtros')}
                 >
                   <span className="hidden xs:inline">{t('explore.clear')}</span>
@@ -118,7 +118,7 @@ export function ExploreHeader({
             onClick={() => setShowFilters(v => !v)}
             variant={showFilters ? 'secondary' : 'outline'}
             size="default"
-            className="gap-2 shrink-0 h-11 px-4 rounded-xl"
+            className="gap-2 shrink-0 h-12 sm:h-11 px-4 rounded-xl cursor-pointer"
             aria-label={showFilters ? t('explore.hideFilters', 'Ocultar filtros') : t('explore.filters', 'Filtros')}
             aria-expanded={showFilters}
           >

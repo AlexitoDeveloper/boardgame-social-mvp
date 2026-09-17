@@ -36,7 +36,7 @@ export function ExploreFilterDrawer({
               onClick={() => onPlayerFilterChange(val)}
               selected={playerFilter === val}
               size="default"
-              className="w-full min-h-[38px] text-xs"
+              className="w-full min-h-[44px] sm:min-h-[40px] text-xs cursor-pointer"
             >
               {val === '' ? t('explore.all') : val}
             </FilterChip>
@@ -62,7 +62,7 @@ export function ExploreFilterDrawer({
               onClick={() => onComplexityFilterChange(opt.key)}
               selected={complexityFilter === opt.key}
               size="default"
-              className="w-full min-h-[38px] text-xs"
+              className="w-full min-h-[44px] sm:min-h-[40px] text-xs cursor-pointer"
             >
               {opt.label}
             </FilterChip>
@@ -77,7 +77,7 @@ export function ExploreFilterDrawer({
           selected={spanishOnly}
           size="default"
           icon={Globe}
-          className="w-full sm:w-auto h-11 px-4 min-h-[44px]"
+          className="w-full sm:w-auto h-12 sm:h-11 px-4 min-h-[48px] sm:min-h-[44px] cursor-pointer"
         >
           <span>{t('explore.spanishOnly')}</span>
         </FilterChip>
