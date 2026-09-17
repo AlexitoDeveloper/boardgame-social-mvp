@@ -3,6 +3,7 @@ import { Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from './ui/button'
 import { OptimizedImage } from './ui/OptimizedImage'
+import { ExpansionBadge } from './ui/expansion-badge'
 import { Game } from '../types'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
@@ -98,6 +99,9 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
               <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-xs">
                 {t('explore.spanishEdition')}
               </span>
+            )}
+            {game.is_expansion && (
+              <ExpansionBadge size="sm" />
             )}
             {getGamePublisher(game) && (
               <span className="text-muted-foreground/70">{t('explore.editedBy', { publisher: getGamePublisher(game) })}</span>

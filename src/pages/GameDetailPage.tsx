@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  ArrowLeft, Users, CalendarDays, 
+  ArrowLeft, Users, 
   Loader2, Plus, Check, Info, Puzzle
 } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
@@ -16,7 +16,6 @@ import { AppLanguage } from '../lib/dateLocale'
 import { GameHeroHeader } from '../components/game-detail/GameHeroHeader'
 import { GameDetailsTab } from '../components/game-detail/GameDetailsTab'
 import { GameCommunityTab } from '../components/game-detail/GameCommunityTab'
-import { GameMeetupsTab } from '../components/game-detail/GameMeetupsTab'
 import { GameExpansionsTab } from '../components/game-detail/GameExpansionsTab'
 import { GameActionsCard } from '../components/game-detail/GameActionsCard'
 
@@ -43,7 +42,7 @@ export function GameDetailPage() {
     upcomingMeetups
   } = useGameDetail(id)
 
-  const [activeTab, setActiveTab] = useState<'details' | 'community' | 'meetups' | 'expansions'>('details')
+  const [activeTab, setActiveTab] = useState<'details' | 'community' | 'expansions'>('details')
 
   if (loading) {
     return (
@@ -87,8 +86,12 @@ export function GameDetailPage() {
 
   const tabs = [
     { id: 'details', label: t('gameDetail.technicalSheet'), icon: Info },
-    { id: 'community', label: t('gameDetail.community'), icon: Users, count: owners.length > 0 ? owners.length : undefined },
-    { id: 'meetups', label: t('gameDetail.meetups'), icon: CalendarDays, count: upcomingMeetups.length > 0 ? upcomingMeetups.length : undefined },
+    { 
+      id: 'community', 
+      label: t('gameDetail.communityAndPlays'), 
+      icon: Users, 
+      count: upcomingMeetups.length > 0 ? upcomingMeetups.length : (owners.length > 0 ? owners.length : undefined) 
+    },
     ...(hasExpansionsOrBaseGame ? [{ id: 'expansions', label: t('gameDetail.expansions'), icon: Puzzle, count: expansions.length > 0 ? expansions.length : undefined }] : [])
   ] as const
 
@@ -189,11 +192,6 @@ export function GameDetailPage() {
                       winnersLog={winnersLog}
                       owners={owners}
                       currentUserCity={currentUserCity}
-                    />
-                  )}
-                  {activeTab === 'meetups' && (
-                    <GameMeetupsTab
-                      game={game}
                       upcomingMeetups={upcomingMeetups}
                       language={language}
                     />

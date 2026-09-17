@@ -2,26 +2,39 @@ import { Link } from 'react-router-dom'
 import { Dices, Crown, Bookmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GameWinner, GameOwner } from '@/hooks/useGameDetail'
+import { Meetup } from '@/types'
+import { AppLanguage } from '@/lib/dateLocale'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { GameUpcomingMeetupsSection } from './GameUpcomingMeetupsSection'
 
 interface GameCommunityTabProps {
   playsCount: number
   winnersLog: GameWinner[]
   owners: GameOwner[]
   currentUserCity: string | null
+  upcomingMeetups?: Meetup[]
+  language?: AppLanguage
 }
 
 export function GameCommunityTab({
   playsCount,
   winnersLog,
   owners,
-  currentUserCity
+  currentUserCity,
+  upcomingMeetups,
+  language = 'es'
 }: GameCommunityTabProps) {
   const { t } = useTranslation()
 
   return (
     <div className="space-y-6">
+      {/* Upcoming Scheduled Meetups / Open Tables */}
+      <GameUpcomingMeetupsSection
+        upcomingMeetups={upcomingMeetups}
+        language={language}
+      />
+
       {/* Community Stats Recap Panel */}
       <Card variant="glass" className="p-5 relative overflow-hidden">
         <Dices className="absolute right-[-15px] bottom-[-15px] h-24 w-24 text-primary/5 select-none pointer-events-none rotate-12" />
