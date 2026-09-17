@@ -63,8 +63,16 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
           {tools.map((tool, i) => (
             <Card
               key={i}
+              role="button"
+              tabIndex={0}
               onClick={tool.onClick}
-              className="p-3.5 rounded-2xl border border-border/40 hover:border-primary/45 bg-card/60 backdrop-blur-md hover:bg-card/95 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg hover:scale-[1.02] group flex flex-col justify-between h-full select-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  tool.onClick()
+                }
+              }}
+              className="p-3.5 rounded-2xl border border-border/40 hover:border-primary/45 bg-card/60 backdrop-blur-md hover:bg-card/95 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg hover:scale-[1.02] group flex flex-col justify-between h-full select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${tool.color} mb-3 transition-transform group-hover:scale-110 shadow-sm`}>
                 <tool.icon className="w-5 h-5" />
