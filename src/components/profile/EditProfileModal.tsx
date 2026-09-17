@@ -148,14 +148,20 @@ export function EditProfileModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md !mt-0">
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4 bg-black/75 backdrop-blur-md !mt-0">
           <MotionDiv
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-card border border-border/50 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl p-6 relative space-y-4 text-left"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+            className="bg-card border-t sm:border border-border/50 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[92vh] flex flex-col shadow-2xl relative text-left overflow-hidden"
           >
-            <div className="flex justify-between items-center pb-2 border-b border-border/20">
+            {/* Mobile Sheet Grab Handle */}
+            <div className="pt-2.5 pb-1 sm:hidden flex justify-center w-full">
+              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+            </div>
+
+            <div className="flex justify-between items-center px-6 py-4 border-b border-border/20 shrink-0">
               <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
                 <User className="w-5 h-5 text-primary" /> {t('profile.editModal.title')}
               </h3>
@@ -163,123 +169,130 @@ export function EditProfileModal({
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
+                aria-label={t('common.cancel')}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             {error && (
-              <div className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              <div className="mx-6 mt-4 text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 rounded-xl p-3">
                 {error}
               </div>
             )}
 
-            <Form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5 text-left">
-                <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.usernameLabel')}</Label>
-                <Input
-                  id="edit-username"
-                  type="text"
-                  required
-                  value={editUsername}
-                  onChange={(e) => setEditUsername(e.target.value)}
-                  placeholder={t('profile.editModal.usernamePlaceholder')}
-                />
-              </div>
-
-              <div className="space-y-1.5 text-left">
-                <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.cityLabel')}</Label>
-                <Input
-                  id="edit-city"
-                  type="text"
-                  value={editCity}
-                  onChange={(e) => setEditCity(e.target.value)}
-                  placeholder={t('profile.editModal.cityPlaceholder')}
-                />
-              </div>
-
-              <div className="space-y-2 text-left">
-                <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">{t('profile.editModal.avatarLabel')}</Label>
-                <div className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border/20">
-                  {/* Interactive Clickable Avatar Preview */}
-                  <div 
-                    onClick={() => !uploading && document.getElementById('avatar-upload')?.click()}
-                    className="relative w-14 h-14 rounded-full border-2 border-primary/30 shrink-0 overflow-hidden group cursor-pointer shadow-sm active:scale-95 transition-all"
-                    title={t('profile.editModal.uploadTitle')}
-                  >
-                    <Avatar className="w-full h-full">
-                      <AvatarImage src={editAvatarUrl || undefined} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
-                        {editUsername.slice(0, 2).toUpperCase() || 'US'}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <Camera className="w-4 h-4 text-white" />
-                    </div>
-                    
-                    {/* Loading state indicator */}
-                    {uploading && (
-                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                        <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 space-y-1.5">
-                    <Input
-                      type="text"
-                      value={editAvatarUrl}
-                      onChange={(e) => setEditAvatarUrl(e.target.value)}
-                      placeholder={t('profile.editModal.avatarUrlPlaceholder')}
-                      disabled={uploading}
-                    />
-                    <div className="flex flex-wrap gap-1.5">
-                      <Input 
-                        type="file" 
-                        id="avatar-upload" 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={handleFileChange}
-                        disabled={uploading}
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => document.getElementById('avatar-upload')?.click()}
-                        disabled={uploading}
-                        variant="secondary"
-                        size="sm"
-                        className="cursor-pointer"
-                        icon={uploading ? Loader2 : Camera}
-                        label={t('profile.editModal.uploadPhoto')}
-                      />
-                      <Button
-                        type="button"
-                        onClick={handleRandomAvatar}
-                        disabled={uploading}
-                        variant="secondary"
-                        size="sm"
-                        className="cursor-pointer"
-                        icon={Dices}
-                        label={t('profile.editModal.randomSeed')}
-                      />
-                    </div>
-                  </div>
+            <Form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <div className="p-6 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-username" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.usernameLabel')}</Label>
+                  <Input
+                    id="edit-username"
+                    type="text"
+                    required
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                    placeholder={t('profile.editModal.usernamePlaceholder')}
+                    className="h-11 rounded-xl"
+                  />
                 </div>
-                <span className="text-xs text-muted-foreground font-semibold block leading-normal mt-1 select-none">
-                  {t('profile.editModal.avatarHelp')}
-                </span>
+
+                <div className="space-y-1.5 text-left">
+                  <Label htmlFor="edit-city" className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider">{t('profile.editModal.cityLabel')}</Label>
+                  <Input
+                    id="edit-city"
+                    type="text"
+                    value={editCity}
+                    onChange={(e) => setEditCity(e.target.value)}
+                    placeholder={t('profile.editModal.cityPlaceholder')}
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <Label className="font-extrabold text-xs text-muted-foreground uppercase tracking-wider block">{t('profile.editModal.avatarLabel')}</Label>
+                  <div className="flex items-center gap-3 bg-muted/30 p-3 rounded-2xl border border-border/20">
+                    {/* Interactive Clickable Avatar Preview */}
+                    <div 
+                      onClick={() => !uploading && document.getElementById('avatar-upload')?.click()}
+                      className="relative w-14 h-14 rounded-full border-2 border-primary/30 shrink-0 overflow-hidden group cursor-pointer shadow-sm active:scale-95 transition-all"
+                      title={t('profile.editModal.uploadTitle')}
+                    >
+                      <Avatar className="w-full h-full">
+                        <AvatarImage src={editAvatarUrl || undefined} />
+                        <AvatarFallback className="bg-primary/20 text-primary text-xl font-bold">
+                          {editUsername.slice(0, 2).toUpperCase() || 'US'}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Camera className="w-4 h-4 text-white" />
+                      </div>
+                      
+                      {/* Loading state indicator */}
+                      {uploading && (
+                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5 min-w-0">
+                      <Input
+                        type="text"
+                        value={editAvatarUrl}
+                        onChange={(e) => setEditAvatarUrl(e.target.value)}
+                        placeholder={t('profile.editModal.avatarUrlPlaceholder')}
+                        disabled={uploading}
+                        className="h-9 text-xs rounded-xl"
+                      />
+                      <div className="flex flex-wrap gap-1.5">
+                        <Input 
+                          type="file" 
+                          id="avatar-upload" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleFileChange}
+                          disabled={uploading}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          disabled={uploading}
+                          variant="secondary"
+                          size="sm"
+                          className="cursor-pointer text-xs h-8"
+                          icon={uploading ? Loader2 : Camera}
+                          label={t('profile.editModal.uploadPhoto')}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleRandomAvatar}
+                          disabled={uploading}
+                          variant="secondary"
+                          size="sm"
+                          className="cursor-pointer text-xs h-8"
+                          icon={Dices}
+                          label={t('profile.editModal.randomSeed')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground font-semibold block leading-normal mt-1 select-none">
+                    {t('profile.editModal.avatarHelp')}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex justify-end gap-2.5 pt-2">
+              {/* Bottom-anchored Action Dock with Safe Area */}
+              <div className="p-4 sm:p-6 border-t border-border/20 bg-card/95 backdrop-blur-md flex items-center justify-end gap-2.5 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
                   disabled={saving || uploading}
-                  className="cursor-pointer"
+                  className="cursor-pointer h-11 px-4 min-w-[80px]"
                 >
                   {t('common.cancel')}
                 </Button>
@@ -287,11 +300,11 @@ export function EditProfileModal({
                   type="submit"
                   size="sm"
                   disabled={saving || uploading || !editUsername.trim()}
-                  className="cursor-pointer shadow-sm"
+                  className="cursor-pointer shadow-sm h-11 px-5 font-bold"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
                       {t('profile.editModal.saving')}
                     </>
                   ) : (

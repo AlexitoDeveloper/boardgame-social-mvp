@@ -26,7 +26,10 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-6">
+      <DialogContent className="max-sm:fixed max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl max-sm:border-x-0 max-sm:border-b-0 max-sm:max-w-full sm:max-w-md p-6 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        {/* Mobile Sheet Grab Handle */}
+        <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto -mt-2 mb-3 sm:hidden shrink-0" />
+
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-xl font-extrabold font-display tracking-tight text-foreground">
             {t('nav.theme')} & {t('nav.changeLang')}

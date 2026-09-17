@@ -1,26 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Award, Maximize2 } from 'lucide-react'
+import { Award, Maximize2, ShieldCheck, Lock } from 'lucide-react'
 import { UserStats } from '../../hooks/useProfile'
 import { AchievementMedallion } from './AchievementMedallion'
 import { useTranslation } from 'react-i18next'
 import { BadgePreviewModal } from './BadgePreviewModal'
 import { ACHIEVEMENT_TIER_ASSETS } from './achievementAssets'
 import { Button } from '../ui/button'
-
-const MotionDiv = motion.div
+import { Badge } from '../ui/badge'
+import { getAchievementsList, AchievementItem } from './achievementsConfig'
 
 interface AchievementsVitrinaProps {
   organizedCount: number;
   stats: UserStats;
   savedRankingsCount: number;
-}
-
-interface Tier {
-  req: number;
-  name: string;
-  tier: 'Bronce' | 'Plata' | 'Oro' | 'Platino';
-  color: string;
 }
 
 export function AchievementsVitrina({
@@ -30,141 +23,53 @@ export function AchievementsVitrina({
 }: AchievementsVitrinaProps) {
   const { t } = useTranslation()
 
-  const hostTiers: Tier[] = [
-    { req: 1,  name: t('profile.achievements.host_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3,  name: t('profile.achievements.host_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 8,  name: t('profile.achievements.host_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 15, name: t('profile.achievements.host_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
-  ]
-
-  const winnerTiers: Tier[] = [
-    { req: 1,  name: t('profile.achievements.winner_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3,  name: t('profile.achievements.winner_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 8,  name: t('profile.achievements.winner_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 15, name: t('profile.achievements.winner_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
-  ]
-
-  const veteranTiers: Tier[] = [
-    { req: 1,  name: t('profile.achievements.veteran_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 5,  name: t('profile.achievements.veteran_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 15, name: t('profile.achievements.veteran_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 30, name: t('profile.achievements.veteran_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
-  ]
-
-  const reliableTiers = [
-    { reqKarma: 80,  reqPlayed: 1,  name: t('profile.achievements.reliable_bronze'),   tier: 'Bronce' as const, color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { reqKarma: 90,  reqPlayed: 3,  name: t('profile.achievements.reliable_silver'),   tier: 'Plata'  as const, color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { reqKarma: 95,  reqPlayed: 8,  name: t('profile.achievements.reliable_gold'),     tier: 'Oro'    as const, color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { reqKarma: 100, reqPlayed: 15, name: t('profile.achievements.reliable_platinum'), tier: 'Platino'as const, color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
-  ]
-
-  const criticTiers: Tier[] = [
-    { req: 1,  name: t('profile.achievements.critic_bronze'),   tier: 'Bronce', color: 'from-amber-700 to-amber-900 text-amber-400 shadow-amber-900/30' },
-    { req: 3,  name: t('profile.achievements.critic_silver'),   tier: 'Plata',  color: 'from-zinc-400/90 to-zinc-650 text-zinc-200 shadow-zinc-500/20' },
-    { req: 6,  name: t('profile.achievements.critic_gold'),     tier: 'Oro',    color: 'from-yellow-400 to-amber-500 text-yellow-400 shadow-yellow-500/20 border-yellow-500/30' },
-    { req: 10, name: t('profile.achievements.critic_platinum'), tier: 'Platino',color: 'from-cyan-400 to-indigo-500 text-cyan-300 shadow-cyan-500/20 border-cyan-400/50 ring-1 ring-cyan-400/30' }
-  ]
-
-  const getTierInfo = (tiers: Tier[], value: number) => {
-    let currentIdx = -1
-    for (let i = 0; i < tiers.length; i++) {
-      if (value >= tiers[i].req) {
-        currentIdx = i
-      }
-    }
-    const currentTier = currentIdx >= 0 ? tiers[currentIdx] : null
-    const nextTier = currentIdx + 1 < tiers.length ? tiers[currentIdx + 1] : null
-    return { currentTier, nextTier, progressVal: value, targetVal: nextTier ? nextTier.req : (currentTier?.req || 0) }
-  }
-
-  const getReliableInfo = (currentKarma: number, currentPlayed: number) => {
-    let currentIdx = -1
-    for (let i = 0; i < reliableTiers.length; i++) {
-      if (currentKarma >= reliableTiers[i].reqKarma && currentPlayed >= reliableTiers[i].reqPlayed) {
-        currentIdx = i
-      }
-    }
-    const currentTier = currentIdx >= 0 ? reliableTiers[currentIdx] : null
-    const nextTier = currentIdx + 1 < reliableTiers.length ? reliableTiers[currentIdx + 1] : null
-    return { currentTier, nextTier, progressVal: currentKarma, targetVal: nextTier ? nextTier.reqKarma : (currentTier?.reqKarma || 0) }
-  }
-
-  const achievements = [
-    {
-      id: 'host',
-      baseName: t('profile.achievements.hostTitle'),
-      description: t('profile.achievements.hostDesc'),
-      currentValue: organizedCount,
-      ...getTierInfo(hostTiers, organizedCount),
-      unit: t('profile.achievements.hostUnit'),
-      reqDesc: t('profile.achievements.hostReq')
-    },
-    {
-      id: 'winner',
-      baseName: t('profile.achievements.winnerTitle'),
-      description: t('profile.achievements.winnerDesc'),
-      currentValue: stats.won,
-      ...getTierInfo(winnerTiers, stats.won),
-      unit: t('profile.achievements.winnerUnit'),
-      reqDesc: t('profile.achievements.winnerReq')
-    },
-    {
-      id: 'veteran',
-      baseName: t('profile.achievements.veteranTitle'),
-      description: t('profile.achievements.veteranDesc'),
-      currentValue: stats.played,
-      ...getTierInfo(veteranTiers, stats.played),
-      unit: t('profile.achievements.veteranUnit'),
-      reqDesc: t('profile.achievements.veteranReq')
-    },
-    {
-      id: 'reliable',
-      baseName: t('profile.achievements.reliableTitle'),
-      description: t('profile.achievements.reliableDesc'),
-      currentValue: stats.karma,
-      ...getReliableInfo(stats.karma, stats.played),
-      unit: t('profile.achievements.reliableUnit'),
-      reqDesc: t('profile.achievements.reliableReq')
-    },
-    {
-      id: 'critic',
-      baseName: t('profile.achievements.criticTitle'),
-      description: t('profile.achievements.criticDesc'),
-      currentValue: savedRankingsCount,
-      ...getTierInfo(criticTiers, savedRankingsCount),
-      unit: t('profile.achievements.criticUnit'),
-      reqDesc: t('profile.achievements.criticReq')
-    }
-  ]
+  const achievements = useMemo(
+    () => getAchievementsList(t, organizedCount, stats, savedRankingsCount),
+    [t, organizedCount, stats, savedRankingsCount]
+  )
 
   const [activeAchId, setActiveAchId] = useState<string>('host')
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const activeAch = achievements.find(a => a.id === activeAchId) || achievements[0]
+  const activeAch: AchievementItem = achievements.find(a => a.id === activeAchId) || achievements[0]
+
+  const unlockedCount = achievements.filter(a => a.currentTier !== null).length
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-xs font-extrabold uppercase text-muted-foreground tracking-widest flex items-center gap-1.5 select-none text-left">
-        <Award className="w-4 h-4 text-primary" /> {t('profile.achievements.title')}
-      </h3>
-      <div className="grid grid-cols-5 gap-2.5">
+    <div className="space-y-4">
+      {/* Vitrina Header with Unlocked Counter */}
+      <div className="flex items-center justify-between px-1 select-none">
+        <h3 className="text-xs font-extrabold uppercase text-muted-foreground tracking-widest flex items-center gap-1.5 text-left">
+          <Award className="w-4 h-4 text-primary" /> {t('profile.achievements.title')}
+        </h3>
+        <Badge variant="primary-soft" size="sm" className="font-mono-tabular">
+          {unlockedCount} / {achievements.length} Desbloqueados
+        </Badge>
+      </div>
+
+      {/* Tactile Medals Mobile Grid */}
+      <div className="grid grid-cols-5 gap-2 sm:gap-3 p-3 rounded-2xl bg-card/40 border border-border/30 backdrop-blur-md">
         {achievements.map((ach) => {
           const isActive = activeAchId === ach.id
           const hasUnlocked = ach.currentTier !== null
 
           return (
-            <div 
-              key={ach.id} 
+            <motion.button
+              key={ach.id}
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               onClick={() => setActiveAchId(ach.id)}
-              onMouseEnter={() => setActiveAchId(ach.id)}
-              className="flex flex-col items-center select-none cursor-pointer"
+              className={`flex flex-col items-center select-none cursor-pointer focus-visible:outline-none rounded-xl p-1 transition-colors ${
+                isActive ? 'bg-primary/10 ring-1 ring-primary/40' : 'hover:bg-muted/20'
+              }`}
+              aria-label={ach.baseName}
             >
               {/* Achievement Badge Container */}
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 relative z-0 shrink-0 ${
-                hasUnlocked 
-                  ? `${isActive ? 'scale-105 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]' : 'hover:scale-105'}`
-                  : `opacity-40 filter grayscale ${
-                      isActive ? 'scale-105' : ''
-                    }`
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center relative shrink-0 transition-transform ${
+                hasUnlocked
+                  ? isActive ? 'scale-105' : ''
+                  : 'opacity-40 grayscale'
               }`}>
                 <AchievementMedallion 
                   id={ach.id} 
@@ -174,24 +79,25 @@ export function AchievementsVitrina({
                 />
               </div>
               
-              {/* Mini label below */}
-              <span className={`text-[10px] font-semibold tracking-tight mt-2 text-center line-clamp-2 w-full px-0.5 leading-[1.15] min-h-[26px] flex items-center justify-center break-words relative z-10 ${
+              {/* Mini title */}
+              <span className={`text-[10px] font-bold tracking-tight mt-1.5 text-center line-clamp-1 w-full px-0.5 leading-tight ${
                 hasUnlocked 
-                  ? isActive ? 'text-primary font-bold' : 'text-foreground'
-                  : 'text-zinc-500'
-              }`} title={hasUnlocked ? (ach.currentTier?.name || ach.baseName) : t('profile.achievements.lockedBadge')}>
+                  ? isActive ? 'text-primary font-black' : 'text-foreground'
+                  : 'text-muted-foreground'
+              }`}>
                 {hasUnlocked ? (ach.currentTier?.name || ach.baseName) : ach.baseName}
               </span>
               
-              <span className="text-[10px] font-semibold text-muted-foreground/75 mt-0.5">
+              {/* Value / Progress label */}
+              <span className="text-[10px] font-mono-tabular font-bold text-muted-foreground/80 mt-0.5">
                 {ach.id === 'reliable' ? `${stats.karma}%` : `${ach.progressVal}`}
               </span>
-            </div>
+            </motion.button>
           )
         })}
       </div>
 
-      {/* Selected Achievement Detail Sub-card with tier levels progress bar */}
+      {/* Selected Achievement Focus Card */}
       <AnimatePresence mode="wait">
         {activeAch && (() => {
           const hasUnlocked = activeAch.currentTier !== null
@@ -199,59 +105,24 @@ export function AchievementsVitrina({
             ? activeAch.currentTier.name
             : `${t('profile.achievements.lockedBadge')} (${activeAch.baseName})`
           const tierLabel = activeAch.currentTier ? activeAch.currentTier.tier : t('profile.achievements.lockedBadge')
-          
-          let nextLevelDesc = ''
-          let progressPercent = 0
-          let progressText = ''
-
-          if (activeAch.nextTier) {
-            if (activeAch.id === 'reliable') {
-              const nextTierCast = activeAch.nextTier as { reqKarma: number; reqPlayed: number; name: string; tier: string; color: string }
-              const nextKarma = nextTierCast.reqKarma
-              const nextPlayed = nextTierCast.reqPlayed
-              progressPercent = Math.min(100, Math.round((stats.karma / nextKarma) * 50 + (Math.min(stats.played, nextPlayed) / nextPlayed) * 50))
-              nextLevelDesc = t('profile.achievements.nextLevel', { name: nextTierCast.name, tier: nextTierCast.tier })
-              progressText = t('profile.achievements.reqKarma', { karma: nextKarma, current: stats.karma, played: stats.played, target: nextPlayed })
-            } else {
-              const nextTierCast = activeAch.nextTier as Tier
-              const nextReq = nextTierCast.req
-              progressPercent = Math.min(100, Math.round((activeAch.progressVal / nextReq) * 100))
-              nextLevelDesc = t('profile.achievements.nextLevel', { name: nextTierCast.name, tier: nextTierCast.tier })
-              progressText = t('profile.achievements.progress', { current: activeAch.progressVal, target: nextReq, unit: activeAch.reqDesc })
-            }
-          } else if (hasUnlocked) {
-            progressPercent = 100
-            nextLevelDesc = t('profile.achievements.maxLevel')
-            progressText = t('profile.achievements.havePoints', { current: activeAch.progressVal, unit: activeAch.unit })
-          } else {
-            if (activeAch.id === 'reliable') {
-              const reliableT = reliableTiers[0]
-              progressPercent = Math.min(100, Math.round((stats.karma / reliableT.reqKarma) * 50 + (Math.min(stats.played, reliableT.reqPlayed) / reliableT.reqPlayed) * 50))
-              nextLevelDesc = t('profile.achievements.unlockBronze', { name: reliableT.name })
-              progressText = t('profile.achievements.reqKarma', { karma: reliableT.reqKarma, current: stats.karma, played: stats.played, target: reliableT.reqPlayed })
-            } else {
-              const firstReq = activeAch.targetVal
-              progressPercent = Math.min(100, Math.round((activeAch.progressVal / firstReq) * 100))
-              nextLevelDesc = t('profile.achievements.unlockBronze', { name: `${activeAch.baseName} ${t('profile.achievements.novelSuffix')}` })
-              progressText = t('profile.achievements.progress', { current: activeAch.progressVal, target: firstReq, unit: activeAch.reqDesc })
-            }
-          }
 
           return (
-            <MotionDiv
+            <motion.div
               key={activeAch.id}
-              initial={{ opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
+              exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
-              className="p-3.5 rounded-2xl border bg-muted/20 border-border/30 text-left relative overflow-hidden space-y-2.5"
+              className="p-4 rounded-2xl border bg-card/60 border-border/30 text-left relative overflow-hidden space-y-3 shadow-md"
             >
-              <div className="flex gap-4 items-start">
-                {/* Large Medallion Frame */}
-                <div 
+              <div className="flex gap-3.5 items-start">
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   onClick={() => setIsModalOpen(true)}
-                  className="w-16 h-16 shrink-0 rounded-full flex items-center justify-center p-0.5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] cursor-pointer hover:scale-105 transition-transform"
-                  title="Ver en grande"
+                  className="w-16 h-16 shrink-0 rounded-full flex items-center justify-center cursor-pointer relative"
+                  title="Ver en detalle"
                 >
                   <AchievementMedallion 
                     id={activeAch.id} 
@@ -259,62 +130,59 @@ export function AchievementsVitrina({
                     unlocked={hasUnlocked} 
                     active={true}
                   />
-                </div>
+                </motion.div>
                 
-                <div className="flex-1 space-y-1.5 min-w-0">
+                <div className="flex-1 space-y-1 min-w-0">
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5 select-none">
-                      {hasUnlocked
-                        ? t('profile.achievements.unlockedTitle', { tier: tierLabel })
-                        : t('profile.achievements.lockedTitle')}
-                    </span>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className={`text-xs font-black uppercase bg-muted px-2 py-0.5 rounded border border-border/40 ${
-                        hasUnlocked ? 'text-primary' : 'text-muted-foreground'
-                      }`}>
-                        {activeAch.id === 'reliable' ? `${stats.karma}% Karma` : `${activeAch.progressVal} ${activeAch.reqDesc}`}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsModalOpen(true)}
-                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
-                        title="Ver en grande"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </Button>
+                    <div className="flex items-center gap-1.5">
+                      {hasUnlocked ? (
+                        <Badge variant="primary-soft" size="sm" className="font-bold">
+                          <ShieldCheck className="w-3 h-3 mr-1" /> {tierLabel}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" size="sm" className="font-bold">
+                          <Lock className="w-3 h-3 mr-1" /> Bloqueado
+                        </Badge>
+                      )}
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setIsModalOpen(true)}
+                      className="cursor-pointer text-muted-foreground hover:text-foreground"
+                      title="Ver en grande"
+                      icon={Maximize2}
+                      aria-label="Ver en grande"
+                    />
                   </div>
                   
-                  <div>
-                    <h4 className="font-extrabold text-xs text-foreground">{tierName}</h4>
-                    <p className="text-xs text-muted-foreground leading-normal mt-0.5">{activeAch.description}</p>
-                  </div>
+                  <h4 className="font-extrabold text-sm text-foreground">{tierName}</h4>
+                  <p className="text-xs text-muted-foreground leading-normal">{activeAch.description}</p>
                 </div>
               </div>
 
-              {/* Progress bar towards next tier */}
-              <div className="space-y-1 pt-1 border-t border-border/10">
-                <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                  <span>{nextLevelDesc}</span>
-                  <span className="text-foreground">{progressPercent}%</span>
+              {/* Progress bar towards next tier with accessible contrast */}
+              <div className="space-y-1.5 pt-2 border-t border-border/20">
+                <div className="flex justify-between items-center text-xs font-bold text-foreground">
+                  <span className="text-muted-foreground">{activeAch.nextLevelDesc}</span>
+                  <span className="font-mono-tabular font-black text-primary">{activeAch.progressPercent}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-background border border-border/20 overflow-hidden relative">
+                <div className="w-full h-2 rounded-full bg-muted/60 border border-border/30 overflow-hidden relative">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all duration-700 ease-out"
-                    style={{ width: `${progressPercent}%` }}
+                    style={{ width: `${activeAch.progressPercent}%` }}
                   />
                 </div>
-                <span className="text-xs text-muted-foreground/80 block font-semibold leading-tight">
-                  {progressText}
+                <span className="text-xs text-muted-foreground font-medium block">
+                  {activeAch.progressText}
                 </span>
               </div>
-            </MotionDiv>
+            </motion.div>
           )
         })()}
       </AnimatePresence>
 
-      {/* Modal Preview when clicking large achievement */}
+      {/* Modal Preview */}
       {(() => {
         const hasUnlocked = activeAch.currentTier !== null
         const tierKey = activeAch.currentTier ? activeAch.currentTier.tier.toLowerCase() : 'bronce'
@@ -330,6 +198,8 @@ export function AchievementsVitrina({
             description={activeAch.description}
             tierLabel={activeAch.currentTier?.tier || t('profile.achievements.lockedBadge')}
             unlocked={hasUnlocked}
+            progressPercent={activeAch.progressPercent}
+            progressText={activeAch.progressText}
           />
         )
       })()}
