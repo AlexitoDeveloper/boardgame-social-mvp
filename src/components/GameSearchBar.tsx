@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Check, X } from 'lucide-react'
 import { Command, CommandInput, CommandList, CommandItem } from './ui/command'
 import { Button } from './ui/button'
+import { ExpansionBadge } from './ui/expansion-badge'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { Game } from '../types'
 import { useGameLocale } from '../hooks/useGameLocale'
@@ -123,9 +124,7 @@ export function GameSearchBar({
                             <span className="text-xs font-normal text-muted-foreground block mt-0.5">
                               {g.year_published || t('common.yearUnknown')}
                               {g.is_expansion && (
-                                <span className="ml-2 px-1.5 py-0.5 text-xs font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-md">
-                                  {t('common.expansion')}
-                                </span>
+                                <ExpansionBadge size="xs" className="ml-2" />
                               )}
                               {g.isFromBgg && (
                                 <span className="ml-2 px-1.5 py-0.5 text-xs font-black uppercase text-primary bg-primary/10 border border-primary/20 rounded-md">

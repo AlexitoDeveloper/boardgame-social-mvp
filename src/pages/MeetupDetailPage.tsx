@@ -10,7 +10,7 @@ import {
   Loader2, 
   Info,
   X,
-  Sparkles,
+  Trophy,
   Download,
   Calendar,
   Crown,
@@ -185,7 +185,7 @@ export function MeetupDetailPage() {
             title="Ver y compartir tarjeta de resultado"
             aria-label="Tarjeta de Resultado"
           >
-            <Sparkles className="w-4 h-4 text-muted-foreground" />
+            <Trophy className="w-4 h-4 text-primary" />
             <span className="hidden sm:inline">Tarjeta Resultado</span>
           </Button>
 
@@ -350,13 +350,13 @@ export function MeetupDetailPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#0b0f19] border border-white/10 rounded-2xl max-w-3xl w-[94%] lg:w-full h-[88dvh] lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-[88dvh] lg:max-h-[95vh]"
+                className="bg-card border border-white/10 rounded-2xl max-w-3xl w-[94%] lg:w-full h-[88dvh] lg:h-auto overflow-hidden shadow-2xl flex flex-col max-h-[88dvh] lg:max-h-[95vh]"
               >
                 {/* Modal Header bar */}
-                <div className="py-3 px-4 border-b border-white/5 flex justify-between items-center bg-zinc-950/60 z-10 font-inter shrink-0">
+                <div className="py-3 px-4 border-b border-white/5 flex justify-between items-center bg-muted/40 z-10 font-inter shrink-0">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                    <h3 className="font-extrabold text-sm text-white truncate max-w-[150px] sm:max-w-md">
+                    <Share2 className="w-5 h-5 text-primary" />
+                    <h3 className="font-extrabold text-sm text-foreground truncate max-w-[150px] sm:max-w-md">
                       {t('meetup.exportSummary')}
                     </h3>
                   </div>
@@ -395,7 +395,7 @@ export function MeetupDetailPage() {
                 </div>
 
                 {/* Modal Main Content */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-6 grid grid-cols-1 md:grid-cols-5 gap-6 bg-[#070b13]/85 custom-scrollbar min-h-0 font-inter">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-6 grid grid-cols-1 md:grid-cols-5 gap-6 bg-background/95 custom-scrollbar min-h-0 font-inter">
                   
                   {/* Left Column: Settings (ordered second on mobile) */}
                   <div className="md:col-span-2 space-y-5 text-left order-2 md:order-1">

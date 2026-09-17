@@ -6,6 +6,7 @@ import { Game } from '@/types'
 import { cn } from '@/lib/utils'
 import { sanitizeGameText } from '@/lib/gameLocale'
 import { Badge } from '@/components/ui/badge'
+import { ExpansionBadge } from '@/components/ui/expansion-badge'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import {
   Dialog,
@@ -101,11 +102,7 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
                 ES
               </Badge>
             )}
-            {game.is_expansion && (
-              <Badge variant="warning" size="sm">
-                {t('gameDetail.expansion')}
-              </Badge>
-            )}
+            {game.is_expansion && <ExpansionBadge size="sm" />}
             <a
               href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
               target="_blank"

@@ -4,6 +4,7 @@ import { useAuth } from '../lib/authContext'
 import { useTranslation } from 'react-i18next'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { Button } from '../components/ui/button'
+import { ExpansionBadge } from '../components/ui/expansion-badge'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
 import { Tabs } from '../components/ui/tabs'
@@ -717,9 +718,7 @@ export function CreateMeetupPage() {
                             )}
                             <span>{getGameTitle(game)}</span>
                             {game.is_expansion && (
-                              <span className="ml-1 px-1 py-0.5 text-xs font-black uppercase text-purple-500 bg-purple-500/10 border border-purple-500/25 rounded-md shrink-0">
-                                {t('common.expansion')}
-                              </span>
+                              <ExpansionBadge size="xs" className="ml-1" />
                             )}
                           </div>
                         ))}

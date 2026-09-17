@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Crown, Dices, Trophy, Timer, Sparkles } from 'lucide-react'
+import { Crown, Dices, Trophy, Timer } from 'lucide-react'
 import { Card } from '../ui/card'
 import { FirstPlayerSelector } from '../session/FirstPlayerSelector'
 import { LiveScoreModal } from './LiveScoreModal'
@@ -51,7 +51,7 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
     <>
       <div className="space-y-2">
         <div className="flex items-center gap-1.5 px-1">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Dices className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">
             Herramientas Prácticas de Mesa
           </h3>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Dices, Users, Clock, Sparkles, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote, Download } from 'lucide-react'
+import { Dices, Users, Clock, MessageSquare, Plus, ArrowRight, Play, CheckCircle2, RotateCw, PackageCheck, Vote, Download } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import { Button } from '../components/ui/button'
 import { FilterChip } from '../components/ui/chip'
@@ -478,7 +478,7 @@ export function PlayPage() {
 
         <div className="space-y-1 relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 text-muted-foreground border border-border/40 text-xs font-bold uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
+            <Dices className="w-3.5 h-3.5 text-primary" />
             <span>{t('play.decisionTitle')}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground font-display">
@@ -693,8 +693,7 @@ export function PlayPage() {
 
                 {availableExpansionsForSuggested.length > 0 && (
                   <div className="pt-0.5 flex flex-wrap gap-1 justify-center sm:justify-start">
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-lg">
-                      <Sparkles className="w-3 h-3" />
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 dark:text-purple-300 bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 rounded-lg">
                       +{availableExpansionsForSuggested.length} {availableExpansionsForSuggested.length === 1 ? 'expansión compatible en la ludoteca' : 'expansiones compatibles en la ludoteca'}
                     </span>
                   </div>

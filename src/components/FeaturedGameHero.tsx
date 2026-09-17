@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
+import { Plus, Star, Users, Hourglass, Brain } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from './ui/button'
 import { OptimizedImage } from './ui/OptimizedImage'
@@ -77,8 +77,8 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       <div className="flex-1 min-w-0 text-center md:text-left flex flex-col justify-between h-full space-y-4">
         <div className="space-y-2">
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-black uppercase tracking-wider select-none animate-pulse">
-            <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-black uppercase tracking-wider select-none">
+            <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-primary/30" />
             <span>{t('explore.recommendedTitle')}</span>
           </div>
 

@@ -12,18 +12,16 @@ import {
   Loader2,
   MessageSquare,
   NotebookPen,
-  Swords,
   CalendarCheck2,
   CheckSquare,
   Square,
   Share2,
   Dices,
-  Sparkles
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { Tag } from '../ui/tag'
+import { ExpansionBadge } from '../ui/expansion-badge'
 import { Form } from '../ui/form'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
@@ -185,8 +183,8 @@ export function MeetupDetailSidebar({
 
     return (
       <div className="space-y-4">
-        <div className="text-center p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-500 font-bold text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider">
-          <Swords className="w-4 h-4 text-emerald-500 fill-current animate-bounce" />
+        <div className="text-center p-2.5 bg-muted/60 border border-border/50 rounded-xl text-foreground/80 font-bold text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider">
+          <CalendarCheck2 className="w-4 h-4 text-primary" />
           {t('meetup.tableClosed')}
         </div>
 
@@ -616,9 +614,9 @@ export function MeetupDetailSidebar({
                     onClick={onFirstPlayerClick}
                     variant="outline"
                     size="sm"
-                    className="h-9 text-xs font-bold gap-1.5 border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-400 rounded-xl cursor-pointer"
+                    className="h-9 text-xs font-bold gap-1.5 border-border/40 bg-card hover:bg-muted/50 text-foreground rounded-xl cursor-pointer"
                   >
-                    <Dices className="w-3.5 h-3.5 text-emerald-400" />
+                    <Dices className="w-3.5 h-3.5 text-primary" />
                     <span>1er Jugador</span>
                   </Button>
                 )}
@@ -629,9 +627,9 @@ export function MeetupDetailSidebar({
                     onClick={onVictoryCardClick}
                     variant="outline"
                     size="sm"
-                    className="h-9 text-xs font-bold gap-1.5 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 rounded-xl cursor-pointer"
+                    className="h-9 text-xs font-bold gap-1.5 border-border/40 bg-card hover:bg-muted/50 text-foreground rounded-xl cursor-pointer"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <Share2 className="w-3.5 h-3.5" />
                     <span>Tarjeta WA</span>
                   </Button>
                 )}
@@ -722,12 +720,12 @@ export function MeetupDetailSidebar({
 
       {/* Boardgame Info Cards */}
       {gamesList.length === 0 ? (
-        <Card className="border-border/30 bg-card/65 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl hover:border-amber-500/25 transition-all">
+        <Card className="border-border/30 bg-card/65 backdrop-blur-2xl shadow-xl overflow-hidden rounded-2xl hover:border-primary/30 transition-all">
           <CardHeader className="p-4 pb-2 sm:p-6 sm:pb-2 border-b border-border/20">
-            <CardTitle className="text-sm font-extrabold tracking-tight uppercase text-amber-500">{t('meetup.freeGameTitle')}</CardTitle>
+            <CardTitle className="text-sm font-extrabold tracking-tight uppercase text-foreground">{t('meetup.freeGameTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="p-5 text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-muted-foreground">
               <MessageSquare className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
@@ -763,9 +761,7 @@ export function MeetupDetailSidebar({
                       </CardTitle>
                     )}
                     {game.is_expansion && (
-                      <Tag variant="purple" className="shrink-0 text-xs px-1 py-0 shadow-sm">
-                        {t('common.expansion')}
-                      </Tag>
+                      <ExpansionBadge size="xs" className="shadow-sm" />
                     )}
                   </div>
                 </CardHeader>
