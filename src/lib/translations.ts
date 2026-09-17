@@ -774,6 +774,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       mediumLabel: "Medio / Intermedio",
       heavyLabel: "Experto / Pesado",
       unknown: "Desconocido",
+      unratedComplexity: "Sin calificar",
       actionsTitle: "Acciones Rápidas",
       organizeMeetup: "Abrir Mesa"
     },
@@ -1629,6 +1630,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       mediumLabel: "Medium / Intermediate",
       heavyLabel: "Expert / Heavy",
       unknown: "Unknown",
+      unratedComplexity: "Unrated",
       actionsTitle: "Quick Actions",
       organizeMeetup: "Host Table"
     },

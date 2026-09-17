@@ -474,7 +474,8 @@ async function runIngestion(limit = 10, targetIds = null, useRecent = false) {
       const stats = item.statistics?.ratings;
       const ratingGeek = stats?.bayesaverage?.['@_value'] ? Number(stats.bayesaverage['@_value']) : null;
       const ratingAverage = stats?.average?.['@_value'] ? Number(stats.average['@_value']) : null;
-      const complexity = stats?.averageweight?.['@_value'] ? Number(stats.averageweight['@_value']) : null;
+      const rawComplexity = stats?.averageweight?.['@_value'] ? Number(stats.averageweight['@_value']) : null;
+      const complexity = rawComplexity && rawComplexity > 0 ? Number(rawComplexity.toFixed(2)) : null;
       
       let rank = null;
       if (stats?.ranks?.rank) {
