@@ -1,0 +1,51 @@
+﻿name: BGG Metadata & Complexity Enrichment
+
+on:
+  schedule:
+    # Runs everyday at 04:00 AM UTC (06:00 AM Spanish local time)
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Number of games to enrich in this run"
+        required: false
+        default: "300"
+        type: string
+      dry_run:
+        description: "Perform a dry run without modifying the database"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  enrich:
+    name: Enrich Games Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Metadata & Complexity Enrichment
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          BGG_API_KEY: ${{ secrets.BGG_API_KEY }}
+        run: |
+          LIMIT="${{ inputs.limit || '300' }}"
+          DRY_RUN="${{ inputs.dry_run == true && '--dry-run' || '' }}"
+          node scripts/enrich-games-metadata.cjs --limit=$LIMIT $DRY_RUN

@@ -23,9 +23,10 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
   const isSpanish = game.has_spanish_edition || !!game.title_es
   
   // Format complexity (averageweight) to 1 decimal place or show placeholder
-  const formattedComplexity = game.complexity 
+  const hasComplexity = game.complexity != null && Number(game.complexity) > 0
+  const formattedComplexity = hasComplexity 
     ? Number(game.complexity).toFixed(1) 
-    : 'N/A'
+    : null
 
   // Format rating (average) to 1 decimal place
   const formattedRating = game.rating_average 
@@ -145,7 +146,15 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
             <Brain className="w-4 h-4 text-purple-500 shrink-0" />
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground leading-none">{t('explore.difficulty')}</span>
-              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">{formattedComplexity} <span className="text-xs text-muted-foreground">/5</span></span>
+              <span className="font-extrabold text-foreground text-sm sm:text-base leading-tight mt-0.5">
+                {hasComplexity ? (
+                  <>
+                    {formattedComplexity} <span className="text-xs text-muted-foreground">/5</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-semibold text-muted-foreground">{t('gameDetail.unratedComplexity')}</span>
+                )}
+              </span>
             </div>
           </div>
         </div>

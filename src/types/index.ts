@@ -35,6 +35,11 @@ export interface Game {
   rating_geek?: number | null;
   rating_average?: number | null;
   complexity?: number | null;
+  min_play_time?: number | null;
+  max_play_time?: number | null;
+  min_age?: number | null;
+  categories?: string[] | null;
+  mechanics?: string[] | null;
 }
 
 export type MeepleColor = 'red' | 'blue' | 'yellow' | 'green' | 'purple' | 'orange';
