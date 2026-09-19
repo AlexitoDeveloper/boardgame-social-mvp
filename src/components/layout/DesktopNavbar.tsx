@@ -40,7 +40,7 @@ interface DesktopNavbarProps {
 
 function DesktopNavItem({ to, label, icon, badgeCount = 0 }: { to: string; label: string; icon: LucideIcon; badgeCount?: number }) {
   return (
-    <Button asChild variant="ghost" className="w-full justify-start h-auto p-0 rounded-xl overflow-hidden">
+    <Button asChild variant="ghost" className="w-full justify-start h-auto p-0 overflow-hidden">
       <NavLink
         to={to}
         className={({ isActive }) =>

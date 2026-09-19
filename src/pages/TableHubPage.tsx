@@ -73,7 +73,7 @@ export function TableHubPage() {
           </p>
         </div>
 
-        <Button asChild size="lg" className="rounded-2xl font-black shadow-xl shadow-primary/25 shrink-0 w-full md:w-auto">
+        <Button asChild size="lg" className="w-full md:w-auto">
           <Link to="/jugar">
             <Play className="w-4 h-4 mr-2 fill-current" />
             Abrir Selector de Partida

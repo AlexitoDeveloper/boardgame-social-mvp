@@ -32,7 +32,7 @@ export function GameActionsCard({
           <Button 
             variant="default"
             size="lg"
-            className="w-full font-black tracking-tight gap-2 shadow-md hover:shadow-lg transition-all"
+            className="w-full"
             icon={Plus}
             label={t('common.hostTable')}
             aria-label={t('common.hostTable')}
@@ -43,7 +43,7 @@ export function GameActionsCard({
         <Button
           variant={isInCollection ? 'outline' : 'secondary'}
           size="lg"
-          className="w-full font-bold text-xs gap-2"
+          className="w-full"
           onClick={toggleCollection}
           disabled={actionLoading}
         >

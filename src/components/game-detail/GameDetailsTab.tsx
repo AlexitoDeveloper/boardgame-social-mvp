@@ -65,7 +65,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
             </div>
           </div>
           <p className="text-xs text-muted-foreground leading-normal">
-            Geek Rating: <span className="font-bold text-foreground/80">{geekRating}</span>
+            {t('gameDetail.geekRating')}: <span className="font-bold text-foreground/80">{geekRating}</span>
           </p>
         </Card>
 

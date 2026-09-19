@@ -61,7 +61,7 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
           <Dices className="w-7 h-7" aria-hidden="true" />
         </div>
         <h3 className="text-base font-bold text-foreground max-w-md mx-auto">{t('play.noGamesFound')}</h3>
-        <Button type="button" variant="outline" onClick={onResetFilters} className="h-11 rounded-xl font-bold text-xs px-5 shadow-xs">
+        <Button type="button" variant="outline" size="default" onClick={onResetFilters}>
           <RotateCcw className="w-4 h-4 mr-2 text-primary" aria-hidden="true" />
           <span>{t('play.filters.reset')}</span>
         </Button>
@@ -168,15 +168,15 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-              <Button type="button" onClick={() => onStartSession(suggestedGame.bgg_id)} size="lg" className="w-full sm:w-auto h-12 px-6 rounded-2xl font-black shadow-md shadow-primary/25 flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <Button type="button" onClick={() => onStartSession(suggestedGame.bgg_id)} size="lg" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4" aria-hidden="true" />
                 <span>{t('play.startMeetupWithGame')}</span>
               </Button>
-              <Button type="button" variant="secondary" onClick={onSpin} disabled={isSpinning} size="lg" className="w-full sm:w-auto h-12 px-5 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <Button type="button" variant="secondary" onClick={onSpin} disabled={isSpinning} size="lg" className="w-full sm:w-auto">
                 <RotateCw className={`w-4 h-4 ${isSpinning ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span>{t('play.spinAgain')}</span>
               </Button>
-              <Button type="button" variant="purple" onClick={onOpenVoting} disabled={isSpinning} size="lg" className="w-full sm:w-auto h-12 px-5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xs">
+              <Button type="button" variant="purple" onClick={onOpenVoting} disabled={isSpinning} size="lg" className="w-full sm:w-auto">
                 <Vote className="w-4 h-4 text-white" aria-hidden="true" />
                 <span>{t('play.expressVotingShort')}</span>
               </Button>
@@ -185,11 +185,11 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
         ) : (
           <div className="p-6 rounded-3xl bg-card/60 border border-border/40 text-center space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button type="button" onClick={onSpin} disabled={isSpinning} size="lg" className="w-full sm:w-auto h-12 px-8 rounded-2xl font-black shadow-md shadow-primary/25 flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <Button type="button" onClick={onSpin} disabled={isSpinning} size="lg" className="w-full sm:w-auto">
                 <RotateCw className={`w-4 h-4 ${isSpinning ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span>{t('play.spinRoulette')}</span>
               </Button>
-              <Button type="button" variant="purple" size="lg" disabled={isSpinning} onClick={onOpenVoting} className="w-full sm:w-auto h-12 px-7 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xs">
+              <Button type="button" variant="purple" size="lg" disabled={isSpinning} onClick={onOpenVoting} className="w-full sm:w-auto">
                 <Vote className="w-4 h-4 text-white" aria-hidden="true" />
                 <span>{t('play.expressVoting')}</span>
               </Button>

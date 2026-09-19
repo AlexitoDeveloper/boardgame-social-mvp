@@ -114,7 +114,15 @@ export function useGameDetail(bggIdStr: string | undefined) {
             }
           }
         ])
-        setIsInCollection(false)
+        const mockProfileId = user?.id || 'mock-u1'
+        const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+        try {
+          const stored = localStorage.getItem(mockKey)
+          const list = stored ? JSON.parse(stored) : []
+          setIsInCollection(list.some((g: any) => g.bgg_id === bggId))
+        } catch {
+          setIsInCollection(false)
+        }
       } else {
         setError('Juego no encontrado')
       }
@@ -336,20 +344,41 @@ export function useGameDetail(bggIdStr: string | undefined) {
     }
   }, [bggId, user?.id])
 
-  const toggleCollection = async () => {
-    if (!user) {
-      setError('Debes iniciar sesión para editar tu ludoteca')
-      return
-    }
-    if (isNaN(bggId) || !game) return
+  const toggleCollection = async (): Promise<{ success: boolean; added?: boolean; error?: string }> => {
+    if (isNaN(bggId) || !game) return { success: false }
 
     setActionLoading(true)
     setError(null)
 
     if (USE_MOCKS) {
-      setIsInCollection(prev => !prev)
+      const nextState = !isInCollection
+      setIsInCollection(nextState)
       setActionLoading(false)
-      return
+      const mockProfileId = user?.id || 'mock-u1'
+      const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+      try {
+        const stored = localStorage.getItem(mockKey)
+        let list = stored ? JSON.parse(stored) : []
+        if (nextState) {
+          if (!list.some((g: any) => g.bgg_id === game.bgg_id)) {
+            list.push(game)
+          }
+        } else {
+          list = list.filter((g: any) => g.bgg_id !== bggId)
+        }
+        localStorage.setItem(mockKey, JSON.stringify(list))
+      } catch (err) {
+        console.warn('Could not update mock collection localStorage', err)
+      }
+      window.dispatchEvent(new Event('collection_update'))
+      return { success: true, added: nextState }
+    }
+
+    if (!user) {
+      setActionLoading(false)
+      const errMsg = 'Debes iniciar sesión para editar tu ludoteca'
+      setError(errMsg)
+      return { success: false, error: errMsg }
     }
 
     try {
@@ -365,6 +394,7 @@ export function useGameDetail(bggIdStr: string | undefined) {
         
         // Remove self from local owners array
         setOwners(prev => prev.filter(o => o.user_id !== user.id))
+        return { success: true, added: false }
       } else {
         const { error: insErr } = await supabase
           .from('user_collection')
@@ -395,10 +425,13 @@ export function useGameDetail(bggIdStr: string | undefined) {
         } catch (profileErr) {
           console.warn("Could not load self profile to append to owners list:", profileErr)
         }
+        return { success: true, added: true }
       }
     } catch (err: any) {
       console.error('Error toggling collection status:', err)
-      setError(err.message || 'No se pudo actualizar tu ludoteca')
+      const message = err.message || 'No se pudo actualizar tu ludoteca'
+      setError(message)
+      return { success: false, error: message }
     } finally {
       setActionLoading(false)
     }
@@ -406,7 +439,24 @@ export function useGameDetail(bggIdStr: string | undefined) {
 
   useEffect(() => {
     fetchGameDetails()
-  }, [fetchGameDetails])
+
+    const handleCollectionUpdate = () => {
+      if (USE_MOCKS) {
+        const mockProfileId = user?.id || 'mock-u1'
+        const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+        try {
+          const stored = localStorage.getItem(mockKey)
+          const list = stored ? JSON.parse(stored) : []
+          setIsInCollection(list.some((g: any) => g.bgg_id === bggId))
+        } catch {}
+      }
+    }
+
+    window.addEventListener('collection_update', handleCollectionUpdate)
+    return () => {
+      window.removeEventListener('collection_update', handleCollectionUpdate)
+    }
+  }, [fetchGameDetails, bggId, user?.id])
 
   return {
     loading,

@@ -235,22 +235,20 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
           <>
             <Button
               onClick={handlePrev}
-              variant="ghost"
-              size="icon"
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer p-0"
+              variant="secondary"
+              size="icon-xs"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 shadow-md backdrop-blur-sm"
               aria-label={t('common.back')}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
+              icon={ChevronLeft}
+            />
             <Button
               onClick={handleNext}
-              variant="ghost"
-              size="icon"
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-background/80 dark:bg-black/60 text-foreground dark:text-white flex items-center justify-center border border-border dark:border-white/10 hover:bg-background dark:hover:bg-black/80 hover:scale-110 active:scale-95 shadow-md backdrop-blur-sm transition-all duration-200 cursor-pointer p-0"
+              variant="secondary"
+              size="icon-xs"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 shadow-md backdrop-blur-sm"
               aria-label={t('common.next')}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+              icon={ChevronRight}
+            />
 
             {/* Puntos de paginación */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 px-2 py-1 rounded-full bg-background/70 backdrop-blur-sm border border-border/30 shadow-sm">

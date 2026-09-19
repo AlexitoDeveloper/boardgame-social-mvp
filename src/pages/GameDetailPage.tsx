@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  ArrowLeft, Users, 
-  Loader2, Plus, Check, Info, Puzzle
-} from 'lucide-react'
+import { ArrowLeft, Users, Info, Puzzle } from 'lucide-react'
 import { useGameDetail } from '../hooks/useGameDetail'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
+import { toast } from '../components/ui/toast'
 import { useTranslation } from 'react-i18next'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { AppLanguage } from '../lib/dateLocale'
@@ -17,6 +15,8 @@ import { GameDetailsTab } from '../components/game-detail/GameDetailsTab'
 import { GameCommunityTab } from '../components/game-detail/GameCommunityTab'
 import { GameExpansionsTab } from '../components/game-detail/GameExpansionsTab'
 import { GameActionsCard } from '../components/game-detail/GameActionsCard'
+import { GameDetailSkeleton } from '../components/game-detail/GameDetailSkeleton'
+import { GameStickyBottomDock } from '../components/game-detail/GameStickyBottomDock'
 
 export function GameDetailPage() {
   const { t, i18n } = useTranslation()
@@ -43,16 +43,21 @@ export function GameDetailPage() {
 
   const [activeTab, setActiveTab] = useState<'details' | 'community' | 'expansions'>('details')
 
+  const handleToggleCollection = async () => {
+    const res = await toggleCollection()
+    if (res?.success) {
+      if (res.added) {
+        toast.success(t('toast.gameAddedToCollection', '¡Juego añadido a tu ludoteca!'))
+      } else {
+        toast.info(t('toast.gameRemovedFromCollection', 'Juego eliminado de tu ludoteca.'))
+      }
+    } else if (res?.error) {
+      toast.error(res.error)
+    }
+  }
+
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-        <div className="text-center">
-          <h3 className="text-lg font-black tracking-tight text-foreground">{t('gameDetail.loadingTitle')}</h3>
-          <p className="text-sm text-muted-foreground">{t('gameDetail.loadingDesc')}</p>
-        </div>
-      </div>
-    )
+    return <GameDetailSkeleton />
   }
 
   if (error || !game) {
@@ -95,7 +100,7 @@ export function GameDetailPage() {
   ] as const
 
   return (
-    <div className="relative min-h-dvh pb-16 space-y-6">
+    <div className="relative min-h-dvh pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-16 space-y-6">
       {/* Sticky top bar */}
       <div className="sticky top-0 z-30 flex items-center justify-between py-2 -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
         <Button 
@@ -118,46 +123,9 @@ export function GameDetailPage() {
         language={language}
       />
 
-      {/* Mobile Compact Quick Actions */}
-      <div className="relative z-10 lg:hidden max-w-6xl mx-auto px-4 grid grid-cols-2 gap-3">
-        <Link to={`/mesa/nueva?gameId=${game.bgg_id}`} className="w-full">
-          <Button 
-            variant="default"
-            size="sm" 
-            className="w-full font-black text-xs h-10 gap-1.5 shadow-sm"
-            icon={Plus}
-            label={t('common.hostTable')}
-            aria-label={t('common.hostTable')}
-          />
-        </Link>
-
-        <Button
-          variant={isInCollection ? 'outline' : 'secondary'}
-          size="sm"
-          className="w-full font-bold text-xs h-10 gap-1.5"
-          onClick={toggleCollection}
-          disabled={actionLoading}
-        >
-          {actionLoading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-          ) : isInCollection ? (
-            <>
-              <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-              <span className="truncate">{t('gameDetail.inLudoteca')}</span>
-            </>
-          ) : (
-            <>
-              <Plus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{t('gameDetail.addToLudoteca')}</span>
-            </>
-          )}
-        </Button>
-      </div>
-
       {/* Main Grid Content */}
-      <div className="max-w-6xl mx-auto px-4 pb-16 relative z-10 mt-6">
+      <div className="max-w-6xl mx-auto px-4 relative z-10 mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
           {/* Main content tabs */}
           <div className="lg:col-span-2 space-y-6">
             <Tabs
@@ -172,10 +140,10 @@ export function GameDetailPage() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 >
                   {activeTab === 'details' && <GameDetailsTab game={game} />}
                   {activeTab === 'community' && (
@@ -206,7 +174,7 @@ export function GameDetailPage() {
               game={game}
               isInCollection={isInCollection}
               actionLoading={actionLoading}
-              toggleCollection={toggleCollection}
+              toggleCollection={handleToggleCollection}
             />
           </div>
         </div>
@@ -224,6 +192,15 @@ export function GameDetailPage() {
           </a>
         </div>
       </div>
+
+      {/* Persistent Mobile Bottom Action Dock */}
+      <GameStickyBottomDock
+        game={game}
+        isInCollection={isInCollection}
+        actionLoading={actionLoading}
+        onToggleCollection={handleToggleCollection}
+      />
     </div>
   )
 }
+

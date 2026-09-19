@@ -147,7 +147,6 @@ export function ExploreCarousels({
             asChild
             size="sm"
             variant="outline"
-            className="h-8 rounded-full text-xs font-bold gap-1 border-primary/30 text-primary hover:bg-primary/10"
           >
             <Link to="/tops">
               <Plus className="w-3.5 h-3.5" />

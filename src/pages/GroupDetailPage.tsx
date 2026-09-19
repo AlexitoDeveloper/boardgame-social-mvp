@@ -41,9 +41,7 @@ export function GroupDetailPage() {
     return (
       <div className="text-center py-20 space-y-4 max-w-md mx-auto">
         <div className="p-4 rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">{hub.error || t('groups.groupNotFound')}</div>
-        <Button onClick={() => navigate('/grupos')} className="rounded-xl flex items-center gap-1.5 mx-auto">
-          <ArrowLeft className="h-4 w-4" /> {t('groups.backToGroups')}
-        </Button>
+        <Button onClick={() => navigate('/grupos')} icon={ArrowLeft} label={t('groups.backToGroups')} className="mx-auto" />
       </div>
     )
   }

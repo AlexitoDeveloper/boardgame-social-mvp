@@ -5,6 +5,8 @@ import { MOCK_MEETUPS, MOCK_BGG_GAMES } from '../lib/mockData'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile, Game, PlayerScore } from '../types'
 import { USE_MOCKS } from '../lib/config'
+import { toast } from '../components/ui/toast'
+import i18n from '../lib/i18n'
 
 // Helper to get mock attendees lists for mock data
 const getMockAttendees = (meetupId: string): UserProfile[] => {
@@ -392,6 +394,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
     if (copySuccessful) {
       setCopySuccess(true)
+      toast.success(i18n.t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
       setTimeout(() => setCopySuccess(false), 2000)
     }
   }
@@ -428,6 +431,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         if (isJoined) {
           updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
           updatedAttendees = attendees.filter(a => a.id !== userId)
+          toast.info(i18n.t('toast.leftMeetupSuccess', 'Has salido de la mesa.'))
         } else {
           if (attendees.length >= meetup.max_players) {
             setJoining(false)
@@ -435,6 +439,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           }
           updatedPlayers = [...meetup.joined_players, userId]
           updatedAttendees = [...attendees, currentUserObj]
+          toast.success(i18n.t('toast.joinedMeetupSuccess', '¡Te has unido a la mesa con éxito!'))
         }
 
         setMeetup(prev => prev ? ({ ...prev, joined_players: updatedPlayers }) : null)
@@ -449,10 +454,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           const { error: rpcError } = await supabase.rpc('leave_meetup', { p_meetup_id: meetup.id })
           if (rpcError) throw rpcError
           updatedPlayers = meetup.joined_players.filter(uid => uid !== userId)
+          toast.info(i18n.t('toast.leftMeetupSuccess', 'Has salido de la mesa.'))
         } else {
           const { error: rpcError } = await supabase.rpc('join_meetup', { p_meetup_id: meetup.id })
           if (rpcError) throw rpcError
           updatedPlayers = [...(meetup.joined_players || []), userId]
+          toast.success(i18n.t('toast.joinedMeetupSuccess', '¡Te has unido a la mesa con éxito!'))
         }
 
         const { data: profiles, error: profilesError } = await supabase

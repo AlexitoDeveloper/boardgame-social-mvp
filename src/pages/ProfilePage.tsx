@@ -14,6 +14,7 @@ import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryMod
 import { ArrowLeft, Edit, UserX, Dices, CalendarDays, Settings, Award, BarChart2, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ProfileSettingsModal } from '../components/profile/ProfileSettingsModal'
+import { toast } from '../components/ui/toast'
 
 export function ProfilePage() {
   const { t } = useTranslation()
@@ -192,16 +193,14 @@ export function ProfilePage() {
         handleRemoveFromCollection={async (e, bggId) => {
           e.preventDefault()
           e.stopPropagation()
-          if (confirm(t('profile.removeConfirm'))) {
-            await removeFromCollection(bggId)
-          }
+          await removeFromCollection(bggId)
+          toast.info(t('toast.gameRemovedFromCollection', 'Juego eliminado de tu ludoteca.'))
         }}
         handleDeleteRanking={async (e, rankingId) => {
           e.preventDefault()
           e.stopPropagation()
-          if (confirm(t('profile.deleteRankingConfirm'))) {
-            await deleteRanking(rankingId)
-          }
+          await deleteRanking(rankingId)
+          toast.info(t('common.deleted', 'Eliminado'))
         }}
         setSelectedRanking={setSelectedRanking}
         setIsImportModalOpen={setIsImportModalOpen}
@@ -215,7 +214,10 @@ export function ProfilePage() {
         profile={profile}
         profileId={profileId}
         currentUserId={user?.id}
-        onSave={saveProfile}
+        onSave={async (username, city, avatarUrl) => {
+          await saveProfile(username, city, avatarUrl)
+          toast.success(t('toast.profileSaved', 'Ajustes del perfil guardados.'))
+        }}
         saving={savingProfile}
       />
 
@@ -229,7 +231,10 @@ export function ProfilePage() {
         isOpen={isAddGameModalOpen}
         onClose={() => setIsAddGameModalOpen(false)}
         userCollectionGameIds={collectionGames.map((g) => g.bgg_id)}
-        onAddGame={addToCollection}
+        onAddGame={async (gameId) => {
+          await addToCollection(gameId)
+          toast.success(t('toast.gameAddedToCollection', '¡Juego añadido a tu ludoteca!'))
+        }}
       />
 
       <RankingVisualizerModal
