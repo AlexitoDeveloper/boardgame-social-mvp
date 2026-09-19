@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { CalendarDays, Globe, ExternalLink, ZoomIn } from 'lucide-react'
+import { CalendarDays, Globe, ExternalLink, ZoomIn, Users, Brain, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Game } from '@/types'
 import { cn } from '@/lib/utils'
@@ -27,18 +27,41 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
   const [isCoverZoomOpen, setIsCoverZoomOpen] = useState(false)
   const fullCoverUrl = coverUrl || game.image_url
 
+  const complexity = game.complexity && game.complexity > 0 ? Number(game.complexity) : 0
+  let complexityBadgeClass = 'text-muted-foreground border-border/50 bg-muted/40'
+  if (complexity > 0) {
+    if (complexity <= 2.2) {
+      complexityBadgeClass = 'text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+    } else if (complexity <= 3.5) {
+      complexityBadgeClass = 'text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10'
+    } else {
+      complexityBadgeClass = 'text-rose-600 dark:text-rose-400 border-rose-500/30 bg-rose-500/10'
+    }
+  }
+
+  const minPlayers = game.min_players != null && game.min_players > 0 ? game.min_players : null
+  const maxPlayers = game.max_players != null && game.max_players > 0 ? game.max_players : null
+  let playersDisplay = ''
+  if (minPlayers && maxPlayers) {
+    playersDisplay = minPlayers === maxPlayers ? `${minPlayers}p` : `${minPlayers}-${maxPlayers}p`
+  } else if (minPlayers) {
+    playersDisplay = `${minPlayers}+p`
+  } else if (maxPlayers) {
+    playersDisplay = `≤${maxPlayers}p`
+  }
+
   return (
     <>
       {/* Ambient background blur */}
       {coverUrl && (
-        <div className="absolute top-0 inset-x-0 h-[360px] overflow-hidden pointer-events-none select-none -z-10 opacity-25 dark:opacity-30">
+        <div className="absolute top-0 inset-x-0 h-[400px] overflow-hidden pointer-events-none select-none -z-10 opacity-30 dark:opacity-35">
           <OptimizedImage
             src={coverUrl}
             alt=""
             widthSize={100}
-            className="w-full h-full object-cover filter blur-[40px] scale-125"
+            className="w-full h-full object-cover filter blur-[50px] scale-135 transform-gpu"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/65 to-background" />
         </div>
       )}
 
@@ -59,7 +82,7 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
             }
           }}
           className={cn(
-            "group/cover relative h-28 sm:h-36 md:h-48 w-24 sm:w-32 md:w-44 shrink-0 rounded-2xl shadow-xl border border-border/30 flex items-center justify-center bg-card/40 backdrop-blur-xs overflow-hidden transition-all duration-300",
+            "group/cover relative h-28 sm:h-36 md:h-48 w-24 sm:w-32 md:w-44 shrink-0 rounded-2xl shadow-xl border border-border/30 flex items-center justify-center bg-card/60 backdrop-blur-xs overflow-hidden transition-all duration-300",
             fullCoverUrl && "cursor-zoom-in hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40"
           )}
           title={fullCoverUrl ? t('gameDetail.viewCover') : undefined}
@@ -91,18 +114,42 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
         <div className="flex-grow space-y-2 md:space-y-3 pb-1 md:pb-2 select-text min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             {game.year_published && (
-              <Badge variant="secondary" size="sm">
+              <Badge variant="secondary" size="sm" className="font-bold">
                 <CalendarDays className="h-3 w-3 mr-1 opacity-70" />
                 {game.year_published}
               </Badge>
             )}
+
+            {playersDisplay && (
+              <Badge variant="outline" size="sm" className="font-bold bg-card/60 border-border/60">
+                <Users className="h-3 w-3 mr-1 opacity-70" />
+                {playersDisplay}
+              </Badge>
+            )}
+
+            {complexity > 0 && (
+              <Badge variant="outline" size="sm" className={cn("font-bold border", complexityBadgeClass)}>
+                <Brain className="h-3 w-3 mr-1 opacity-80" />
+                {complexity.toFixed(1)} / 5
+              </Badge>
+            )}
+
+            {game.rating_average != null && game.rating_average > 0 && (
+              <Badge variant="outline" size="sm" className="font-bold text-amber-500 border-amber-500/30 bg-amber-500/10">
+                <Star className="h-3 w-3 mr-1 fill-amber-500/40 text-amber-500" />
+                {game.rating_average.toFixed(1)}
+              </Badge>
+            )}
+
             {game.has_spanish_edition && (
-              <Badge variant="primary-soft" size="sm">
+              <Badge variant="primary-soft" size="sm" className="font-bold">
                 <Globe className="h-3 w-3 mr-1 opacity-70" />
                 ES
               </Badge>
             )}
+
             {game.is_expansion && <ExpansionBadge size="sm" />}
+
             <a
               href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
               target="_blank"
@@ -110,7 +157,7 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
               className="inline-flex items-center group/bgg"
               title={t('gameDetail.viewOnBgg')}
             >
-              <Badge variant="outline" size="sm" className="group-hover/bgg:border-primary/50 group-hover/bgg:text-primary transition-colors">
+              <Badge variant="outline" size="sm" className="font-bold group-hover/bgg:border-primary/50 group-hover/bgg:text-primary transition-colors bg-card/40">
                 BGG
                 <ExternalLink className="h-2.5 w-2.5 ml-1 opacity-60 group-hover/bgg:opacity-100" />
               </Badge>

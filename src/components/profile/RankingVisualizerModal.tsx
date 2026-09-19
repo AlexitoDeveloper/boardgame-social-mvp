@@ -140,21 +140,20 @@ export function RankingVisualizerModal({
             </div>
             <div className="flex items-center gap-2">
               <Button
+                variant="default"
                 size="sm"
                 onClick={handleExportModalImage}
                 loading={exporting}
                 aria-label={t('common.savePhoto')}
-                className="cursor-pointer font-bold text-xs h-9 w-9 sm:w-auto p-0 sm:px-3.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0"
               >
                 <Download className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">{t('common.savePhoto')}</span>
               </Button>
               <Button
-                size="icon-sm"
                 variant="ghost"
+                size="icon-sm"
                 onClick={onClose}
                 aria-label={t('common.close')}
-                className="border border-white/10 hover:bg-white/10 text-white"
               >
                 <X className="w-4 h-4" />
               </Button>

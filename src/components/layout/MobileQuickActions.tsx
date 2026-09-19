@@ -65,13 +65,11 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="icon-xs"
                 onClick={onClose}
                 aria-label={t('common.close', 'Cerrar')}
-                className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/40 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+                icon={X}
+              />
             </div>
 
             {/* Action Buttons */}
@@ -80,7 +78,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                 type="button"
                 variant="ghost"
                 onClick={() => handleAction('/mesa/nueva')}
-                className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
+                className="flex items-center justify-start gap-3.5 p-3 border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Plus className="w-5 h-5" />
@@ -99,7 +97,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                 type="button"
                 variant="ghost"
                 onClick={() => handleAction('/tops')}
-                className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
+                className="flex items-center justify-start gap-3.5 p-3 border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <ListOrdered className="w-5 h-5" />
@@ -118,7 +116,7 @@ export function MobileQuickActions({ isOpen, onClose }: MobileQuickActionsProps)
                 type="button"
                 variant="ghost"
                 onClick={() => handleAction('/grupos')}
-                className="flex items-center justify-start gap-3.5 p-3 rounded-2xl border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
+                className="flex items-center justify-start gap-3.5 p-3 border border-border/30 dark:border-white/5 hover:bg-primary/5 hover:border-primary/30 transition-all text-left group cursor-pointer w-full h-auto"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Users className="w-5 h-5" />

@@ -5,6 +5,7 @@ import './index.css'
 import './lib/i18n'
 import App from './App'
 import { AuthProvider } from './lib/authContext'
+import { ToastProvider } from './components/ui/toast'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Failed to find the root element')
@@ -13,7 +14,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

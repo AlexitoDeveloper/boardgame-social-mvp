@@ -5,6 +5,7 @@ import { useAuth } from '../lib/authContext'
 import { useGroupDetail, GroupMember, MergedGame, GroupPoll } from './useGroupDetail'
 import { supabase } from '../lib/supabaseClient'
 import { USE_MOCKS } from '../lib/config'
+import { toast } from '../components/ui/toast'
 
 export interface GroupMeetup {
   id: string;
@@ -183,16 +184,18 @@ export function useGroupHub(groupId: string | undefined) {
     if (!group) return
     navigator.clipboard.writeText(group.invite_code)
     setCopiedCode(true)
+    toast.success(t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
     setTimeout(() => setCopiedCode(false), 2000)
-  }, [group])
+  }, [group, t])
 
   const handleCopyInviteLink = useCallback(() => {
     if (!group) return
     const inviteUrl = `${window.location.origin}/grupos?join=${group.invite_code}`
     navigator.clipboard.writeText(inviteUrl)
     setCopiedLink(true)
+    toast.success(t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
     setTimeout(() => setCopiedLink(false), 2000)
-  }, [group])
+  }, [group, t])
 
   const handleShareWhatsApp = useCallback(() => {
     if (!group) return

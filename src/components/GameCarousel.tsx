@@ -67,12 +67,11 @@ export function GameCarousel({
           <Button
             onClick={() => scroll('left')}
             variant="secondary"
-            size="icon"
-            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-card/90 text-foreground p-0 rounded-full cursor-pointer transition-transform duration-200 hidden md:flex items-center justify-center border border-border/60 hover:scale-110 active:scale-95 shadow-xl backdrop-blur-md hover:bg-card"
+            size="icon-sm"
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 hidden md:flex shadow-xl backdrop-blur-md"
             aria-label="Scroll left"
-          >
-            <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
-          </Button>
+            icon={ChevronLeft}
+          />
         )}
 
         {/* Right Arrow Button */}
@@ -80,12 +79,11 @@ export function GameCarousel({
           <Button
             onClick={() => scroll('right')}
             variant="secondary"
-            size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 h-10 w-10 bg-card/90 text-foreground p-0 rounded-full cursor-pointer transition-transform duration-200 hidden md:flex items-center justify-center border border-border/60 hover:scale-110 active:scale-95 shadow-xl backdrop-blur-md hover:bg-card"
+            size="icon-sm"
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 hidden md:flex shadow-xl backdrop-blur-md"
             aria-label="Scroll right"
-          >
-            <ChevronRight className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
-          </Button>
+            icon={ChevronRight}
+          />
         )}
 
         {/* Scroll Container */}

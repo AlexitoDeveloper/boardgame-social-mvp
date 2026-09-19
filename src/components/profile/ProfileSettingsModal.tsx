@@ -3,9 +3,8 @@ import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight } from '
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet'
 import { Button } from '../ui/button'
-import { cn } from '../../lib/utils'
 
 interface ProfileSettingsModalProps {
   isOpen: boolean
@@ -25,19 +24,16 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-sm:fixed max-sm:bottom-0 max-sm:top-auto max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl max-sm:border-x-0 max-sm:border-b-0 max-sm:max-w-full sm:max-w-md p-6 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-        {/* Mobile Sheet Grab Handle */}
-        <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto -mt-2 mb-3 sm:hidden shrink-0" />
-
-        <DialogHeader className="space-y-1">
-          <DialogTitle className="text-xl font-extrabold font-display tracking-tight text-foreground">
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="bottom" className="max-w-md">
+        <SheetHeader className="space-y-1 text-left">
+          <SheetTitle className="text-xl font-extrabold font-display tracking-tight text-foreground">
             {t('nav.theme')} & {t('nav.changeLang')}
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
+          </SheetTitle>
+          <SheetDescription className="text-xs text-muted-foreground">
             Personaliza la apariencia y el idioma de tu experiencia
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <div className="space-y-5 py-3">
           {/* Theme Selector */}
@@ -49,28 +45,28 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               <Button
                 type="button"
                 variant={!isDark ? 'default' : 'outline'}
+                size="default"
                 onClick={() => isDark && toggleTheme()}
-                className={cn(
-                  'h-12 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all',
-                  !isDark && 'shadow-md shadow-primary/20'
-                )}
+                className="w-full justify-between"
               >
-                <Sun className="h-4 w-4 text-amber-500" />
-                <span>{t('nav.light')}</span>
+                <div className="flex items-center gap-2">
+                  <Sun className="h-4 w-4 text-amber-500" />
+                  <span>{t('nav.light')}</span>
+                </div>
                 {!isDark && <Check className="h-3.5 w-3.5 ml-auto" />}
               </Button>
 
               <Button
                 type="button"
                 variant={isDark ? 'default' : 'outline'}
+                size="default"
                 onClick={() => !isDark && toggleTheme()}
-                className={cn(
-                  'h-12 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all',
-                  isDark && 'shadow-md shadow-primary/20'
-                )}
+                className="w-full justify-between"
               >
-                <Moon className="h-4 w-4 text-indigo-400" />
-                <span>{t('nav.dark')}</span>
+                <div className="flex items-center gap-2">
+                  <Moon className="h-4 w-4 text-indigo-400" />
+                  <span>{t('nav.dark')}</span>
+                </div>
                 {isDark && <Check className="h-3.5 w-3.5 ml-auto" />}
               </Button>
             </div>
@@ -85,28 +81,28 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               <Button
                 type="button"
                 variant={language === 'es' ? 'default' : 'outline'}
+                size="default"
                 onClick={() => setLanguage('es')}
-                className={cn(
-                  'h-12 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all',
-                  language === 'es' && 'shadow-md shadow-primary/20'
-                )}
+                className="w-full justify-between"
               >
-                <Languages className="h-4 w-4" />
-                <span>Español</span>
+                <div className="flex items-center gap-2">
+                  <Languages className="h-4 w-4" />
+                  <span>Español</span>
+                </div>
                 {language === 'es' && <Check className="h-3.5 w-3.5 ml-auto" />}
               </Button>
 
               <Button
                 type="button"
                 variant={language === 'en' ? 'default' : 'outline'}
+                size="default"
                 onClick={() => setLanguage('en')}
-                className={cn(
-                  'h-12 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all',
-                  language === 'en' && 'shadow-md shadow-primary/20'
-                )}
+                className="w-full justify-between"
               >
-                <Languages className="h-4 w-4" />
-                <span>English</span>
+                <div className="flex items-center gap-2">
+                  <Languages className="h-4 w-4" />
+                  <span>English</span>
+                </div>
                 {language === 'en' && <Check className="h-3.5 w-3.5 ml-auto" />}
               </Button>
             </div>
@@ -120,11 +116,12 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
             <Button
               type="button"
               variant="outline"
+              size="default"
               onClick={() => {
                 onClose()
                 navigate('/tops')
               }}
-              className="w-full h-11 rounded-xl flex items-center justify-between px-3 text-xs font-bold hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer"
+              className="w-full justify-between"
             >
               <div className="flex items-center gap-2.5">
                 <ListOrdered className="h-4 w-4 text-primary" />
@@ -139,15 +136,17 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
             <Button
               type="button"
               variant="destructive"
+              size="default"
               onClick={handleSignOut}
-              className="w-full h-11 rounded-xl flex items-center justify-center gap-2 text-xs font-bold"
+              className="w-full"
             >
               <LogOut className="h-4 w-4" />
               <span>{t('nav.signOut')}</span>
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }
+

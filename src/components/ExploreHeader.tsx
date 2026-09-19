@@ -80,14 +80,14 @@ export function ExploreHeader({
           />
           {search && (
             <Button
+              type="button"
               onClick={() => onSearchChange('')}
               variant="ghost"
-              size="icon"
+              size="icon-xs"
               aria-label={t('explore.clearSearch', 'Limpiar búsqueda')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full text-muted-foreground hover:text-foreground h-10 w-10 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-            >
-              <X className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-            </Button>
+              className="absolute right-2 top-1/2 -translate-y-1/2"
+              icon={X}
+            />
           )}
         </div>
 

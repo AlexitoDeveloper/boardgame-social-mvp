@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useGroups } from '../hooks/useGroups'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { toast } from '../components/ui/toast'
 
 const MotionDiv = motion.div
 const containerVars = {
@@ -136,6 +137,7 @@ export function GroupsPage() {
     const inviteUrl = `${window.location.origin}/grupos?join=${code}`
     navigator.clipboard.writeText(inviteUrl)
     setCopiedId(id)
+    toast.success(t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
     setTimeout(() => setCopiedId(null), 2000)
   }
 

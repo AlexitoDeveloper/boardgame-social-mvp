@@ -9,6 +9,7 @@ import { ACHIEVEMENT_TIER_ASSETS } from './achievementAssets'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { getAchievementsList, AchievementItem } from './achievementsConfig'
+import { cn } from '@/lib/utils'
 
 interface AchievementsVitrinaProps {
   organizedCount: number;
@@ -47,51 +48,73 @@ export function AchievementsVitrina({
       </div>
 
       {/* Tactile Medals Mobile Grid */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-3 p-3 rounded-2xl bg-card/40 border border-border/30 backdrop-blur-md">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-3 p-2.5 sm:p-3 rounded-2xl bg-card/40 border border-border/30 backdrop-blur-md">
         {achievements.map((ach) => {
           const isActive = activeAchId === ach.id
           const hasUnlocked = ach.currentTier !== null
+          const displayName = hasUnlocked ? (ach.currentTier?.name || ach.baseName) : ach.baseName
 
           return (
             <motion.button
               key={ach.id}
               type="button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               onClick={() => setActiveAchId(ach.id)}
-              className={`flex flex-col items-center select-none cursor-pointer focus-visible:outline-none rounded-xl p-1 transition-colors ${
-                isActive ? 'bg-primary/10 ring-1 ring-primary/40' : 'hover:bg-muted/20'
-              }`}
-              aria-label={ach.baseName}
+              className={cn(
+                "flex flex-col items-center select-none cursor-pointer focus-visible:outline-none rounded-xl p-1.5 sm:p-2 transition-all text-center relative border",
+                isActive
+                  ? "bg-primary/10 border-primary/40 shadow-sm shadow-primary/10"
+                  : "border-transparent hover:bg-muted/30"
+              )}
+              aria-label={displayName}
             >
               {/* Achievement Badge Container */}
-              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center relative shrink-0 transition-transform ${
-                hasUnlocked
-                  ? isActive ? 'scale-105' : ''
-                  : 'opacity-40 grayscale'
-              }`}>
-                <AchievementMedallion 
-                  id={ach.id} 
-                  tier={ach.currentTier?.tier || null} 
-                  unlocked={hasUnlocked} 
-                  active={isActive}
+              <div
+                className={cn(
+                  "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center relative shrink-0 transition-transform duration-200",
+                  isActive && "scale-105",
+                  !hasUnlocked && "opacity-40 grayscale"
+                )}
+              >
+                <AchievementMedallion
+                  id={ach.id}
+                  tier={ach.currentTier?.tier || null}
+                  unlocked={hasUnlocked}
+                  active={false}
                 />
               </div>
-              
-              {/* Mini title */}
-              <span className={`text-[10px] font-bold tracking-tight mt-1.5 text-center line-clamp-1 w-full px-0.5 leading-tight ${
-                hasUnlocked 
-                  ? isActive ? 'text-primary font-black' : 'text-foreground'
-                  : 'text-muted-foreground'
-              }`}>
-                {hasUnlocked ? (ach.currentTier?.name || ach.baseName) : ach.baseName}
-              </span>
-              
+
+              {/* Title with fluid vertical space - Zero letter slicing */}
+              <div className="w-full min-h-[32px] sm:min-h-[36px] flex items-center justify-center mt-1 px-0.5">
+                <span
+                  className={cn(
+                    "text-[10px] sm:text-[11px] font-bold tracking-tight text-center leading-snug line-clamp-2 break-words",
+                    hasUnlocked
+                      ? isActive
+                        ? "text-primary font-black"
+                        : "text-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {displayName}
+                </span>
+              </div>
+
               {/* Value / Progress label */}
               <span className="text-[10px] font-mono-tabular font-bold text-muted-foreground/80 mt-0.5">
                 {ach.id === 'reliable' ? `${stats.karma}%` : `${ach.progressVal}`}
               </span>
+
+              {/* Active Dot indicator below medal */}
+              {isActive && (
+                <motion.div
+                  layoutId="active-achievement-dot"
+                  className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-xs shadow-primary"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
             </motion.button>
           )
         })}

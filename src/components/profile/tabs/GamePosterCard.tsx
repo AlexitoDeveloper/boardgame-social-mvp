@@ -64,7 +64,7 @@ export function GamePosterCard({
 
           {/* Unplayed / Shelf of Shame Indicator Tag - 100% Solid & High-Contrast (Accessible) */}
           {isUnplayed && (
-            <div className="absolute top-2 left-2 z-20">
+            <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-md border border-amber-300 select-none">
                 Sin jugar
               </span>
@@ -84,32 +84,29 @@ export function GamePosterCard({
         </div>
       </Link>
 
-      {/* Tactile Action Icons Overlay - Prominent and Touch-Accessible */}
+      {/* Tactile Action Icons Overlay - Ergonomic & Touch-Accessible */}
       <div 
-        className="absolute top-2 right-2 z-30 flex items-center gap-1"
+        className="absolute top-2 right-2 z-30 flex items-center gap-1.5 p-1 rounded-2xl bg-black/75 dark:bg-[#0A0F1D]/90 backdrop-blur-md border border-white/20 shadow-xl pointer-events-auto select-none"
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
         }}
         onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
       >
         {/* Bookmark / Quiero Jugar */}
         <Button
           type="button"
-          variant={isWishlisted ? "purple" : "ghost"}
+          variant={isWishlisted ? "purple" : "secondary"}
           size="icon-sm"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
             onToggleWishlist(e, game.bgg_id)
           }}
-          className={`h-7 w-7 rounded-full shadow-md backdrop-blur-md transition-all cursor-pointer ${
-            isWishlisted
-              ? 'bg-purple-600 text-white border border-purple-400 opacity-100'
-              : 'bg-black/75 text-white/90 hover:text-white border border-white/20 opacity-90 sm:opacity-0 sm:group-hover:opacity-100'
-          }`}
           title={isWishlisted ? 'Quitar de Quiero Jugar' : 'Marcar Quiero Jugar'}
-          aria-label="Quiero Jugar"
+          aria-label={isWishlisted ? 'Quitar de Quiero Jugar' : 'Marcar Quiero Jugar'}
           icon={isWishlisted ? BookmarkCheck : Bookmark}
         />
 
@@ -124,7 +121,6 @@ export function GamePosterCard({
               e.stopPropagation()
               onRemove(e, game.bgg_id)
             }}
-            className="h-7 w-7 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400 shadow-md opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer"
             title={removeLabel}
             aria-label={removeLabel}
             icon={Trash2}

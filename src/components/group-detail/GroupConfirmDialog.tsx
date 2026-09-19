@@ -32,7 +32,7 @@ export const GroupConfirmDialog: React.FC<GroupConfirmDialogProps> = ({
           <DialogDescription className="text-xs text-muted-foreground font-semibold">{description}</DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2.5 pt-2">
-          <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl font-bold text-xs">
+          <Button type="button" variant="ghost" size="default" onClick={onClose}>
             {t('common.cancel', 'Cancelar')}
           </Button>
           <Button
@@ -42,7 +42,7 @@ export const GroupConfirmDialog: React.FC<GroupConfirmDialogProps> = ({
               onClose()
             }}
             variant={isDestructive ? 'destructive' : 'default'}
-            className="rounded-xl font-bold text-xs px-4"
+            size="default"
           >
             {confirmText || t('groups.confirmText', 'Confirmar')}
           </Button>

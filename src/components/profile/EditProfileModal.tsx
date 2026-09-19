@@ -261,7 +261,6 @@ export function EditProfileModal({
                           disabled={uploading}
                           variant="secondary"
                           size="sm"
-                          className="cursor-pointer text-xs h-8"
                           icon={uploading ? Loader2 : Camera}
                           label={t('profile.editModal.uploadPhoto')}
                         />
@@ -271,7 +270,6 @@ export function EditProfileModal({
                           disabled={uploading}
                           variant="secondary"
                           size="sm"
-                          className="cursor-pointer text-xs h-8"
                           icon={Dices}
                           label={t('profile.editModal.randomSeed')}
                         />
@@ -289,18 +287,17 @@ export function EditProfileModal({
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="default"
                   onClick={onClose}
                   disabled={saving || uploading}
-                  className="cursor-pointer h-11 px-4 min-w-[80px]"
                 >
                   {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
-                  size="sm"
+                  variant="default"
+                  size="default"
                   disabled={saving || uploading || !editUsername.trim()}
-                  className="cursor-pointer shadow-sm h-11 px-5 font-bold"
                 >
                   {saving ? (
                     <>

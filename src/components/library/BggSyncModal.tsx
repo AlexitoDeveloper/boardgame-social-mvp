@@ -194,7 +194,7 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
               <Button
                 onClick={handleDismiss}
                 size="lg"
-                className="w-full rounded-xl font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/25 h-12 text-sm"
+                className="w-full"
               >
                 <span>{isOnboarding ? t('onboarding.startPlaying', 'Comenzar a jugar') : t('common.close', 'Cerrar')}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -249,17 +249,19 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
               <Button
                 type="button"
                 variant="ghost"
+                size="default"
                 onClick={handleDismiss}
                 disabled={loading}
-                className="rounded-xl text-sm font-bold text-muted-foreground hover:text-foreground cursor-pointer h-11 px-4"
               >
                 {isOnboarding ? t('onboarding.skip', 'Omitir por ahora') : t('common.cancel', 'Cancelar')}
               </Button>
               <Button
                 type="submit"
+                variant="default"
+                size="default"
                 disabled={!bggUsername.trim()}
                 loading={loading}
-                className="rounded-xl text-sm font-bold shadow-md shadow-primary/20 h-11 px-6 sm:w-auto w-full"
+                className="sm:w-auto w-full"
               >
                 {t('profile.bggImport.start', 'Sincronizar')}
               </Button>

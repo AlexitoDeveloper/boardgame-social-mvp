@@ -50,8 +50,8 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
   }
 
   return (
-    <Form onSubmit={handleSubmit} className="space-y-3.5 pt-2">
-      <div className="space-y-1">
+    <Form onSubmit={handleSubmit} className="space-y-4 pt-1">
+      <div className="space-y-1.5">
         <Label htmlFor="custom-title" className="text-xs font-bold text-foreground">
           Nombre del juego *
         </Label>
@@ -62,12 +62,12 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
           placeholder="Ej. Mi Prototipo, Virus!, etc."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="rounded-xl h-9 text-xs"
+          className="rounded-xl h-11 text-sm bg-card/60 border-border/50"
         />
       </div>
 
       <div className="grid grid-cols-3 gap-2.5">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Label htmlFor="custom-min" className="text-xs font-bold text-muted-foreground">
             Mín. Jug.
           </Label>
@@ -78,11 +78,11 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
             max="99"
             value={minPlayers}
             onChange={(e) => setMinPlayers(e.target.value)}
-            className="rounded-xl h-8 text-xs font-mono-tabular"
+            className="rounded-xl h-11 text-sm font-mono-tabular text-center bg-card/60 border-border/50"
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Label htmlFor="custom-max" className="text-xs font-bold text-muted-foreground">
             Máx. Jug.
           </Label>
@@ -93,11 +93,11 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
             max="99"
             value={maxPlayers}
             onChange={(e) => setMaxPlayers(e.target.value)}
-            className="rounded-xl h-8 text-xs font-mono-tabular"
+            className="rounded-xl h-11 text-sm font-mono-tabular text-center bg-card/60 border-border/50"
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Label htmlFor="custom-time" className="text-xs font-bold text-muted-foreground">
             Tiempo (min)
           </Label>
@@ -108,36 +108,28 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
             step="5"
             value={playingTime}
             onChange={(e) => setPlayingTime(e.target.value)}
-            className="rounded-xl h-8 text-xs font-mono-tabular"
+            className="rounded-xl h-11 text-sm font-mono-tabular text-center bg-card/60 border-border/50"
           />
         </div>
       </div>
 
-      <div className="pt-2 flex justify-end gap-2">
+      <div className="pt-2 flex items-center justify-end gap-2.5">
         <Button
           type="button"
-          variant="ghost"
-          size="sm"
+          variant="outline"
+          size="default"
           onClick={onClose}
-          className="rounded-xl font-bold text-xs"
         >
           Cancelar
         </Button>
         <Button
           type="submit"
-          size="sm"
+          variant="default"
+          size="default"
           disabled={!title.trim() || submitting || success}
-          className="rounded-xl font-bold text-xs px-4"
-        >
-          {submitting ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-          ) : success ? (
-            <Check className="w-3.5 h-3.5 mr-1 text-emerald-300" />
-          ) : (
-            <Plus className="w-3.5 h-3.5 mr-1" />
-          )}
-          <span>{success ? '¡Añadido!' : 'Guardar y Añadir'}</span>
-        </Button>
+          icon={submitting ? Loader2 : success ? Check : Plus}
+          label={success ? '¡Añadido!' : 'Guardar y Añadir'}
+        />
       </div>
     </Form>
   )

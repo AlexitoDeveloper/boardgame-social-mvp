@@ -10,6 +10,7 @@ import {
 } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { useTranslation } from 'react-i18next'
+import { toast } from '../ui/toast'
 
 interface GroupInviteQrModalProps {
   isOpen: boolean
@@ -60,6 +61,7 @@ export const GroupInviteQrModal: FC<GroupInviteQrModalProps> = ({
     if (!inviteUrl) return
     navigator.clipboard.writeText(inviteUrl)
     setCopied(true)
+    toast.success(t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
     setTimeout(() => setCopied(false), 2000)
   }
 

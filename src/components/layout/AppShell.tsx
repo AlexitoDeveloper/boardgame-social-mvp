@@ -20,6 +20,7 @@ export function AppShell() {
     setShowBggOnboarding,
     isChatPage,
     hasActiveChat,
+    isGameDetailPage,
     handleSignOut,
   } = useShellNavigation()
 
@@ -49,8 +50,8 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      {/* Mobile Ergonomic Bottom Navigation Bar (hidden inside active chat) */}
-      {!hasActiveChat && <MobileBottomBar user={user} unreadChats={unreadChats} />}
+      {/* Mobile Ergonomic Bottom Navigation Bar (hidden inside active chat or game detail with its own dock) */}
+      {!hasActiveChat && !isGameDetailPage && <MobileBottomBar user={user} unreadChats={unreadChats} />}
 
       {/* Floating Drawers & Modals */}
       <MobileQuickActions

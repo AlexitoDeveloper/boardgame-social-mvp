@@ -45,7 +45,7 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
             </div>
           </div>
 
-          <Button asChild className="rounded-xl font-bold shadow-lg shadow-primary/25 shrink-0 w-full sm:w-auto">
+          <Button asChild size="default" className="shrink-0 w-full sm:w-auto">
             <Link to={`/mesa/${activeSession.id}`}>
               <Play className="w-4 h-4 mr-1.5 fill-current" />
               {t('tableHub.activeBanner.continueGame')}
@@ -83,7 +83,7 @@ export function ActiveSessionBanner({ activeSession, lastFinishedSession }: Acti
           </div>
         </div>
 
-        <Button asChild variant="outline" size="sm" className="rounded-xl font-bold shrink-0">
+        <Button asChild variant="outline" size="sm" className="shrink-0">
           <Link to={`/mesa/${lastFinishedSession.id}`}>
             {t('tableHub.activeBanner.viewPodium')}
             <ArrowRight className="w-3.5 h-3.5 ml-1" />

@@ -13,6 +13,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       location: "Ubicación",
       date: "Fecha",
       time: "Hora",
+      year: "Año",
       players: "Jugadores",
       spots: "Plazas",
       free: "libre",
@@ -112,7 +113,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       live: "En Directo",
       spanishEdition: "Edición en Español",
       editedBy: "Editado por {{publisher}}",
-      rating: "BGG Rating",
+      rating: "Valoración Media",
       difficulty: "Complejidad",
       fastGames: "⚡ Partidas Rápidas y Fillers (<35 min)",
       heavyGames: "🧠 Euros TOP y Estrategia Pesada",
@@ -329,11 +330,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         noRankings: "No hay rankings guardados.",
         createRanking: "Crear Ranking"
       },
-      statsHIndex: "Índice H",
+      statsUniqueGames: "Títulos Únicos",
+      statsUniqueGamesDesc: "Juegos diferentes explorados",
+      statsUniqueGamesHelp: "Mide tu catálogo probado: cuenta cada juego de mesa diferente al que has jugado en las mesas registradas.",
+      statsHIndex: "Índice H (Recurrencia)",
       statsHIndexDesc: "{{count}} juegos jugados al menos {{count}} veces",
+      statsHIndexHelp: "Mide la recurrencia: has jugado a {{count}} juegos diferentes un mínimo de {{count}} veces cada uno.",
       statsTotalPlays: "Total Partidas",
       statsTotalPlaysDesc: "Partidas completadas",
-      statsFavoriteFaction: "Categoría / Mecánica Top",
+      statsFavoriteFaction: "Mecánica Top",
+      statsFavoriteFactionDesc: "Mecánica más jugada",
       collection: {
         importBgg: "Importar Colección BGG",
         importBggDesc: "Sincroniza tus juegos de BoardGameGeek al instante.",
@@ -351,9 +357,11 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         filterAll: "Todos",
         filterOwned: "En Ludoteca",
         filterWantToPlay: "Quiero Jugar",
-        filterUnplayed: "Shelf of Shame",
+        filterUnplayed: "Estantería de la Vergüenza",
         unplayedDesc: "Juegos en ludoteca sin partidas registradas",
-        searchPlaceholder: "Buscar en la colección..."
+        searchPlaceholder: "Buscar en la colección...",
+        addedWantToPlay: "¡Añadido a Quiero Jugar!",
+        removedWantToPlay: "Eliminado de Quiero Jugar"
       },
       upcomingEmpty: "No hay partidas programadas.",
       upcomingEmptyDesc: "Busca mesas abiertas en el tablero para unerte.",
@@ -847,6 +855,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       expansions: "Expansiones",
       bggRank: "Ranking BGG",
       globalRankDesc: "Clasificación global oficial.",
+      geekRating: "Nota Geek",
       victoryHistory: "Historial de Victorias",
       originalTitle: "Original",
       registeredPlays: "Partidas Registradas",
@@ -1148,6 +1157,15 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       tableToolsTitle: "Herramientas de Mesa",
       tableToolsDesc: "Selector táctil de primer jugador, tirador de dados y marcador en vivo",
       tableToolsQuickDesc: "Registra partidas en < 45s o activa el selector de primer jugador y dados 3D."
+    },
+    toast: {
+      inviteCopied: "¡Enlace de invitación copiado al portapapeles!",
+      gameAddedToCollection: "¡Juego añadido a tu ludoteca!",
+      gameRemovedFromCollection: "Juego eliminado de tu ludoteca.",
+      joinedMeetupSuccess: "¡Te has unido a la mesa con éxito!",
+      leftMeetupSuccess: "Has salido de la mesa.",
+      profileSaved: "Ajustes del perfil guardados.",
+      error: "Ha ocurrido un error inesperado."
     }
   },
   en: {
@@ -1162,6 +1180,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       location: "Location",
       date: "Date",
       time: "Time",
+      year: "Year",
       players: "Players",
       spots: "Spots",
       free: "spot free",
@@ -1478,11 +1497,16 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         noRankings: "No saved rankings.",
         createRanking: "Create Ranking"
       },
-      statsHIndex: "H-Index",
+      statsUniqueGames: "Unique Games",
+      statsUniqueGamesDesc: "Different games explored",
+      statsUniqueGamesHelp: "Measures gameplay breadth: counts every distinct board game title you've played in recorded sessions.",
+      statsHIndex: "H-Index (Depth)",
       statsHIndexDesc: "{{count}} games played at least {{count}} times",
+      statsHIndexHelp: "Measures gameplay depth: you've played {{count}} different games a minimum of {{count}} times each.",
       statsTotalPlays: "Total Plays",
       statsTotalPlaysDesc: "Completed plays",
-      statsFavoriteFaction: "Top Category / Mechanic",
+      statsFavoriteFaction: "Top Mechanic",
+      statsFavoriteFactionDesc: "Most played mechanic",
       collection: {
         importBgg: "Import BGG Collection",
         importBggDesc: "Sync your BoardGameGeek games instantly.",
@@ -1502,7 +1526,9 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         filterWantToPlay: "Want to Play",
         filterUnplayed: "Shelf of Shame",
         unplayedDesc: "Collection games with no recorded plays",
-        searchPlaceholder: "Search collection..."
+        searchPlaceholder: "Search collection...",
+        addedWantToPlay: "Added to Want to Play!",
+        removedWantToPlay: "Removed from Want to Play"
       },
       upcomingEmpty: "No scheduled meetups.",
       upcomingEmptyDesc: "Search for open tables on the board to join.",
@@ -1996,6 +2022,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       expansions: "Expansions",
       bggRank: "BGG Rank",
       globalRankDesc: "Official global ranking.",
+      geekRating: "Geek Rating",
       victoryHistory: "Victory History",
       originalTitle: "Original",
       registeredPlays: "Registered Plays",
@@ -2297,6 +2324,15 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       tableToolsTitle: "Table Tools",
       tableToolsDesc: "Touch first player selector, dice roller, and live scoreboard",
       tableToolsQuickDesc: "Log matches in < 45s or activate the touch first player selector and 3D dice."
+    },
+    toast: {
+      inviteCopied: "Invite link copied to clipboard!",
+      gameAddedToCollection: "Game added to your collection!",
+      gameRemovedFromCollection: "Game removed from your collection.",
+      joinedMeetupSuccess: "Successfully joined meetup table!",
+      leftMeetupSuccess: "You have left the meetup.",
+      profileSaved: "Profile settings saved.",
+      error: "An unexpected error occurred."
     }
   }
 }

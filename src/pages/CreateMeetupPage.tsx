@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, ArrowLeft, AlertTriangle, Dices, Calendar, Users } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Stepper, StepItem } from '../components/ui/stepper'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
 import { useCreateMeetup, WizardStep } from '../hooks/useCreateMeetup'
 import { WizardStepGame } from '../components/meetup-form/WizardStepGame'
@@ -23,6 +24,13 @@ export function CreateMeetupPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const form = useCreateMeetup()
+
+  const stepperSteps: StepItem[] = STEPS.map((s) => ({
+    id: s.id,
+    title: t(s.labelKey),
+    shortTitle: t(s.shortLabelKey),
+    icon: s.icon,
+  }))
 
   if (form.loadingLimit) {
     return (
@@ -63,35 +71,12 @@ export function CreateMeetupPage() {
             </div>
 
             {!form.isLimitExceeded && (
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-3">
-                {STEPS.map((s) => {
-                  const isActive = form.currentStep === s.id
-                  const isDone = form.currentStep > s.id
-                  const Icon = s.icon
-                  return (
-                    <div
-                      key={s.id}
-                      onClick={() => form.goToStep(s.id)}
-                      className={`flex items-center gap-1.5 sm:gap-2 p-2 rounded-xl border text-xs font-bold transition-all cursor-pointer select-none min-w-0 ${
-                        isActive
-                          ? 'border-primary bg-primary/10 text-primary shadow-sm shadow-primary/5'
-                          : isDone
-                          ? 'border-border/40 bg-background/40 text-foreground/80'
-                          : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground'
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] shrink-0 font-extrabold ${
-                        isActive ? 'bg-primary text-primary-foreground' : isDone ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {isDone ? '✓' : <Icon className="w-3 h-3" />}
-                      </div>
-                      <span className="truncate text-xs font-bold block min-w-0">
-                        <span className="sm:hidden">{t(s.shortLabelKey)}</span>
-                        <span className="hidden sm:inline">{t(s.labelKey)}</span>
-                      </span>
-                    </div>
-                  )
-                })}
+              <div className="pt-3">
+                <Stepper
+                  steps={stepperSteps}
+                  activeStep={form.currentStep}
+                  onStepClick={(stepId) => form.goToStep(stepId as WizardStep)}
+                />
               </div>
             )}
           </CardHeader>
