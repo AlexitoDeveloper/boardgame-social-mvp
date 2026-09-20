@@ -51,7 +51,7 @@ export function WizardStepGame({
   onClearGames
 }: WizardStepGameProps) {
   const { t } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
 
   return (
     <MotionDiv
@@ -130,9 +130,9 @@ export function WizardStepGame({
                   className="flex items-center justify-between p-2.5 rounded-xl border border-border/60 bg-background/50 hover:border-primary/40 transition-colors shadow-sm gap-2"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    {game.image_url ? (
+                    {getGameCover(game) || game.image_url ? (
                       <OptimizedImage
-                        src={game.image_url}
+                        src={getGameCover(game) || game.image_url!}
                         alt={getGameTitle(game)}
                         widthSize={60}
                         heightSize={60}
@@ -204,8 +204,8 @@ export function WizardStepGame({
                         }`}>
                           {isChecked && <span className="text-[10px] font-black leading-none">✓</span>}
                         </div>
-                        {exp.image_url ? (
-                          <OptimizedImage src={exp.image_url} alt={exp.title} widthSize={40} heightSize={40} className="w-7 h-7 rounded-md object-cover shrink-0" />
+                        {getGameCover(exp) || exp.image_url ? (
+                          <OptimizedImage src={getGameCover(exp) || exp.image_url!} alt={getGameTitle(exp) || exp.title} widthSize={40} heightSize={40} className="w-7 h-7 rounded-md object-cover shrink-0" />
                         ) : (
                           <div className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center text-[10px] font-extrabold text-muted-foreground shrink-0">?</div>
                         )}

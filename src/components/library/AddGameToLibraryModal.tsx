@@ -1,5 +1,5 @@
-import { FC, useState, useEffect } from 'react'
-import { Search, Loader2, Globe, Dices, PenTool, Sparkles, X } from 'lucide-react'
+import { FC, useState, useEffect, useMemo } from 'react'
+import { Search, Loader2, Globe, Dices, PenTool, Sparkles, X, Check, Users } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -10,17 +10,34 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabOption } from '@/components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { FilterChip } from '@/components/ui/chip'
 import { Game } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
+import { useTranslation } from 'react-i18next'
 import { ManualGameForm } from './ManualGameForm'
 import { GameSearchResultItem } from './GameSearchResultItem'
+
+export interface GroupMemberOwner {
+  id: string
+  name: string
+  avatarUrl?: string | null
+  role?: string
+  isGuest?: boolean
+}
 
 interface AddGameToLibraryModalProps {
   isOpen: boolean
   onClose: () => void
   userCollectionGameIds: number[]
-  onAddGame: (game: Game) => Promise<void>
+  onAddGame: (game: Game, ownerId?: string, isGuestOwner?: boolean) => Promise<void>
   isGroupContext?: boolean
+  groupMembers?: GroupMemberOwner[]
+  currentUserId?: string
+  mergedCollection?: {
+    game: Game
+    owners: { user_id: string; username: string; avatar_url: string | null }[]
+  }[]
 }
 
 type TabMode = 'search' | 'manual'
@@ -36,7 +53,11 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
   userCollectionGameIds,
   onAddGame,
   isGroupContext = false,
+  groupMembers = [],
+  currentUserId,
+  mergedCollection = [],
 }) => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabMode>('search')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Game[]>([])
@@ -44,6 +65,9 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
   const [isBggSearching, setIsBggSearching] = useState(false)
   const [addingIds, setAddingIds] = useState<Record<number, boolean>>({})
   const [addedIds, setAddedIds] = useState<Record<number, boolean>>({})
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string>(
+    currentUserId || (groupMembers.length > 0 ? groupMembers[0].id : '')
+  )
 
   // Reset when opened
   useEffect(() => {
@@ -54,8 +78,23 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
       setIsBggSearching(false)
       setActiveTab('search')
       setAddedIds({})
+      if (currentUserId) {
+        setSelectedOwnerId(currentUserId)
+      } else if (groupMembers.length > 0) {
+        setSelectedOwnerId(groupMembers[0].id)
+      }
     }
-  }, [isOpen])
+  }, [isOpen, currentUserId, groupMembers])
+
+  // Determine which games the selected owner already has in their collection
+  const selectedOwnerGameIds = useMemo(() => {
+    if (isGroupContext && selectedOwnerId && mergedCollection.length > 0) {
+      return mergedCollection
+        .filter((item) => item.owners.some((o) => o.user_id === selectedOwnerId))
+        .map((item) => item.game.bgg_id)
+    }
+    return userCollectionGameIds
+  }, [isGroupContext, selectedOwnerId, mergedCollection, userCollectionGameIds])
 
   // Search local database as user types
   useEffect(() => {
@@ -126,7 +165,12 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
   const handleAdd = async (game: Game) => {
     setAddingIds((prev) => ({ ...prev, [game.bgg_id]: true }))
     try {
-      await onAddGame(game)
+      const selectedMember = groupMembers.find((m) => m.id === selectedOwnerId)
+      await onAddGame(
+        game,
+        isGroupContext ? selectedOwnerId : undefined,
+        Boolean(selectedMember?.isGuest)
+      )
       setAddedIds((prev) => ({ ...prev, [game.bgg_id]: true }))
     } catch (err) {
       console.error('Error adding game:', err)
@@ -148,10 +192,63 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
           </SheetTitle>
           <SheetDescription>
             {isGroupContext
-              ? 'El juego se guardará en tu ludoteca personal y estará disponible para este grupo.'
+              ? t(
+                  'groups.groupContextSheetDesc',
+                  'Elige quién aporta el juego para que quede registrado a su nombre en la ludoteca del grupo.'
+                )
               : 'Busca en el catálogo, en BGG o añade manualmente cualquier juego a tu colección.'}
           </SheetDescription>
         </SheetHeader>
+
+        {/* Owner Selection Bar in Group Context */}
+        {isGroupContext && groupMembers.length > 0 && (
+          <div className="space-y-1.5 p-3 rounded-2xl bg-muted/20 border border-border/40">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-extrabold text-foreground flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span>{t('groups.selectGameOwner', 'Propietario del juego')}</span>
+              </span>
+              <span className="text-muted-foreground text-[11px] font-medium">
+                {t('groups.whoBringsGame', '¿Quién aporta este juego?')}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-1 no-scrollbar">
+              {groupMembers.map((member) => {
+                const isSelected = selectedOwnerId === member.id
+                const isCurrentUser = member.id === currentUserId
+                const displayName = isCurrentUser
+                  ? `${member.name} (${t('common.you', 'Tú')})`
+                  : member.name
+
+                return (
+                  <FilterChip
+                    key={member.id}
+                    selected={isSelected}
+                    variant={member.isGuest ? 'default' : 'primary'}
+                    size="sm"
+                    onClick={() => setSelectedOwnerId(member.id)}
+                    className="h-8 gap-1.5 px-2.5 rounded-xl shrink-0 cursor-pointer"
+                  >
+                    <Avatar className="w-4 h-4 border border-border/30">
+                      <AvatarImage src={member.avatarUrl || ''} alt={member.name} />
+                      <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-black">
+                        {member.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate max-w-[120px]">{displayName}</span>
+                    {member.isGuest && (
+                      <span className="text-[10px] text-muted-foreground font-semibold">
+                        ({t('common.guest', 'Invitado')})
+                      </span>
+                    )}
+                    {isSelected && <Check className="w-3 h-3 text-primary stroke-[3]" />}
+                  </FilterChip>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Mode Tabs */}
         <Tabs
@@ -200,7 +297,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                       key={game.bgg_id}
                       game={game}
                       isInCollection={
-                        userCollectionGameIds.includes(game.bgg_id) || !!addedIds[game.bgg_id]
+                        selectedOwnerGameIds.includes(game.bgg_id) || !!addedIds[game.bgg_id]
                       }
                       isAdding={!!addingIds[game.bgg_id]}
                       onAdd={handleAdd}
@@ -240,7 +337,17 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
             </div>
           ) : (
             <div className="flex-1 min-h-0 overflow-y-auto">
-              <ManualGameForm onAddGame={onAddGame} onClose={onClose} />
+              <ManualGameForm
+                onAddGame={(game) => {
+                  const selectedMember = groupMembers.find((m) => m.id === selectedOwnerId)
+                  return onAddGame(
+                    game,
+                    isGroupContext ? selectedOwnerId : undefined,
+                    Boolean(selectedMember?.isGuest)
+                  )
+                }}
+                onClose={onClose}
+              />
             </div>
           )}
         </div>

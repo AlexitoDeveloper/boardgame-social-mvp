@@ -505,10 +505,18 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     const isMock = USE_MOCKS && id.startsWith('mock-')
     setCanceling(true)
 
+    const redirectPath = meetup?.group_id ? `/grupos/${meetup.group_id}?tab=meetups` : '/mesa-hub'
+
     if (isMock) {
       setTimeout(() => {
+        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        if (stored) {
+          const list = JSON.parse(stored).filter((m: any) => m.id !== id)
+          localStorage.setItem('boardgame_social_mock_meetups', JSON.stringify(list))
+        }
         setCanceling(false)
-        navigate('/')
+        toast.success(i18n.t('meetup.deleteSuccess', 'Mesa eliminada correctamente.'))
+        navigate(redirectPath)
       }, 500)
     } else {
       try {
@@ -518,10 +526,12 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           .eq('id', id)
 
         if (error) throw error
-        navigate('/')
-      } catch (err) {
+        toast.success(i18n.t('meetup.deleteSuccess', 'Mesa eliminada correctamente.'))
+        navigate(redirectPath)
+      } catch (err: any) {
         console.error('Error deleting meetup:', err)
         setErrorMsg('No se pudo cancelar la partida.')
+        toast.error(err?.message || 'No se pudo cancelar la partida.')
         setCanceling(false)
       }
     }
@@ -654,6 +664,107 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         setErrorMsg('Error al abandonar la mesa.')
       } finally {
         setJoining(false)
+      }
+    }
+  }
+
+  // Handle Add manual guest by the host
+  const handleAddManualGuest = async (guestName: string): Promise<boolean> => {
+    if (!id || !meetup) return false
+    
+    if (attendees.length >= meetup.max_players) {
+      toast.error(i18n.t('meetup.tableIsFull', 'La mesa ya está llena.'))
+      return false
+    }
+
+    const trimmed = guestName.trim()
+    if (!trimmed) return false
+
+    const isMock = USE_MOCKS && id.startsWith('mock-')
+
+    if (isMock) {
+      const guestId = `mock-guest-${Date.now()}`
+      
+      const mockGuestsKey = 'boardgame_social_mock_guests'
+      const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
+      const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
+      if (!allMockGuests[id]) allMockGuests[id] = []
+      allMockGuests[id].push({ id: guestId, guest_name: trimmed })
+      localStorage.setItem(mockGuestsKey, JSON.stringify(allMockGuests))
+
+      const newGuest: UserProfile = {
+        id: guestId,
+        username: trimmed,
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(trimmed)}`,
+        is_guest: true
+      }
+
+      setAttendees(prev => [...prev, newGuest])
+
+      if (meetup.player_scores && meetup.player_scores.length > 0) {
+        const alreadyInScores = meetup.player_scores.some(
+          s => s.guestId === guestId || s.name?.toLowerCase().trim() === trimmed.toLowerCase().trim()
+        )
+        if (!alreadyInScores) {
+          const colors = ['red', 'blue', 'yellow', 'green', 'purple', 'orange'] as const
+          const usedColors = new Set(meetup.player_scores.map(s => s.meepleColor))
+          const availableColor = colors.find(c => !usedColors.has(c)) || colors[meetup.player_scores.length % colors.length]
+          const newScore: PlayerScore = {
+            guestId,
+            name: trimmed,
+            score: 0,
+            meepleColor: availableColor,
+          }
+          updateScores([...meetup.player_scores, newScore]).catch(console.error)
+        }
+      }
+
+      toast.success(i18n.t('meetup.guestAddedSuccess', '¡Invitado añadido a la mesa!'))
+      return true
+    } else {
+      try {
+        const { data, error } = await supabase
+          .from('meetup_guests')
+          .insert({ meetup_id: id, guest_name: trimmed })
+          .select()
+          .single()
+
+        if (error) throw error
+        if (!data) throw new Error('No se pudo añadir el invitado.')
+
+        const newGuest: UserProfile = {
+          id: data.id,
+          username: data.guest_name,
+          avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.guest_name)}`,
+          is_guest: true
+        }
+
+        setAttendees(prev => [...prev, newGuest])
+
+        if (meetup.player_scores && meetup.player_scores.length > 0) {
+          const alreadyInScores = meetup.player_scores.some(
+            s => s.guestId === data.id || s.name?.toLowerCase().trim() === data.guest_name.toLowerCase().trim()
+          )
+          if (!alreadyInScores) {
+            const colors = ['red', 'blue', 'yellow', 'green', 'purple', 'orange'] as const
+            const usedColors = new Set(meetup.player_scores.map(s => s.meepleColor))
+            const availableColor = colors.find(c => !usedColors.has(c)) || colors[meetup.player_scores.length % colors.length]
+            const newScore: PlayerScore = {
+              guestId: data.id,
+              name: data.guest_name,
+              score: 0,
+              meepleColor: availableColor,
+            }
+            await updateScores([...meetup.player_scores, newScore])
+          }
+        }
+
+        toast.success(i18n.t('meetup.guestAddedSuccess', '¡Invitado añadido a la mesa!'))
+        return true
+      } catch (err: any) {
+        console.error('Error adding manual guest:', err)
+        toast.error(err?.message || i18n.t('meetup.guestAddError', 'No se pudo añadir el invitado.'))
+        return false
       }
     }
   }
@@ -861,6 +972,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     guestReservation,
     handleJoinAsGuest,
     handleLeaveAsGuest,
+    handleAddManualGuest,
     handleCompleteMeetup,
     updateScores,
     updateBoardPhoto,

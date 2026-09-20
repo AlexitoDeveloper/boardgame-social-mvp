@@ -14,6 +14,7 @@ export interface VotingGame {
   title: string
   title_es?: string | null
   image_url?: string | null
+  image_url_es?: string | null
   min_players?: number | null
   max_players?: number | null
   playing_time?: number | null
@@ -355,11 +356,11 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                   </p>
                 </div>
 
-                {winningGame.image_url && (
+                {(winningGame.image_url_es || winningGame.image_url) && (
                   <div className="w-36 h-36 mx-auto rounded-2xl overflow-hidden border border-border/40 shadow-xl relative group">
                     <img
-                      src={winningGame.image_url}
-                      alt={winningGame.title}
+                      src={(winningGame.image_url_es || winningGame.image_url) || undefined}
+                      alt={winningGame.title_es || winningGame.title}
                       className="w-full h-full object-cover"
                     />
                   </div>

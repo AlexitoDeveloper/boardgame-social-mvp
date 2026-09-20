@@ -18,6 +18,7 @@ export function useShellNavigation() {
   const hasActiveChat = isChatPage && new URLSearchParams(location.search).has('id')
   const isProfileActive = location.pathname.startsWith('/perfil')
   const isGameDetailPage = location.pathname.startsWith('/juegos/')
+  const isCreateMatchPage = location.pathname.startsWith('/partida/nueva')
 
   // Reset vertical scroll on every route transition & close open quick actions
   useEffect(() => {
@@ -196,6 +197,7 @@ export function useShellNavigation() {
     hasActiveChat,
     isProfileActive,
     isGameDetailPage,
+    isCreateMatchPage,
     pathname: location.pathname,
     handleSignOut,
     navigate,

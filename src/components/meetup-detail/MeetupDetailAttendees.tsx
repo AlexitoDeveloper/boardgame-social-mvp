@@ -1,11 +1,14 @@
-import { Crown } from 'lucide-react'
+import { useState } from 'react'
+import { Crown, UserPlus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card'
 import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { UserProfile } from '../../types'
 import { useTranslation } from 'react-i18next'
+import { AddGuestPlayerModal } from './AddGuestPlayerModal'
 
 const MotionDiv = motion.div
 
@@ -16,6 +19,7 @@ interface MeetupDetailAttendeesProps {
   creatorId: string;
   userId: string | undefined;
   guestReservationId?: string;
+  onAddGuest?: (name: string) => Promise<boolean>;
 }
 
 export function MeetupDetailAttendees({ 
@@ -24,9 +28,12 @@ export function MeetupDetailAttendees({
   spotsRemaining, 
   creatorId, 
   userId, 
-  guestReservationId 
+  guestReservationId,
+  onAddGuest
 }: MeetupDetailAttendeesProps) {
   const { t } = useTranslation()
+  const [isAddGuestModalOpen, setIsAddGuestModalOpen] = useState(false)
+  const isOrganizer = userId === creatorId
   
   const renderEmptySlots = () => {
     const slotsToRender = Math.min(3, spotsRemaining)
@@ -140,8 +147,34 @@ export function MeetupDetailAttendees({
 
             {renderEmptySlots()}
           </div>
+
+          {isOrganizer && onAddGuest && attendees.length < maxPlayers && (
+            <div className="pt-2 border-t border-border/20">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddGuestModalOpen(true)}
+                className="w-full h-9 rounded-xl text-xs font-bold gap-1.5 border-dashed border-border/60 hover:border-primary/50 text-muted-foreground hover:text-foreground hover:bg-muted/30"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-primary" />
+                <span>{t('meetup.addGuestManualBtn', '+ Añadir invitado a la mesa')}</span>
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
+
+      {onAddGuest && (
+        <AddGuestPlayerModal
+          isOpen={isAddGuestModalOpen}
+          onClose={() => setIsAddGuestModalOpen(false)}
+          onAddGuest={onAddGuest}
+          existingNames={attendees.map(a => a.username)}
+          maxPlayers={maxPlayers}
+          currentCount={attendees.length}
+        />
+      )}
     </Card>
   )
 }

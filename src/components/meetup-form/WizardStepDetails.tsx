@@ -45,7 +45,7 @@ export function WizardStepDetails({
   date
 }: WizardStepDetailsProps) {
   const { t } = useTranslation()
-  const { getGameTitle, language } = useGameLocale()
+  const { getGameTitle, getGameCover, language } = useGameLocale()
   const playerCount = parseInt(maxPlayers, 10) || 4
   const PRESET_CAPACITIES = [2, 3, 4, 5, 6, 7, 8]
   const isCustomCapacity = !PRESET_CAPACITIES.includes(playerCount)
@@ -184,9 +184,9 @@ export function WizardStepDetails({
         </div>
 
         <div className="flex items-center gap-3 bg-background/60 p-2.5 rounded-xl border border-border/30 text-xs">
-          {selectedGames.length > 0 && selectedGames[0].image_url ? (
+          {selectedGames.length > 0 && (getGameCover(selectedGames[0]) || selectedGames[0].image_url) ? (
             <OptimizedImage
-              src={selectedGames[0].image_url}
+              src={getGameCover(selectedGames[0]) || selectedGames[0].image_url!}
               alt={getGameTitle(selectedGames[0])}
               widthSize={50}
               heightSize={50}

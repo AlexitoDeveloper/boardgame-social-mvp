@@ -232,6 +232,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
           return m
         })
         .filter(m => m.joined_players?.includes(profileId))
+        .sort((a, b) => new Date(b.date || (b as any).created_at || 0).getTime() - new Date(a.date || (a as any).created_at || 0).getTime())
 
       setMeetups(userMockMeetups)
       calculateStats(userMockMeetups, profileId)
@@ -251,6 +252,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
           .from('meetups')
           .select('*, meetup_games(game_id, winner_user_id, winner_guest_id, games(*)), users:users!meetups_creator_id_fkey(*)')
           .contains('joined_players', [profileId])
+          .order('date', { ascending: false })
 
         if (meetupsError) throw meetupsError
         

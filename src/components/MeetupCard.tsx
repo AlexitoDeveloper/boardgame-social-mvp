@@ -22,7 +22,7 @@ interface MeetupCardProps {
 
 export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }: MeetupCardProps) {
   const { t } = useTranslation()
-  const { getGameTitle, language } = useGameLocale()
+  const { getGameTitle, getGameCover, language } = useGameLocale()
   const userId = user?.id
   const isJoined = userId ? meetup.joined_players?.includes(userId) : false
   const isCreator = meetup.creator_id === userId
@@ -167,68 +167,75 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
     >
       {/* Banner / Showcase de Portada */}
       <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-muted/40 border-b border-border/30 flex items-center justify-center">
-        {currentGame?.image_url ? (
-          <>
-            {/* Fondo difuminado ambiental */}
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={`bg-${currentGame.bgg_id || activeGameIdx}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                src={currentGame.image_url}
-                alt=""
-                className="w-full h-full object-cover filter blur-[32px] scale-150 pointer-events-none select-none absolute inset-0 z-0"
-              />
-            </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/20 to-transparent z-10 pointer-events-none opacity-80" />
+        {(() => {
+          const currentCover = currentGame ? (getGameCover(currentGame) || currentGame.image_url) : null
+          if (currentCover) {
+            return (
+              <>
+                {/* Fondo difuminado ambiental */}
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={`bg-${currentGame?.bgg_id || activeGameIdx}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.4 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    src={currentCover}
+                    alt=""
+                    className="w-full h-full object-cover filter blur-[32px] scale-150 pointer-events-none select-none absolute inset-0 z-0"
+                  />
+                </AnimatePresence>
+                <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/20 to-transparent z-10 pointer-events-none opacity-80" />
 
-            {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`cover-wrapper-${currentGame.bgg_id || activeGameIdx}`}
-                drag={gamesList.length > 1 ? "x" : false}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.6}
-                onDragEnd={(_, info) => {
-                  if (gamesList.length <= 1) return;
-                  const swipeThreshold = 50;
-                  if (info.offset.x < -swipeThreshold) {
-                    setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
-                  } else if (info.offset.x > swipeThreshold) {
-                    setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
-                  }
-                }}
-                initial={{ opacity: 0, scale: 0.92, x: 0 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.92 }}
-                transition={{ 
-                  opacity: { duration: 0.3 },
-                  scale: { duration: 0.3 },
-                  x: { type: "spring", stiffness: 300, damping: 30 }
-                }}
-                className={`absolute inset-0 flex items-center justify-center p-4 z-20 touch-pan-y ${
-                  gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
-                }`}
-              >
-                <img
-                  src={currentGame.image_url}
-                  alt={getGameTitle(currentGame) || t('common.game')}
-                  className="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10 group-hover:scale-[1.04] transition-transform duration-300 pointer-events-none select-none"
-                />
-              </motion.div>
-            </AnimatePresence>
-          </>
-        ) : (
-          /* Placeholder visual premium cuando no hay portada */
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex flex-col items-center justify-center p-4">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-2 shadow-inner">
-              {meetup.is_online ? <Laptop className="w-8 h-8" /> : <Dices className="w-8 h-8" />}
+                {/* Portada del juego centrada y con proporción nativa (perfecta para portadas cuadradas/horizontales) */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`cover-wrapper-${currentGame?.bgg_id || activeGameIdx}`}
+                    drag={gamesList.length > 1 ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.6}
+                    onDragEnd={(_, info) => {
+                      if (gamesList.length <= 1) return;
+                      const swipeThreshold = 50;
+                      if (info.offset.x < -swipeThreshold) {
+                        setActiveGameIdx((prev) => (prev + 1) % gamesList.length);
+                      } else if (info.offset.x > swipeThreshold) {
+                        setActiveGameIdx((prev) => (prev - 1 + gamesList.length) % gamesList.length);
+                      }
+                    }}
+                    initial={{ opacity: 0, scale: 0.92, x: 0 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{ 
+                      opacity: { duration: 0.3 },
+                      scale: { duration: 0.3 },
+                      x: { type: "spring", stiffness: 300, damping: 30 }
+                    }}
+                    className={`absolute inset-0 flex items-center justify-center p-4 z-20 touch-pan-y ${
+                      gamesList.length > 1 ? "cursor-grab active:cursor-grabbing" : ""
+                    }`}
+                  >
+                    <img
+                      src={currentCover}
+                      alt={getGameTitle(currentGame) || t('common.game')}
+                      className="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10 group-hover:scale-[1.04] transition-transform duration-300 pointer-events-none select-none"
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </>
+            )
+          }
+
+          return (
+            /* Placeholder visual premium cuando no hay portada */
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex flex-col items-center justify-center p-4">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-2 shadow-inner">
+                {meetup.is_online ? <Laptop className="w-8 h-8" /> : <Dices className="w-8 h-8" />}
+              </div>
+              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">{t('meetup.tableOnBoard')}</span>
             </div>
-            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">{t('meetup.tableOnBoard')}</span>
-          </div>
-        )}
+          )
+        })()}
 
         {/* Controles del Carrusel */}
         {gamesList.length > 1 && (

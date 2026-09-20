@@ -6,6 +6,7 @@ export interface SimpleGame {
   title: string
   title_es?: string | null
   image_url?: string | null
+  image_url_es?: string | null
   year_published?: number | null
   min_players?: number | null
   max_players?: number | null
@@ -41,6 +42,7 @@ export function mapToSimpleGame(g: any, unplayedOverride?: boolean): SimpleGame 
     title: g.title,
     title_es: g.title_es,
     image_url: g.image_url,
+    image_url_es: g.image_url_es,
     year_published: g.year_published,
     min_players: g.min_players || 2,
     max_players: g.max_players || 5,

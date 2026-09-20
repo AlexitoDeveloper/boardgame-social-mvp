@@ -9,17 +9,17 @@ import {
 
 export function useGameLocale() {
   const { i18n } = useTranslation()
-  const currentLang = i18n.language as AppLanguage
+  const currentLang = (i18n.language?.startsWith('en') ? 'en' : 'es') as AppLanguage
 
-  const getGameTitle = (game: Game) => {
+  const getGameTitle = (game: Game | null | undefined) => {
     return getGameTitleFn(game, currentLang)
   }
 
-  const getGamePublisher = (game: Game) => {
+  const getGamePublisher = (game: Game | null | undefined) => {
     return getGamePublisherFn(game, currentLang)
   }
 
-  const getGameCover = (game: Game) => {
+  const getGameCover = (game: Game | null | undefined) => {
     return getGameCoverFn(game, currentLang)
   }
 

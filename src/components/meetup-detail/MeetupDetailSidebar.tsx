@@ -8,7 +8,6 @@ import {
   Crown, 
   Edit3, 
   Trash2, 
-  AlertTriangle,
   Loader2,
   MessageSquare,
   NotebookPen,
@@ -23,6 +22,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { ExpansionBadge } from '../ui/expansion-badge'
 import { Form } from '../ui/form'
+import { DeleteTableConfirmDialog } from './DeleteTableConfirmDialog'
 import { User } from '@supabase/supabase-js'
 import { Meetup, UserProfile } from '../../types'
 
@@ -284,16 +284,24 @@ export function MeetupDetailSidebar({
           />
         </div>
 
-        {/* Edit results option for master/creator */}
+        {/* Options for master/creator on completed meetup */}
         {isCreator && (
-          <div className="pt-1 flex justify-center">
+          <div className="pt-2 flex items-center justify-center gap-2 border-t border-border/20">
             <Button
               onClick={openCompleteForm}
               variant="ghost"
               size="sm"
-              className="h-8 text-muted-foreground hover:text-primary"
+              className="h-8 text-xs text-muted-foreground hover:text-primary gap-1.5"
             >
               <Edit3 className="w-3.5 h-3.5" /> {t('meetup.editResults')}
+            </Button>
+            <Button
+              onClick={() => setConfirmCancel(true)}
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs text-destructive/80 hover:text-destructive hover:bg-destructive/10 gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> {t('meetup.deleteTable', 'Eliminar Mesa')}
             </Button>
           </div>
         )}
@@ -693,56 +701,40 @@ export function MeetupDetailSidebar({
                     <CheckSquare className="w-4 h-4" /> {t('meetup.closeGame')}
                   </Button>
 
-                  {!confirmCancel ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        onClick={() => navigate(`/mesa/${meetup.id}/edit`)}
-                        variant="outline" 
-                        size="sm"
-                        className="h-10 flex items-center gap-1.5"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
-                      </Button>
-                      
-                      <Button 
-                        onClick={() => setConfirmCancel(true)}
-                        variant="outline" 
-                        size="sm"
-                        className="h-10 text-destructive border-destructive/30 hover:bg-destructive/10 flex items-center gap-1.5"
-                        aria-label={t('meetup.cancelTable', 'Cancelar Mesa')}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" /> {t('meetup.cancelTable', 'Cancelar Mesa')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="p-3.5 rounded-xl border border-destructive/20 bg-destructive/5 space-y-3 text-center">
-                      <div className="text-xs font-bold text-destructive flex items-center justify-center gap-1.5">
-                        <AlertTriangle className="w-4 h-4" /> {t('meetup.confirmCancelTitle')}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => setConfirmCancel(false)}
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                        >
-                          {t('meetup.noCancel')}
-                        </Button>
-                        <Button 
-                          onClick={handleCancelMeetup}
-                          disabled={canceling}
-                          variant="destructive"
-                          size="sm"
-                          className="flex-1 h-8"
-                        >
-                          {canceling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('meetup.yesCancel')}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      onClick={() => navigate(`/mesa/${meetup.id}/edit`)}
+                      variant="outline" 
+                      size="sm"
+                      className="h-10 flex items-center gap-1.5"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => setConfirmCancel(true)}
+                      variant="outline" 
+                      size="sm"
+                      className="h-10 text-destructive border-destructive/30 hover:bg-destructive/10 flex items-center gap-1.5"
+                      aria-label={t('meetup.cancelTable', 'Cancelar Mesa')}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> {t('meetup.cancelTable', 'Cancelar Mesa')}
+                    </Button>
+                  </div>
                 </div>
               )}
             </>
+          )}
+
+          {/* Delete Table Dialog rendered at CardContent root for both active and completed meetups */}
+          {isCreator && (
+            <DeleteTableConfirmDialog
+              isOpen={confirmCancel}
+              onClose={() => setConfirmCancel(false)}
+              onConfirmDelete={handleCancelMeetup}
+              isDeleting={canceling}
+              tableTitle={meetup.title}
+            />
           )}
         </CardContent>
       </Card>

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import { Game } from '@/types'
+import { useGameLocale } from '@/hooks/useGameLocale'
 
 interface GameSearchResultItemProps {
   game: Game
@@ -17,13 +18,17 @@ export function GameSearchResultItem({
   isAdding,
   onAdd,
 }: GameSearchResultItemProps) {
+  const { getGameTitle, getGameCover } = useGameLocale()
+  const title = getGameTitle(game) || game.title_es || game.title
+  const cover = getGameCover(game) || game.image_url
+
   return (
     <div className="p-3 rounded-2xl bg-card/80 dark:bg-muted/20 border border-border/40 hover:border-primary/40 flex items-center justify-between gap-3 transition-all">
       <div className="flex items-center gap-3 min-w-0">
-        {game.image_url ? (
+        {cover ? (
           <OptimizedImage
-            src={game.image_url}
-            alt={game.title}
+            src={cover}
+            alt={title}
             widthSize={100}
             className="w-11 h-11 rounded-xl shrink-0 border border-border/30 shadow-xs"
           />
@@ -34,7 +39,7 @@ export function GameSearchResultItem({
         )}
         <div className="min-w-0 space-y-0.5">
           <h4 className="text-xs sm:text-sm font-bold text-foreground truncate">
-            {game.title_es || game.title}
+            {title}
           </h4>
           <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
             {game.year_published && <span>{game.year_published}</span>}

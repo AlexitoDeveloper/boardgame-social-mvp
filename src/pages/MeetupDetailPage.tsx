@@ -84,7 +84,7 @@ export function MeetupDetailPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t, i18n } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
 
   const {
     meetup,
@@ -101,6 +101,7 @@ export function MeetupDetailPage() {
     guestReservation,
     handleJoinAsGuest,
     handleLeaveAsGuest,
+    handleAddManualGuest,
     handleCompleteMeetup,
     updateScores,
     updateBoardPhoto,
@@ -116,7 +117,12 @@ export function MeetupDetailPage() {
   const exportRef = useRef<HTMLDivElement>(null)
 
   const sessionAttendees = useMemo(() => {
-    return attendees.map(a => ({ id: a.id, name: a.username, avatarUrl: a.avatar_url }))
+    return attendees.map(a => ({
+      id: a.id,
+      name: a.username,
+      avatarUrl: a.avatar_url,
+      isGuest: Boolean(a.is_guest),
+    }))
   }, [attendees])
 
   if (loading) {
@@ -237,6 +243,7 @@ export function MeetupDetailPage() {
             creatorId={meetup.creator_id}
             userId={userId}
             guestReservationId={guestReservation?.id}
+            onAddGuest={handleAddManualGuest}
           />
 
           {/* Live Score Sheet */}
@@ -308,6 +315,9 @@ export function MeetupDetailPage() {
         guestReservation={guestReservation}
         handleJoinLeave={handleJoinLeave}
         onNavigateToChat={() => navigate(`/chats?id=${meetup.id}`)}
+        isCreator={isCreator}
+        handleCancelMeetup={handleCancelMeetup}
+        canceling={canceling}
       />
 
       {/* Legal Attribution */}
@@ -518,10 +528,10 @@ export function MeetupDetailPage() {
                                     className="rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-md flex items-center justify-between gap-3 p-2.5 shadow-lg transition-all duration-200 w-full shrink-0"
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                      {game.image_url ? (
+                                      {(getGameCover(game) || game.image_url) ? (
                                         <img 
-                                          src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=120&h=120&fit=cover`} 
-                                          alt={game.title} 
+                                          src={`https://images.weserv.nl/?url=${encodeURIComponent((getGameCover(game) || game.image_url)!)}&w=120&h=120&fit=cover`} 
+                                          alt={getGameTitle(game) || game.title} 
                                           className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0 shadow-inner"
                                           crossOrigin="anonymous"
                                         />
@@ -628,10 +638,10 @@ export function MeetupDetailPage() {
                                       className="border border-white/10 bg-zinc-950/75 backdrop-blur-lg flex items-center justify-between gap-6 p-6 rounded-[24px] shadow-2xl transition-all duration-200"
                                     >
                                       <div className="flex items-center gap-5 min-w-0 flex-1">
-                                        {game.image_url ? (
+                                        {(getGameCover(game) || game.image_url) ? (
                                           <img 
-                                            src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=250&h=250&fit=cover`} 
-                                            alt={game.title} 
+                                            src={`https://images.weserv.nl/?url=${encodeURIComponent((getGameCover(game) || game.image_url)!)}&w=250&h=250&fit=cover`} 
+                                            alt={getGameTitle(game) || game.title} 
                                             className="w-16 h-16 rounded-[14px] object-cover border border-white/10 shrink-0 shadow-inner"
                                             crossOrigin="anonymous"
                                           />

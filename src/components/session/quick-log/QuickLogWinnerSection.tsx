@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { Crown, Trophy, Handshake, Scale } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../../ui/button'
+import { Badge } from '../../ui/badge'
 import { Input } from '../../ui/input'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { QuickLogAttendee, WinnerMode } from '../../../hooks/useQuickLogMatch'
@@ -124,12 +125,19 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                     </AvatarFallback>
                   </Avatar>
 
-                  <span className="text-xs font-bold text-foreground truncate max-w-[90px]">
-                    {attendee.name}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                    <span className="text-xs font-bold text-foreground truncate max-w-[90px]">
+                      {attendee.name}
+                    </span>
+                    {attendee.isGuest && (
+                      <Badge variant="outline" className="text-[9px] px-1 py-0 leading-tight text-muted-foreground border-border/50">
+                        {t('common.guest', 'Invitado')}
+                      </Badge>
+                    )}
+                  </div>
 
                   {isWinner && (
-                    <Crown className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />
+                    <Crown className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0 drop-shadow-xs" />
                   )}
                 </div>
 

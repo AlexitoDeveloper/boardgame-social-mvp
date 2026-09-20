@@ -5,6 +5,7 @@ import { X, Dices, RotateCcw, Trophy, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 import { MeepleColor } from '../../types'
+import { CenterCountdownOverlay } from './CenterCountdownOverlay'
 
 interface TouchPoint {
   id: number
@@ -443,23 +444,11 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               </Button>
             </motion.div>
           ) : isCountingDown ? (
-            <motion.div
-              key="countdown"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-3"
-            >
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-400 animate-pulse">
-                {t('tableHub.firstPlayer.holdFingers')}
-              </span>
-              <div className="w-48 h-2 bg-slate-800 rounded-full overflow-hidden mx-auto border border-white/10">
-                <div
-                  style={{ width: `${countdownProgress}%` }}
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-75"
-                />
-              </div>
-            </motion.div>
+            <CenterCountdownOverlay
+              isCountingDown={isCountingDown}
+              progress={countdownProgress}
+              touchCount={touches.length}
+            />
           ) : touches.length === 1 ? (
             <motion.div
               key="one-touch"

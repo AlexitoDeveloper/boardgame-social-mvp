@@ -40,7 +40,7 @@ export function GameSelectionSection({
   onContinue
 }: GameSelectionSectionProps) {
   const { t } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
 
   const isGameDependent = (g: Game) => Boolean(g.is_expansion || g.base_game_id || g.bgg_base_game_id)
   const hasOnlyExpansions = selectedGames.length > 0 && selectedGames.every(isGameDependent)
@@ -123,7 +123,7 @@ export function GameSelectionSection({
                     className="group relative w-14 h-14 rounded-lg overflow-hidden border border-border bg-background/60 hover:border-primary flex items-center justify-center shrink-0 transition-colors shadow-sm"
                   >
                     <OptimizedImage
-                      src={game.image_url}
+                      src={getGameCover(game) || game.image_url}
                       alt={getGameTitle(game)}
                       widthSize={80}
                       heightSize={80}

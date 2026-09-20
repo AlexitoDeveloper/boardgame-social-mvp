@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { ChatsPage } from './pages/ChatsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
+import { CreateMatchPage } from './pages/CreateMatchPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -43,6 +44,7 @@ function App() {
         {/* Legacy stranger radar redirects to Table Companion play engine */}
         <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
         <Route path="/tablero/:id" element={<MeetupDetailPage />} />
+        <Route path="/mesa" element={<Navigate to="/mesa-hub" replace />} />
         <Route path="/mesa/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route
@@ -66,6 +68,14 @@ function App() {
           element={
             <ProtectedRoute>
               <GroupDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/partida/nueva"
+          element={
+            <ProtectedRoute>
+              <CreateMatchPage />
             </ProtectedRoute>
           }
         />

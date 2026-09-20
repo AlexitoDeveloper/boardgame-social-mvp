@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CalendarDays, Clock, Swords, ChevronRight } from 'lucide-react'
@@ -21,11 +22,19 @@ export function MeetupsTab({
   currentUserId
 }: MeetupsTabProps) {
   const { t } = useTranslation()
-  const { getGameTitle, language } = useGameLocale()
+  const { getGameTitle, getGameCover, language } = useGameLocale()
+
+  const sortedMeetups = useMemo(() => {
+    return [...meetups].sort((a, b) => {
+      const timeA = new Date(a.date || (a as any).created_at || 0).getTime()
+      const timeB = new Date(b.date || (b as any).created_at || 0).getTime()
+      return type === 'completed' ? timeB - timeA : timeA - timeB
+    })
+  }, [meetups, type])
 
   return (
     <div className="space-y-2.5">
-      {meetups.length === 0 ? (
+      {sortedMeetups.length === 0 ? (
         <div className="text-center py-12 px-4 bg-card/40 rounded-2xl border border-dashed border-border/40 select-none">
           <p className="text-sm font-bold text-muted-foreground">
             {type === 'upcoming' ? t('profile.upcomingEmpty') : t('profile.historyEmpty')}
@@ -35,18 +44,23 @@ export function MeetupsTab({
           )}
         </div>
       ) : (
-        meetups.map(meetup => {
+        sortedMeetups.map((meetup, idx) => {
           const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
           const mainGame = gamesList[0] || null
-          const isWinner = gamesList.some(g => g.winner_user_id === currentUserId)
+          const isWinner = type === 'completed' && currentUserId && (
+            gamesList.some(g => g.winner_user_id === currentUserId) ||
+            meetup.player_scores?.some(ps => ps.userId === currentUserId && ps.isWinner)
+          )
           const didAttend = meetup.attended_players?.includes(currentUserId || '')
+
+          const coverUrl = mainGame ? (getGameCover(mainGame) || mainGame.image_url) : null
 
           return (
             <motion.div
               key={meetup.id}
-              initial={{ opacity: 0, y: 6 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ delay: idx * 0.05 }}
             >
               <Link to={`/mesa/${meetup.id}`}>
                 <div className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl glass-panel hover:border-primary/30 hover:shadow-md transition-all group border-border/30 ${
@@ -55,8 +69,8 @@ export function MeetupsTab({
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-12 h-12 shrink-0">
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-background/60 border border-border/20 p-1 flex items-center justify-center group-hover:border-primary/30 transition-colors">
-                        {mainGame?.image_url ? (
-                          <img src={mainGame.image_url} alt={getGameTitle(mainGame)} className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform" />
+                        {coverUrl ? (
+                          <img src={coverUrl} alt={getGameTitle(mainGame)} className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform" />
                         ) : (
                           <div className="w-full h-full rounded-lg bg-muted flex items-center justify-center text-xs font-black text-muted-foreground">?</div>
                         )}

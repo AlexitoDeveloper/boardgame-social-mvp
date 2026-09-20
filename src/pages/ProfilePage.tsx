@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
@@ -67,6 +67,19 @@ export function ProfilePage() {
     }
   }, [rankingIdParam, savedRankings])
 
+  // Upcoming & completed meetups
+  const upcomingMeetups = useMemo(() => {
+    return (meetups || [])
+      .filter(m => !m.completed && new Date(m.date).getTime() >= Date.now())
+      .sort((a, b) => new Date(a.date || (a as any).created_at || 0).getTime() - new Date(b.date || (b as any).created_at || 0).getTime())
+  }, [meetups])
+
+  const completedMeetups = useMemo(() => {
+    return (meetups || [])
+      .filter(m => m.completed || new Date(m.date).getTime() < Date.now())
+      .sort((a, b) => new Date(b.date || (b as any).created_at || 0).getTime() - new Date(a.date || (a as any).created_at || 0).getTime())
+  }, [meetups])
+
   if (loading) {
     return <ProfileSkeleton />
   }
@@ -91,8 +104,6 @@ export function ProfilePage() {
     )
   }
 
-  const upcomingMeetups = meetups.filter(m => !m.completed && new Date(m.date).getTime() >= Date.now())
-  const completedMeetups = meetups.filter(m => m.completed || new Date(m.date).getTime() < Date.now())
   const organizedCount = meetups.filter(m => m.creator_id === profileId).length
 
   // Gamer Level calculations

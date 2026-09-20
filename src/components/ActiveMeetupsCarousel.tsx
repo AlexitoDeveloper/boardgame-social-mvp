@@ -13,7 +13,7 @@ interface ActiveMeetupsCarouselProps {
 
 export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
   const { t, i18n } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
   if (!meetups || meetups.length === 0) return null
 
   return (
@@ -38,7 +38,7 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
           const gamesList = Array.isArray(meetup.games) ? meetup.games : (meetup.games ? [meetup.games] : [])
           const primaryGame = gamesList[0] || null
           const gameTitle = primaryGame ? getGameTitle(primaryGame) : (meetup.game_name || t('common.toDecide'))
-          const coverUrl = primaryGame?.image_url || null
+          const coverUrl = primaryGame ? (getGameCover(primaryGame) || primaryGame.image_url || null) : null
 
           return (
             <Link

@@ -126,6 +126,7 @@ export interface HallOfFameMember {
   winRate: number;
   currentStreak: number;
   maxStreak: number;
+  isGuest?: boolean;
 }
 
 export interface RivalryStat {

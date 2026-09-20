@@ -42,7 +42,7 @@ export function GameSearchBar({
   isImporting = false
 }: GameSearchBarProps) {
   const { t } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   useClickOutside(
@@ -113,7 +113,7 @@ export function GameSearchBar({
                       >
                         <div className="flex items-center gap-3 pointer-events-none min-w-0 flex-1">
                           <OptimizedImage
-                            src={g.image_url}
+                            src={getGameCover(g) || g.image_url}
                             alt={getGameTitle(g)}
                             widthSize={80}
                             heightSize={80}

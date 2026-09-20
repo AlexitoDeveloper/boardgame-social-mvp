@@ -25,6 +25,7 @@ interface QuickLogMatchModalProps {
   onClose: () => void
   groupId?: string
   groupMembers?: GroupMemberInput[]
+  groupGuests?: Array<{ id: string; name: string; avatarUrl?: string | null }>
   groupGames?: Game[]
   onSuccess?: (meetup: Meetup, scores: PlayerScore[]) => void
 }
@@ -34,6 +35,7 @@ export const QuickLogMatchModal: FC<QuickLogMatchModalProps> = ({
   onClose,
   groupId,
   groupMembers = [],
+  groupGuests = [],
   groupGames = [],
   onSuccess,
 }) => {
@@ -80,6 +82,7 @@ export const QuickLogMatchModal: FC<QuickLogMatchModalProps> = ({
   } = useQuickLogMatch({
     groupId,
     groupMembers,
+    groupGuests,
     groupGames,
     isOpen,
     onSuccess: handleMatchSaved,

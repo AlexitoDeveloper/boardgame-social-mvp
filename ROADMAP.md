@@ -85,10 +85,18 @@ _Objetivo Estratégico: Eliminar la dependencia del "Radar de desconocidos" (evi
 - [x] **Récords por Juego:** Máxima puntuación histórica registrada por juego en el grupo con efecto de medalla pulida.
 - [x] **Rachas de Victoria:** Indicador de racha activa con fuego vectorial animado (🔥).
 
-#### FASE 5: DISTRIBUCIÓN MÓVIL Y MONETIZACIÓN B2C/B2B
-- [ ] **PWA Standalone & Capacitor Android:** Empaquetado pulido para instalación en pantalla completa sin barras de navegador.
-- [ ] **Suscripción "Host Pro":** Estadísticas analíticas avanzadas, personalización de temas visuales para tarjetas de WhatsApp y hojas de puntuación por categorías.
-- [ ] **Piloto B2B Cafeterías de Juegos:** Modo menú QR para mesas de locales y bares de juegos de mesa.
+#### FASE 5: DISTRIBUCIÓN MÓVIL, TABLE COMPANION AVANZADO Y MONETIZACIÓN B2C/B2B
+- [ ] **PWA Standalone & Capacitor Android (#73 / #74):** Empaquetado pulido para instalación en pantalla completa sin barras de navegador, control de insets y botón atrás físico.
+- [x] **Countdown Central en Primer Jugador (Issue #80):** Cuenta atrás animada y prominente (3.. 2.. 1..) en el centro de pantalla durante la selección multitáctil *Chwazi*.
+- [x] **Añadir Invitados Manualmente en Mesa Activa (Issue #84):** Modal accesible y botón táctil para que el anfitrión agregue invitados sin cuenta directamente al marcador en vivo.
+- [x] **Historial de Partidas Jugadas en Grupo (Issue #85):** Visualización inmediata de partidas registradas (Quick Matches) con podio, ganador y eliminación directa en la vista del grupo.
+- [x] **Asociación de Invitados a Cuentas Registradas (Issue #81):** Gestión de invitados habituales de grupo y vinculación retroactiva de partidas, victorias y puntos a miembros registrados.
+- [x] **Eliminación y Cancelación de Mesa (Issue #82):** Diálogo de confirmación destructivo para borrar mesas generadas por error o canceladas, tanto en mesas activas como finalizadas.
+- [ ] **Colección Personalizada para Ruleta y Votación Exprés (Issue #83):** Posibilidad de elegir una selección ad-hoc de 2 a 12 cajas concretas para el motor de decisión.
+- [ ] **Hojas de Puntuación Inteligentes por Categorías (Issue #76):** Plantillas por juego (*Wingspan*, *7 Wonders*, *Terraforming Mars*) con cálculo automático de totales.
+- [ ] **Suscripción "Host Pro" (Issue #75):** Integración de Stripe Checkout, estadísticas analíticas avanzadas, personalización de temas visuales para tarjetas y sincronización 1-tap con BGG Plays (#77).
+- [ ] **Piloto B2B Cafeterías de Juegos (Issue #78):** Modo menú QR para mesas de locales y bares de juegos de mesa (`/venue/:slug`).
+- [ ] **Pipeline Automatizado QA & CI/CD (Issue #79):** Workflow de GitHub Actions con verificación de tipos TypeScript, ESLint y Vitest suites.
 
 
 

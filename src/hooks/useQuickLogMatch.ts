@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/authContext'
@@ -18,11 +18,18 @@ export interface GroupMemberInput {
   avatar_url?: string | null
 }
 
+export interface GroupGuestInput {
+  id: string
+  name: string
+  avatarUrl?: string | null
+}
+
 export type WinnerMode = 'player' | 'coop' | 'draw'
 
 interface UseQuickLogMatchProps {
   groupId?: string
   groupMembers?: GroupMemberInput[]
+  groupGuests?: GroupGuestInput[]
   groupGames?: Game[]
   isOpen: boolean
   onSuccess?: (meetup: Meetup, scores: PlayerScore[]) => void
@@ -31,6 +38,7 @@ interface UseQuickLogMatchProps {
 export function useQuickLogMatch({
   groupId,
   groupMembers = [],
+  groupGuests = [],
   groupGames = [],
   isOpen,
   onSuccess,
@@ -64,10 +72,29 @@ export function useQuickLogMatch({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  // Initialize/reset state when modal opens
-  useEffect(() => {
-    if (!isOpen) return
+  // Initialization guards
+  const isInitialized = useRef(false)
+  const prevIsOpen = useRef(false)
+  const prevGroupId = useRef<string | undefined>(groupId)
 
+  // Initialize/reset form parameters only on modal open or group change
+  useEffect(() => {
+    if (!isOpen) {
+      prevIsOpen.current = false
+      return
+    }
+
+    const becameOpen = !prevIsOpen.current
+    const groupChanged = groupId !== prevGroupId.current
+
+    prevIsOpen.current = true
+    prevGroupId.current = groupId
+
+    if (isInitialized.current && !becameOpen && !groupChanged) {
+      return
+    }
+
+    isInitialized.current = true
     setMeetupId(crypto.randomUUID())
     setSelectedGame(null)
     setGameSearchQuery('')
@@ -78,21 +105,72 @@ export function useQuickLogMatch({
     setBoardPhotoUrl(null)
     setSubmitError(null)
     setNewGuestName('')
+  }, [isOpen, groupId])
 
-    if (groupMembers && groupMembers.length > 0) {
-      // Group mode: Populate from group members
-      const initialAttendees: QuickLogAttendee[] = groupMembers.map((m) => ({
+  // Populate & sync attendees from group members & guests whenever they arrive
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (groupId && groupMembers && groupMembers.length > 0) {
+      const memberAttendees: QuickLogAttendee[] = groupMembers.map((m) => ({
         id: m.user_id,
         name: m.username,
         avatarUrl: m.avatar_url,
         isGuest: false,
       }))
-      setAttendees(initialAttendees)
-      // By default select all group members (or up to 6)
-      const initialSelected = new Set(initialAttendees.slice(0, 8).map((a) => a.id))
-      if (user?.id) initialSelected.add(user.id)
-      setSelectedAttendeeIds(initialSelected)
-    } else {
+
+      const guestAttendees: QuickLogAttendee[] = (groupGuests || []).map((g) => {
+        const cleanId = g.id.startsWith('guest-') ? g.id.replace(/^guest-/, '') : g.id
+        const validId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
+          ? cleanId
+          : g.id
+        return {
+          id: validId,
+          name: g.name,
+          avatarUrl: g.avatarUrl || null,
+          isGuest: true,
+        }
+      })
+
+      const allRoster = [...memberAttendees, ...guestAttendees]
+
+      setAttendees((prev) => {
+        // Retain any guests manually added during this active session
+        const manualGuests = prev.filter(
+          (p) =>
+            p.isGuest &&
+            !allRoster.some(
+              (r) =>
+                r.id === p.id ||
+                r.name.toLowerCase().trim() === p.name.toLowerCase().trim()
+            )
+        )
+        const combined = [...allRoster, ...manualGuests]
+        const seenIds = new Set<string>()
+        const seenNames = new Set<string>()
+        return combined.filter((item) => {
+          const normName = item.name.toLowerCase().trim()
+          if (seenIds.has(item.id) || seenNames.has(normName)) return false
+          seenIds.add(item.id)
+          seenNames.add(normName)
+          return true
+        })
+      })
+
+      setSelectedAttendeeIds((prev) => {
+        // If nothing is selected or only default user, select all members (or at least the creator / current user)
+        if (prev.size === 0 || (prev.size === 1 && prev.has('current-user'))) {
+          const next = new Set<string>()
+          if (user?.id) next.add(user.id)
+          // Default select up to 4 participants for immediate usability
+          allRoster.forEach((a) => {
+            if (next.size < 4) next.add(a.id)
+          })
+          return next
+        }
+        return prev
+      })
+    } else if (!groupId) {
       // Casual / Solo mode: Start with current user
       const currentUserAttendee: QuickLogAttendee = {
         id: user?.id || 'current-user',
@@ -100,10 +178,10 @@ export function useQuickLogMatch({
         avatarUrl: user?.user_metadata?.avatar_url || null,
         isGuest: false,
       }
-      setAttendees([currentUserAttendee])
-      setSelectedAttendeeIds(new Set([currentUserAttendee.id]))
+      setAttendees((prev) => (prev.length === 0 ? [currentUserAttendee] : prev))
+      setSelectedAttendeeIds((prev) => (prev.size === 0 ? new Set([currentUserAttendee.id]) : prev))
     }
-  }, [isOpen, groupId, groupMembers, user?.id, user?.user_metadata])
+  }, [isOpen, groupId, groupMembers, groupGuests, user?.id, user?.user_metadata])
 
   // Catalog search with debounce
   useEffect(() => {
@@ -168,6 +246,16 @@ export function useQuickLogMatch({
     const trimmed = newGuestName.trim()
     if (!trimmed) return
 
+    // Prevent duplicate guest by name
+    const existing = attendees.find(
+      (a) => a.name.toLowerCase().trim() === trimmed.toLowerCase().trim()
+    )
+    if (existing) {
+      setSelectedAttendeeIds((prev) => new Set(prev).add(existing.id))
+      setNewGuestName('')
+      return
+    }
+
     const newGuest: QuickLogAttendee = {
       id: crypto.randomUUID(),
       name: trimmed,
@@ -178,7 +266,7 @@ export function useQuickLogMatch({
     setAttendees((prev) => [...prev, newGuest])
     setSelectedAttendeeIds((prev) => new Set(prev).add(newGuest.id))
     setNewGuestName('')
-  }, [newGuestName])
+  }, [newGuestName, attendees])
 
   // Remove guest player
   const removeGuest = useCallback((id: string) => {
@@ -240,10 +328,17 @@ export function useQuickLogMatch({
       const guestAttendees = activeAttendees.filter((a) => a.isGuest)
 
       const registeredIds = registeredAttendees.map((a) => a.id)
-      const guestIds = guestAttendees.map((a) => a.id)
+      const guestMeetupIdMap = new Map<string, string>()
+      guestAttendees.forEach((g) => {
+        guestMeetupIdMap.set(g.id, crypto.randomUUID())
+      })
+      const guestMeetupIds = guestAttendees.map((g) => guestMeetupIdMap.get(g.id)!)
 
       const winnerAttendee = activeAttendees.find((a) => a.id === winnerId)
       const winnerIsGuest = !!winnerAttendee?.isGuest
+      const actualWinnerGuestId = winnerMode === 'player' && winnerIsGuest && winnerId
+        ? (guestMeetupIdMap.get(winnerId) || winnerId)
+        : null
 
       // Build player scores list
       const playerScores: PlayerScore[] = activeAttendees.map((a) => {
@@ -258,7 +353,7 @@ export function useQuickLogMatch({
 
         return {
           userId: a.isGuest ? undefined : a.id,
-          guestId: a.isGuest ? a.id : undefined,
+          guestId: a.isGuest ? (guestMeetupIdMap.get(a.id) || a.id) : undefined,
           name: a.name,
           score: numScore,
           meepleColor: 'yellow',
@@ -294,7 +389,7 @@ export function useQuickLogMatch({
           max_players: Math.max(activeAttendees.length, 2),
           joined_players: registeredIds.length > 0 ? registeredIds : [currentUserId || 'u1'],
           attended_players: registeredIds,
-          attended_guests: guestIds,
+          attended_guests: guestMeetupIds,
           completed: true,
           board_photo_url: boardPhotoUrl,
           player_scores: playerScores,
@@ -302,7 +397,7 @@ export function useQuickLogMatch({
             {
               ...selectedGame,
               winner_user_id: winnerMode === 'player' && !winnerIsGuest ? winnerId : null,
-              winner_guest_id: winnerMode === 'player' && winnerIsGuest ? winnerId : null,
+              winner_guest_id: actualWinnerGuestId,
               winner_score:
                 winnerMode === 'coop'
                   ? t('quickLog.coopScore')
@@ -318,20 +413,8 @@ export function useQuickLogMatch({
         return
       }
 
-      // 1. Insert guests if any
-      if (guestAttendees.length > 0) {
-        const guestRows = guestAttendees.map((g) => ({
-          id: g.id,
-          meetup_id: meetupId,
-          guest_name: g.name,
-        }))
-        const { error: guestError } = await supabase.from('meetup_guests').insert(guestRows)
-        if (guestError) {
-          console.warn('Non-fatal error inserting meetup_guests:', guestError)
-        }
-      }
-
-      // 2. Insert meetup record
+      // 1. Insert meetup record first with completed: false and ample max_players
+      // so triggers on meetup_guests (which check if completed or capacity full) do not fail
       const joinedList = registeredIds.length > 0 ? registeredIds : [currentUserId!]
       const { error: meetupError } = await supabase.from('meetups').insert({
         id: meetupId,
@@ -347,23 +430,37 @@ export function useQuickLogMatch({
         city: 'Presencial',
         location: 'Mesa privada',
         date: matchDate,
-        max_players: Math.max(activeAttendees.length, 2),
+        max_players: Math.max(activeAttendees.length + 20, 30),
         joined_players: joinedList,
         attended_players: registeredIds,
-        attended_guests: guestIds,
-        completed: true,
+        attended_guests: guestMeetupIds,
+        completed: false,
         board_photo_url: boardPhotoUrl,
         player_scores: playerScores,
       })
 
       if (meetupError) throw meetupError
 
-      // 3. Insert meetup_games record
+      // 2. Insert guests now that meetup exists and is in active state
+      if (guestAttendees.length > 0) {
+        const guestRows = guestAttendees.map((g) => ({
+          id: guestMeetupIdMap.get(g.id)!,
+          meetup_id: meetupId,
+          guest_name: g.name,
+        }))
+        const { error: guestError } = await supabase.from('meetup_guests').insert(guestRows)
+        if (guestError) {
+          console.error('Error inserting meetup_guests:', guestError)
+          throw guestError
+        }
+      }
+
+      // 3. Insert meetup_games record (referencing the newly inserted meetup_guest id)
       const { error: gameError } = await supabase.from('meetup_games').insert({
         meetup_id: meetupId,
         game_id: selectedGame.bgg_id,
         winner_user_id: winnerMode === 'player' && !winnerIsGuest ? winnerId : null,
-        winner_guest_id: winnerMode === 'player' && winnerIsGuest ? winnerId : null,
+        winner_guest_id: actualWinnerGuestId,
         winner_score:
           winnerMode === 'coop'
             ? t('quickLog.coopScore')
@@ -379,12 +476,33 @@ export function useQuickLogMatch({
         const attendeeRows = activeAttendees.map((a) => ({
           meetup_id: meetupId,
           user_id: a.isGuest ? null : a.id,
-          guest_id: a.isGuest ? a.id : null,
+          guest_id: a.isGuest ? (guestMeetupIdMap.get(a.id) || null) : null,
           created_at: matchDate,
         }))
         await supabase.from('meetup_attendees').insert(attendeeRows)
       } catch {
         // Gracefully ignore if meetup_attendees table does not exist
+      }
+
+      // 5. Finalize meetup: mark completed: true and set final capacity
+      await supabase.from('meetups').update({
+        completed: true,
+        max_players: Math.max(activeAttendees.length, 2),
+      }).eq('id', meetupId)
+
+      // 6. If in a group, ensure guests are also in group_guests for future autocomplete & Hall of Fame
+      if (groupId && guestAttendees.length > 0) {
+        for (const g of guestAttendees) {
+          try {
+            await supabase.from('group_guests').insert({
+              group_id: groupId,
+              name: g.name,
+              created_by: currentUserId,
+            })
+          } catch {
+            // Ignore unique conflict if already in group_guests
+          }
+        }
       }
 
       // 5. Construct final Meetup object for Victory Card
@@ -406,7 +524,7 @@ export function useQuickLogMatch({
         max_players: Math.max(activeAttendees.length, 2),
         joined_players: joinedList,
         attended_players: registeredIds,
-        attended_guests: guestIds,
+        attended_guests: guestMeetupIds,
         completed: true,
         board_photo_url: boardPhotoUrl,
         player_scores: playerScores,
@@ -414,7 +532,7 @@ export function useQuickLogMatch({
           {
             ...selectedGame,
             winner_user_id: winnerMode === 'player' && !winnerIsGuest ? winnerId : null,
-            winner_guest_id: winnerMode === 'player' && winnerIsGuest ? winnerId : null,
+            winner_guest_id: actualWinnerGuestId,
             winner_score:
               winnerMode === 'coop'
                 ? t('quickLog.coopScore')

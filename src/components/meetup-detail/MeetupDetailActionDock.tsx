@@ -1,9 +1,11 @@
-import { CalendarCheck2, MessageSquare, Loader2, Crown, LogOut } from 'lucide-react'
+import { useState } from 'react'
+import { CalendarCheck2, MessageSquare, Loader2, Crown, LogOut, Trash2 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Meetup, UserProfile } from '@/types'
 import { useTranslation } from 'react-i18next'
+import { DeleteTableConfirmDialog } from './DeleteTableConfirmDialog'
 
 interface MeetupDetailActionDockProps {
   meetup: Meetup
@@ -16,6 +18,9 @@ interface MeetupDetailActionDockProps {
   guestReservation: { id: string; name: string } | null
   handleJoinLeave: () => void
   onNavigateToChat: () => void
+  isCreator?: boolean
+  handleCancelMeetup?: () => void
+  canceling?: boolean
 }
 
 export function MeetupDetailActionDock({
@@ -28,9 +33,13 @@ export function MeetupDetailActionDock({
   spotsRemaining,
   guestReservation,
   handleJoinLeave,
-  onNavigateToChat
+  onNavigateToChat,
+  isCreator = false,
+  handleCancelMeetup,
+  canceling = false,
 }: MeetupDetailActionDockProps) {
   const { t } = useTranslation()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Find organizer profile
   const organizer = attendees.find((a) => a.id === meetup.creator_id)
@@ -98,7 +107,31 @@ export function MeetupDetailActionDock({
 
         {/* Right Side: Primary CTA */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {isPast ? (
+          {isCreator ? (
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={onNavigateToChat}
+                className="h-10 px-3.5 rounded-xl flex items-center gap-1.5 font-bold text-xs cursor-pointer shadow-md shadow-primary/10"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>{t('meetup.chatTitle')}</span>
+              </Button>
+              {handleCancelMeetup && (
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  title={t('meetup.cancelTable', 'Cancelar Mesa')}
+                  aria-label={t('meetup.cancelTable', 'Cancelar Mesa')}
+                  className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              )}
+            </div>
+          ) : isPast ? (
             <Button disabled variant="outline" size="sm" className="h-10 px-4 select-none text-xs font-bold">
               {t('meetup.tableClosed')}
             </Button>
@@ -145,6 +178,16 @@ export function MeetupDetailActionDock({
           )}
         </div>
       </div>
+
+      {handleCancelMeetup && (
+        <DeleteTableConfirmDialog
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirmDelete={handleCancelMeetup}
+          isDeleting={canceling}
+          tableTitle={meetup.title}
+        />
+      )}
     </div>
   )
 }

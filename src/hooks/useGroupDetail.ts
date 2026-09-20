@@ -12,6 +12,16 @@ export interface GroupMember {
   joined_at: string;
 }
 
+export interface GroupGuest {
+  id: string;
+  group_id: string;
+  name: string;
+  avatar_url?: string | null;
+  associated_user_id?: string | null;
+  created_at: string;
+  created_by?: string | null;
+}
+
 export interface MergedGame {
   game: Game;
   owners: {
@@ -46,6 +56,7 @@ export function useGroupDetail(groupId: string | undefined) {
   const { user } = useAuth()
   const [group, setGroup] = useState<any>(null)
   const [members, setMembers] = useState<GroupMember[]>([])
+  const [guests, setGuests] = useState<GroupGuest[]>([])
   const [mergedCollection, setMergedCollection] = useState<MergedGame[]>([])
   const [polls, setPolls] = useState<GroupPoll[]>([])
   const [loading, setLoading] = useState(true)
@@ -68,12 +79,14 @@ export function useGroupDetail(groupId: string | undefined) {
       // Mock LocalStorage Implementation
       const mockGroupsKey = 'boardgame_social_mock_groups'
       const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockGuestsKey = 'boardgame_social_mock_group_guests'
       const mockPollsKey = 'boardgame_social_mock_group_polls'
       const mockPollOptionsKey = 'boardgame_social_mock_group_poll_options'
       const mockPollVotesKey = 'boardgame_social_mock_group_poll_votes'
 
       const storedGroups = JSON.parse(localStorage.getItem(mockGroupsKey) || '[]')
       const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
+      const storedGuests = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
 
       const foundGroup = storedGroups.find((g: any) => g.id === groupId)
       if (!foundGroup) {
@@ -104,6 +117,7 @@ export function useGroupDetail(groupId: string | undefined) {
         }
       })
       setMembers(activeMembers)
+      setGuests(storedGuests.filter((g: any) => g.group_id === groupId))
 
       // Merge Collections of all group members
       const mockCollections: Record<string, number[]> = {
@@ -149,6 +163,32 @@ export function useGroupDetail(groupId: string | undefined) {
             avatar_url: member.avatar_url
           })
         })
+      })
+
+      // Include mock games owned by guests
+      const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+      const mockGuestGamesList: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
+      mockGuestGamesList.forEach((mgg: any) => {
+        if (mgg.games) {
+          mockGamesPool[mgg.game_id] = mgg.games
+        }
+        const guestObj = (storedGuests || []).find((g: any) => g.id === mgg.guest_id)
+        const ownerId = guestObj?.associated_user_id || mgg.guest_id
+        const ownerName = guestObj?.associated_user_id
+          ? (mockProfiles[guestObj.associated_user_id]?.username || guestObj.name)
+          : `${guestObj?.name || 'Invitado'} (Invitado)`
+        const ownerAvatar = guestObj?.avatar_url || null
+
+        if (!mergedMap[mgg.game_id]) {
+          mergedMap[mgg.game_id] = []
+        }
+        if (!mergedMap[mgg.game_id].some(o => o.user_id === ownerId)) {
+          mergedMap[mgg.game_id].push({
+            user_id: ownerId,
+            username: ownerName,
+            avatar_url: ownerAvatar
+          })
+        }
       })
 
       const formattedMerged: MergedGame[] = Object.entries(mergedMap).map(([idStr, ownersList]) => {
@@ -232,6 +272,21 @@ export function useGroupDetail(groupId: string | undefined) {
       }))
       setMembers(mappedMembers)
 
+      // 2b. Fetch Group Guests (habitual guests)
+      let guestsList: GroupGuest[] = []
+      try {
+        const { data: guestsData } = await supabase
+          .from('group_guests')
+          .select('*')
+          .eq('group_id', groupId)
+          .order('created_at', { ascending: true })
+
+        guestsList = (guestsData || []) as GroupGuest[]
+        setGuests(guestsList)
+      } catch (e) {
+        console.warn('Could not fetch group_guests:', e)
+      }
+
       // 3. Merged Collection: fetch collections of all member IDs
       const memberIds = mappedMembers.map(m => m.user_id)
       const { data: collectionData, error: collectionErr } = await supabase
@@ -241,7 +296,21 @@ export function useGroupDetail(groupId: string | undefined) {
 
       if (collectionErr) throw collectionErr
 
+      // 3b. Fetch games owned by group guests
+      let guestGamesData: any[] = []
+      try {
+        const { data: ggData } = await supabase
+          .from('group_guest_games')
+          .select('guest_id, game_id, games:games (*)')
+          .eq('group_id', groupId)
+        if (ggData) guestGamesData = ggData
+      } catch (e) {
+        console.warn('Could not query group_guest_games:', e)
+      }
+
       const gameOwnersMap: Record<number, { game: Game, owners: any[] }> = {}
+
+      // Add member-owned games
       ;(collectionData || []).forEach((item: any) => {
         if (!item.games) return
         const gId = item.game_id
@@ -257,7 +326,49 @@ export function useGroupDetail(groupId: string | undefined) {
           gameOwnersMap[gId].owners.push({
             user_id: ownerProfile.user_id,
             username: ownerProfile.username,
-            avatar_url: ownerProfile.avatar_url
+            avatar_url: ownerProfile.avatar_url,
+            is_guest: false
+          })
+        }
+      })
+
+      // Add guest-owned games
+      ;(guestGamesData || []).forEach((item: any) => {
+        if (!item.games) return
+        const gId = item.game_id
+        const guestObj = (guestsList || []).find((g: any) => g.id === item.guest_id)
+        if (!guestObj) return
+
+        // If guest is already associated with a member who is in this group:
+        if (guestObj.associated_user_id) {
+          const associatedMember = mappedMembers.find(m => m.user_id === guestObj.associated_user_id)
+          if (associatedMember) {
+            // Check if already present under the member
+            if (gameOwnersMap[gId]?.owners.some(o => o.user_id === associatedMember.user_id)) {
+              return
+            }
+          }
+        }
+
+        if (!gameOwnersMap[gId]) {
+          gameOwnersMap[gId] = {
+            game: item.games,
+            owners: []
+          }
+        }
+
+        const isAssociated = Boolean(guestObj.associated_user_id)
+        const associatedUser = isAssociated ? mappedMembers.find(m => m.user_id === guestObj.associated_user_id) : null
+        const ownerId = guestObj.associated_user_id || guestObj.id
+        const ownerName = associatedUser ? associatedUser.username : `${guestObj.name} (Invitado)`
+        const ownerAvatar = associatedUser ? associatedUser.avatar_url : (guestObj.avatar_url || null)
+
+        if (!gameOwnersMap[gId].owners.some(o => o.user_id === ownerId)) {
+          gameOwnersMap[gId].owners.push({
+            user_id: ownerId,
+            username: ownerName,
+            avatar_url: ownerAvatar,
+            is_guest: !isAssociated
           })
         }
       })
@@ -563,15 +674,36 @@ export function useGroupDetail(groupId: string | undefined) {
     if (error) throw error
   }
 
-  const addGameToGroup = async (game: Game) => {
+  const addGameToGroup = async (game: Game, ownerUserId?: string, isGuestOwner?: boolean) => {
     if (!user) return
 
+    const guestTarget = isGuestOwner && ownerUserId
+      ? guests.find(g => g.id === ownerUserId)
+      : null
+
+    const targetUserId = guestTarget?.associated_user_id || (!isGuestOwner ? (ownerUserId || user.id) : null)
+
     if (USE_MOCKS && groupId?.startsWith('mock-')) {
-      const localKey = `boardgame_social_mock_collection_${user.id}`
-      const existing: Game[] = JSON.parse(localStorage.getItem(localKey) || '[]')
-      if (!existing.some((g) => g.bgg_id === game.bgg_id)) {
-        existing.push(game)
-        localStorage.setItem(localKey, JSON.stringify(existing))
+      if (guestTarget && !guestTarget.associated_user_id) {
+        const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+        const existing: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
+        if (!existing.some((item: any) => item.guest_id === guestTarget.id && item.game_id === game.bgg_id)) {
+          existing.push({
+            id: `mgg-${Date.now()}`,
+            group_id: groupId,
+            guest_id: guestTarget.id,
+            game_id: game.bgg_id,
+            games: game
+          })
+          localStorage.setItem(mockGuestGamesKey, JSON.stringify(existing))
+        }
+      } else if (targetUserId) {
+        const localKey = `boardgame_social_mock_collection_${targetUserId}`
+        const existing: Game[] = JSON.parse(localStorage.getItem(localKey) || '[]')
+        if (!existing.some((g) => g.bgg_id === game.bgg_id)) {
+          existing.push(game)
+          localStorage.setItem(localKey, JSON.stringify(existing))
+        }
       }
       window.dispatchEvent(new Event('collection_update'))
       return
@@ -603,9 +735,48 @@ export function useGroupDetail(groupId: string | undefined) {
         }
       }
 
-      await supabase
-        .from('user_collection')
-        .insert({ user_id: user.id, game_id: game.bgg_id })
+      if (guestTarget && !guestTarget.associated_user_id) {
+        // Standalone guest: insert into group_guest_games
+        const { error: guestGameErr } = await supabase
+          .from('group_guest_games')
+          .insert({
+            group_id: groupId,
+            guest_id: guestTarget.id,
+            game_id: game.bgg_id,
+          })
+
+        if (guestGameErr && guestGameErr.code !== '23505') {
+          console.error('Error inserting group_guest_games:', guestGameErr)
+          throw guestGameErr
+        }
+      } else if (targetUserId) {
+        const { error: insertErr } = await supabase
+          .from('user_collection')
+          .insert({ user_id: targetUserId, game_id: game.bgg_id })
+
+        if (insertErr) {
+          if (insertErr.code === '23505') {
+            return
+          }
+          // If RLS blocked (code 42501) because inserting on behalf of another group member,
+          // use bgg-ingest edge function which runs with service role
+          if (insertErr.code === '42501') {
+            const { error: fnErr } = await supabase.functions.invoke('bgg-ingest', {
+              body: {
+                action: 'ingest_collection',
+                userId: targetUserId,
+                bggIds: [game.bgg_id],
+              },
+            })
+            if (fnErr) {
+              console.error('Edge function ingest_collection error:', fnErr)
+              throw fnErr
+            }
+          } else {
+            throw insertErr
+          }
+        }
+      }
 
       window.dispatchEvent(new Event('collection_update'))
     } catch (err: any) {
@@ -633,6 +804,11 @@ export function useGroupDetail(groupId: string | undefined) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'groups', filter: `id=eq.${groupId}` },
+        () => fetchDetails(false)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'group_guests', filter: `group_id=eq.${groupId}` },
         () => fetchDetails(false)
       )
       .on(
@@ -668,9 +844,132 @@ export function useGroupDetail(groupId: string | undefined) {
     }
   }, [groupId, fetchDetails])
 
+  const addGroupGuest = async (name: string) => {
+    if (!groupId || !user) return
+    const trimmed = name.trim()
+    if (USE_MOCKS) {
+      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
+      const newGuest: GroupGuest = {
+        id: `mock-gg-${Date.now()}`,
+        group_id: groupId,
+        name: trimmed,
+        created_at: new Date().toISOString(),
+        created_by: user.id
+      }
+      stored.push(newGuest)
+      localStorage.setItem(mockGuestsKey, JSON.stringify(stored))
+      setGuests(prev => [...prev, newGuest])
+    } else {
+      const { data, error: insertErr } = await supabase
+        .from('group_guests')
+        .insert({
+          group_id: groupId,
+          name: trimmed,
+          created_by: user.id
+        })
+        .select()
+        .single()
+      if (insertErr) throw insertErr
+      if (data) setGuests(prev => [...prev, data])
+    }
+  }
+
+  const removeGroupGuest = async (guestId: string) => {
+    if (!groupId) return
+    if (USE_MOCKS) {
+      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
+      const filtered = stored.filter((g: any) => g.id !== guestId)
+      localStorage.setItem(mockGuestsKey, JSON.stringify(filtered))
+      setGuests(prev => prev.filter(g => g.id !== guestId))
+    } else {
+      const { error: delErr } = await supabase
+        .from('group_guests')
+        .delete()
+        .eq('id', guestId)
+      if (delErr) throw delErr
+      setGuests(prev => prev.filter(g => g.id !== guestId))
+    }
+  }
+
+  const associateGroupGuest = async (guestId: string, targetUserId: string) => {
+    if (!groupId) return
+    if (USE_MOCKS) {
+      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
+      const updated = stored.map((g: any) => g.id === guestId ? { ...g, associated_user_id: targetUserId } : g)
+      localStorage.setItem(mockGuestsKey, JSON.stringify(updated))
+      setGuests(prev => prev.map(g => g.id === guestId ? { ...g, associated_user_id: targetUserId } : g))
+
+      // Transfer guest games to target user collection in mocks
+      const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+      const guestGames: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
+      const gamesToTransfer = guestGames.filter((item: any) => item.guest_id === guestId)
+      if (gamesToTransfer.length > 0) {
+        const targetCollKey = `boardgame_social_mock_collection_${targetUserId}`
+        const targetColl: Game[] = JSON.parse(localStorage.getItem(targetCollKey) || '[]')
+        gamesToTransfer.forEach((item: any) => {
+          if (item.games && !targetColl.some(g => g.bgg_id === item.games.bgg_id)) {
+            targetColl.push(item.games)
+          }
+        })
+        localStorage.setItem(targetCollKey, JSON.stringify(targetColl))
+        const remaining = guestGames.filter((item: any) => item.guest_id !== guestId)
+        localStorage.setItem(mockGuestGamesKey, JSON.stringify(remaining))
+      }
+      window.dispatchEvent(new Event('collection_update'))
+      fetchDetails(false)
+    } else {
+      const { error: updErr } = await supabase
+        .from('group_guests')
+        .update({ associated_user_id: targetUserId })
+        .eq('id', guestId)
+      if (updErr) throw updErr
+
+      // Transfer guest games to target user's user_collection
+      try {
+        const { data: guestGames } = await supabase
+          .from('group_guest_games')
+          .select('game_id')
+          .eq('guest_id', guestId)
+
+        if (guestGames && guestGames.length > 0) {
+          for (const gg of guestGames) {
+            const { error: insErr } = await supabase
+              .from('user_collection')
+              .insert({ user_id: targetUserId, game_id: gg.game_id })
+
+            if (insErr && insErr.code === '42501') {
+              await supabase.functions.invoke('bgg-ingest', {
+                body: {
+                  action: 'ingest_collection',
+                  userId: targetUserId,
+                  bggIds: [gg.game_id],
+                },
+              })
+            }
+          }
+
+          await supabase
+            .from('group_guest_games')
+            .delete()
+            .eq('guest_id', guestId)
+        }
+      } catch (transferErr) {
+        console.error('Error transferring guest games on association:', transferErr)
+      }
+
+      setGuests(prev => prev.map(g => g.id === guestId ? { ...g, associated_user_id: targetUserId } : g))
+      window.dispatchEvent(new Event('collection_update'))
+      fetchDetails(false)
+    }
+  }
+
   return {
     group,
     members,
+    guests,
     mergedCollection,
     polls,
     loading,
@@ -682,6 +981,9 @@ export function useGroupDetail(groupId: string | undefined) {
     kickMember,
     deleteGroup,
     addGameToGroup,
+    addGroupGuest,
+    removeGroupGuest,
+    associateGroupGuest,
     refresh: fetchDetails
   }
 }

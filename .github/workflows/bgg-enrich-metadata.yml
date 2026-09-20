@@ -1,4 +1,4 @@
-﻿name: BGG Metadata & Complexity Enrichment
+name: BGG Metadata & Complexity Enrichment
 
 on:
   schedule:
@@ -9,7 +9,7 @@ on:
       limit:
         description: "Number of games to enrich in this run"
         required: false
-        default: "300"
+        default: "500"
         type: string
       dry_run:
         description: "Perform a dry run without modifying the database"
@@ -46,6 +46,6 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           BGG_API_KEY: ${{ secrets.BGG_API_KEY }}
         run: |
-          LIMIT="${{ inputs.limit || '300' }}"
+          LIMIT="${{ inputs.limit || '500' }}"
           DRY_RUN="${{ inputs.dry_run == true && '--dry-run' || '' }}"
           node scripts/enrich-games-metadata.cjs --limit=$LIMIT $DRY_RUN

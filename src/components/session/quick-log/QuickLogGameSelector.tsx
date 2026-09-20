@@ -5,6 +5,7 @@ import { Input } from '../../ui/input'
 import { Button } from '../../ui/button'
 import { Card } from '../../ui/card'
 import { Game } from '../../../types'
+import { useGameLocale } from '../../../hooks/useGameLocale'
 
 interface QuickLogGameSelectorProps {
   selectedGame: Game | null
@@ -26,9 +27,11 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
   isSearchingCatalog,
 }) => {
   const { t } = useTranslation()
+  const { getGameTitle, getGameCover } = useGameLocale()
 
   if (selectedGame) {
-    const title = selectedGame.title_es || selectedGame.title
+    const title = getGameTitle(selectedGame) || selectedGame.title_es || selectedGame.title
+    const cover = getGameCover(selectedGame) || selectedGame.image_url
 
     return (
       <div className="space-y-1.5">
@@ -49,9 +52,9 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
         </div>
 
         <Card className="p-3 rounded-2xl border border-primary/30 bg-primary/5 flex items-center gap-3">
-          {selectedGame.image_url ? (
+          {cover ? (
             <img
-              src={selectedGame.image_url}
+              src={cover}
               alt={title}
               className="w-12 h-12 rounded-xl object-cover border border-primary/20 shrink-0"
             />
@@ -132,7 +135,8 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
       {combinedResults.length > 0 && (
         <div className="max-h-48 overflow-y-auto rounded-2xl border border-border/40 bg-card/60 p-1.5 space-y-1 divide-y divide-border/20 shadow-sm">
           {combinedResults.map(({ game, isGroup }) => {
-            const title = game.title_es || game.title
+            const title = getGameTitle(game) || game.title_es || game.title
+            const cover = getGameCover(game) || game.image_url
             return (
               <Button
                 key={game.bgg_id}
@@ -144,9 +148,9 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
                 }}
                 className="w-full justify-start p-2 h-auto text-left rounded-xl hover:bg-muted/70 gap-2.5 cursor-pointer"
               >
-                {game.image_url ? (
+                {cover ? (
                   <img
-                    src={game.image_url}
+                    src={cover}
                     alt={title}
                     className="w-8 h-8 rounded-lg object-cover shrink-0 border border-border/30"
                   />

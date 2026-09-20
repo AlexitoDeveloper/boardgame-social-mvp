@@ -56,8 +56,8 @@ export const PlayActiveMeetups: FC = () => {
                 const firstGame = m.games?.[0] || m.meetup_games?.[0]?.games
                 return {
                   ...m,
-                  gameTitle: firstGame?.title || m.title,
-                  gameImg: firstGame?.image_url || null,
+                  gameTitle: firstGame?.title_es || firstGame?.title || m.title,
+                  gameImg: firstGame?.image_url_es || firstGame?.image_url || null,
                 }
               })
             if (!isCancelled) setActiveMeetups(myMeetups)
@@ -87,7 +87,9 @@ export const PlayActiveMeetups: FC = () => {
               game_id,
               games (
                 title,
-                image_url
+                title_es,
+                image_url,
+                image_url_es
               )
             )
           `)
@@ -104,8 +106,8 @@ export const PlayActiveMeetups: FC = () => {
             const firstGame = m.meetup_games?.[0]?.games
             return {
               ...m,
-              gameTitle: firstGame?.title || m.title,
-              gameImg: firstGame?.image_url || null,
+              gameTitle: firstGame?.title_es || firstGame?.title || m.title,
+              gameImg: firstGame?.image_url_es || firstGame?.image_url || null,
             }
           })
           setActiveMeetups(formatted)

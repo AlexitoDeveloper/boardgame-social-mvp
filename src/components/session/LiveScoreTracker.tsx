@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils'
 
 interface LiveScoreTrackerProps {
   initialScores?: PlayerScore[] | null
-  attendees?: { id: string; name: string; avatarUrl?: string | null }[]
+  attendees?: { id: string; name: string; avatarUrl?: string | null; isGuest?: boolean }[]
   isEditable?: boolean
   onSaveScores?: (scores: PlayerScore[]) => Promise<void>
 }
@@ -23,6 +23,54 @@ const COLOR_BADGES: Record<MeepleColor, { bg: string; text: string; border: stri
   green: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30' },
   purple: { bg: 'bg-purple-500/15', text: 'text-purple-400', border: 'border-purple-500/30' },
   orange: { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30' },
+}
+
+/**
+ * Normalizes and deduplicates an array of PlayerScore entries.
+ * Ensures each participant appears at most once by matching either
+ * identical non-empty IDs (userId or guestId) or normalized names.
+ * When merging duplicates, it preserves higher scores, winner status,
+ * and user/guest identifiers.
+ */
+function deduplicatePlayerScores(list: PlayerScore[]): PlayerScore[] {
+  if (!list || list.length === 0) return []
+  const result: PlayerScore[] = []
+
+  for (const item of list) {
+    const normName = item.name ? item.name.toLowerCase().trim() : ''
+    const itemUserId = item.userId?.trim()
+    const itemGuestId = item.guestId?.trim()
+
+    const existingIdx = result.findIndex((r) => {
+      // 1. Direct ID match
+      if (itemUserId && r.userId && itemUserId === r.userId) return true
+      if (itemGuestId && r.guestId && itemGuestId === r.guestId) return true
+      // 2. Cross ID match (e.g. attendee id was stored in userId vs guestId)
+      if (itemGuestId && r.userId && itemGuestId === r.userId) return true
+      if (itemUserId && r.guestId && itemUserId === r.guestId) return true
+      // 3. Name match (case and whitespace normalized)
+      if (normName && r.name && r.name.toLowerCase().trim() === normName) return true
+      return false
+    })
+
+    if (existingIdx !== -1) {
+      const existing = result[existingIdx]
+      const preferredScore = Math.max(existing.score || 0, item.score || 0)
+      const isWinner = existing.isWinner || item.isWinner
+      result[existingIdx] = {
+        ...existing,
+        ...item,
+        score: preferredScore,
+        isWinner,
+        userId: existing.userId || item.userId,
+        guestId: existing.guestId || item.guestId,
+      }
+    } else {
+      result.push({ ...item })
+    }
+  }
+
+  return result
 }
 
 export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
@@ -43,12 +91,13 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
 
   // Initialize scores from props or registered attendees safely
   useEffect(() => {
-    const currentInitialStr = JSON.stringify(initialScores || [])
+    const sanitizedInitial = deduplicatePlayerScores(initialScores || [])
+    const currentInitialStr = JSON.stringify(sanitizedInitial)
 
     // Case 1: Initial scores changed externally (e.g. initial DB fetch)
-    if (initialScores && initialScores.length > 0 && currentInitialStr !== lastInitialScoresStrRef.current) {
+    if (sanitizedInitial.length > 0 && currentInitialStr !== lastInitialScoresStrRef.current) {
       lastInitialScoresStrRef.current = currentInitialStr
-      setScores(initialScores)
+      setScores(sanitizedInitial)
       isInitializedRef.current = true
       return
     }
@@ -56,12 +105,14 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     // Case 2: Not yet initialized, and attendees exist
     if (!isInitializedRef.current && attendees.length > 0) {
       const generated: PlayerScore[] = attendees.map((a, idx) => ({
-        userId: a.id,
+        userId: a.isGuest ? undefined : a.id,
+        guestId: a.isGuest ? a.id : undefined,
         name: a.name,
         score: 0,
         meepleColor: AVAILABLE_COLORS[idx % AVAILABLE_COLORS.length],
       }))
-      setScores(generated)
+      const deduplicated = deduplicatePlayerScores(generated)
+      setScores(deduplicated)
       isInitializedRef.current = true
       return
     }
@@ -69,17 +120,31 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     // Case 3: Already initialized, but new attendees joined who are not in scores
     if (isInitializedRef.current && attendees.length > 0) {
       setScores((prev) => {
-        const existingUserIds = new Set(prev.map((p) => p.userId).filter(Boolean))
-        const missing = attendees.filter((a) => !existingUserIds.has(a.id))
-        if (missing.length === 0) return prev
+        const cleanedPrev = deduplicatePlayerScores(prev)
+
+        const missing = attendees.filter((a) => {
+          const aNameNorm = a.name.toLowerCase().trim()
+          return !cleanedPrev.some((p) => {
+            const pNameNorm = p.name ? p.name.toLowerCase().trim() : ''
+            const idMatches = p.userId === a.id || p.guestId === a.id
+            const nameMatches = pNameNorm === aNameNorm
+            return idMatches || nameMatches
+          })
+        })
+
+        if (missing.length === 0) {
+          return cleanedPrev.length !== prev.length ? cleanedPrev : prev
+        }
 
         const additions: PlayerScore[] = missing.map((a, idx) => ({
-          userId: a.id,
+          userId: a.isGuest ? undefined : a.id,
+          guestId: a.isGuest ? a.id : undefined,
           name: a.name,
           score: 0,
-          meepleColor: AVAILABLE_COLORS[(prev.length + idx) % AVAILABLE_COLORS.length],
+          meepleColor: AVAILABLE_COLORS[(cleanedPrev.length + idx) % AVAILABLE_COLORS.length],
         }))
-        return [...prev, ...additions]
+
+        return deduplicatePlayerScores([...cleanedPrev, ...additions])
       })
     }
   }, [initialScores, attendees])
@@ -114,6 +179,15 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     const trimmed = newGuestName.trim()
     if (!trimmed) return
 
+    const alreadyExists = scores.some(
+      (s) => s.name?.toLowerCase().trim() === trimmed.toLowerCase().trim()
+    )
+    if (alreadyExists) {
+      setNewGuestName('')
+      setShowAddGuest(false)
+      return
+    }
+
     const newGuest: PlayerScore = {
       guestId: `guest-${Date.now()}`,
       name: trimmed,
@@ -121,7 +195,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
       meepleColor: AVAILABLE_COLORS[scores.length % AVAILABLE_COLORS.length],
     }
 
-    setScores((prev) => [...prev, newGuest])
+    setScores((prev) => deduplicatePlayerScores([...prev, newGuest]))
     setNewGuestName('')
     setShowAddGuest(false)
     setSaveSuccess(false)
@@ -139,7 +213,7 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
     try {
       // Sort and assign ranks and winner flag
       const sorted = [...scores].sort((a, b) => b.score - a.score)
-      const ranked: PlayerScore[] = sorted.map((item, idx) => ({
+      const ranked: PlayerScore[] = deduplicatePlayerScores(sorted).map((item, idx) => ({
         ...item,
         rank: idx + 1,
         isWinner: idx === 0 && item.score > 0,

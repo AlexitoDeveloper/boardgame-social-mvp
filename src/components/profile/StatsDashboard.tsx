@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Trophy, Dices, Sparkles, Layers, HelpCircle } from 'lucide-react'
 import { Card, CardContent } from '../ui/card'
+import { Button } from '../ui/button'
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover'
 import { UserStats } from '../../hooks/useProfile'
 import { Meetup } from '../../types'
@@ -117,13 +118,15 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
             </div>
             <Popover>
               <PopoverTrigger asChild>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   aria-label="Información sobre Títulos Únicos"
-                  className="text-muted-foreground/60 hover:text-sky-500 transition-colors p-0.5 rounded-full cursor-pointer shrink-0"
+                  className="text-muted-foreground/60 hover:text-sky-500 hover:bg-transparent h-5 w-5 p-0.5 rounded-full cursor-pointer shrink-0"
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64 text-left p-3.5 bg-card/95 backdrop-blur-xl border border-border/40 shadow-xl rounded-2xl space-y-1.5 z-50">
                 <h4 className="text-xs font-black text-sky-500 flex items-center gap-1.5">

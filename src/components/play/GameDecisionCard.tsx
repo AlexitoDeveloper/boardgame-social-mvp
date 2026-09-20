@@ -77,8 +77,8 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
       <div className="p-6 rounded-3xl bg-primary/10 border-2 border-primary/40 shadow-xl space-y-5 text-center sm:text-left relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-card/80 flex items-center justify-center border border-primary/40 shrink-0 relative overflow-hidden shadow-md">
-            {spinningGame.image_url ? (
-              <img src={spinningGame.image_url} alt={spinningTitle} className="w-full h-full object-cover blur-[0.5px]" />
+            {(spinningGame.image_url_es || spinningGame.image_url) ? (
+              <img src={(spinningGame.image_url_es || spinningGame.image_url) || undefined} alt={spinningTitle} className="w-full h-full object-cover blur-[0.5px]" />
             ) : (
               <Dices className="w-10 h-10 text-primary animate-spin" aria-hidden="true" />
             )}
@@ -119,8 +119,8 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
             className="p-5 sm:p-6 rounded-3xl bg-primary/10 border-2 border-primary/30 shadow-xl space-y-5"
           >
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-              {suggestedGame.image_url ? (
-                <img src={suggestedGame.image_url} alt={suggestedGame.title} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-md shrink-0 border border-border/30" />
+              {(suggestedGame.image_url_es || suggestedGame.image_url) ? (
+                <img src={(suggestedGame.image_url_es || suggestedGame.image_url) || undefined} alt={suggestedGame.title} className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-md shrink-0 border border-border/30" />
               ) : (
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-card flex items-center justify-center border border-border/30 shrink-0 text-muted-foreground">
                   <Dices className="w-10 h-10" aria-hidden="true" />

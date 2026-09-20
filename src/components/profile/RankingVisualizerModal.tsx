@@ -66,7 +66,7 @@ export function RankingVisualizerModal({
   onClose
 }: RankingVisualizerModalProps) {
   const { t } = useTranslation()
-  const { getGameTitle } = useGameLocale()
+  const { getGameTitle, getGameCover } = useGameLocale()
   const exportModalRef = useRef<HTMLDivElement>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -200,9 +200,9 @@ export function RankingVisualizerModal({
                                 isLandscape ? 'w-8 h-8' : 'w-12 h-12 sm:w-14 sm:h-14'
                               }`}
                             >
-                              {g.image_url ? (
+                              {(getGameCover(g) || g.image_url) ? (
                                 <img 
-                                  src={`https://images.weserv.nl/?url=${encodeURIComponent(g.image_url)}&w=65&h=65&fit=cover`} 
+                                  src={`https://images.weserv.nl/?url=${encodeURIComponent(getGameCover(g) || g.image_url)}&w=65&h=65&fit=cover`} 
                                   alt={getGameTitle(g)} 
                                   className="h-full w-full object-cover" 
                                   crossOrigin="anonymous"
@@ -233,9 +233,9 @@ export function RankingVisualizerModal({
                         {game ? (
                           <div className="flex items-center gap-2 min-w-0">
                             <div className={`rounded overflow-hidden border border-white/10 bg-zinc-950 shrink-0 relative flex items-center justify-center ${isLandscape ? 'w-6 h-6' : 'w-8 h-8'}`}>
-                              {game.image_url ? (
+                              {(getGameCover(game) || game.image_url) ? (
                                 <img 
-                                  src={`https://images.weserv.nl/?url=${encodeURIComponent(game.image_url)}&w=40&h=40&fit=cover`} 
+                                  src={`https://images.weserv.nl/?url=${encodeURIComponent(getGameCover(game) || game.image_url)}&w=40&h=40&fit=cover`} 
                                   alt={getGameTitle(game)} 
                                   className="w-full h-full object-cover" 
                                   crossOrigin="anonymous"

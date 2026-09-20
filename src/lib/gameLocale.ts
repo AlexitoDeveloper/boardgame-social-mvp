@@ -55,8 +55,10 @@ export function sanitizeGameText(text: string | null | undefined): string {
   return result.trim()
 }
 
-export function getGameTitle(game: Game, lang: AppLanguage = 'es'): string {
-  if (lang === 'es' && game.title_es) {
+export function getGameTitle(game: Game | null | undefined, lang: string = 'es'): string {
+  if (!game) return ''
+  const isSpanish = !lang || lang.startsWith('es')
+  if (isSpanish && game.title_es) {
     return sanitizeGameText(game.title_es)
   }
   // English mode or fallback to original title
@@ -75,8 +77,10 @@ export function getGameTitle(game: Game, lang: AppLanguage = 'es'): string {
  *   import { getGamePublisher } from '../lib/gameLocale'
  *   <span>{getGamePublisher(game, language)}</span>
  */
-export function getGamePublisher(game: Game, lang: AppLanguage = 'es'): string | null {
-  if (lang === 'es' && game.es_publisher) {
+export function getGamePublisher(game: Game | null | undefined, lang: string = 'es'): string | null {
+  if (!game) return null
+  const isSpanish = !lang || lang.startsWith('es')
+  if (isSpanish && game.es_publisher) {
     return sanitizeGameText(game.es_publisher)
   }
   return game.publisher ? sanitizeGameText(game.publisher) : null
@@ -88,8 +92,10 @@ export function getGamePublisher(game: Game, lang: AppLanguage = 'es'): string |
  * - 'es': returns `game.image_url_es` if available, otherwise falls back to `game.image_url`.
  * - 'en': always returns `game.image_url`.
  */
-export function getGameCover(game: Game, lang: AppLanguage = 'es'): string | null {
-  if (lang === 'es' && game.image_url_es) {
+export function getGameCover(game: Game | null | undefined, lang: string = 'es'): string | null {
+  if (!game) return null
+  const isSpanish = !lang || lang.startsWith('es')
+  if (isSpanish && game.image_url_es) {
     return game.image_url_es
   }
   return game.image_url ?? null

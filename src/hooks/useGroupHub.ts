@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../lib/authContext'
-import { useGroupDetail, GroupMember, MergedGame, GroupPoll } from './useGroupDetail'
+import { useGroupDetail, GroupMember, GroupGuest, MergedGame, GroupPoll } from './useGroupDetail'
 import { supabase } from '../lib/supabaseClient'
 import { USE_MOCKS } from '../lib/config'
 import { toast } from '../components/ui/toast'
@@ -18,6 +18,11 @@ export interface GroupMeetup {
   is_online?: boolean;
   gameTitle?: string;
   gameImg?: string | null;
+  completed?: boolean;
+  winnerName?: string | null;
+  winnerScore?: string | number | null;
+  boardPhotoUrl?: string | null;
+  playerScores?: Array<{ name: string; score: number; meepleColor?: string; isWinner?: boolean }>;
 }
 
 export function useGroupHub(groupId: string | undefined) {
@@ -28,9 +33,11 @@ export function useGroupHub(groupId: string | undefined) {
   const groupDetail = useGroupDetail(groupId)
   const { group, members, leaveGroup, deleteGroup, kickMember, refresh: refreshGroup } = groupDetail
 
-  // Upcoming meetups for this group
+  // Meetups for this group (upcoming and past/recorded)
   const [upcomingMeetups, setUpcomingMeetups] = useState<GroupMeetup[]>([])
   const [loadingMeetups, setLoadingMeetups] = useState(true)
+  const [pastMeetups, setPastMeetups] = useState<GroupMeetup[]>([])
+  const [loadingPastMeetups, setLoadingPastMeetups] = useState(true)
 
   // Modals & triggers
   const [isQrModalOpen, setIsQrModalOpen] = useState(false)
@@ -133,7 +140,8 @@ export function useGroupHub(groupId: string | undefined) {
             games (
               title,
               title_es,
-              image_url
+              image_url,
+              image_url_es
             )
           )
         `)
@@ -155,8 +163,8 @@ export function useGroupHub(groupId: string | undefined) {
           max_players: m.max_players,
           joined_players: m.joined_players || [],
           is_online: m.is_online,
-          gameTitle: firstGame?.title || m.title,
-          gameImg: firstGame?.image_url || null,
+          gameTitle: firstGame?.title_es || firstGame?.title || m.title,
+          gameImg: firstGame?.image_url_es || firstGame?.image_url || null,
         }
       })
       setUpcomingMeetups(mapped)
@@ -167,9 +175,127 @@ export function useGroupHub(groupId: string | undefined) {
     }
   }, [groupId])
 
+  // Fetch past / completed meetups (including Quick Matches)
+  const fetchPastMeetups = useCallback(async () => {
+    if (!groupId) {
+      setPastMeetups([])
+      setLoadingPastMeetups(false)
+      return
+    }
+
+    setLoadingPastMeetups(true)
+    try {
+      if (USE_MOCKS) {
+        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        if (stored) {
+          const list = JSON.parse(stored)
+          const matched = list
+            .filter((m: any) => m.group_id === groupId && m.completed)
+            .map((m: any) => {
+              const firstGame = m.games?.[0] || m.meetup_games?.[0]?.games
+              const winnerEntry = Array.isArray(m.player_scores)
+                ? m.player_scores.find((s: any) => s.isWinner)
+                : null
+              const winnerName = winnerEntry?.name || m.games?.[0]?.winner_name || null
+              const winnerScore = winnerEntry?.score ?? m.games?.[0]?.winner_score ?? null
+
+              return {
+                id: m.id,
+                title: m.title,
+                date: m.date,
+                location: m.location,
+                city: m.city,
+                max_players: m.max_players,
+                joined_players: m.joined_players || [],
+                is_online: m.is_online,
+                gameTitle: firstGame?.title_es || firstGame?.title || m.title,
+                gameImg: firstGame?.image_url || null,
+                completed: true,
+                winnerName,
+                winnerScore,
+                boardPhotoUrl: m.board_photo_url || null,
+                playerScores: Array.isArray(m.player_scores) ? m.player_scores : [],
+              }
+            })
+            .reverse()
+          setPastMeetups(matched)
+        }
+        setLoadingPastMeetups(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('meetups')
+        .select(`
+          id,
+          title,
+          date,
+          location,
+          city,
+          max_players,
+          joined_players,
+          completed,
+          is_online,
+          board_photo_url,
+          player_scores,
+          meetup_games (
+            game_id,
+            winner_user_id,
+            winner_guest_id,
+            winner_score,
+            games (
+              title,
+              title_es,
+              image_url,
+              image_url_es
+            )
+          )
+        `)
+        .eq('group_id', groupId)
+        .eq('completed', true)
+        .order('date', { ascending: false })
+
+      if (error) throw error
+
+      const mapped: GroupMeetup[] = (data || []).map((m: any) => {
+        const firstGame = m.meetup_games?.[0]?.games
+        const winnerEntry = Array.isArray(m.player_scores)
+          ? m.player_scores.find((s: any) => s.isWinner)
+          : null
+        const winnerName = winnerEntry?.name || null
+        const winnerScore = winnerEntry?.score ?? m.meetup_games?.[0]?.winner_score ?? null
+
+        return {
+          id: m.id,
+          title: m.title,
+          date: m.date,
+          location: m.location,
+          city: m.city,
+          max_players: m.max_players,
+          joined_players: m.joined_players || [],
+          is_online: m.is_online,
+          gameTitle: firstGame?.title_es || firstGame?.title || m.title,
+          gameImg: firstGame?.image_url_es || firstGame?.image_url || null,
+          completed: true,
+          winnerName,
+          winnerScore,
+          boardPhotoUrl: m.board_photo_url || null,
+          playerScores: Array.isArray(m.player_scores) ? m.player_scores : [],
+        }
+      })
+      setPastMeetups(mapped)
+    } catch (err) {
+      console.error('Error fetching past meetups for group:', err)
+      setPastMeetups([])
+    } finally {
+      setLoadingPastMeetups(false)
+    }
+  }, [groupId])
+
   useEffect(() => {
     fetchUpcomingMeetups()
-  }, [fetchUpcomingMeetups])
+    fetchPastMeetups()
+  }, [fetchUpcomingMeetups, fetchPastMeetups])
 
   // Roles
   const isCreator = useMemo(() => Boolean(group && user && group.creator_id === user.id), [group, user])
@@ -260,13 +386,17 @@ export function useGroupHub(groupId: string | undefined) {
   const refreshAll = useCallback(() => {
     refreshGroup()
     fetchUpcomingMeetups()
-  }, [refreshGroup, fetchUpcomingMeetups])
+    fetchPastMeetups()
+  }, [refreshGroup, fetchUpcomingMeetups, fetchPastMeetups])
 
   return {
     ...groupDetail,
     upcomingMeetups,
     loadingMeetups,
     fetchUpcomingMeetups,
+    pastMeetups,
+    loadingPastMeetups,
+    fetchPastMeetups,
     isCreator,
     isAdmin,
     copiedCode,
@@ -293,4 +423,4 @@ export function useGroupHub(groupId: string | undefined) {
     refreshAll,
   }
 }
-export type { GroupMember, MergedGame, GroupPoll };
+export type { GroupMember, GroupGuest, MergedGame, GroupPoll };

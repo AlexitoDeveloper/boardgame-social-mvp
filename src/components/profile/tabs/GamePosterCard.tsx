@@ -4,6 +4,7 @@ import { Trash2, Bookmark, BookmarkCheck } from 'lucide-react'
 import { ExpansionBadge } from '../../ui/expansion-badge'
 import { Button } from '../../ui/button'
 import { Game } from '../../../types'
+import { useGameLocale } from '../../../hooks/useGameLocale'
 
 interface GamePosterCardProps {
   game: Game;
@@ -26,6 +27,9 @@ export function GamePosterCard({
   onRemove,
   removeLabel = 'Quitar de la ludoteca'
 }: GamePosterCardProps) {
+  const { getGameCover } = useGameLocale()
+  const coverUrl = getGameCover(game) || game.image_url
+
   return (
     <motion.div
       layout
@@ -43,15 +47,15 @@ export function GamePosterCard({
       >
         {/* Poster Artwork (2:3 Aspect Ratio) */}
         <div className="w-full aspect-[2/3] relative bg-muted/30 overflow-hidden flex items-center justify-center">
-          {game.image_url ? (
+          {coverUrl ? (
             <>
               <img
-                src={game.image_url}
+                src={coverUrl}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110 pointer-events-none"
               />
               <img
-                src={game.image_url}
+                src={coverUrl}
                 alt={gameTitle}
                 className="w-full h-full object-contain p-2 relative z-10 rounded-xl transition-transform duration-300 group-hover:scale-105"
               />
