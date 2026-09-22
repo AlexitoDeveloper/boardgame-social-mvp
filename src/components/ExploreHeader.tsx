@@ -133,27 +133,24 @@ export function ExploreHeader({
         </div>
       </div>
 
-      {/* Filters Row container with animation */}
-      <AnimatePresence initial={false}>
-        {showFilters && (
-          <motion.div
-            initial={{ height: 0, opacity: 0, marginTop: 0 }}
-            animate={{ height: 'auto', opacity: 1, marginTop: 12 }}
-            exit={{ height: 0, opacity: 0, marginTop: 0 }}
-            className="overflow-hidden"
-            transition={{ duration: 0.2 }}
-          >
-            <ExploreFilterDrawer
-              playerFilter={playerFilter}
-              onPlayerFilterChange={onPlayerFilterChange}
-              complexityFilter={complexityFilter}
-              onComplexityFilterChange={onComplexityFilterChange}
-              spanishOnly={spanishOnly}
-              onSpanishOnlyChange={onSpanishOnlyChange}
-            />
-          </motion.div>
+      {/* Filters Row container with smooth GPU compositing */}
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows,opacity,margin-top] duration-200 ease-out-custom",
+          showFilters ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0 mt-0 pointer-events-none"
         )}
-      </AnimatePresence>
+      >
+        <div className="overflow-hidden">
+          <ExploreFilterDrawer
+            playerFilter={playerFilter}
+            onPlayerFilterChange={onPlayerFilterChange}
+            complexityFilter={complexityFilter}
+            onComplexityFilterChange={onComplexityFilterChange}
+            spanishOnly={spanishOnly}
+            onSpanishOnlyChange={onSpanishOnlyChange}
+          />
+        </div>
+      </div>
     </div>
   )
 }

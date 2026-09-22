@@ -1,15 +1,13 @@
-import { createElement, FormEvent } from 'react'
-import { useState } from 'react'
+import { createElement, FormEvent, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
-import { Label } from '../components/ui/label'
-import { Form } from '../components/ui/form'
 import { Card, CardContent } from '../components/ui/card'
-import { Loader2, LogIn, UserPlus } from 'lucide-react'
+import { LogIn, UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { LoginForm } from '../components/auth/LoginForm'
+import { RegisterForm } from '../components/auth/RegisterForm'
 
 const MotionDiv = motion.div
 
@@ -73,7 +71,6 @@ export function AuthPage() {
       return
     }
 
-    // Upsert into public.users table
     if (data.user) {
       await supabase.from('users').upsert({
         id: data.user.id,
@@ -108,9 +105,9 @@ export function AuthPage() {
           <p className="text-sm text-muted-foreground mt-2">{t('auth.subtitle')}</p>
         </div>
 
-        <Card className="glass-panel shadow-2xl rounded-[24px]">
+        <Card className="bg-card border border-border shadow-xl rounded-[24px]">
           {/* Tabs */}
-          <div className="flex border-b border-border/30">
+          <div className="flex border-b border-border">
             {[
               { id: 'login' as const,    label: t('auth.signInTab'), icon: LogIn },
               { id: 'register' as const, label: t('auth.signUpTab'), icon: UserPlus },
@@ -143,7 +140,9 @@ export function AuthPage() {
             <AnimatePresence>
               {successMsg && (
                 <MotionDiv
-                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden mb-5"
                 >
                   <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3">
@@ -157,7 +156,9 @@ export function AuthPage() {
             <AnimatePresence>
               {errorMsg && (
                 <MotionDiv
-                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
                   className="overflow-hidden mb-5"
                 >
                   <div className="text-destructive bg-destructive/10 px-4 py-3 rounded-lg text-sm font-medium border border-destructive/20">
@@ -179,42 +180,14 @@ export function AuthPage() {
                   exit="exit"
                   transition={{ duration: 0.25 }}
                 >
-                  <Form onSubmit={handleLogin} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="login-email" className="font-semibold">{t('auth.emailLabel')}</Label>
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password" className="font-semibold">{t('auth.passwordLabel')}</Label>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      variant="premium"
-                      className="w-full h-11 font-bold shadow-lg transition-all"
-                      disabled={loading}
-                    >
-                      {loading
-                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('auth.signInLoader')}</span>
-                        : t('auth.signInButton')}
-                    </Button>
-                  </Form>
+                  <LoginForm
+                    email={email}
+                    setEmail={setEmail}
+                    password={password}
+                    setPassword={setPassword}
+                    loading={loading}
+                    onSubmit={handleLogin}
+                  />
                 </MotionDiv>
               ) : (
                 <MotionDiv
@@ -226,55 +199,16 @@ export function AuthPage() {
                   exit="exit"
                   transition={{ duration: 0.25 }}
                 >
-                  <Form onSubmit={handleRegister} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-username" className="font-semibold">{t('auth.usernameLabel')}</Label>
-                      <Input
-                        id="reg-username"
-                        type="text"
-                        placeholder={t('auth.usernamePlaceholder')}
-                        required
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-email" className="font-semibold">{t('auth.emailLabel')}</Label>
-                      <Input
-                        id="reg-email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="reg-password" className="font-semibold">{t('auth.passwordLabel')} <span className="text-xs text-muted-foreground font-normal">{t('auth.passwordHelp')}</span></Label>
-                      <Input
-                        id="reg-password"
-                        type="password"
-                        placeholder="••••••••"
-                        required
-                        minLength={6}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-11 rounded-xl bg-background/40 border-border/50 focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:border-primary transition-all duration-200"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      variant="premium"
-                      className="w-full h-11 font-bold shadow-lg transition-all"
-                      disabled={loading}
-                    >
-                      {loading
-                        ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {t('auth.signUpLoader')}</span>
-                        : t('auth.signUpButton')}
-                    </Button>
-                  </Form>
+                  <RegisterForm
+                    username={username}
+                    setUsername={setUsername}
+                    email={email}
+                    setEmail={setEmail}
+                    password={password}
+                    setPassword={setPassword}
+                    loading={loading}
+                    onSubmit={handleRegister}
+                  />
                 </MotionDiv>
               )}
             </AnimatePresence>
@@ -284,4 +218,5 @@ export function AuthPage() {
     </div>
   )
 }
-export default AuthPage;
+
+export default AuthPage

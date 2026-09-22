@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Card} from './ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
@@ -151,19 +151,23 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
       </Button>
     )
   }
+  const rafRef = useRef<number | null>(null);
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    card.style.setProperty('--mouse-x', `${x}px`);
-    card.style.setProperty('--mouse-y', `${y}px`);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
   };
 
   return (
     <Card 
       onMouseMove={handleMouseMove}
-      className="overflow-hidden glass-panel spotlight-card transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/45 group flex flex-col relative p-0"
+      className="overflow-hidden glass-panel spotlight-card transition-[box-shadow,border-color] duration-200 ease-out-custom hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/45 group flex flex-col relative p-0"
     >
       {/* Banner / Showcase de Portada */}
       <div className="relative w-full h-44 sm:h-52 overflow-hidden bg-muted/40 border-b border-border/30 flex items-center justify-center">
@@ -179,7 +183,7 @@ export function MeetupCard({ meetup, user, updatingId, onJoinLeave, onNavigate }
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.4 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                     src={currentCover}
                     alt=""
                     className="w-full h-full object-cover filter blur-[32px] scale-150 pointer-events-none select-none absolute inset-0 z-0"

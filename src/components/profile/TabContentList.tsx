@@ -57,10 +57,10 @@ export function TabContentList({
         {activeTab === 'upcoming' && (
           <motion.div
             key="upcoming-tab"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
           >
             <MeetupsTab
               meetups={upcomingMeetups}
@@ -74,10 +74,10 @@ export function TabContentList({
         {activeTab === 'completed' && (
           <motion.div
             key="completed-tab"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
           >
             <MeetupsTab
               meetups={completedMeetups}
@@ -91,10 +91,10 @@ export function TabContentList({
         {activeTab === 'collection' && (
           <motion.div
             key="collection-tab"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
           >
             <CollectionTab
               collectionGames={collectionGames}
@@ -112,10 +112,10 @@ export function TabContentList({
         {activeTab === 'vitrina' && (
           <motion.div
             key="vitrina-tab"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
           >
             <VitrinaTab
               organizedCount={organizedCount}
@@ -128,10 +128,10 @@ export function TabContentList({
         {(activeTab === 'stats' || activeTab === 'mas') && (
           <motion.div
             key="stats-tab"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.08 } }}
+            transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
           >
             <StatsTab
               stats={stats}

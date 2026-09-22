@@ -46,14 +46,14 @@ export function ActiveMeetupsCarousel({ meetups }: ActiveMeetupsCarouselProps) {
               to={`/mesa/${meetup.id}`}
               className="snap-start shrink-0 w-[260px] sm:w-[300px] block group"
             >
-              <Card className="overflow-hidden glass-panel spotlight-card border border-border/40 hover:border-primary/45 transition-all duration-300 shadow-md hover:shadow-lg p-0 flex flex-col h-full bg-card/65 backdrop-blur-xl relative">
+              <Card className="overflow-hidden glass-panel spotlight-card border border-border/40 hover:border-primary/45 transition-[box-shadow,border-color] duration-200 ease-out-custom shadow-md hover:shadow-lg p-0 flex flex-col h-full bg-card/65 backdrop-blur-xl relative">
                 {/* Visual Backdrop inside card */}
                 {coverUrl && (
                   <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden -z-10 rounded-2xl">
                     <img 
                       src={coverUrl} 
                       alt="" 
-                      className="w-full h-full object-cover filter blur-[40px] opacity-10 scale-125 transition-transform duration-500 group-hover:scale-150"
+                      className="w-full h-full object-cover filter blur-[40px] opacity-10 scale-125 transition-transform duration-250 ease-out-custom group-hover:scale-135"
                     />
                   </div>
                 )}

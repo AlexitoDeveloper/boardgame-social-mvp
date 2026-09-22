@@ -134,8 +134,8 @@ export function AchievementsVitrina({
               key={activeAch.id}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              exit={{ opacity: 0, transition: { duration: 0.08 } }}
+              transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
               className="p-4 rounded-2xl border bg-card/60 border-border/30 text-left relative overflow-hidden space-y-3 shadow-md"
             >
               <div className="flex gap-3.5 items-start">
