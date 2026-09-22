@@ -1,11 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Crown, 
-  MapPin, 
-  Calendar, 
-  Info 
-} from 'lucide-react'
+import { Crown, MapPin, Calendar } from 'lucide-react'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Tag } from '../ui/tag'
@@ -16,18 +10,12 @@ import { UserProfile } from '../../types'
 import { useTranslation } from 'react-i18next'
 import { useGameLocale } from '../../hooks/useGameLocale'
 import { formatDate } from '../../lib/dateLocale'
+import { ProfileXpBar } from './ProfileXpBar'
+import { GamerLevelData } from '../../hooks/useGamerLevel'
 
-const MotionDiv = motion.div
-
-interface ProfileShowcaseCardProps {
+interface ProfileShowcaseCardProps extends GamerLevelData {
   profile: UserProfile;
   isOwnProfileEditable: boolean;
-  playerLevel: number;
-  playerTitle: string;
-  totalXp: number;
-  xpCurrent: number;
-  xpRange: number;
-  xpProgress: number;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
@@ -40,11 +28,10 @@ export function ProfileShowcaseCard({
   xpCurrent,
   xpRange,
   xpProgress,
-  setProfile
+  setProfile,
 }: ProfileShowcaseCardProps) {
   const { t } = useTranslation()
   const { language } = useGameLocale()
-  const [showXpHelp, setShowXpHelp] = useState(false)
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false)
 
@@ -56,13 +43,13 @@ export function ProfileShowcaseCard({
 
       {/* Banner backdrop */}
       <div className="h-32 bg-gradient-to-r from-primary/30 via-[#260f38]/20 to-[#0e271a]/30 border-b border-white/5 relative overflow-hidden" />
-      
+
       <CardContent className="p-4 pb-6 sm:p-6 sm:pb-6 relative flex flex-col items-center sm:items-start sm:flex-row gap-5">
-        {/* Avatar container overlapping banner with dynamic colored status ring */}
+        {/* Avatar with static high-contrast gradient ring (infinite rotation removed) */}
         <div className="relative -mt-16 z-10 shrink-0">
-          <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-400 via-primary to-emerald-400 opacity-80 animate-spin [animation-duration:15s]" />
+          <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-amber-400 via-primary to-emerald-400 opacity-90 shadow-sm" />
           <Avatar className="w-28 h-28 border-[6px] border-card relative z-10 shadow-xl">
-            <AvatarImage src={profile.avatar_url || undefined} />
+            <AvatarImage src={profile.avatar_url || undefined} alt={profile.username} />
             <AvatarFallback className="bg-gradient-to-br from-primary/20 to-violet-500/10 text-primary text-3xl font-black">
               {profile.username?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -71,11 +58,11 @@ export function ProfileShowcaseCard({
             {playerLevel}
           </div>
         </div>
-        
+
         <div className="pt-2 sm:pt-4 space-y-3 text-center sm:text-left flex-1 min-w-0 w-full">
           <div>
             <h2 className="text-2xl font-black tracking-tight text-foreground truncate flex items-center justify-center sm:justify-start gap-2">
-              {profile.username}
+              <span>{profile.username}</span>
               {profile.is_premium ? (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <Tag variant="default" className="shrink-0">
@@ -84,18 +71,18 @@ export function ProfileShowcaseCard({
                   {isOwnProfileEditable && (
                     <>
                       <Button
-                        variant="link"
-                        size="sm"
+                        variant="ghost"
+                        size="xs"
                         onClick={() => setIsDeactivateModalOpen(true)}
-                        className="cursor-pointer text-muted-foreground hover:text-destructive hover:no-underline p-0 h-auto font-bold text-xs"
+                        className="cursor-pointer text-muted-foreground hover:text-destructive h-7 px-2 font-bold text-xs"
                       >
-                        ({t('profile.deactivate')})
+                        {t('profile.deactivate')}
                       </Button>
                       <PremiumDeactivateModal
                         isOpen={isDeactivateModalOpen}
                         onClose={() => setIsDeactivateModalOpen(false)}
                         onSuccess={() => {
-                          setProfile(prev => prev ? { ...prev, is_premium: false } : null)
+                          setProfile((prev) => (prev ? { ...prev, is_premium: false } : null))
                         }}
                       />
                     </>
@@ -108,15 +95,15 @@ export function ProfileShowcaseCard({
                       variant="premium"
                       size="sm"
                       onClick={() => setIsUpgradeModalOpen(true)}
-                      className="shrink-0 animate-pulse cursor-pointer"
+                      className="shrink-0 cursor-pointer shadow-xs"
                       icon={Crown}
                       label={t('profile.upgradeProShort')}
                     />
-                    <PremiumUpgradeModal 
+                    <PremiumUpgradeModal
                       isOpen={isUpgradeModalOpen}
                       onClose={() => setIsUpgradeModalOpen(false)}
                       onSuccess={() => {
-                        setProfile(prev => prev ? { ...prev, is_premium: true } : null)
+                        setProfile((prev) => (prev ? { ...prev, is_premium: true } : null))
                       }}
                     />
                   </>
@@ -128,62 +115,14 @@ export function ProfileShowcaseCard({
             </span>
           </div>
 
-          {/* Experience Bar layout */}
-          <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20 relative">
-            <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              <span className="flex items-center gap-1">
-                {t('profile.xpTitle')}
-                <span title={t('profile.xpHelpTitle')} className="inline-flex">
-                  <Info 
-                    onClick={() => setShowXpHelp(!showXpHelp)}
-                    className="w-3.5 h-3.5 text-primary hover:text-primary/80 cursor-pointer transition-colors shrink-0"
-                  />
-                </span>
-              </span>
-              <span className="text-foreground font-black">{xpCurrent} / {xpRange} XP</span>
-            </div>
-            <div className="w-full h-2 rounded-full bg-background border border-border/30 overflow-hidden relative">
-              <div 
-                className="h-full rounded-full bg-gradient-to-r from-primary via-violet-500 to-indigo-500 transition-all duration-1000 ease-out"
-                style={{ width: `${xpProgress}%` }}
-              />
-            </div>
-            <span className="text-xs text-muted-foreground/80 block leading-none font-semibold">
-              {t('profile.xpTotalDesc', { count: totalXp })}
-            </span>
+          {/* Subcomponent handling XP progress bar and accessible rules dropdown */}
+          <ProfileXpBar
+            totalXp={totalXp}
+            xpCurrent={xpCurrent}
+            xpRange={xpRange}
+            xpProgress={xpProgress}
+          />
 
-            <AnimatePresence>
-              {showXpHelp && (
-                <MotionDiv
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden border-t border-border/10 mt-1.5 pt-1.5"
-                >
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-300 font-extrabold select-none">
-                    <div className="flex items-center justify-between">
-                      <span>🎲 {t('profile.xpRules.meetup')}:</span>
-                      <span className="text-emerald-400 font-black">+100 XP</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>⚔️ {t('profile.xpRules.win')}:</span>
-                      <span className="text-rose-400 font-black">+250 XP</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>👑 {t('profile.xpRules.master')}:</span>
-                      <span className="text-amber-400 font-black">+150 XP</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>✨ {t('profile.xpRules.ranking')}:</span>
-                      <span className="text-cyan-400 font-black">+200 XP</span>
-                    </div>
-                  </div>
-                </MotionDiv>
-              )}
-            </AnimatePresence>
-          </div>
-          
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1.5 text-xs font-bold pt-0.5">
             {profile.city && (
               <span className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-lg border border-border/40 text-foreground/80 shadow-sm">
@@ -191,9 +130,10 @@ export function ProfileShowcaseCard({
               </span>
             )}
             <span className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-lg border border-border/40 text-foreground/80 shadow-sm">
-              <Calendar className="w-3.5 h-3.5 text-primary shrink-0" /> {(() => {
-                const dStr = formatDate(profile.created_at || Date.now(), { month: 'long', year: 'numeric' }, language);
-                return dStr.charAt(0).toUpperCase() + dStr.slice(1);
+              <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />{' '}
+              {(() => {
+                const dStr = formatDate(profile.created_at || Date.now(), { month: 'long', year: 'numeric' }, language)
+                return dStr.charAt(0).toUpperCase() + dStr.slice(1)
               })()}
             </span>
           </div>

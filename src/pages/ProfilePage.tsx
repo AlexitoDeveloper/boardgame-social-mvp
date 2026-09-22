@@ -4,16 +4,14 @@ import { useAuth } from '../lib/authContext'
 import { Button } from '../components/ui/button'
 import { Tabs } from '../components/ui/tabs'
 import { useProfile } from '../hooks/useProfile'
+import { useGamerLevel } from '../hooks/useGamerLevel'
 import { ProfileSkeleton } from '../components/profile/ProfileSkeleton'
+import { ProfileHeader } from '../components/profile/ProfileHeader'
 import { ProfileShowcaseCard } from '../components/profile/ProfileShowcaseCard'
 import { TabContentList, ProfileTabType } from '../components/profile/TabContentList'
-import { EditProfileModal } from '../components/profile/EditProfileModal'
-import { BggSyncModal } from '../components/library/BggSyncModal'
-import { RankingVisualizerModal } from '../components/profile/RankingVisualizerModal'
-import { AddGameToLibraryModal } from '../components/library/AddGameToLibraryModal'
-import { ArrowLeft, Edit, UserX, Dices, CalendarDays, Settings, Award, BarChart2, History } from 'lucide-react'
+import { ProfileModals } from '../components/profile/ProfileModals'
+import { ArrowLeft, UserX, Dices, CalendarDays, Award, BarChart2, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { ProfileSettingsModal } from '../components/profile/ProfileSettingsModal'
 import { toast } from '../components/ui/toast'
 
 export function ProfilePage() {
@@ -26,7 +24,7 @@ export function ProfilePage() {
 
   const profileId = id || user?.id || ''
   const isOwnProfile = profileId === user?.id
-  const isOwnProfileEditable = isOwnProfile || (profileId.startsWith('mock-'))
+  const isOwnProfileEditable = isOwnProfile || profileId.startsWith('mock-')
 
   const {
     profile,
@@ -44,45 +42,42 @@ export function ProfilePage() {
     importBggCollection,
     addToCollection,
     removeFromCollection,
-    deleteRanking
+    deleteRanking,
   } = useProfile({ profileId, currentUserId: user?.id })
 
-  // Modal display states
   const [isEditing, setIsEditing] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isAddGameModalOpen, setIsAddGameModalOpen] = useState(false)
   const [selectedRanking, setSelectedRanking] = useState<any | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-
-  // Active Tab state
   const [activeTab, setActiveTab] = useState<ProfileTabType>('upcoming')
 
-  // Set selected ranking if URL param matches
   useEffect(() => {
     if (rankingIdParam && savedRankings.length > 0) {
-      const found = savedRankings.find(r => r.id === rankingIdParam)
-      if (found) {
-        setSelectedRanking(found)
-      }
+      const found = savedRankings.find((r) => r.id === rankingIdParam)
+      if (found) setSelectedRanking(found)
     }
   }, [rankingIdParam, savedRankings])
 
-  // Upcoming & completed meetups
   const upcomingMeetups = useMemo(() => {
     return (meetups || [])
-      .filter(m => !m.completed && new Date(m.date).getTime() >= Date.now())
+      .filter((m) => !m.completed && new Date(m.date).getTime() >= Date.now())
       .sort((a, b) => new Date(a.date || (a as any).created_at || 0).getTime() - new Date(b.date || (b as any).created_at || 0).getTime())
   }, [meetups])
 
   const completedMeetups = useMemo(() => {
     return (meetups || [])
-      .filter(m => m.completed || new Date(m.date).getTime() < Date.now())
+      .filter((m) => m.completed || new Date(m.date).getTime() < Date.now())
       .sort((a, b) => new Date(b.date || (b as any).created_at || 0).getTime() - new Date(a.date || (a as any).created_at || 0).getTime())
   }, [meetups])
 
-  if (loading) {
-    return <ProfileSkeleton />
-  }
+  const organizedCount = useMemo(() => {
+    return (meetups || []).filter((m) => m.creator_id === profileId).length
+  }, [meetups, profileId])
+
+  const gamerLevel = useGamerLevel(stats, organizedCount, savedRankings.length)
+
+  if (loading) return <ProfileSkeleton />
 
   if (errorMsg || !profile) {
     return (
@@ -92,100 +87,47 @@ export function ProfilePage() {
           <h2 className="text-xl font-bold">{t('profile.notAvailableTitle')}</h2>
           <p className="text-sm font-medium text-foreground/80">{errorMsg || t('profile.notAvailableDesc')}</p>
         </div>
-        <Button 
-          onClick={() => navigate('/')} 
-          variant="outline" 
-          size="sm" 
-          icon={ArrowLeft} 
-          label={t('profile.backToBoard')} 
-          className="mx-auto cursor-pointer" 
+        <Button
+          onClick={() => navigate('/')}
+          variant="outline"
+          size="sm"
+          icon={ArrowLeft}
+          label={t('profile.backToBoard')}
+          className="mx-auto cursor-pointer"
         />
       </section>
     )
   }
 
-  const organizedCount = meetups.filter(m => m.creator_id === profileId).length
-
-  // Gamer Level calculations
-  const totalXp = (stats.played * 100) + (stats.won * 250) + (organizedCount * 150) + (savedRankings.length * 200)
-  const playerLevel = Math.floor(totalXp / 1000) + 1
-  const prevLevelXp = (playerLevel - 1) * 1000
-  const xpRange = 1000
-  const xpCurrent = totalXp - prevLevelXp
-  const xpProgress = Math.min(100, Math.max(0, (xpCurrent / xpRange) * 100))
-
-  const getPlayerTitle = (level: number) => {
-    if (level >= 10) return t('profile.level10')
-    if (level >= 6) return t('profile.level6')
-    if (level >= 4) return t('profile.level4')
-    if (level >= 2) return t('profile.level2')
-    return t('profile.level1')
-  }
-  const playerTitle = getPlayerTitle(playerLevel)
-
   return (
     <section className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 md:pb-24 relative">
-      {/* Header bar (sticky on mobile) */}
-      <div className="sticky top-[-2px] pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 z-30 flex items-center justify-between -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 backdrop-blur-md border-b border-border/20">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => navigate(-1)} 
-          className="cursor-pointer"
-          icon={ArrowLeft}
-          label={t('profile.back')}
-        />
-        <div className="flex items-center gap-2">
-          {isOwnProfileEditable && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsEditing(true)}
-              className="cursor-pointer text-foreground"
-              icon={Edit}
-              label={t('profile.editData')}
-            />
-          )}
-          {isOwnProfile && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsSettingsOpen(true)}
-              className="cursor-pointer text-foreground"
-              icon={Settings}
-              aria-label="Ajustes y preferencias"
-            />
-          )}
-        </div>
-      </div>
+      <ProfileHeader
+        isOwnProfile={isOwnProfile}
+        isOwnProfileEditable={isOwnProfileEditable}
+        onEditClick={() => setIsEditing(true)}
+        onSettingsClick={() => setIsSettingsOpen(true)}
+      />
 
       <ProfileShowcaseCard
         profile={profile}
         isOwnProfileEditable={isOwnProfileEditable}
-        playerLevel={playerLevel}
-        playerTitle={playerTitle}
-        totalXp={totalXp}
-        xpCurrent={xpCurrent}
-        xpRange={xpRange}
-        xpProgress={xpProgress}
         setProfile={setProfile}
+        {...gamerLevel}
       />
 
-      {/* Navigation Tabs (Próximas, Historial, Ludoteca, Vitrina, Estadísticas) */}
       <Tabs<ProfileTabType>
         options={[
           { id: 'upcoming', label: t('profile.tabs.upcoming', 'Próximas'), icon: CalendarDays, count: upcomingMeetups.length },
           { id: 'completed', label: t('profile.tabs.completed', 'Historial'), icon: History, count: completedMeetups.length },
           { id: 'collection', label: t('profile.tabs.collection', 'Ludoteca'), icon: Dices, count: collectionGames.length },
           { id: 'vitrina', label: t('profile.tabs.vitrina', 'Vitrina'), icon: Award },
-          { id: 'stats', label: t('profile.tabs.stats', 'Estadísticas'), icon: BarChart2 }
+          { id: 'stats', label: t('profile.tabs.stats', 'Estadísticas'), icon: BarChart2 },
         ]}
         activeTab={activeTab}
         onChange={(tab) => setActiveTab(tab)}
         scrollable
       />
 
-      {/* Tab Panels */}
       <TabContentList
         activeTab={activeTab}
         upcomingMeetups={upcomingMeetups}
@@ -218,47 +160,28 @@ export function ProfilePage() {
         setIsAddGameModalOpen={setIsAddGameModalOpen}
       />
 
-      {/* Modal Dialogs */}
-      <EditProfileModal
-        isOpen={isEditing}
-        onClose={() => setIsEditing(false)}
+      <ProfileModals
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
         profile={profile}
         profileId={profileId}
         currentUserId={user?.id}
-        onSave={async (username, city, avatarUrl) => {
-          await saveProfile(username, city, avatarUrl)
-          toast.success(t('toast.profileSaved', 'Ajustes del perfil guardados.'))
-        }}
-        saving={savingProfile}
-      />
-
-      <BggSyncModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={importBggCollection}
-      />
-
-      <AddGameToLibraryModal
-        isOpen={isAddGameModalOpen}
-        onClose={() => setIsAddGameModalOpen(false)}
-        userCollectionGameIds={collectionGames.map((g) => g.bgg_id)}
-        onAddGame={async (gameId) => {
-          await addToCollection(gameId)
-          toast.success(t('toast.gameAddedToCollection', '¡Juego añadido a tu ludoteca!'))
-        }}
-      />
-
-      <RankingVisualizerModal
+        saveProfile={saveProfile}
+        savingProfile={savingProfile}
+        isImportModalOpen={isImportModalOpen}
+        setIsImportModalOpen={setIsImportModalOpen}
+        importBggCollection={importBggCollection}
+        isAddGameModalOpen={isAddGameModalOpen}
+        setIsAddGameModalOpen={setIsAddGameModalOpen}
+        collectionGames={collectionGames}
+        addToCollection={addToCollection}
         selectedRanking={selectedRanking}
-        onClose={() => setSelectedRanking(null)}
-      />
-
-      <ProfileSettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        setSelectedRanking={setSelectedRanking}
+        isSettingsOpen={isSettingsOpen}
+        setIsSettingsOpen={setIsSettingsOpen}
       />
     </section>
   )
 }
 
-export default ProfilePage;
+export default ProfilePage
