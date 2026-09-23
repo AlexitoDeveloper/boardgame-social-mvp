@@ -63,18 +63,16 @@ export const GroupsHero: FC<GroupsHeroProps> = ({
             type="button"
             onClick={onJoinClick}
             variant="outline"
-            className="cursor-pointer font-bold rounded-xl flex items-center gap-2 h-11 px-4 border-border/60 hover:bg-muted/60 active:scale-[0.98] transition-transform"
+            icon={QrCode}
           >
-            <QrCode className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <span>{t('groups.joinWithCode', 'Unirse con Código')}</span>
           </Button>
 
           <Button
             type="button"
             onClick={onCreateClick}
-            className="cursor-pointer font-bold rounded-xl flex items-center gap-2 h-11 px-5 shadow-sm active:scale-[0.98] transition-transform"
+            icon={Plus}
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
             <span>{t('groups.createGroup', 'Crear Círculo')}</span>
           </Button>
         </div>

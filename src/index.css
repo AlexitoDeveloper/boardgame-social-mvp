@@ -29,6 +29,15 @@
     --ring: 158 70% 40%;
     --radius: 1rem;
     --shadow-color: 220 30% 10%;
+    /* 4-Tier Surface Elevation Scale */
+    --surface-void: 210 40% 98%;
+    --surface-ground: 0 0% 100%;
+    --surface-elevated: 214 32% 95%;
+    --surface-plate: 0 0% 100%;
+    /* Felt & Tactile Depth Tokens */
+    --felt-emerald: 158 70% 40%;
+    --felt-emerald-depth: 158 80% 28%;
+    --keycap-shadow: 214 25% 82%;
     /* Custom animation easing tokens (Emil Kowalski) */
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -59,10 +68,28 @@
     --ring: 158 70% 43%;
     --radius: 1rem;
     --shadow-color: 0 0% 0%;
+    /* 4-Tier Surface Elevation Scale */
+    --surface-void: 222 47% 5%;
+    --surface-ground: 222 47% 7%;
+    --surface-elevated: 222 40% 11%;
+    --surface-plate: 222 36% 15%;
+    /* Felt & Tactile Depth Tokens */
+    --felt-emerald: 158 70% 43%;
+    --felt-emerald-depth: 158 80% 24%;
+    --keycap-shadow: 222 45% 4%;
   }
 
   * {
     @apply border-border;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.28);
+    color: hsl(var(--foreground));
+  }
+
+  input, textarea, [contenteditable="true"] {
+    caret-color: hsl(var(--primary));
   }
 
   body {
@@ -181,6 +208,40 @@
   [class*="text-[11px]"] {
     font-size: 0.75rem !important;
     line-height: 1rem !important;
+  }
+
+  /* Die-cut Ticket Notch for Match/Session Cards */
+  .card-notch {
+    clip-path: polygon(
+      0% 12px, 12px 0%,
+      calc(100% - 12px) 0%, 100% 12px,
+      100% calc(100% - 12px), calc(100% - 12px) 100%,
+      12px 100%, 0% calc(100% - 12px)
+    );
+  }
+
+  /* Machined Tactile Keycap Travel */
+  .tactile-keycap {
+    transition: transform 75ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 75ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .tactile-keycap:active {
+    transform: translateY(2px);
+  }
+
+  /* Sleek Neoprene Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.45);
   }
 }
 

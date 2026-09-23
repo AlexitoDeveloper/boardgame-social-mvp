@@ -51,6 +51,23 @@ export default {
           700: '#1E293B',
           600: '#334155',
         },
+        surface: {
+          void: 'hsl(var(--surface-void))',
+          ground: 'hsl(var(--surface-ground))',
+          elevated: 'hsl(var(--surface-elevated))',
+          plate: 'hsl(var(--surface-plate))',
+        },
+        felt: {
+          DEFAULT: 'hsl(var(--felt-emerald))',
+          depth: 'hsl(var(--felt-emerald-depth))',
+        },
+      },
+      boxShadow: {
+        'tactile-sm': '0 2px 0 0 hsl(var(--keycap-shadow)), 0 4px 6px -1px rgba(0, 0, 0, 0.15)',
+        'tactile-md': '0 3px 0 0 hsl(var(--keycap-shadow)), 0 8px 12px -2px rgba(0, 0, 0, 0.2)',
+        'tactile-active': '0 1px 0 0 hsl(var(--keycap-shadow)), 0 2px 4px 0 rgba(0, 0, 0, 0.1)',
+        'recessed': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.25), inset 0 1px 2px 0 rgba(0, 0, 0, 0.15)',
+        'subpixel-rim': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.15)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

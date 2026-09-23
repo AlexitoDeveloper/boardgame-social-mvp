@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight, FileText, Shield, Trash2 } from 'lucide-react'
+import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight, FileText, Shield, Trash2, Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetBody } from '../ui/sheet'
 import { Button } from '../ui/button'
 import { DeleteAccountDialog } from './DeleteAccountDialog'
 
@@ -27,18 +27,20 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="bottom" className="max-w-md">
-        <SheetHeader className="space-y-1 text-left">
-          <SheetTitle className="text-xl font-extrabold font-display tracking-tight text-foreground">
-            {t('nav.theme')} & {t('nav.changeLang')}
-          </SheetTitle>
-          <SheetDescription className="text-xs text-muted-foreground">
-            Personaliza la apariencia y el idioma de tu experiencia
-          </SheetDescription>
-        </SheetHeader>
+    <>
+      <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <SheetContent side="bottom" className="max-w-md max-h-[92vh] flex flex-col p-0">
+          <SheetHeader>
+            <SheetTitle>
+              <Settings className="w-5 h-5 text-primary" />
+              {t('nav.theme')} & {t('nav.changeLang')}
+            </SheetTitle>
+            <SheetDescription>
+              Personaliza la apariencia y el idioma de tu experiencia
+            </SheetDescription>
+          </SheetHeader>
 
-        <div className="space-y-5 py-3">
+          <SheetBody className="pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {/* Theme Selector */}
           <div className="space-y-2">
             <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
@@ -194,14 +196,15 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               <span>{t('settings.deleteAccount', 'Eliminar mi cuenta')}</span>
             </Button>
           </div>
-        </div>
+        </SheetBody>
       </SheetContent>
-
-      <DeleteAccountDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-      />
     </Sheet>
-  )
+
+    <DeleteAccountDialog
+      isOpen={isDeleteDialogOpen}
+      onClose={() => setIsDeleteDialogOpen(false)}
+    />
+  </>
+)
 }
 

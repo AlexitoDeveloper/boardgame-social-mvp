@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
@@ -62,14 +63,14 @@ export function ReportContentDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !submitting && onClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-left space-y-2">
+        <DialogHeader>
           <div className="w-10 h-10 rounded-full bg-destructive/15 text-destructive flex items-center justify-center">
             <Flag className="h-5 w-5" />
           </div>
-          <DialogTitle className="text-lg font-bold font-display">
+          <DialogTitle>
             {title || t('reports.dialogTitle', 'Reportar contenido o usuario')}
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
+          <DialogDescription>
             {t(
               'reports.dialogDesc',
               'Tu reporte es confidencial. Ayúdanos a mantener la comunidad segura y libre de conductas abusivas.'
@@ -77,7 +78,7 @@ export function ReportContentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <DialogBody className="space-y-4">
           <div className="space-y-2">
             <Label className="text-xs font-semibold">
               {t('reports.reasonLabel', '¿Cuál es el motivo del reporte?')}
@@ -110,9 +111,9 @@ export function ReportContentDialog({
               rows={3}
             />
           </div>
-        </div>
+        </DialogBody>
 
-        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"

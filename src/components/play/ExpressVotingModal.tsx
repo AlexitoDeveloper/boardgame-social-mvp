@@ -387,10 +387,10 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                     type="button"
                     variant="default"
                     onClick={() => onGameSelected(winningGame)}
-                    className="flex-1 h-11 rounded-xl font-bold text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
+                    className="flex-1"
                   >
                     <span>{t('play.votingModal.openTableWithGame')}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
                 </div>
               </motion.div>
@@ -463,7 +463,6 @@ export const ExpressVotingModal: FC<ExpressVotingModalProps> = ({
                 size="sm"
                 onClick={() => handleFinishVoting()}
                 disabled={totalVotesCast === 0}
-                className="h-9 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
               >
                 {t('play.votingModal.closeVotingNow')}
               </Button>

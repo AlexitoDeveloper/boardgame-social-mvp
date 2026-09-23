@@ -269,10 +269,6 @@ export const LiveScoreTracker: FC<LiveScoreTrackerProps> = ({
                 size="sm"
                 onClick={handleSave}
                 disabled={isSaving}
-                className={cn(
-                  'h-8 px-3 rounded-xl text-xs font-bold gap-1.5 cursor-pointer transition-all',
-                  saveSuccess && 'bg-emerald-600 hover:bg-emerald-700'
-                )}
               >
                 {saveSuccess ? (
                   <>

@@ -114,7 +114,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
             size="lg"
             onClick={handleActivatePremium}
             disabled={loading}
-            className="w-full text-xs font-black h-11 rounded-2xl active:scale-98 cursor-pointer shadow-md"
+            className="w-full"
           >
             {loading ? "Activando..." : (
               <span className="flex items-center justify-center gap-1.5">

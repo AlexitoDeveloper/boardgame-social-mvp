@@ -4,23 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const chipVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl font-bold transition-[transform,color,background-color,border-color,box-shadow] duration-140 ease-out-custom select-none cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97]",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl font-bold transition-[transform,color,background-color,border-color,box-shadow] duration-100 ease-out-custom select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-40 active:translate-y-[1px]",
   {
     variants: {
       variant: {
-        // Unified Purple / Violet Accent (high contrast, distinct from primary green CTAs, perfectly legible on dark navy background)
         default:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:border-border data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/40 data-[selected=true]:shadow-xs",
         primary:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/35 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth)),0_3px_6px_-1px_rgba(0,0,0,0.2)]",
         emerald:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/35 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth)),0_3px_6px_-1px_rgba(0,0,0,0.2)]",
         purple:
-          "border border-border/40 bg-muted/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
+        chit:
+          "border border-border/80 bg-surface-elevated text-foreground hover:bg-surface-plate data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth))]",
       },
       size: {
         xs: "h-7 px-2 text-xs rounded-lg [&_svg]:size-3",
-        sm: "h-8 px-2.5 text-xs rounded-xl [&_svg]:size-3.5",
+        sm: "h-8 px-2.5 text-xs rounded-lg [&_svg]:size-3.5",
         default: "h-9 px-3.5 text-xs rounded-xl [&_svg]:size-3.5",
         lg: "h-10 px-4 text-sm rounded-xl [&_svg]:size-4",
       },
@@ -39,7 +40,17 @@ export interface ChipProps
   asChild?: boolean
   icon?: React.ComponentType<{ className?: string }>
   badge?: React.ReactNode
+  meepleColor?: "red" | "blue" | "yellow" | "green" | "purple" | "orange"
 }
+
+const meepleDotMap = {
+  red: "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]",
+  blue: "bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.5)]",
+  yellow: "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.5)]",
+  green: "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]",
+  purple: "bg-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.5)]",
+  orange: "bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.5)]",
+} as const
 
 const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
   (
@@ -51,6 +62,7 @@ const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
       asChild = false,
       icon: Icon,
       badge,
+      meepleColor,
       children,
       type = "button",
       ...props
@@ -67,6 +79,12 @@ const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
         className={cn(chipVariants({ variant, size }), className)}
         {...props}
       >
+        {meepleColor && (
+          <span
+            className={cn("size-2 rounded-full shrink-0", meepleDotMap[meepleColor])}
+            aria-hidden="true"
+          />
+        )}
         {Icon && <Icon className="shrink-0" />}
         {children}
         {badge && <span className="shrink-0">{badge}</span>}

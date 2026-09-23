@@ -110,27 +110,27 @@ const toastStyles: Record<
   { card: string; iconBg: string; title: string; desc: string }
 > = {
   success: {
-    card: 'bg-[#f0fdf4]/95 dark:bg-[#06241a]/95 border-emerald-500/35 dark:border-emerald-500/30 shadow-emerald-500/15',
-    iconBg: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30',
-    title: 'text-emerald-950 dark:text-emerald-100',
-    desc: 'text-emerald-800/80 dark:text-emerald-300/80',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-emerald-500/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-emerald-500/10',
+    iconBg: 'bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30',
+    title: 'text-foreground font-black',
+    desc: 'text-muted-foreground',
   },
   error: {
-    card: 'bg-[#fff1f2]/95 dark:bg-[#280c12]/95 border-destructive/35 dark:border-destructive/30 shadow-destructive/15',
-    iconBg: 'bg-destructive/20 text-destructive border border-destructive/30',
-    title: 'text-destructive dark:text-rose-100',
-    desc: 'text-rose-800/80 dark:text-rose-300/80',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-destructive/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-destructive/10',
+    iconBg: 'bg-destructive/15 text-destructive border border-destructive/30',
+    title: 'text-foreground font-black',
+    desc: 'text-muted-foreground',
   },
   info: {
-    card: 'bg-[#eff6ff]/95 dark:bg-[#0d1e3a]/95 border-blue-500/35 dark:border-blue-500/30 shadow-blue-500/15',
-    iconBg: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30',
-    title: 'text-blue-950 dark:text-blue-100',
-    desc: 'text-blue-800/80 dark:text-blue-300/80',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-blue-500/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-blue-500/10',
+    iconBg: 'bg-blue-500/15 text-blue-500 dark:text-blue-400 border border-blue-500/30',
+    title: 'text-foreground font-black',
+    desc: 'text-muted-foreground',
   },
   default: {
-    card: 'bg-card/95 dark:bg-[#121829]/95 border-border/60 shadow-black/10',
-    iconBg: 'bg-muted text-muted-foreground border border-border/50',
-    title: 'text-foreground',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-white/[0.08] text-foreground shadow-2xl shadow-subpixel-rim',
+    iconBg: 'bg-surface-plate text-foreground border border-border/60',
+    title: 'text-foreground font-black',
     desc: 'text-muted-foreground',
   },
 }
@@ -142,7 +142,7 @@ export function ToastContainer() {
     <div
       aria-live="polite"
       aria-label="Notificaciones"
-      className="fixed top-3 sm:top-5 inset-x-0 z-50 pointer-events-none flex flex-col items-center gap-2 px-3 sm:px-4 pt-[env(safe-area-inset-top)] max-w-sm sm:max-w-md mx-auto"
+      className="fixed bottom-5 sm:bottom-6 inset-x-0 z-50 pointer-events-none flex flex-col items-center gap-2 px-3 sm:px-4 pb-[env(safe-area-inset-bottom)] max-w-sm sm:max-w-md mx-auto"
     >
       <AnimatePresence mode="sync">
         {toasts.map((t) => {
@@ -153,16 +153,16 @@ export function ToastContainer() {
             <motion.div
               key={t.id}
               layout
-              initial={{ opacity: 0, y: -20, scale: 0.92 }}
+              initial={{ opacity: 0, y: 20, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.94 }}
+              exit={{ opacity: 0, y: 16, scale: 0.94 }}
               transition={{
                 type: 'spring',
-                stiffness: 450,
-                damping: 32,
+                stiffness: 420,
+                damping: 30,
               }}
               className={cn(
-                'pointer-events-auto w-full flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl shadow-xl backdrop-blur-xl border select-none',
+                'pointer-events-auto w-full flex items-center gap-3 p-3.5 rounded-2xl shadow-2xl backdrop-blur-2xl border select-none',
                 style.card
               )}
             >
