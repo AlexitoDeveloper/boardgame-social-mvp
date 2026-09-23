@@ -1,4 +1,4 @@
-﻿-- Boardgame Social MVP - Add game metadata fields (playtimes, min_age, categories, mechanics)
+-- LudiClub - Add game metadata fields (playtimes, min_age, categories, mechanics)
 -- Run this migration in your Supabase SQL Editor.
 
 -- 1. Add new columns to public.games table

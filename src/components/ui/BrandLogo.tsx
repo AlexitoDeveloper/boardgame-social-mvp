@@ -20,7 +20,7 @@ const sizeMap = {
 export function BrandLogoIcon({
   className,
   glow = true,
-  alt = 'Boardgame Social Logo',
+  alt = 'LudiClub Logo',
 }: {
   className?: string
   glow?: boolean
@@ -47,8 +47,8 @@ export function BrandLogoIcon({
 export function BrandLogo({
   size = 'md',
   showText = true,
-  showBadge = true,
-  badgeText = 'MVP',
+  showBadge = false,
+  badgeText = '',
   glow = true,
   className,
   ...props
@@ -65,7 +65,7 @@ export function BrandLogo({
             <span className={cn('font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent', currentSize.text)}>
               Ludiclub
             </span>
-            {showBadge && (
+            {showBadge && badgeText && (
               <span className={cn('font-semibold rounded-full bg-primary/15 text-primary border border-primary/20 uppercase tracking-wider', currentSize.badge)}>
                 {badgeText}
               </span>

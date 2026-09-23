@@ -175,7 +175,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       winner: "Ganador:",
       points: "Puntos:",
       draw: "Empate 🤝",
-      watermark: "Abre tu mesa en Boardgame Social",
+      watermark: "Abre tu mesa en LudiClub",
       playedOn: "Mesa jugada el",
       whoAttended: "1. ¿Quiénes asistieron?",
       winnersPerGame: "2. Ganadores por juego",
@@ -538,7 +538,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       aspectRatioLabel: "Formato de imagen",
       canvasPlaceholder: "Arrastra juegos aquí para empezar a clasificar",
       vacant: "Vacante",
-      watermarkPlaceholder: "Abre tu mesa en Boardgame Social",
+      watermarkPlaceholder: "Abre tu mesa en LudiClub",
       defaultTitle: "Mi Top 10 de Juegos",
       untitled: "Ranking sin título",
       deleteRanking: "Eliminar ranking",
@@ -710,7 +710,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       noDescription: "Sin descripción.",
       copyCodeTooltip: "Copiar código de invitación",
       inviteWhatsApp: "Invitar por WhatsApp",
-      inviteWhatsAppText: "¡Hola! 🎲 Únete a nuestro grupo de juegos de mesa \"{{groupName}}\" en Boardgame Social para compartir ludotecas y decidir a qué jugar: {{inviteUrl}}",
+      inviteWhatsAppText: "¡Hola! 🎲 Únete a nuestro grupo de juegos de mesa \"{{groupName}}\" en LudiClub para compartir ludotecas y decidir a qué jugar: {{inviteUrl}}",
       copyInviteLink: "Copiar enlace de invitación",
       inviteLinkCopied: "¡Enlace de invitación copiado!",
       joiningGroup: "Uniéndote al grupo...",
@@ -827,7 +827,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       }
     },
     onboarding: {
-      title: "¡Bienvenido a Boardgame Social! 🎲",
+      title: "¡Bienvenido a LudiClub! 🎲",
       subtitle: "Tu asistente de mesa para jugar con tus amigos cada fin de semana.",
       bggStepTitle: "Importa tu ludoteca en 5 segundos",
       bggStepDesc: "Indica tu usuario de BoardGameGeek. Sincronizaremos tus juegos automáticamente para que tu grupo vea lo que puedes llevar a la mesa.",
@@ -932,7 +932,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       roomCount_other: "partidas"
     },
     auth: {
-      title: "Boardgame Social",
+      title: "LudiClub",
       subtitle: "La red social de juegos de mesa",
       signInTab: "Iniciar Sesión",
       signUpTab: "Crear Cuenta",
@@ -950,7 +950,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       successRegistered: "¡Cuenta creada! Ya puedes iniciar sesión."
     },
     premium: {
-      deactivateTitle: "Desactivar Boardgame Social PRO",
+      deactivateTitle: "Desactivar LudiClub PRO",
       deactivateDesc: "¿Estás seguro de que deseas volver a la cuenta estándar?",
       deactivateWarning: "Al desactivar tu cuenta PRO, perderás inmediatamente el acceso a los formatos avanzados de exportación, tus fondos premium personalizados y tu límite máximo de partidas activas volverá a ser de 5.",
       reversibleTitle: "Acción reversible",
@@ -1096,7 +1096,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       champion: "Campeón",
       classification: "Clasificación",
       finalBoard: "Tablero final",
-      watermark: "The Table Companion • BoardGame Social",
+      watermark: "The Table Companion • LudiClub",
       shareSummaryTitle: "🎲 *Resumen de Partida: {{title}}*",
       shareGame: "📖 Juego: *{{game}}*",
       shareWinner: "🏆 Ganador: *{{name}}* ({{score}} pts)",
@@ -1363,7 +1363,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       winner: "Winner:",
       points: "Points:",
       draw: "Draw 🤝",
-      watermark: "Host your table on Boardgame Social",
+      watermark: "Host your table on LudiClub",
       playedOn: "Table played on",
       whoAttended: "1. Who attended?",
       winnersPerGame: "2. Winners per game",
@@ -1726,7 +1726,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       aspectRatioLabel: "Image format",
       canvasPlaceholder: "Drag games here to start ranking",
       vacant: "Vacant",
-      watermarkPlaceholder: "Host your table on Boardgame Social",
+      watermarkPlaceholder: "Host your table on LudiClub",
       defaultTitle: "My Top 10 Games",
       untitled: "Untitled ranking",
       deleteRanking: "Delete ranking",
@@ -1898,7 +1898,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       noDescription: "No description.",
       copyCodeTooltip: "Copy invite code",
       inviteWhatsApp: "Invite via WhatsApp",
-      inviteWhatsAppText: "Hey! 🎲 Join our board game group \"{{groupName}}\" on Boardgame Social to share libraries and decide what to play: {{inviteUrl}}",
+      inviteWhatsAppText: "Hey! 🎲 Join our board game group \"{{groupName}}\" on LudiClub to share libraries and decide what to play: {{inviteUrl}}",
       copyInviteLink: "Copy invite link",
       inviteLinkCopied: "Invite link copied!",
       joiningGroup: "Joining group...",
@@ -2015,7 +2015,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       }
     },
     onboarding: {
-      title: "Welcome to Boardgame Social! 🎲",
+      title: "Welcome to LudiClub! 🎲",
       subtitle: "Your tabletop companion to play with your friends every weekend.",
       bggStepTitle: "Import your library in 5 seconds",
       bggStepDesc: "Enter your BoardGameGeek username. We will automatically sync your games so your group can see what you can bring to the table.",
@@ -2120,7 +2120,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       roomCount_other: "sessions"
     },
     auth: {
-      title: "Boardgame Social",
+      title: "LudiClub",
       subtitle: "The board game social network",
       signInTab: "Sign In",
       signUpTab: "Create Account",
@@ -2138,7 +2138,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       successRegistered: "Account created! You can now sign in."
     },
     premium: {
-      deactivateTitle: "Deactivate Boardgame Social PRO",
+      deactivateTitle: "Deactivate LudiClub PRO",
       deactivateDesc: "Are you sure you want to go back to the standard account?",
       deactivateWarning: "By deactivating your PRO account, you will immediately lose access to advanced export formats, your custom premium backgrounds, and your maximum active meetups limit will revert to 5.",
       reversibleTitle: "Reversible action",
@@ -2284,7 +2284,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       champion: "Champion",
       classification: "Standings",
       finalBoard: "Final board",
-      watermark: "The Table Companion • BoardGame Social",
+      watermark: "The Table Companion • LudiClub",
       shareSummaryTitle: "🎲 *Game Summary: {{title}}*",
       shareGame: "📖 Game: *{{game}}*",
       shareWinner: "🏆 Winner: *{{name}}* ({{score}} pts)",

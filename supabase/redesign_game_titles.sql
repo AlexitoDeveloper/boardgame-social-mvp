@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Redesign game title and publisher columns
+-- LudiClub - Redesign game title and publisher columns
 -- Run this in your Supabase SQL Editor.
 --
 -- Summary of changes:

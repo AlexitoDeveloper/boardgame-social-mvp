@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add Group Guest Games (Games owned by guests in groups)
+-- LudiClub - Add Group Guest Games (Games owned by guests in groups)
 -- Run this script in your Supabase SQL Editor.
 
 CREATE TABLE IF NOT EXISTS public.group_guest_games (

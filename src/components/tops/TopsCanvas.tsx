@@ -581,7 +581,7 @@ export function TopsCanvas({
             {(!isPremium || showWatermark) && (
               <div className="border-t border-white/10 pt-4 flex items-center justify-between text-xs text-zinc-300 select-none">
                 <span>{(isPremium && customWatermark) ? customWatermark : t('tops.watermarkPlaceholder')}</span>
-                {(!isPremium || !customWatermark) && <span className="font-extrabold text-white">#BoardgameSocial</span>}
+                {(!isPremium || !customWatermark) && <span className="font-extrabold text-white">#LudiClub</span>}
               </div>
             )}
 

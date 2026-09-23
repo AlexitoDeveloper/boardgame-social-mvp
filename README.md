@@ -1,4 +1,4 @@
-# 🎲 Boardgame Social MVP
+# 🎲 LudiClub
 
 Un escaparate gamificado y plataforma de encuentro para amantes de los juegos de mesa. Permite a los jugadores unirse a partidas ("Mesas Abiertas" creadas por "Masters"), organizar eventos locales o sesiones de juego en línea, subir de nivel acumulando XP (Experiencia) por sus hazañas lúdicas, desbloquear logros y diseñar/exportar sus propios rankings y Tier Lists de juegos de mesa.
 
@@ -47,7 +47,7 @@ Un escaparate gamificado y plataforma de encuentro para amantes de los juegos de
 ## 📂 Estructura del Proyecto
 
 ```
-boardgame-social-mvp/
+ludiclub/
 ├── .github/workflows/             # Workflows de GitHub Actions (Ingesta de BGG)
 ├── scripts/
 │   └── ingest-bgg.cjs             # Script Node.js local de ingesta por lotes

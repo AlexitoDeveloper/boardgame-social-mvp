@@ -53,7 +53,7 @@ async function fetchBggBatch(ids: number[], bggToken?: string): Promise<string> 
     try {
       const headers: Record<string, string> = {
         "Accept": "application/xml",
-        "User-Agent": "BoardGameSocialMVP/1.0 (Contact: admin@example.com)"
+        "User-Agent": "LudiClub/1.0 (Contact: admin@example.com)"
       };
       
       if (bggToken) {
@@ -92,7 +92,7 @@ async function fetchBggCollection(username: string, bggToken?: string): Promise<
     try {
       const headers: Record<string, string> = {
         "Accept": "application/xml",
-        "User-Agent": "BoardGameSocialMVP/1.0 (Contact: admin@example.com)"
+        "User-Agent": "LudiClub/1.0 (Contact: admin@example.com)"
       };
       
       if (bggToken) {
@@ -406,7 +406,7 @@ Deno.serve(async (request) => {
 
       const searchHeaders: Record<string, string> = {
         "Accept": "application/xml",
-        "User-Agent": "BoardGameSocialMVP/1.0 (Contact: admin@example.com)"
+        "User-Agent": "LudiClub/1.0 (Contact: admin@example.com)"
       };
       if (bggToken) {
         searchHeaders["Authorization"] = `Bearer ${bggToken}`;

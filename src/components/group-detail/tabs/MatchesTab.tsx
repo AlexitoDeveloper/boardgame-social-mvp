@@ -42,10 +42,10 @@ export const MatchesTab: React.FC<MatchesTabProps> = ({
     try {
       const isMock = USE_MOCKS && deletingMatch.id.startsWith('mock-')
       if (isMock) {
-        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        const stored = localStorage.getItem('ludiclub_mock_meetups') || localStorage.getItem('boardgame_social_mock_meetups')
         if (stored) {
           const list = JSON.parse(stored).filter((m: any) => m.id !== deletingMatch.id)
-          localStorage.setItem('boardgame_social_mock_meetups', JSON.stringify(list))
+          localStorage.setItem('ludiclub_mock_meetups', JSON.stringify(list))
         }
       } else {
         const { error } = await supabase.from('meetups').delete().eq('id', deletingMatch.id)

@@ -469,7 +469,7 @@ export function useTops() {
           await navigator.share({
             files: [file],
             title: rankingTitle,
-            text: '¡Mira mi ranking de juegos de mesa creado en Boardgame Social!',
+            text: '¡Mira mi ranking de juegos de mesa creado en LudiClub!',
           })
           return
         }
@@ -522,8 +522,8 @@ export function useTops() {
         .insert(payload)
 
       // Always update localStorage for fast retrieval & offline fallback
-      const localKey = `boardgame_social_saved_rankings_${user.id}`
-      const existingStr = localStorage.getItem(localKey)
+      const localKey = `ludiclub_saved_rankings_${user.id}`
+      const existingStr = localStorage.getItem(localKey) || localStorage.getItem(`boardgame_social_saved_rankings_${user.id}`)
       const existing = existingStr ? JSON.parse(existingStr) : []
       const newLocalItem = {
         id: Math.random().toString(36).substring(2, 9),

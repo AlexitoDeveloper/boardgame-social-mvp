@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add BGG catalog ingestion and expansions support fields to games table
+-- LudiClub - Add BGG catalog ingestion and expansions support fields to games table
 -- Run this in your Supabase SQL Editor.
 
 -- 1. Add new columns to public.games table

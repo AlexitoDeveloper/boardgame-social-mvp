@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add BGG metrics (rank, ratings, complexity) to games table
+-- LudiClub - Add BGG metrics (rank, ratings, complexity) to games table
 -- Run this in your Supabase SQL Editor.
 
 -- 1. Add new columns to public.games table

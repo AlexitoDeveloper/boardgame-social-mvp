@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Allow group members to add games to co-members' collections
+-- LudiClub - Allow group members to add games to co-members' collections
 -- Run this script in your Supabase SQL Editor.
 
 DROP POLICY IF EXISTS "user_collection_insert_own" ON public.user_collection;

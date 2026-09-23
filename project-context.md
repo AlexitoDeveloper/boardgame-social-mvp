@@ -1,4 +1,4 @@
-# Contexto del Proyecto: Boardgame Social MVP
+# Contexto del Proyecto: LudiClub
 
 Este documento sirve como referencia centralizada para entender de qué trata el proyecto, las tecnologías que utiliza, su arquitectura, base de datos y las funcionalidades implementadas. **Deberá actualizarse de forma incremental** conforme se añadan, modifiquen o eliminen funcionalidades.
 
@@ -6,7 +6,7 @@ Este documento sirve como referencia centralizada para entender de qué trata el
 
 ## 1. Descripción del Proyecto
 
-**Boardgame Social MVP** es una red social y punto de encuentro (MVP - Producto Mínimo Viable) diseñado para amantes de los juegos de mesa. Su objetivo principal es facilitar a los jugadores la organización de partidas locales y la búsqueda de compañeros de juego en sus ciudades (Radar Local).
+**LudiClub** es una red social y punto de encuentro diseñado para amantes de los juegos de mesa. Su objetivo principal es facilitar a los jugadores la organización de partidas locales y la búsqueda de compañeros de juego en sus ciudades (Radar Local).
 
 ---
 
@@ -43,7 +43,7 @@ El proyecto está construido utilizando tecnologías modernas de desarrollo web 
 El proyecto sigue una estructura limpia y modularizada:
 
 ```text
-boardgame-social-mvp/
+ludiclub/
 ├── supabase/                      # Configuración de base de datos y Edge Functions
 │   ├── functions/                 # Funciones Serverless de Supabase
 │   │   └── bgg-search/            # Consulta de juegos en BoardGameGeek XMLAPI2
@@ -75,7 +75,7 @@ boardgame-social-mvp/
 
 ---
 
-## 4. Funcionalidades del MVP (Módulos)
+## 4. Funcionalidades de LudiClub (Módulos)
 
 ### 4.1. Autenticación (`AuthPage.tsx` / `authContext.tsx`)
 

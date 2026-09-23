@@ -51,7 +51,7 @@ export function useShellNavigation() {
     }
 
     // 4. Check if user already has games in mock collection
-    const mockCollStr = localStorage.getItem(`boardgame_social_mock_collection_${user.id}`)
+    const mockCollStr = localStorage.getItem(`ludiclub_mock_collection_${user.id}`) || localStorage.getItem(`boardgame_social_mock_collection_${user.id}`)
     if (mockCollStr) {
       try {
         const parsed = JSON.parse(mockCollStr)
@@ -99,7 +99,7 @@ export function useShellNavigation() {
       return
     }
 
-    const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
+    const guestReservationsStr = localStorage.getItem('ludiclub_guest_reservations') || localStorage.getItem('boardgame_social_guest_reservations')
     const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
     const guestMeetupIds = Object.keys(guestReservations)
 
@@ -127,7 +127,7 @@ export function useShellNavigation() {
         if (msgsData) {
           let count = 0
           ids.forEach(mId => {
-            const lastReadStr = localStorage.getItem(`boardgame_social_chat_last_read_${mId}`) || ''
+            const lastReadStr = localStorage.getItem(`ludiclub_chat_last_read_${mId}`) || localStorage.getItem(`boardgame_social_chat_last_read_${mId}`) || ''
             const lastRead = lastReadStr ? new Date(lastReadStr).getTime() : 0
             const guestRes = guestReservations[mId]
             

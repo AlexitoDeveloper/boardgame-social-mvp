@@ -202,8 +202,8 @@ export function useExploreGames(
         let activeMeetupsData: any[] = []
         if (USE_MOCKS) {
           const allMocks = getMockMeetupsForList()
-          const completedMockKey = 'boardgame_social_mock_completed_meetups'
-          const completedMockStr = localStorage.getItem(completedMockKey)
+          const completedMockKey = 'ludiclub_mock_completed_meetups'
+          const completedMockStr = localStorage.getItem(completedMockKey) || localStorage.getItem('boardgame_social_mock_completed_meetups')
           const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
           activeMeetupsData = allMocks.map(m => {
             const completedInfo = completedMockData[m.id]

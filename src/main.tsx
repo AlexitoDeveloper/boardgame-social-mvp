@@ -3,7 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import './lib/i18n'
+import { migrateLegacyStorage } from './lib/storageMigration'
 import App from './App'
+
+migrateLegacyStorage()
 import { AuthProvider } from './lib/authContext'
 import { ToastProvider } from './components/ui/toast'
 

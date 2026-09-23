@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add Meetup Guests (Shadow Guests)
+-- LudiClub - Add Meetup Guests (Shadow Guests)
 -- Run this in your Supabase SQL Editor.
 
 create table if not exists public.meetup_guests (

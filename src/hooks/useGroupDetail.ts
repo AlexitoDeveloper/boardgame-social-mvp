@@ -77,12 +77,12 @@ export function useGroupDetail(groupId: string | undefined) {
 
     if (USE_MOCKS) {
       // Mock LocalStorage Implementation
-      const mockGroupsKey = 'boardgame_social_mock_groups'
-      const mockMembersKey = 'boardgame_social_mock_group_members'
-      const mockGuestsKey = 'boardgame_social_mock_group_guests'
-      const mockPollsKey = 'boardgame_social_mock_group_polls'
-      const mockPollOptionsKey = 'boardgame_social_mock_group_poll_options'
-      const mockPollVotesKey = 'boardgame_social_mock_group_poll_votes'
+      const mockGroupsKey = 'ludiclub_mock_groups'
+      const mockMembersKey = 'ludiclub_mock_group_members'
+      const mockGuestsKey = 'ludiclub_mock_group_guests'
+      const mockPollsKey = 'ludiclub_mock_group_polls'
+      const mockPollOptionsKey = 'ludiclub_mock_group_poll_options'
+      const mockPollVotesKey = 'ludiclub_mock_group_poll_votes'
 
       const storedGroups = JSON.parse(localStorage.getItem(mockGroupsKey) || '[]')
       const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
@@ -136,7 +136,7 @@ export function useGroupDetail(groupId: string | undefined) {
         167791: { bgg_id: 167791, title: 'Terraforming Mars', image_url: 'https://cf.geekdo-images.com/7bM8c6P2dG22a1tN7s_b8JtQJ9k=/fit-in/64x64/filters:strip_icc()/pic2419375.jpg' }
       }
 
-      const localCollStr = localStorage.getItem(`boardgame_social_mock_collection_${user.id}`)
+      const localCollStr = localStorage.getItem(`ludiclub_mock_collection_${user.id}`)
       if (localCollStr) {
         try {
           const userLocalGames: Game[] = JSON.parse(localCollStr)
@@ -166,7 +166,7 @@ export function useGroupDetail(groupId: string | undefined) {
       })
 
       // Include mock games owned by guests
-      const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+      const mockGuestGamesKey = `ludiclub_mock_guest_games_${groupId}`
       const mockGuestGamesList: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
       mockGuestGamesList.forEach((mgg: any) => {
         if (mgg.games) {
@@ -463,8 +463,8 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!groupId || !user) throw new Error('No autorizado')
 
     if (USE_MOCKS) {
-      const mockPollsKey = 'boardgame_social_mock_group_polls'
-      const mockPollOptionsKey = 'boardgame_social_mock_group_poll_options'
+      const mockPollsKey = 'ludiclub_mock_group_polls'
+      const mockPollOptionsKey = 'ludiclub_mock_group_poll_options'
 
       const storedPolls = JSON.parse(localStorage.getItem(mockPollsKey) || '[]')
       const storedOptions = JSON.parse(localStorage.getItem(mockPollOptionsKey) || '[]')
@@ -527,7 +527,7 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!user) return
 
     if (USE_MOCKS) {
-      const mockPollVotesKey = 'boardgame_social_mock_group_poll_votes'
+      const mockPollVotesKey = 'ludiclub_mock_group_poll_votes'
       const storedVotes = JSON.parse(localStorage.getItem(mockPollVotesKey) || '[]')
 
       const existingIndex = storedVotes.findIndex((v: any) => v.poll_id === pollId && v.user_id === user.id && v.game_id === gameId)
@@ -576,7 +576,7 @@ export function useGroupDetail(groupId: string | undefined) {
 
   const closePoll = async (pollId: string) => {
     if (USE_MOCKS) {
-      const mockPollsKey = 'boardgame_social_mock_group_polls'
+      const mockPollsKey = 'ludiclub_mock_group_polls'
       const storedPolls = JSON.parse(localStorage.getItem(mockPollsKey) || '[]')
 
       const updatedPolls = storedPolls.map((p: any) => {
@@ -605,7 +605,7 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!groupId || !user) return
 
     if (USE_MOCKS) {
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockMembersKey = 'ludiclub_mock_group_members'
       const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
 
       const updatedMembers = storedMembers.filter((m: any) => !(m.group_id === groupId && m.user_id === user.id))
@@ -627,7 +627,7 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!groupId) return
 
     if (USE_MOCKS) {
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockMembersKey = 'ludiclub_mock_group_members'
       const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
 
       const updatedMembers = storedMembers.filter((m: any) => !(m.group_id === groupId && m.user_id === targetUserId))
@@ -651,8 +651,8 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!groupId) return
 
     if (USE_MOCKS) {
-      const mockGroupsKey = 'boardgame_social_mock_groups'
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockGroupsKey = 'ludiclub_mock_groups'
+      const mockMembersKey = 'ludiclub_mock_group_members'
 
       const storedGroups = JSON.parse(localStorage.getItem(mockGroupsKey) || '[]')
       const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
@@ -685,7 +685,7 @@ export function useGroupDetail(groupId: string | undefined) {
 
     if (USE_MOCKS && groupId?.startsWith('mock-')) {
       if (guestTarget && !guestTarget.associated_user_id) {
-        const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+        const mockGuestGamesKey = `ludiclub_mock_guest_games_${groupId}`
         const existing: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
         if (!existing.some((item: any) => item.guest_id === guestTarget.id && item.game_id === game.bgg_id)) {
           existing.push({
@@ -698,7 +698,7 @@ export function useGroupDetail(groupId: string | undefined) {
           localStorage.setItem(mockGuestGamesKey, JSON.stringify(existing))
         }
       } else if (targetUserId) {
-        const localKey = `boardgame_social_mock_collection_${targetUserId}`
+        const localKey = `ludiclub_mock_collection_${targetUserId}`
         const existing: Game[] = JSON.parse(localStorage.getItem(localKey) || '[]')
         if (!existing.some((g) => g.bgg_id === game.bgg_id)) {
           existing.push(game)
@@ -848,7 +848,7 @@ export function useGroupDetail(groupId: string | undefined) {
     if (!groupId || !user) return
     const trimmed = name.trim()
     if (USE_MOCKS) {
-      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const mockGuestsKey = 'ludiclub_mock_group_guests'
       const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
       const newGuest: GroupGuest = {
         id: `mock-gg-${Date.now()}`,
@@ -878,7 +878,7 @@ export function useGroupDetail(groupId: string | undefined) {
   const removeGroupGuest = async (guestId: string) => {
     if (!groupId) return
     if (USE_MOCKS) {
-      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const mockGuestsKey = 'ludiclub_mock_group_guests'
       const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
       const filtered = stored.filter((g: any) => g.id !== guestId)
       localStorage.setItem(mockGuestsKey, JSON.stringify(filtered))
@@ -896,18 +896,18 @@ export function useGroupDetail(groupId: string | undefined) {
   const associateGroupGuest = async (guestId: string, targetUserId: string) => {
     if (!groupId) return
     if (USE_MOCKS) {
-      const mockGuestsKey = 'boardgame_social_mock_group_guests'
+      const mockGuestsKey = 'ludiclub_mock_group_guests'
       const stored = JSON.parse(localStorage.getItem(mockGuestsKey) || '[]')
       const updated = stored.map((g: any) => g.id === guestId ? { ...g, associated_user_id: targetUserId } : g)
       localStorage.setItem(mockGuestsKey, JSON.stringify(updated))
       setGuests(prev => prev.map(g => g.id === guestId ? { ...g, associated_user_id: targetUserId } : g))
 
       // Transfer guest games to target user collection in mocks
-      const mockGuestGamesKey = `boardgame_social_mock_guest_games_${groupId}`
+      const mockGuestGamesKey = `ludiclub_mock_guest_games_${groupId}`
       const guestGames: any[] = JSON.parse(localStorage.getItem(mockGuestGamesKey) || '[]')
       const gamesToTransfer = guestGames.filter((item: any) => item.guest_id === guestId)
       if (gamesToTransfer.length > 0) {
-        const targetCollKey = `boardgame_social_mock_collection_${targetUserId}`
+        const targetCollKey = `ludiclub_mock_collection_${targetUserId}`
         const targetColl: Game[] = JSON.parse(localStorage.getItem(targetCollKey) || '[]')
         gamesToTransfer.forEach((item: any) => {
           if (item.games && !targetColl.some(g => g.bgg_id === item.games.bgg_id)) {

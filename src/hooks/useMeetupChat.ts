@@ -17,7 +17,7 @@ export function useMeetupChat(activeMeetupId: string | null) {
 
   // Load hidden chats from localStorage
   useEffect(() => {
-    const hiddenStr = localStorage.getItem('boardgame_social_hidden_chats')
+    const hiddenStr = localStorage.getItem('ludiclub_hidden_chats') || localStorage.getItem('boardgame_social_hidden_chats')
     if (hiddenStr) {
       try {
         setHiddenChats(JSON.parse(hiddenStr))
@@ -32,8 +32,11 @@ export function useMeetupChat(activeMeetupId: string | null) {
     const stamps: Record<string, string> = {}
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (key?.startsWith('boardgame_social_chat_last_read_')) {
-        stamps[key.replace('boardgame_social_chat_last_read_', '')] = localStorage.getItem(key) || ''
+      if (key?.startsWith('ludiclub_chat_last_read_')) {
+        stamps[key.replace('ludiclub_chat_last_read_', '')] = localStorage.getItem(key) || ''
+      } else if (key?.startsWith('boardgame_social_chat_last_read_')) {
+        const id = key.replace('boardgame_social_chat_last_read_', '')
+        if (!stamps[id]) stamps[id] = localStorage.getItem(key) || ''
       }
     }
     setReadTimestamps(stamps)
@@ -41,13 +44,13 @@ export function useMeetupChat(activeMeetupId: string | null) {
 
   const markAsRead = useCallback((meetupId: string) => {
     const nowStr = new Date().toISOString()
-    localStorage.setItem(`boardgame_social_chat_last_read_${meetupId}`, nowStr)
+    localStorage.setItem(`ludiclub_chat_last_read_${meetupId}`, nowStr)
     setReadTimestamps(prev => ({ ...prev, [meetupId]: nowStr }))
     window.dispatchEvent(new Event('chat_read_update'))
   }, [])
 
   const getReservation = useCallback((meetupId: string) => {
-    const str = localStorage.getItem('boardgame_social_guest_reservations')
+    const str = localStorage.getItem('ludiclub_guest_reservations') || localStorage.getItem('boardgame_social_guest_reservations')
     const parsed = str ? JSON.parse(str) : {}
     return parsed[meetupId] || null
   }, [])
@@ -60,7 +63,7 @@ export function useMeetupChat(activeMeetupId: string | null) {
       setLoading(true)
       setErrorMsg('')
 
-      const guestReservationsStr = localStorage.getItem('boardgame_social_guest_reservations')
+      const guestReservationsStr = localStorage.getItem('ludiclub_guest_reservations') || localStorage.getItem('boardgame_social_guest_reservations')
       const guestReservations = guestReservationsStr ? JSON.parse(guestReservationsStr) : {}
       const guestMeetupIds = Object.keys(guestReservations)
 
@@ -123,7 +126,7 @@ export function useMeetupChat(activeMeetupId: string | null) {
         setHiddenChats(prev => {
           if (!prev.includes(newMsg.meetup_id)) return prev
           const updated = prev.filter(id => id !== newMsg.meetup_id)
-          localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
+          localStorage.setItem('ludiclub_hidden_chats', JSON.stringify(updated))
           return updated
         })
 
@@ -184,7 +187,7 @@ export function useMeetupChat(activeMeetupId: string | null) {
   const hideConversation = useCallback((meetupId: string) => {
     const updated = [...hiddenChats, meetupId]
     setHiddenChats(updated)
-    localStorage.setItem('boardgame_social_hidden_chats', JSON.stringify(updated))
+    localStorage.setItem('ludiclub_hidden_chats', JSON.stringify(updated))
   }, [hiddenChats])
 
   const deleteMeetup = useCallback(async (meetupId: string) => {

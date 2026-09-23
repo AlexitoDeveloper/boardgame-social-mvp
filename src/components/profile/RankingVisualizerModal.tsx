@@ -177,7 +177,7 @@ export function RankingVisualizerModal({
                   {selectedRanking.title}
                 </h3>
                 <span className="text-xs font-black text-primary uppercase tracking-widest flex items-center gap-1 select-none self-end sm:self-auto px-1">
-                  <Sparkles className="w-2.5 h-2.5" /> boardgamesocial.app
+                  <Sparkles className="w-2.5 h-2.5" /> ludiclub.app
                 </span>
               </div>
 
@@ -260,7 +260,7 @@ export function RankingVisualizerModal({
               {/* Footer watermark details inside canvas */}
               <div className="border-t border-white/5 pt-2 flex items-center justify-between text-xs text-zinc-400">
                 <span>{t('tops.watermarkLabelBottom')}</span>
-                <span className="font-extrabold text-white">#BoardgameSocial</span>
+                <span className="font-extrabold text-white">#LudiClub</span>
               </div>
 
             </div>

@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add multi-game sessions support
+-- LudiClub - Add multi-game sessions support
 -- Run this in the Supabase SQL Editor.
 
 -- 1. Create the meetup_games join table referencing public.games(bgg_id)

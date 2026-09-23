@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add online meetup modality
+-- LudiClub - Add online meetup modality
 -- Run this in the Supabase SQL Editor.
 
 -- Add online columns if they do not exist

@@ -1,4 +1,4 @@
--- Seeding data for Boardgame Social MVP Phase 2
+-- Seeding data for LudiClub Phase 2
 -- Run this in your Supabase SQL Editor.
 
 -- 1. Insert Auth Users (if they don't exist)

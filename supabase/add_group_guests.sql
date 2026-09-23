@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add Group Habitual Guests (Group Guests)
+-- LudiClub - Add Group Habitual Guests (Group Guests)
 -- Run this script in your Supabase SQL Editor.
 
 CREATE TABLE IF NOT EXISTS public.group_guests (

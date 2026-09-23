@@ -115,9 +115,9 @@ export function useGameDetail(bggIdStr: string | undefined) {
           }
         ])
         const mockProfileId = user?.id || 'mock-u1'
-        const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+        const mockKey = `ludiclub_mock_collection_${mockProfileId}`
         try {
-          const stored = localStorage.getItem(mockKey)
+          const stored = localStorage.getItem(mockKey) || localStorage.getItem(`boardgame_social_mock_collection_${mockProfileId}`)
           const list = stored ? JSON.parse(stored) : []
           setIsInCollection(list.some((g: any) => g.bgg_id === bggId))
         } catch {
@@ -355,9 +355,9 @@ export function useGameDetail(bggIdStr: string | undefined) {
       setIsInCollection(nextState)
       setActionLoading(false)
       const mockProfileId = user?.id || 'mock-u1'
-      const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+      const mockKey = `ludiclub_mock_collection_${mockProfileId}`
       try {
-        const stored = localStorage.getItem(mockKey)
+        const stored = localStorage.getItem(mockKey) || localStorage.getItem(`boardgame_social_mock_collection_${mockProfileId}`)
         let list = stored ? JSON.parse(stored) : []
         if (nextState) {
           if (!list.some((g: any) => g.bgg_id === game.bgg_id)) {
@@ -443,9 +443,9 @@ export function useGameDetail(bggIdStr: string | undefined) {
     const handleCollectionUpdate = () => {
       if (USE_MOCKS) {
         const mockProfileId = user?.id || 'mock-u1'
-        const mockKey = `boardgame_social_mock_collection_${mockProfileId}`
+        const mockKey = `ludiclub_mock_collection_${mockProfileId}`
         try {
-          const stored = localStorage.getItem(mockKey)
+          const stored = localStorage.getItem(mockKey) || localStorage.getItem(`boardgame_social_mock_collection_${mockProfileId}`)
           const list = stored ? JSON.parse(stored) : []
           setIsInCollection(list.some((g: any) => g.bgg_id === bggId))
         } catch {}

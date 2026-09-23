@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add Meetup Chat Messages (Realtime) and Fix Join RLS
+-- LudiClub - Add Meetup Chat Messages (Realtime) and Fix Join RLS
 -- Run this in your Supabase SQL Editor.
 
 -- 1. FIX MEETUPS UPDATE POLICY

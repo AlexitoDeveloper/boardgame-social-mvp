@@ -64,7 +64,7 @@ export async function fetchPlayGamesPool(
   if (selectedGroupId === 'personal') {
     // 1. Mock storage
     if (userId) {
-      const localStored = localStorage.getItem(`boardgame_social_mock_collection_${userId}`)
+      const localStored = localStorage.getItem(`ludiclub_mock_collection_${userId}`) || localStorage.getItem(`boardgame_social_mock_collection_${userId}`)
       if (localStored) {
         try {
           const parsed = JSON.parse(localStored)
@@ -157,7 +157,7 @@ export async function fetchPlayGamesPool(
 
   // Group collection
   if (USE_MOCKS) {
-    const mockMembersStr = localStorage.getItem('boardgame_social_mock_group_members')
+    const mockMembersStr = localStorage.getItem('ludiclub_mock_group_members') || localStorage.getItem('boardgame_social_mock_group_members')
     const allMembers = mockMembersStr ? JSON.parse(mockMembersStr) : []
     const groupMemberIds = allMembers.filter((m: any) => m.group_id === selectedGroupId).map((m: any) => m.user_id)
     if (userId && !groupMemberIds.includes(userId)) groupMemberIds.push(userId)
@@ -171,7 +171,7 @@ export async function fetchPlayGamesPool(
     ].forEach(g => groupGamesMap.set(g.bgg_id, mapToSimpleGame(g, g.is_unplayed)))
 
     groupMemberIds.forEach((mId: string) => {
-      const mStr = localStorage.getItem(`boardgame_social_mock_collection_${mId}`)
+      const mStr = localStorage.getItem(`ludiclub_mock_collection_${mId}`) || localStorage.getItem(`boardgame_social_mock_collection_${mId}`)
       if (mStr) {
         try {
           JSON.parse(mStr).forEach((g: any) => groupGamesMap.set(Number(g.bgg_id), mapToSimpleGame(g)))

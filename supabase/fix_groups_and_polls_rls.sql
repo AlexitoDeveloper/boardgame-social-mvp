@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Security & Performance Fixes (Groups, Polls, and Aggregations)
+-- LudiClub - Security & Performance Fixes (Groups, Polls, and Aggregations)
 -- Run this in your Supabase SQL Editor.
 
 -- ==========================================

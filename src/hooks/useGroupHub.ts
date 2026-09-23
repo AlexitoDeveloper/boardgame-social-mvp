@@ -95,7 +95,7 @@ export function useGroupHub(groupId: string | undefined) {
     setLoadingMeetups(true)
     try {
       if (USE_MOCKS) {
-        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        const stored = localStorage.getItem('ludiclub_mock_meetups') || localStorage.getItem('boardgame_social_mock_meetups')
         if (stored) {
           const list = JSON.parse(stored)
           const now = Date.now()
@@ -186,7 +186,7 @@ export function useGroupHub(groupId: string | undefined) {
     setLoadingPastMeetups(true)
     try {
       if (USE_MOCKS) {
-        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        const stored = localStorage.getItem('ludiclub_mock_meetups') || localStorage.getItem('boardgame_social_mock_meetups')
         if (stored) {
           const list = JSON.parse(stored)
           const matched = list

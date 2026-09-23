@@ -1,5 +1,5 @@
 # 💰 Estrategia y Modelo de Monetización: "The Table Companion"
-**Proyecto:** Boardgame Social MVP  
+**Proyecto:** LudiClub  
 **Estado:** Documento Estratégico de Referencia  
 **Última actualización:** Septiembre 2026  
 

@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Setup Storage Bucket for Game Covers
+-- LudiClub - Setup Storage Bucket for Game Covers
 -- Run this in your Supabase SQL Editor.
 
 -- 1. Insert 'game-covers' bucket into storage.buckets table

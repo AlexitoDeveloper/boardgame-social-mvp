@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Security and RLS Fixes consolidated script
+-- LudiClub - Security and RLS Fixes consolidated script
 -- Run this in your Supabase SQL Editor.
 
 -- ==========================================

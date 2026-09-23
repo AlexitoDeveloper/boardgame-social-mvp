@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add User Collection support (Ludoteca Personal)
+-- LudiClub - Add User Collection support (Ludoteca Personal)
 -- Run this in your Supabase SQL Editor.
 
 -- 1. Create the user_collection table referencing public.users and public.games

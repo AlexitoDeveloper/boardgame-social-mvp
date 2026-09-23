@@ -50,7 +50,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     setErrorMsg('')
     
     // Read local guest reservation if any
-    const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+    const localReservations = localStorage.getItem('ludiclub_guest_reservations')
     if (localReservations) {
       const parsed = JSON.parse(localReservations)
       if (parsed[id]) {
@@ -88,7 +88,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       const mockMaxPlayers = id === 'mock-m1' ? 4 : id === 'mock-m2' ? 2 : 6
       
       // Get mock guests from local storage
-      const mockGuestsKey = 'boardgame_social_mock_guests'
+      const mockGuestsKey = 'ludiclub_mock_guests'
       const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
       const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
       const meetupMockGuests = allMockGuests[id] || []
@@ -100,7 +100,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       }))
 
       // Check for completed mock meetups in localStorage
-      const completedMockKey = 'boardgame_social_mock_completed_meetups'
+      const completedMockKey = 'ludiclub_mock_completed_meetups'
       const completedMockStr = localStorage.getItem(completedMockKey)
       const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
       const thisMeetupCompleted = completedMockData[id] || null
@@ -158,9 +158,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         is_online: foundMock.is_online || false,
         platform: foundMock.platform || null,
         voice_link: foundMock.voice_link || null,
-        board_photo_url: JSON.parse(localStorage.getItem('boardgame_social_mock_photos') || '{}')[id] || null,
-        player_scores: JSON.parse(localStorage.getItem('boardgame_social_mock_scores') || '{}')[id] || null,
-        first_player_id: JSON.parse(localStorage.getItem('boardgame_social_mock_first_player') || '{}')[id] || null
+        board_photo_url: JSON.parse(localStorage.getItem('ludiclub_mock_photos') || '{}')[id] || null,
+        player_scores: JSON.parse(localStorage.getItem('ludiclub_mock_scores') || '{}')[id] || null,
+        first_player_id: JSON.parse(localStorage.getItem('ludiclub_mock_first_player') || '{}')[id] || null
       }
 
       setMeetup(formattedMock)
@@ -509,10 +509,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
     if (isMock) {
       setTimeout(() => {
-        const stored = localStorage.getItem('boardgame_social_mock_meetups')
+        const stored = localStorage.getItem('ludiclub_mock_meetups')
         if (stored) {
           const list = JSON.parse(stored).filter((m: any) => m.id !== id)
-          localStorage.setItem('boardgame_social_mock_meetups', JSON.stringify(list))
+          localStorage.setItem('ludiclub_mock_meetups', JSON.stringify(list))
         }
         setCanceling(false)
         toast.success(i18n.t('meetup.deleteSuccess', 'Mesa eliminada correctamente.'))
@@ -555,13 +555,13 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         const guestId = `mock-guest-${Date.now()}`
         
         // Save to reservations in localStorage
-        const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+        const localReservations = localStorage.getItem('ludiclub_guest_reservations')
         const reservations = localReservations ? JSON.parse(localReservations) : {}
         reservations[id] = { id: guestId, name: guestName }
-        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+        localStorage.setItem('ludiclub_guest_reservations', JSON.stringify(reservations))
 
         // Save to mock guests list in localStorage
-        const mockGuestsKey = 'boardgame_social_mock_guests'
+        const mockGuestsKey = 'ludiclub_mock_guests'
         const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
         const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
         if (!allMockGuests[id]) allMockGuests[id] = []
@@ -592,10 +592,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
         if (!data) throw new Error('No se pudo registrar el invitado shadow.')
 
         // Save to reservations in localStorage
-        const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+        const localReservations = localStorage.getItem('ludiclub_guest_reservations')
         const reservations = localReservations ? JSON.parse(localReservations) : {}
         reservations[id] = { id: data.id, name: guestName }
-        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+        localStorage.setItem('ludiclub_guest_reservations', JSON.stringify(reservations))
 
         setGuestReservation({ id: data.id, name: guestName })
 
@@ -620,7 +620,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
   const handleLeaveAsGuest = async () => {
     if (!id || !meetup) return
 
-    const localReservations = localStorage.getItem('boardgame_social_guest_reservations')
+    const localReservations = localStorage.getItem('ludiclub_guest_reservations')
     if (!localReservations) return
     const reservations = JSON.parse(localReservations)
     const reservation = reservations[id]
@@ -633,10 +633,10 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
       setTimeout(() => {
         // Remove from reservations in localStorage
         delete reservations[id]
-        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+        localStorage.setItem('ludiclub_guest_reservations', JSON.stringify(reservations))
 
         // Remove from mock guests in localStorage
-        const mockGuestsKey = 'boardgame_social_mock_guests'
+        const mockGuestsKey = 'ludiclub_mock_guests'
         const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
         const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
         if (allMockGuests[id]) {
@@ -655,7 +655,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
 
         // Remove from reservations in localStorage
         delete reservations[id]
-        localStorage.setItem('boardgame_social_guest_reservations', JSON.stringify(reservations))
+        localStorage.setItem('ludiclub_guest_reservations', JSON.stringify(reservations))
 
         setAttendees(prev => prev.filter(a => a.id !== reservation.id))
         setGuestReservation(null)
@@ -685,7 +685,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     if (isMock) {
       const guestId = `mock-guest-${Date.now()}`
       
-      const mockGuestsKey = 'boardgame_social_mock_guests'
+      const mockGuestsKey = 'ludiclub_mock_guests'
       const allMockGuestsStr = localStorage.getItem(mockGuestsKey)
       const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
       if (!allMockGuests[id]) allMockGuests[id] = []
@@ -780,7 +780,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     const isMock = USE_MOCKS && id.startsWith('mock-')
 
     if (isMock) {
-      const completedMockKey = 'boardgame_social_mock_completed_meetups'
+      const completedMockKey = 'ludiclub_mock_completed_meetups'
       const completedMockStr = localStorage.getItem(completedMockKey)
       const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
 
@@ -900,9 +900,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           throw error
         }
       } else {
-        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_scores') || '{}')
+        const saved = JSON.parse(localStorage.getItem('ludiclub_mock_scores') || '{}')
         saved[id] = newScores
-        localStorage.setItem('boardgame_social_mock_scores', JSON.stringify(saved))
+        localStorage.setItem('ludiclub_mock_scores', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, player_scores: newScores } : null)
     } catch (err) {
@@ -924,9 +924,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           throw error
         }
       } else {
-        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_photos') || '{}')
+        const saved = JSON.parse(localStorage.getItem('ludiclub_mock_photos') || '{}')
         saved[id] = photoUrl
-        localStorage.setItem('boardgame_social_mock_photos', JSON.stringify(saved))
+        localStorage.setItem('ludiclub_mock_photos', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, board_photo_url: photoUrl } : null)
     } catch (err) {
@@ -947,9 +947,9 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
           console.error('Supabase error updating first_player_id:', error)
         }
       } else {
-        const saved = JSON.parse(localStorage.getItem('boardgame_social_mock_first_player') || '{}')
+        const saved = JSON.parse(localStorage.getItem('ludiclub_mock_first_player') || '{}')
         saved[id] = firstPlayerId
-        localStorage.setItem('boardgame_social_mock_first_player', JSON.stringify(saved))
+        localStorage.setItem('ludiclub_mock_first_player', JSON.stringify(saved))
       }
       setMeetup(prev => prev ? { ...prev, first_player_id: firstPlayerId } : null)
     } catch (err) {

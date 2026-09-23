@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add winner score column to meetup_games
+-- LudiClub - Add winner score column to meetup_games
 -- Run this in the Supabase SQL Editor.
 
 -- 1. Add winner_score column to meetup_games

@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add Spanish edition cover column and audit tracking
+-- LudiClub - Add Spanish edition cover column and audit tracking
 -- Run this script in the Supabase SQL Editor.
 
 -- 1. Add image_url_es and spanish_checked_at columns

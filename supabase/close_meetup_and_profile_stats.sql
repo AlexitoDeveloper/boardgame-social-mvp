@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Phase 2: Complete Match and Profile Stats
+-- LudiClub - Phase 2: Complete Match and Profile Stats
 -- Run this in your Supabase SQL Editor.
 
 -- Add new columns to the meetups table to support match completion and stats

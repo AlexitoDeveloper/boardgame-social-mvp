@@ -142,7 +142,7 @@ async function fetchBggBatch(ids) {
     try {
       const headers = {
         'Accept': 'application/xml',
-        'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)'
+        'User-Agent': 'LudiClub/1.0 (Contact: admin@example.com)'
       };
       
       const bggToken = process.env.BGG_API_KEY;
@@ -287,7 +287,7 @@ async function discoverRecentGames(limit = 30) {
   try {
     const headers = {
       'Accept': 'application/xml',
-      'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)'
+      'User-Agent': 'LudiClub/1.0 (Contact: admin@example.com)'
     };
     if (bggToken) {
       headers['Authorization'] = `Bearer ${bggToken}`;

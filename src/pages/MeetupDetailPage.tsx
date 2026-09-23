@@ -587,9 +587,9 @@ export function MeetupDetailPage() {
                       <div className="border-t border-white/10 pt-3 flex items-center justify-between text-xs text-zinc-300 font-bold select-none shrink-0">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                          <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, i18n.language as any)} • Boardgame Social</span>
+                          <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'short', year: 'numeric' }, i18n.language as any)} • LudiClub</span>
                         </span>
-                        <span className="font-extrabold text-white">#BoardgameSocial</span>
+                        <span className="font-extrabold text-white">#LudiClub</span>
                       </div>
                     </div>
 
@@ -697,9 +697,9 @@ export function MeetupDetailPage() {
                         <div className="border-t border-white/15 pt-6 flex items-center justify-between text-xs text-zinc-300 font-bold select-none font-inter">
                           <span className="flex items-center gap-2.5">
                             <Calendar className="w-5 h-5 text-primary shrink-0" />
-                            <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'long', year: 'numeric' }, i18n.language as any)} • Boardgame Social</span>
+                            <span>{t('meetup.playedOn')} {formatDate(meetup.date, { day: 'numeric', month: 'long', year: 'numeric' }, i18n.language as any)} • LudiClub</span>
                           </span>
-                          <span className="font-extrabold text-sm text-white">#BoardgameSocial</span>
+                          <span className="font-extrabold text-sm text-white">#LudiClub</span>
                         </div>
                       </div>
                     </div>

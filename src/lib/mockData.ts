@@ -20,8 +20,8 @@ export interface MockMeetup {
 }
 
 export function getMockMeetupsForList(): Meetup[] {
-  const mockGuestsKey = 'boardgame_social_mock_guests'
-  const allMockGuestsStr = typeof window !== 'undefined' ? localStorage.getItem(mockGuestsKey) : null
+  const mockGuestsKey = 'ludiclub_mock_guests'
+  const allMockGuestsStr = typeof window !== 'undefined' ? (localStorage.getItem(mockGuestsKey) || localStorage.getItem('boardgame_social_mock_guests')) : null
   const allMockGuests = allMockGuestsStr ? JSON.parse(allMockGuestsStr) : {}
 
   return MOCK_MEETUPS.map(m => {
@@ -118,7 +118,7 @@ export const MOCK_MEETUPS: MockMeetup[] = [
     location: '',
     is_online: true,
     platform: 'Board Game Arena',
-    voice_link: 'https://discord.gg/invite/boardgame-social',
+    voice_link: 'https://discord.gg/invite/ludiclub',
     users: { username: 'meeple_sara', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara' },
   },
 ]

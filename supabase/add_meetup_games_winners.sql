@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Add meetup games winners and seed test data
+-- LudiClub - Add meetup games winners and seed test data
 -- Run this in the Supabase SQL Editor.
 
 -- 1. Add winner columns to meetup_games

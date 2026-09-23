@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Phase 1 schema
+-- LudiClub - Phase 1 schema
 -- Run this file in Supabase SQL Editor.
 
 create extension if not exists pgcrypto;

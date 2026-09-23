@@ -1,5 +1,5 @@
 -- ============================================================
--- Boardgame Social MVP — Database Cleanup
+-- LudiClub — Database Cleanup
 -- Run this in Supabase SQL Editor.
 -- ============================================================
 
@@ -16,7 +16,7 @@ ALTER TABLE public.meetups
   DROP COLUMN IF EXISTS winner_guest_id;
 
 -- ============================================================
--- Boardgame Social MVP — Create avatars Storage Bucket
+-- LudiClub — Create avatars Storage Bucket
 -- ============================================================
 
 -- 3. Create the avatars bucket (public, 5MB limit)
@@ -67,7 +67,7 @@ USING (
 );
 
 -- ============================================================
--- Boardgame Social MVP — Document online meetup columns
+-- LudiClub — Document online meetup columns
 -- These were added directly in SQL Editor without local files.
 -- Running this is safe (IF NOT EXISTS / IF NOT EXISTS).
 -- ============================================================

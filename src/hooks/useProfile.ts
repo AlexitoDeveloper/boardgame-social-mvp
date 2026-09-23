@@ -116,7 +116,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
     setLoadingCollection(true)
     
     if (isMock) {
-      const mockCollectionKey = `boardgame_social_mock_collection_${profileId}`
+      const mockCollectionKey = `ludiclub_mock_collection_${profileId}`
       const cached = localStorage.getItem(mockCollectionKey)
       if (cached) {
         setCollectionGames(JSON.parse(cached))
@@ -183,7 +183,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
         setSavedRankings(rankData || [])
       } catch (err) {
         console.warn("Error querying user_rankings from Supabase, loading from localStorage:", err)
-        const localKey = `boardgame_social_saved_rankings_${profileId}`
+        const localKey = `ludiclub_saved_rankings_${profileId}`
         const localStr = localStorage.getItem(localKey)
         if (localStr) {
           try {
@@ -201,7 +201,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
 
     // 2. Fetch Profile and Meetups
     if (isMock) {
-      const localMockStr = localStorage.getItem(`boardgame_social_mock_profile_${profileId}`)
+      const localMockStr = localStorage.getItem(`ludiclub_mock_profile_${profileId}`)
       const mockProf = localMockStr ? JSON.parse(localMockStr) : MOCK_PROFILES[profileId]
       if (!mockProf) {
         setErrorMsg('No se encontró el perfil de demostración.')
@@ -212,7 +212,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
       setProfile(mockProf)
 
       const allMocks = getMockMeetupsForList()
-      const completedMockKey = 'boardgame_social_mock_completed_meetups'
+      const completedMockKey = 'ludiclub_mock_completed_meetups'
       const completedMockStr = localStorage.getItem(completedMockKey)
       const completedMockData = completedMockStr ? JSON.parse(completedMockStr) : {}
 
@@ -330,7 +330,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
             avatar_url: avatarUrl.trim() || null
           }
           setProfile(updated)
-          localStorage.setItem(`boardgame_social_mock_profile_${profileId}`, JSON.stringify(updated))
+          localStorage.setItem(`ludiclub_mock_profile_${profileId}`, JSON.stringify(updated))
           MOCK_PROFILES[profileId] = updated
           window.dispatchEvent(new Event('profile_update'))
           setSavingProfile(false)
@@ -394,7 +394,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
             const updated = [...prev]
             if (!updated.some(g => g.bgg_id === dixitGame.bgg_id)) updated.push(dixitGame as any)
             if (!updated.some(g => g.bgg_id === catanGame.bgg_id)) updated.push(catanGame as any)
-            localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+            localStorage.setItem(`ludiclub_mock_collection_${profileId}`, JSON.stringify(updated))
             localStorage.setItem(`bgg_onboarded_${profileId}`, 'true')
             return updated
           })
@@ -439,7 +439,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
       setCollectionGames(prev => {
         if (prev.some(g => g.bgg_id === game.bgg_id)) return prev
         const updated = [...prev, game]
-        localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+        localStorage.setItem(`ludiclub_mock_collection_${profileId}`, JSON.stringify(updated))
         return updated
       })
       window.dispatchEvent(new Event('collection_update'))
@@ -502,7 +502,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
     if (isMock) {
       setCollectionGames(prev => {
         const updated = prev.filter(g => g.bgg_id !== bggId)
-        localStorage.setItem(`boardgame_social_mock_collection_${profileId}`, JSON.stringify(updated))
+        localStorage.setItem(`ludiclub_mock_collection_${profileId}`, JSON.stringify(updated))
         return updated
       })
       return
@@ -532,7 +532,7 @@ export function useProfile({ profileId, currentUserId }: UseProfileProps) {
 
       if (error) console.warn("Supabase delete failed, relying on localStorage fallback delete:", error)
 
-      const localKey = `boardgame_social_saved_rankings_${profileId}`
+      const localKey = `ludiclub_saved_rankings_${profileId}`
       const localStr = localStorage.getItem(localKey)
       if (localStr) {
         try {

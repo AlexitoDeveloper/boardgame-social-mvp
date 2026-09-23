@@ -62,8 +62,8 @@ export function useSingleMeetupChat(
     setError(null)
 
     if (isMock) {
-      const storageKey = `boardgame_social_mock_chat_${meetupId}`
-      const savedMessagesStr = localStorage.getItem(storageKey)
+      const storageKey = `ludiclub_mock_chat_${meetupId}`
+      const savedMessagesStr = localStorage.getItem(storageKey) || localStorage.getItem(`boardgame_social_mock_chat_${meetupId}`)
       if (savedMessagesStr) {
         setMessages(JSON.parse(savedMessagesStr))
       } else {
@@ -144,7 +144,7 @@ export function useSingleMeetupChat(
     }
 
     if (isMock) {
-      const storageKey = `boardgame_social_mock_chat_${meetupId}`
+      const storageKey = `ludiclub_mock_chat_${meetupId}`
       const newMsg: MeetupMessage = {
         id: `mock-msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
         meetup_id: meetupId,

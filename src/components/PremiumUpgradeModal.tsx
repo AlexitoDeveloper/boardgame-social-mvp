@@ -56,7 +56,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
           </div>
           <div>
             <DialogTitle className="text-xl font-black text-center bg-gradient-to-r from-primary via-emerald-400 to-primary bg-clip-text text-transparent">
-              Boardgame Social PRO
+              LudiClub PRO
             </DialogTitle>
             <DialogDescription className="text-xs text-zinc-400 font-medium text-center mt-1">
               Desbloquea todo el potencial para tus partidas y rankings.
@@ -88,7 +88,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
               {
                 icon: ShieldCheck,
                 title: "Personalización y Sin Marca de Agua",
-                desc: "Exporta tus rankings sin la firma de Boardgame Social o añade tu propia marca de agua.",
+                desc: "Exporta tus rankings sin la firma de LudiClub o añade tu propia marca de agua.",
                 color: "text-success bg-success/10"
               }
             ].map((feature, idx) => {

@@ -31,7 +31,7 @@ export const PlayActiveMeetups: FC = () => {
       try {
         let guestMeetupIds: string[] = []
         try {
-          const guestResStr = localStorage.getItem('boardgame_social_guest_reservations')
+          const guestResStr = localStorage.getItem('ludiclub_guest_reservations') || localStorage.getItem('boardgame_social_guest_reservations')
           if (guestResStr) {
             const guestMap = JSON.parse(guestResStr)
             guestMeetupIds = Object.keys(guestMap)
@@ -39,7 +39,7 @@ export const PlayActiveMeetups: FC = () => {
         } catch {}
 
         if (USE_MOCKS) {
-          const stored = localStorage.getItem('boardgame_social_mock_meetups')
+          const stored = localStorage.getItem('ludiclub_mock_meetups') || localStorage.getItem('boardgame_social_mock_meetups')
           if (stored) {
             const list = JSON.parse(stored)
             const now = Date.now()

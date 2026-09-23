@@ -1,5 +1,5 @@
 -- =====================================================================
--- BOARDGAME SOCIAL MVP - AUDIT FIXES & OPTIMIZATIONS
+-- LUDICLUB - AUDIT FIXES & OPTIMIZATIONS
 -- =====================================================================
 
 -- 1. SERVER-SIDE AGGREGATED STATS (RPC)

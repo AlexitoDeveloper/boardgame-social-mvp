@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Phase 2: User Saved Rankings Showcase
+-- LudiClub - Phase 2: User Saved Rankings Showcase
 -- Run this in your Supabase SQL Editor.
 
 CREATE TABLE IF NOT EXISTS public.user_rankings (

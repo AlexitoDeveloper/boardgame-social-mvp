@@ -12,7 +12,7 @@
  * Schedule daily with Windows Task Scheduler:
  *   Program: node
  *   Arguments: scripts/backfill-spanish-titles.cjs --limit=300
- *   Start in: C:\path\to\boardgame-social-mvp
+ *   Start in: C:\path\to\ludiclub
  */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -146,7 +146,7 @@ async function fetchBggBatch(bggIds) {
     console.log(`  [BGG] Fetching ${bggIds.length} games (attempt ${attempt})…`);
     try {
       const headers = {
-        'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)',
+        'User-Agent': 'LudiClub/1.0 (Contact: admin@example.com)',
         'Accept': 'application/xml'
       };
       if (bggToken) {

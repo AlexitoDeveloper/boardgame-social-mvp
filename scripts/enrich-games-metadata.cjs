@@ -1,4 +1,4 @@
-﻿const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js');
 const { XMLParser } = require('fast-xml-parser');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -63,7 +63,7 @@ async function fetchBggBatch(ids) {
     try {
       const headers = {
         Accept: 'application/xml',
-        'User-Agent': 'BoardGameSocialMVP/1.0 (Contact: admin@example.com)'
+        'User-Agent': 'LudiClub/1.0 (Contact: admin@example.com)'
       };
 
       if (bggToken) {
@@ -178,7 +178,7 @@ function parseBggItem(item) {
  */
 async function run() {
   console.log('╔════════════════════════════════════════════════════════════╗');
-  console.log('║   BoardGameSocial - Games Metadata Enrichment Utility      ║');
+  console.log('║   LudiClub - Games Metadata Enrichment Utility             ║');
   console.log('╚════════════════════════════════════════════════════════════╝\n');
 
   // Parse CLI flags

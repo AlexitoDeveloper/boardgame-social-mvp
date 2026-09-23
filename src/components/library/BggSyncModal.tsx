@@ -75,8 +75,8 @@ export const BggSyncModal: FC<BggSyncModalProps> = ({
 
       if (USE_MOCKS) {
         await new Promise((resolve) => setTimeout(resolve, 1200))
-        const mockKey = `boardgame_social_mock_collection_${user.id}`
-        const existing = JSON.parse(localStorage.getItem(mockKey) || '[]')
+        const mockKey = `ludiclub_mock_collection_${user.id}`
+        const existing = JSON.parse(localStorage.getItem(mockKey) || localStorage.getItem(`boardgame_social_mock_collection_${user.id}`) || '[]')
         const dixitGame = {
           bgg_id: 37111,
           title: 'Dixit',

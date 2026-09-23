@@ -35,11 +35,11 @@ export function useGroups() {
 
     if (USE_MOCKS) {
       // Mock LocalStorage Implementation
-      const mockGroupsKey = 'boardgame_social_mock_groups'
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockGroupsKey = 'ludiclub_mock_groups'
+      const mockMembersKey = 'ludiclub_mock_group_members'
 
       // Initialize defaults if they don't exist
-      if (!localStorage.getItem(mockGroupsKey)) {
+      if (!localStorage.getItem(mockGroupsKey) && !localStorage.getItem('boardgame_social_mock_groups')) {
         const defaultGroups: Group[] = [
           {
             id: 'mock-gp1',
@@ -148,11 +148,11 @@ export function useGroups() {
     const inviteCode = `GP-${randomChars}`
 
     if (USE_MOCKS) {
-      const mockGroupsKey = 'boardgame_social_mock_groups'
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockGroupsKey = 'ludiclub_mock_groups'
+      const mockMembersKey = 'ludiclub_mock_group_members'
 
-      const storedGroups: Group[] = JSON.parse(localStorage.getItem(mockGroupsKey) || '[]')
-      const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
+      const storedGroups: Group[] = JSON.parse(localStorage.getItem(mockGroupsKey) || localStorage.getItem('boardgame_social_mock_groups') || '[]')
+      const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || localStorage.getItem('boardgame_social_mock_group_members') || '[]')
 
       const newGroup: Group = {
         id: `mock-gp-${Date.now()}`,
@@ -211,11 +211,11 @@ export function useGroups() {
     const formattedCode = inviteCode.trim().toUpperCase()
 
     if (USE_MOCKS) {
-      const mockGroupsKey = 'boardgame_social_mock_groups'
-      const mockMembersKey = 'boardgame_social_mock_group_members'
+      const mockGroupsKey = 'ludiclub_mock_groups'
+      const mockMembersKey = 'ludiclub_mock_group_members'
 
-      const storedGroups: Group[] = JSON.parse(localStorage.getItem(mockGroupsKey) || '[]')
-      const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || '[]')
+      const storedGroups: Group[] = JSON.parse(localStorage.getItem(mockGroupsKey) || localStorage.getItem('boardgame_social_mock_groups') || '[]')
+      const storedMembers = JSON.parse(localStorage.getItem(mockMembersKey) || localStorage.getItem('boardgame_social_mock_group_members') || '[]')
 
       const matchedGroup = storedGroups.find(g => g.invite_code === formattedCode)
       if (!matchedGroup) {

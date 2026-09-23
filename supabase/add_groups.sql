@@ -1,4 +1,4 @@
--- Boardgame Social MVP - Phase 3 groups and voting support
+-- LudiClub - Phase 3 groups and voting support
 -- Run this file in your Supabase SQL Editor.
 
 -- 1. Create public.groups table
