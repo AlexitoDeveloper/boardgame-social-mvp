@@ -4,17 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "rounded-2xl transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out-custom text-card-foreground",
+  "rounded-2xl transition-[transform,box-shadow,border-color,background-color] duration-150 ease-out-custom text-card-foreground",
   {
     variants: {
       variant: {
-        default: "border border-border bg-card shadow-sm",
-        glass: "glass-panel bg-card border border-border shadow-md",
+        default:
+          "border border-border/80 bg-card shadow-xs",
+        glass:
+          "glass-panel bg-card/90 backdrop-blur-md border border-border/80 shadow-md",
         interactive:
-          "border border-border bg-card hover:border-primary/40 hover:shadow-lg [@media(hover:hover)]:hover:scale-[1.01] active:scale-[0.98] cursor-pointer shadow-sm",
-        flat: "border border-border/20 bg-muted/30 shadow-none",
+          "border border-border/80 bg-card hover:border-primary/50 hover:shadow-tactile-sm active:translate-y-[1px] cursor-pointer shadow-xs",
+        flat:
+          "border border-border/30 bg-surface-elevated/40 shadow-none",
+        notch:
+          "card-notch border border-border/80 bg-card shadow-xs hover:border-primary/50 transition-colors",
+        neoprene:
+          "border border-white/[0.08] bg-surface-void shadow-subpixel-rim text-foreground",
+        elevated:
+          "border border-border bg-surface-elevated shadow-[0_2px_0_0_hsl(var(--keycap-shadow)),0_4px_8px_-1px_rgba(0,0,0,0.15)]",
         gradient:
-          "border border-border bg-card shadow-md",
+          "border border-border/80 bg-card shadow-sm",
       },
     },
     defaultVariants: {
@@ -25,16 +34,34 @@ const cardVariants = cva(
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {}
+    VariantProps<typeof cardVariants> {
+  spotlight?: boolean
+}
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(cardVariants({ variant }), className)}
-      {...props}
-    />
-  )
+  ({ className, variant, spotlight = false, onMouseMove, ...props }, ref) => {
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (spotlight) {
+        const rect = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`)
+        e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`)
+      }
+      onMouseMove?.(e)
+    }
+
+    return (
+      <div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        className={cn(
+          cardVariants({ variant }),
+          spotlight && "spotlight-card",
+          className
+        )}
+        {...props}
+      />
+    )
+  }
 )
 Card.displayName = "Card"
 

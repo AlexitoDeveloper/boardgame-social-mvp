@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Dices, RotateCcw, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { FilterChip } from '../ui/chip'
@@ -48,18 +48,18 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-3xl p-6">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-black">
-            <Dices className="w-6 h-6 text-primary" />
+          <DialogTitle>
+            <Dices className="w-5 h-5 text-primary" />
             {t('tableHub.diceRoller.title')}
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
+          <DialogDescription>
             {t('tableHub.diceRoller.desc')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <DialogBody className="space-y-4">
           {/* Dice Count Selector */}
           <div className="flex items-center justify-center gap-2">
             <FilterChip
@@ -152,7 +152,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
               </div>
             </div>
           )}
-        </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   )

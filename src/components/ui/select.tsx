@@ -10,7 +10,7 @@ const SelectGroup = SelectPrimitive.Group
 const SelectValue = SelectPrimitive.Value
 
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-sm ring-offset-background transition-[color,background-color,border-color,box-shadow] duration-150 ease-out-custom placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 cursor-pointer [&[data-state=open]_svg]:rotate-180",
+  "flex w-full items-center justify-between rounded-xl border border-border/80 bg-surface-elevated px-3 text-xs font-semibold text-foreground shadow-xs ring-offset-background transition-[color,background-color,border-color,box-shadow,transform] duration-120 ease-out-custom placeholder:text-muted-foreground/75 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary disabled:cursor-not-allowed disabled:opacity-40 [&>span]:line-clamp-1 cursor-pointer active:translate-y-[1px] [&[data-state=open]_svg]:rotate-180",
   {
     variants: {
       size: {
@@ -19,9 +19,9 @@ const selectTriggerVariants = cva(
         lg: "h-11 px-3.5 text-sm rounded-xl gap-2",
       },
       variant: {
-        default: "border-border bg-card hover:bg-muted/40",
-        outline: "border-border bg-transparent hover:bg-muted/40",
-        glass: "bg-card hover:bg-muted/40 border-border",
+        default: "border-border/80 bg-surface-elevated hover:bg-surface-plate hover:border-border",
+        outline: "border-border/80 bg-transparent hover:bg-surface-elevated",
+        glass: "bg-surface-elevated/70 backdrop-blur-md hover:bg-surface-elevated border-border/80",
       },
     },
     defaultVariants: {
@@ -88,8 +88,8 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-80 min-w-[8rem] overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl duration-180 ease-out-custom origin-[--radix-select-content-transform-origin]",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:duration-120",
+        "relative z-50 max-h-80 min-w-[8rem] overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-elevated/95 backdrop-blur-xl text-card-foreground shadow-2xl shadow-subpixel-rim duration-150 ease-out-custom origin-[--radix-select-content-transform-origin]",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:duration-100",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1.5 data-[side=left]:-translate-x-1.5 data-[side=right]:translate-x-1.5 data-[side=top]:-translate-y-1.5",
         className
@@ -133,7 +133,7 @@ const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex w-full cursor-pointer select-none items-center rounded-xl py-2 pl-3 pr-8 text-xs font-semibold outline-none transition-colors",
-      "focus:bg-primary/10 focus:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "focus:bg-primary/15 focus:text-primary active:bg-primary/25 data-[disabled]:pointer-events-none data-[disabled]:opacity-40",
       className
     )}
     {...props}

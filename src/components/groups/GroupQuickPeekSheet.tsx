@@ -142,7 +142,7 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleCopyCode}
-                className="w-full text-xs font-bold rounded-xl gap-1.5 h-9 border-border/60 hover:bg-muted/70 active:scale-[0.98] transition-transform"
+                className="w-full"
               >
                 {copied ? (
                   <>
@@ -162,9 +162,9 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleShareWhatsApp}
-                className="w-full text-xs font-bold rounded-xl gap-1.5 h-9 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 active:scale-[0.98] transition-transform"
+                className="w-full"
               >
-                <MessageCircle className="w-3.5 h-3.5" />
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
                 <span>WhatsApp</span>
               </Button>
             </div>
@@ -175,7 +175,7 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
         <div className="pt-6 border-t border-border/40 mt-6">
           <Button
             asChild
-            className="w-full h-11 rounded-xl font-black text-sm shadow-md gap-2 active:scale-[0.98] transition-transform"
+            className="w-full"
           >
             <Link to={`/grupos/${group.id}`} onClick={onClose}>
               <span>Ir al Hub del Grupo</span>

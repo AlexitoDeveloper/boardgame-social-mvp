@@ -6,33 +6,37 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-[transform,color,background-color,border-color,box-shadow,opacity] duration-150 ease-out-custom focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-display text-sm font-extrabold tracking-tight transition-[transform,color,background-color,border-color,box-shadow,opacity] duration-100 ease-out-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-45 select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer active:translate-y-[1.5px]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
+          "bg-primary text-primary-foreground border border-primary-foreground/20 shadow-[0_2.5px_0_0_hsl(var(--felt-emerald-depth)),0_4px_8px_-1px_rgba(0,0,0,0.2)] hover:brightness-105 active:shadow-[0_1px_0_0_hsl(var(--felt-emerald-depth)),0_2px_4px_-1px_rgba(0,0,0,0.15)]",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md",
+          "bg-destructive text-destructive-foreground border border-white/20 shadow-[0_2.5px_0_0_hsl(354,78%,35%),0_4px_8px_-1px_rgba(0,0,0,0.25)] hover:brightness-105 active:shadow-[0_1px_0_0_hsl(354,78%,35%)]",
         outline:
-          "border border-border/60 bg-transparent shadow-sm hover:bg-muted/50 hover:text-foreground",
+          "border border-border/80 bg-card/80 dark:bg-surface-elevated/40 backdrop-blur-sm text-foreground shadow-[0_2px_0_0_hsl(var(--keycap-shadow)),0_2px_4px_-1px_rgba(0,0,0,0.1)] hover:bg-surface-elevated hover:border-border active:shadow-[0_0.5px_0_0_hsl(var(--keycap-shadow))]",
         secondary:
-          "bg-muted/90 text-foreground border border-border/50 shadow-xs hover:bg-muted hover:border-border",
-        ghost: "hover:bg-muted/50 hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-surface-elevated text-foreground border border-border shadow-[0_2px_0_0_hsl(var(--keycap-shadow)),0_3px_6px_-1px_rgba(0,0,0,0.15)] hover:bg-surface-plate active:shadow-[0_0.5px_0_0_hsl(var(--keycap-shadow))]",
+        ghost:
+          "text-foreground hover:bg-surface-elevated hover:text-foreground active:bg-surface-plate active:translate-y-[1px]",
+        link:
+          "text-primary underline-offset-4 hover:underline active:translate-y-0",
+        recessed:
+          "bg-surface-void text-muted-foreground border border-border/50 shadow-recessed hover:text-foreground active:bg-surface-ground",
         purple:
-          "bg-purple-600 hover:bg-purple-700 text-white shadow-sm border border-purple-500/40",
+          "bg-purple-600 hover:bg-purple-700 text-white border border-purple-400/30 shadow-[0_2.5px_0_0_#581c87,0_4px_8px_-1px_rgba(0,0,0,0.2)] active:shadow-[0_1px_0_0_#581c87]",
         premium:
-          "bg-gradient-to-r from-primary to-emerald-400 hover:from-primary/95 hover:to-emerald-500 text-white border border-primary/20 shadow-md shadow-primary/15",
+          "bg-gradient-to-r from-primary via-emerald-500 to-teal-400 hover:brightness-105 text-white border border-white/25 shadow-[0_3px_0_0_hsl(var(--felt-emerald-depth)),0_6px_14px_-2px_rgba(16,185,129,0.35)] active:shadow-[0_1px_0_0_hsl(var(--felt-emerald-depth))]",
       },
       size: {
-        default: "h-11 px-4 py-2 text-sm",
-        sm: "h-9 rounded-md px-3 text-xs",
-        xs: "h-7 rounded-md px-2.5 text-xs",
-        lg: "h-12 rounded-lg px-6 text-base",
-        icon: "h-11 w-11",
-        "icon-sm": "h-9 w-9 rounded-md",
-        "icon-xs": "h-7 w-7 rounded-md",
+        default: "h-11 px-5 py-2 text-sm",
+        sm: "h-9 rounded-xl px-3.5 text-xs font-bold",
+        xs: "h-7 rounded-lg px-2.5 text-[11px] font-bold",
+        lg: "h-12 rounded-xl px-6 text-base font-black",
+        icon: "h-11 w-11 rounded-xl",
+        "icon-sm": "h-9 w-9 rounded-xl",
+        "icon-xs": "h-7 w-7 rounded-lg",
       },
     },
     defaultVariants: {

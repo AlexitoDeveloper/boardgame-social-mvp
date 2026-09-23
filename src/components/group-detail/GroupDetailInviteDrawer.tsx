@@ -97,12 +97,11 @@ export const GroupDetailInviteDrawer: FC<GroupDetailInviteDrawerProps> = ({
         <div className="grid grid-cols-2 gap-3 pt-1">
           <Button
             type="button"
+            variant="default"
             onClick={onShareWhatsApp}
-            className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Enviar por WhatsApp</span>
-          </Button>
+            icon={MessageCircle}
+            label="Enviar por WhatsApp"
+          />
 
           <Button
             type="button"
@@ -111,11 +110,9 @@ export const GroupDetailInviteDrawer: FC<GroupDetailInviteDrawerProps> = ({
               onClose()
               onOpenQrModal()
             }}
-            className="h-11 rounded-xl border-border/60 bg-muted/30 hover:bg-muted/70 text-foreground font-bold text-xs flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-transform cursor-pointer"
-          >
-            <QrCode className="w-4 h-4 text-muted-foreground" />
-            <span>Mostrar Código QR</span>
-          </Button>
+            icon={QrCode}
+            label="Mostrar Código QR"
+          />
         </div>
 
         <div className="pt-2 text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1.5">

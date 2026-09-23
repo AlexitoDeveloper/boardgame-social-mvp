@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -38,14 +39,14 @@ export function DeleteAccountDialog({ isOpen, onClose }: DeleteAccountDialogProp
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isDeleting && onClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-left space-y-2">
+        <DialogHeader>
           <div className="w-10 h-10 rounded-full bg-destructive/15 text-destructive flex items-center justify-center">
             <AlertTriangle className="h-5 w-5" />
           </div>
-          <DialogTitle className="text-lg font-bold font-display text-destructive">
+          <DialogTitle className="text-destructive">
             {t('settings.deleteAccountTitle', '¿Eliminar tu cuenta definitivamente?')}
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+          <DialogDescription>
             {t(
               'settings.deleteAccountWarning',
               'Esta acción es completamente irreversible. Se eliminarán permanentemente tus datos de acceso, perfil, historial de partidas, colecciones de juegos y mensajes en chats.'
@@ -53,7 +54,7 @@ export function DeleteAccountDialog({ isOpen, onClose }: DeleteAccountDialogProp
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 py-2">
+        <DialogBody className="space-y-3">
           <Label htmlFor="confirm-delete" className="text-xs font-semibold">
             {t('settings.deleteConfirmPrompt', 'Para confirmar, escribe')} &quot;
             <span className="font-mono text-destructive font-bold">{requiredWord}</span>&quot;:
@@ -66,9 +67,9 @@ export function DeleteAccountDialog({ isOpen, onClose }: DeleteAccountDialogProp
             disabled={isDeleting}
             className="font-mono uppercase tracking-wider"
           />
-        </div>
+        </DialogBody>
 
-        <DialogFooter className="gap-2 sm:gap-0 mt-2">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"

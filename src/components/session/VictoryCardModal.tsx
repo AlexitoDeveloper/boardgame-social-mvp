@@ -326,7 +326,6 @@ export const VictoryCardModal: FC<VictoryCardModalProps> = ({
               size="sm"
               onClick={handleShareNative}
               icon={MessageCircle}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
               aria-label={t('common.shareWhatsApp', 'WhatsApp')}
               label={t('common.shareWhatsApp', 'WhatsApp')}
             />

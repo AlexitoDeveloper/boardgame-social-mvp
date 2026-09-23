@@ -84,10 +84,9 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
         <Button
           variant="ghost"
           size="sm"
+          icon={ArrowLeft}
           onClick={() => navigate('/grupos')}
-          className="rounded-xl flex items-center gap-1.5 text-foreground hover:text-foreground h-10 border border-border/40 hover:bg-muted/50 cursor-pointer text-xs font-bold active:scale-[0.98] transition-transform"
         >
-          <ArrowLeft className="w-4 h-4 text-foreground" />
           <span>{t('common.back', 'Grupos')}</span>
         </Button>
 
@@ -97,7 +96,6 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
             variant="outline"
             size="sm"
             onClick={onOpenInviteDrawer}
-            className="rounded-xl font-bold text-xs h-10 px-3.5 gap-1.5 border-border/60 hover:bg-muted active:scale-[0.98] transition-transform cursor-pointer"
           >
             <UserPlus className="w-4 h-4 text-primary" />
             <span className="hidden xs:inline">Invitar</span>
@@ -107,7 +105,6 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
             type="button"
             size="sm"
             onClick={onOpenQuickLogModal}
-            className="rounded-xl font-bold text-xs h-10 px-4 gap-1.5 shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
           >
             <Zap className="w-4 h-4 text-primary-foreground fill-primary-foreground" />
             <span>Registrar Partida</span>

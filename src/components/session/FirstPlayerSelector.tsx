@@ -385,14 +385,14 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               </div>
               <Button
                 type="button"
+                variant="default"
                 onClick={(e) => {
                   e.stopPropagation()
                   onClose()
                 }}
-                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
-              >
-                {t('tableHub.firstPlayer.confirm')}
-              </Button>
+                className="w-full"
+                label={t('tableHub.firstPlayer.confirm')}
+              />
             </motion.div>
           ) : winnerTouch ? (
             <motion.div
@@ -417,14 +417,14 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               </div>
               <Button
                 type="button"
+                variant="default"
                 onClick={(e) => {
                   e.stopPropagation()
                   onClose()
                 }}
-                className="w-full font-black text-xs h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
-              >
-                {t('tableHub.firstPlayer.confirm')}
-              </Button>
+                className="w-full"
+                label={t('tableHub.firstPlayer.confirm')}
+              />
             </motion.div>
           ) : isCountingDown ? (
             <CenterCountdownOverlay
@@ -477,10 +477,10 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
               type="button"
               variant="outline"
               size="sm"
+              icon={Dices}
               onClick={handleRandomAttendee}
-              className="flex-1 sm:flex-initial h-9 text-xs font-bold gap-1.5 rounded-xl border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 cursor-pointer"
+              className="flex-1 sm:flex-initial"
             >
-              <Dices className="w-4 h-4 text-emerald-400" />
               <span>{t('tableHub.firstPlayer.randomRoll', { count: attendees.length })}</span>
             </Button>
           )}

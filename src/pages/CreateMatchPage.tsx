@@ -227,11 +227,12 @@ export function CreateMatchPage() {
 
           <Button
             type="button"
+            size="lg"
             onClick={handleSaveMatch}
             disabled={!selectedGame || activeAttendees.length === 0 || isSubmitting}
             loading={isSubmitting}
             icon={Zap}
-            className="w-full sm:w-auto h-12 px-8 rounded-xl font-black text-sm shadow-md cursor-pointer ml-auto"
+            className="w-full sm:w-auto ml-auto"
           >
             <span>{isSubmitting ? t('quickLog.savingBtn', 'Guardando...') : t('quickLog.saveBtn', 'Guardar Partida')}</span>
           </Button>

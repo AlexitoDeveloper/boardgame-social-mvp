@@ -162,12 +162,12 @@ export function MeetupDetailPage() {
         <Button 
           variant="ghost" 
           size="sm" 
+          icon={ArrowLeft}
           onClick={() => navigate(-1)} 
           aria-label={t('common.back')}
           title={t('common.back')}
-          className="rounded-xl flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-9 border border-border/20 hover:bg-muted/50 cursor-pointer text-xs font-bold"
         >
-          <ArrowLeft className="w-4 h-4" /> <span>{t('common.back')}</span>
+          <span>{t('common.back')}</span>
         </Button>
         
         <div className="flex items-center gap-2">
@@ -175,7 +175,6 @@ export function MeetupDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowFirstPlayerModal(true)}
-            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
             title={t('meetup.firstPlayerTooltip')}
             aria-label={t('meetup.firstPlayerTooltip')}
           >
@@ -187,7 +186,6 @@ export function MeetupDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowVictoryCardModal(true)}
-            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 text-foreground text-xs h-9 cursor-pointer px-3"
             title={t('meetup.victoryCardTooltip')}
             aria-label={t('meetup.victoryCardBtn')}
           >
@@ -201,7 +199,6 @@ export function MeetupDetailPage() {
             onClick={handleShare}
             aria-label={copySuccess ? t('common.copied') : t('common.share')}
             title={copySuccess ? t('common.copied') : t('common.share')}
-            className="rounded-xl flex items-center gap-1.5 border border-border/40 hover:bg-muted/50 transition-all text-xs h-9 cursor-pointer bg-card px-3"
           >
             {copySuccess ? (
               <>

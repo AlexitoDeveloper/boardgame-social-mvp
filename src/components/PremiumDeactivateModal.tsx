@@ -89,7 +89,7 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
             size="lg"
             onClick={handleDeactivate}
             disabled={loading}
-            className="w-full text-xs font-black h-11 rounded-2xl active:scale-98 cursor-pointer shadow-md"
+            className="w-full"
           >
             {loading ? t('premium.deactivatingLoader') : t('premium.confirmDeactivate')}
           </Button>
@@ -98,7 +98,7 @@ export function PremiumDeactivateModal({ isOpen, onClose, onSuccess }: PremiumDe
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="w-full text-xs font-bold cursor-pointer hover:bg-zinc-900"
+              className="w-full"
             >
               {t('premium.keepPro')}
             </Button>

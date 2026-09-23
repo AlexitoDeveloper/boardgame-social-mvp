@@ -16,6 +16,7 @@ import { CreateMatchPage } from './pages/CreateMatchPage'
 import { PrivacyPage } from './pages/legal/PrivacyPage'
 import { TermsPage } from './pages/legal/TermsPage'
 import { AccountDeletionPage } from './pages/legal/AccountDeletionPage'
+import { DesignSystemPlaygroundPage } from './pages/DesignSystemPlaygroundPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -47,6 +48,7 @@ function App() {
         <Route path="/mesa-hub" element={<TableHubPage />} />
         <Route path="/jugar" element={<PlayPage />} />
         <Route path="/tops" element={<TopsPage />} />
+        <Route path="/design-system" element={<DesignSystemPlaygroundPage />} />
 
         {/* Chats */}
         <Route
