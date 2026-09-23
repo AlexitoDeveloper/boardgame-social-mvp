@@ -1,471 +1,177 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, Users, Loader2, Code, Search, Clipboard, Check, MessageCircle } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
-import { Textarea } from '../components/ui/textarea'
-import { Form } from '../components/ui/form'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
-import { useGroups } from '../hooks/useGroups'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from '../components/ui/toast'
+import { useGroups, Group } from '../hooks/useGroups'
+import { useGroupActions } from '../hooks/useGroupActions'
+import { useAuth } from '../lib/authContext'
+import { GroupsSkeletonGrid } from '../components/groups/GroupsSkeletonGrid'
+import { GroupsEmptyState } from '../components/groups/GroupsEmptyState'
+import { JoinGroupModal } from '../components/groups/JoinGroupModal'
+import { CreateGroupModal } from '../components/groups/CreateGroupModal'
+import { GroupsHero } from '../components/groups/GroupsHero'
+import { GroupsFilters, GroupFilterMode } from '../components/groups/GroupsFilters'
+import { GroupInteractiveCard } from '../components/groups/GroupInteractiveCard'
+import { GroupQuickPeekSheet } from '../components/groups/GroupQuickPeekSheet'
 
-const MotionDiv = motion.div
-const containerVars = {
+const gridVars = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08 } }
-} as const
-const itemVars = {
-  hidden: { opacity: 0, y: 15 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 25 } }
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 },
+  },
 } as const
 
 export function GroupsPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { user } = useAuth()
   const { groups, loading, error, createGroup, joinGroup } = useGroups()
   const { t } = useTranslation()
-
-  // Search & Filter
   const [searchQuery, setSearchQuery] = useState('')
+  const [filterMode, setFilterMode] = useState<GroupFilterMode>('all')
+  const [peekGroup, setPeekGroup] = useState<Group | null>(null)
 
-  // Modals States
-  const [isJoinOpen, setIsJoinOpen] = useState(false)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const actions = useGroupActions({
+    groups,
+    joinGroup,
+    createGroup,
+  })
 
-  // 1-touch auto-join via URL param ?join=CODE
-  const [autoJoining, setAutoJoining] = useState(false)
-  const [autoJoinMessage, setAutoJoinMessage] = useState<string | null>(null)
+  // Aggregated totals
+  const totalMembers = useMemo(() => {
+    return groups.reduce((acc, g) => acc + (g.member_count || 1), 0)
+  }, [groups])
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const joinCode = params.get('join')
-    if (joinCode && !autoJoining) {
-      const processAutoJoin = async () => {
-        setAutoJoining(true)
-        setAutoJoinMessage(t('groups.joiningGroup'))
-        try {
-          const joined = await joinGroup(joinCode)
-          navigate(`/grupos/${joined.id}`, { replace: true })
-        } catch (err: any) {
-          const existing = groups.find(g => g.invite_code.toUpperCase() === joinCode.trim().toUpperCase())
-          if (existing) {
-            navigate(`/grupos/${existing.id}`, { replace: true })
-          } else {
-            setAutoJoinMessage(err.message || t('groups.joinError'))
-            setTimeout(() => setAutoJoining(false), 3500)
-          }
-        }
-      }
-      processAutoJoin()
+  // Filter groups by query and selected filter mode
+  const filteredGroups = useMemo(() => {
+    let result = groups
+
+    if (filterMode === 'created' && user) {
+      result = result.filter((g) => g.creator_id === user.id)
+    } else if (filterMode === 'large') {
+      result = result.filter((g) => (g.member_count || 1) >= 3)
     }
-  }, [location.search, groups, joinGroup, navigate, t, autoJoining])
 
-  // Listen to ?create=true search parameter
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    if (params.get('create') === 'true') {
-      setIsCreateOpen(true)
-      navigate('/grupos', { replace: true })
-    }
-  }, [location.search, navigate])
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return result
 
-  // Join Form State
-  const [inviteCode, setInviteCode] = useState('')
-  const [joinLoading, setJoinLoading] = useState(false)
-  const [joinError, setJoinError] = useState<string | null>(null)
-
-  // Create Form State
-  const [groupName, setGroupName] = useState('')
-  const [groupDesc, setGroupDesc] = useState('')
-  const [createLoading, setCreateLoading] = useState(false)
-  const [createError, setCreateError] = useState<string | null>(null)
-
-  // Copy success feedback state
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-
-  const handleShareWhatsApp = (e: React.MouseEvent, groupName: string, inviteCode: string) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const inviteUrl = `${window.location.origin}/grupos?join=${inviteCode}`
-    const text = t('groups.inviteWhatsAppText', { groupName, inviteUrl })
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
-    window.open(whatsappUrl, '_blank')
-  }
-
-  const handleJoinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inviteCode.trim()) return
-
-    setJoinLoading(true)
-    setJoinError(null)
-    try {
-      const joined = await joinGroup(inviteCode)
-      setIsJoinOpen(false)
-      setInviteCode('')
-      navigate(`/grupos/${joined.id}`)
-    } catch (err: any) {
-      setJoinError(err.message || t('groups.joinError'))
-    } finally {
-      setJoinLoading(false)
-    }
-  }
-
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!groupName.trim()) return
-
-    setCreateLoading(true)
-    setCreateError(null)
-    try {
-      const created = await createGroup(groupName, groupDesc)
-      setIsCreateOpen(false)
-      setGroupName('')
-      setGroupDesc('')
-      navigate(`/grupos/${created.id}`)
-    } catch (err: any) {
-      setCreateError(err.message || t('groups.createError'))
-    } finally {
-      setCreateLoading(false)
-    }
-  }
-
-  const handleCopyCode = (e: React.MouseEvent, code: string, id: string) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const inviteUrl = `${window.location.origin}/grupos?join=${code}`
-    navigator.clipboard.writeText(inviteUrl)
-    setCopiedId(id)
-    toast.success(t('toast.inviteCopied', '¡Enlace de invitación copiado al portapapeles!'))
-    setTimeout(() => setCopiedId(null), 2000)
-  }
-
-  // Filter groups
-  const filteredGroups = groups.filter(g =>
-    g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (g.description && g.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+    return result.filter(
+      (g) =>
+        g.name.toLowerCase().includes(query) ||
+        (g.description && g.description.toLowerCase().includes(query))
+    )
+  }, [groups, filterMode, user, searchQuery])
 
   return (
-    <section className="space-y-6 pb-20 select-none">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-foreground/75 bg-clip-text text-transparent">
-            {t('groups.title')}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('groups.subtitle')}
-          </p>
-        </div>
+    <section className="space-y-7 pb-24">
+      {/* 1. Hero Spotlight & Quick Actions Deck */}
+      <GroupsHero
+        totalGroups={groups.length}
+        totalMembers={totalMembers}
+        onJoinClick={actions.openJoinModal}
+        onCreateClick={actions.openCreateModal}
+      />
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2.5">
-          <Button
-            onClick={() => {
-              setIsJoinOpen(true)
-              setJoinError(null)
-              setInviteCode('')
-            }}
-            variant="outline"
-            className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11"
-          >
-            <Code className="h-4 w-4 text-muted-foreground" />
-            <span>{t('groups.joinWithCode')}</span>
-          </Button>
-
-          <Button
-            onClick={() => {
-              setIsCreateOpen(true)
-              setCreateError(null)
-              setGroupName('')
-              setGroupDesc('')
-            }}
-            className="cursor-pointer font-bold rounded-2xl flex items-center gap-1.5 h-11 shadow-md shadow-primary/20"
-          >
-            <Plus className="h-4 w-4" />
-            <span>{t('groups.createGroup')}</span>
-          </Button>
-        </div>
-      </div>
-
-      {autoJoining && (
-        <div className="p-4 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center gap-3 animate-in fade-in">
-          <Loader2 className="w-5 h-5 animate-spin text-primary" />
-          <span className="text-sm font-bold text-foreground">{autoJoinMessage}</span>
+      {/* Auto-joining progress banner */}
+      {actions.autoJoining && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="p-4 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center gap-3 animate-in fade-in duration-200"
+        >
+          <Loader2 className="w-5 h-5 animate-spin text-primary" aria-hidden="true" />
+          <span className="text-sm font-bold text-foreground">
+            {actions.autoJoinMessage}
+          </span>
         </div>
       )}
 
+      {/* Error notification */}
       {error && (
-        <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold">
+        <div
+          role="alert"
+          className="p-4 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm font-semibold"
+        >
           {t('groups.loadingGroupsError')} {error}
         </div>
       )}
 
-      {/* Main content grid */}
+      {/* Main Content Area */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-44 rounded-2xl bg-muted/40 animate-pulse border border-border/10" />
-          ))}
-        </div>
+        <GroupsSkeletonGrid count={6} />
       ) : groups.length === 0 ? (
-        /* Empty State */
-        <div className="text-center py-24 border border-dashed border-border/60 rounded-2xl bg-muted/10 max-w-xl mx-auto space-y-4">
-          <Users className="h-12 w-12 text-muted-foreground/40 mx-auto" />
-          <div className="space-y-1">
-            <p className="text-muted-foreground font-bold text-lg">{t('groups.noGroupsTitle')}</p>
-            <p className="text-xs text-foreground/50 max-w-sm mx-auto leading-normal">
-              {t('groups.noGroupsDesc')}
-            </p>
-          </div>
-          <div className="flex justify-center gap-3 pt-2">
-            <Button
-              onClick={() => { setIsJoinOpen(true); setJoinError(null) }}
-              variant="outline"
-              size="sm"
-              className="cursor-pointer font-bold rounded-xl"
-            >
-              {t('groups.joinWithCode')}
-            </Button>
-            <Button
-              onClick={() => { setIsCreateOpen(true); setCreateError(null) }}
-              size="sm"
-              className="cursor-pointer font-bold rounded-xl shadow-sm"
-            >
-              {t('groups.createFirstGroup')}
-            </Button>
-          </div>
-        </div>
+        <GroupsEmptyState
+          onJoinClick={actions.openJoinModal}
+          onCreateClick={actions.openCreateModal}
+        />
       ) : (
-        /* Groups List with search */
-        <div className="space-y-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="text"
-              placeholder={t('groups.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+        <div className="space-y-5">
+          {/* 2. Interactive Search & Segmented Filter Chips */}
+          <GroupsFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            filterMode={filterMode}
+            onFilterChange={setFilterMode}
+            totalFiltered={filteredGroups.length}
+          />
 
+          {/* 3. Results Grid */}
           {filteredGroups.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              {t('groups.noResults')}
+            <div className="text-center py-16 px-4 text-muted-foreground text-sm border border-dashed border-border/50 rounded-3xl bg-muted/10">
+              <p className="font-semibold text-foreground text-base mb-1">No se encontraron círculos</p>
+              <p className="text-xs text-muted-foreground">Prueba ajustando los filtros o tu término de búsqueda.</p>
             </div>
           ) : (
-            <MotionDiv
-              variants={containerVars}
+            <motion.div
+              variants={gridVars}
               initial="hidden"
               animate="show"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               {filteredGroups.map((group) => (
-                <MotionDiv
+                <GroupInteractiveCard
                   key={group.id}
-                  variants={itemVars}
-                  onClick={() => {
-                    navigate(`/grupos/${group.id}`)
-                  }}
-                  className="group relative block p-5 rounded-2xl bg-card/65 border border-border/30 hover:border-primary/30 shadow-md hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer overflow-hidden text-left linen-finish"
-                >
-                  {/* Decorative background glow */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl pointer-events-none group-hover:from-primary/20 transition-all duration-300" />
-
-                  <div className="flex flex-col justify-between h-full space-y-4">
-                    {/* Header */}
-                    <div className="space-y-1.5">
-                      <h4 className="text-lg font-black tracking-tight text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-1 font-display">
-                        {group.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {group.description || t('groups.noDescription')}
-                      </p>
-                    </div>
-
-                    {/* Stats & Actions */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border/20">
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold font-mono-tabular">
-                        <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>{group.member_count || 1} {group.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}</span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        {/* WhatsApp Invite Button */}
-                        <Button
-                          onClick={(e) => {
-                            handleShareWhatsApp(e, group.name, group.invite_code)
-                          }}
-                          className="h-auto flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 px-2 py-1 rounded-lg transition-colors z-10"
-                          title={t('groups.inviteWhatsApp')}
-                          aria-label={t('groups.inviteWhatsApp')}
-                          variant="ghost"
-                        >
-                          <MessageCircle className="h-3 w-3" />
-                          <span className="hidden sm:inline">{t('groups.inviteWhatsApp')}</span>
-                        </Button>
-
-                        {/* Code button */}
-                        <Button
-                          onClick={(e) => {
-                            handleCopyCode(e, group.invite_code, group.id)
-                          }}
-                          className="h-auto flex items-center gap-1 text-xs font-bold uppercase text-muted-foreground bg-muted/30 border border-border/30 hover:bg-muted/60 hover:text-foreground px-2 py-1 rounded-lg transition-colors z-10 font-mono-tabular"
-                          title={t('groups.copyInviteLink')}
-                          aria-label={copiedId === group.id ? t('groups.copied') : t('groups.copyInviteLink')}
-                          variant="ghost"
-                        >
-                          {copiedId === group.id ? (
-                            <>
-                              <Check className="h-3 w-3" />
-                              <span>{t('groups.copied')}</span>
-                            </>
-                          ) : (
-                            <>
-                              <Clipboard className="h-3 w-3" />
-                              <span>{group.invite_code}</span>
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </MotionDiv>
+                  group={group}
+                  isOwner={user ? group.creator_id === user.id : false}
+                  onQuickPeek={(g) => setPeekGroup(g)}
+                />
               ))}
-            </MotionDiv>
+            </motion.div>
           )}
         </div>
       )}
 
-      {/* ── MODAL: UNIRSE A GRUPO ────────────────────────────── */}
-      <Dialog open={isJoinOpen} onOpenChange={setIsJoinOpen}>
-        <DialogContent className="max-w-sm bg-card border-border/50 rounded-[24px] p-6 shadow-2xl text-left gap-4">
-          <DialogHeader className="border-b border-border/25 pb-2">
-            <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-              <Code className="w-5 h-5 text-primary" /> {t('groups.joinModalTitle')}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground font-semibold">
-              {t('groups.joinModalDesc')}
-            </DialogDescription>
-          </DialogHeader>
+      {/* 4. Fluid Slide-Over Quick Peek Drawer */}
+      <GroupQuickPeekSheet
+        group={peekGroup}
+        isOpen={Boolean(peekGroup)}
+        onClose={() => setPeekGroup(null)}
+        isOwner={user && peekGroup ? peekGroup.creator_id === user.id : false}
+      />
 
-          <Form onSubmit={handleJoinSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Input
-                type="text"
-                placeholder="Ej. GP-XXXXXX"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                className="font-mono text-center uppercase tracking-wider text-sm font-bold"
-                required
-                disabled={joinLoading}
-              />
-              {joinError && (
-                <p className="text-xs font-semibold text-destructive px-1">{joinError}</p>
-              )}
-            </div>
+      {/* Functional Modals */}
+      <JoinGroupModal
+        isOpen={actions.isJoinOpen}
+        onClose={actions.closeJoinModal}
+        inviteCode={actions.inviteCode}
+        onInviteCodeChange={actions.setInviteCode}
+        loading={actions.joinLoading}
+        error={actions.joinError}
+        onSubmit={actions.handleJoinSubmit}
+      />
 
-            <div className="flex justify-end gap-2.5 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsJoinOpen(false)}
-                className="rounded-xl font-bold text-xs"
-                disabled={joinLoading}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="submit"
-                className="rounded-xl font-bold text-xs px-4"
-                disabled={joinLoading || !inviteCode.trim()}
-              >
-                {joinLoading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <span>{t('groups.joinButton')}</span>
-                )}
-              </Button>
-            </div>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── MODAL: CREAR GRUPO ───────────────────────────────── */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="max-w-md bg-card border-border/50 rounded-[24px] p-6 shadow-2xl text-left gap-4">
-          <DialogHeader className="border-b border-border/25 pb-2">
-            <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
-              <Plus className="w-5 h-5 text-primary" /> {t('groups.createModalTitle')}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground font-semibold">
-              {t('groups.createModalDesc')}
-            </DialogDescription>
-          </DialogHeader>
-
-          <Form onSubmit={handleCreateSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">
-                {t('groups.groupNameLabel')}
-              </label>
-              <Input
-                type="text"
-                placeholder={t('groups.groupNamePlaceholder')}
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-                maxLength={45}
-                required
-                disabled={createLoading}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1">
-                {t('groups.groupDescLabel')}
-              </label>
-              <Textarea
-                placeholder={t('groups.groupDescPlaceholder')}
-                value={groupDesc}
-                onChange={(e) => setGroupDesc(e.target.value)}
-                maxLength={150}
-                className="resize-none h-20 text-xs"
-                disabled={createLoading}
-              />
-            </div>
-
-            {createError && (
-              <p className="text-xs font-semibold text-destructive px-1">{createError}</p>
-            )}
-
-            <div className="flex justify-end gap-2.5 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsCreateOpen(false)}
-                className="rounded-xl font-bold text-xs"
-                disabled={createLoading}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="submit"
-                className="rounded-xl font-bold text-xs px-4"
-                disabled={createLoading || !groupName.trim()}
-              >
-                {createLoading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <span>{t('groups.createButton')}</span>
-                )}
-              </Button>
-            </div>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <CreateGroupModal
+        isOpen={actions.isCreateOpen}
+        onClose={actions.closeCreateModal}
+        groupName={actions.groupName}
+        onGroupNameChange={actions.setGroupName}
+        groupDesc={actions.groupDesc}
+        onGroupDescChange={actions.setGroupDesc}
+        loading={actions.createLoading}
+        error={actions.createError}
+        onSubmit={actions.handleCreateSubmit}
+      />
     </section>
   )
 }
-export default GroupsPage;
+
+export default GroupsPage

@@ -138,7 +138,7 @@ export function MeetupHeroCarousel({
             {isOnline ? <Laptop className="w-9 h-9" /> : <Dices className="w-9 h-9" />}
           </div>
           <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
-            {t('meetup.tableOnBoard', 'Mesa en el Tablero')}
+            {t('meetup.tableOnBoard', 'Mesa de Juego')}
           </span>
         </div>
       )}

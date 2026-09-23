@@ -78,21 +78,21 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-card/80 flex items-center justify-center border border-primary/40 shrink-0 relative overflow-hidden shadow-md">
             {(spinningGame.image_url_es || spinningGame.image_url) ? (
-              <img src={(spinningGame.image_url_es || spinningGame.image_url) || undefined} alt={spinningTitle} className="w-full h-full object-cover blur-[0.5px]" />
+              <img src={(spinningGame.image_url_es || spinningGame.image_url) || undefined} alt={spinningTitle} className="w-full h-full object-cover filter blur-[1px] transition-[filter,opacity] duration-100" />
             ) : (
-              <Dices className="w-10 h-10 text-primary animate-spin" aria-hidden="true" />
+              <Dices className="w-10 h-10 text-primary" aria-hidden="true" />
             )}
-            <div className="absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center">
-              <Dices className="w-8 h-8 text-primary animate-bounce" aria-hidden="true" />
+            <div className="absolute inset-0 bg-primary/10 backdrop-blur-[0.5px] flex items-center justify-center">
+              <Dices className="w-7 h-7 text-primary/70" aria-hidden="true" />
             </div>
           </div>
 
           <div className="flex-1 min-w-0 space-y-2">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-black text-xs uppercase tracking-wider">
-              <RotateCw className="w-3 h-3 animate-spin" aria-hidden="true" />
+              <RotateCw className="w-3 h-3 animate-fast-spin" aria-hidden="true" />
               <span>{t('play.spinningRoulette')}</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-foreground truncate font-display animate-pulse">
+            <h3 className="text-xl sm:text-2xl font-black text-foreground truncate font-display">
               {spinningTitle}
             </h3>
             <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-mono-tabular text-muted-foreground font-semibold">

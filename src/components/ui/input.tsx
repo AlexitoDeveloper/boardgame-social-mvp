@@ -1,10 +1,10 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
 const inputVariants = cva(
-  "flex w-full rounded-xl border bg-background/30 px-3.5 py-2 shadow-sm transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+  "flex w-full rounded-xl border bg-background/30 px-3.5 py-2 shadow-sm transition-[border-color,box-shadow,background-color] duration-150 ease-out-custom file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       size: {

@@ -35,7 +35,7 @@ export function LimitExceededView({
       </div>
       <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
         <Button type="button" variant="outline" size="sm" onClick={() => navigate('/')}>
-          {t('meetup.backToBoard')}
+          {t('meetup.backToHome')}
         </Button>
         {!isPremiumUser && (
           <>

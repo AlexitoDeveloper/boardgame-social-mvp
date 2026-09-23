@@ -63,7 +63,7 @@ export function BrandLogo({
         <div className="flex flex-col leading-none">
           <div className="flex items-center gap-2">
             <span className={cn('font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent', currentSize.text)}>
-              Boardgame Social
+              Ludiclub
             </span>
             {showBadge && (
               <span className={cn('font-semibold rounded-full bg-primary/15 text-primary border border-primary/20 uppercase tracking-wider', currentSize.badge)}>
@@ -72,7 +72,7 @@ export function BrandLogo({
             )}
           </div>
           <span className="text-[11px] font-medium text-muted-foreground mt-0.5">
-            The Tabletop Network
+            Tu Club de Juegos de Mesa
           </span>
         </div>
       )}

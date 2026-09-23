@@ -1,4 +1,5 @@
-import { ArrowLeft, Clock, Trash2, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, Clock, Trash2, ExternalLink, Flag } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/authContext'
@@ -7,6 +8,7 @@ import { Meetup, Game } from '../../types'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { OptimizedImage } from '../ui/OptimizedImage'
+import { ReportContentDialog } from '../common/ReportContentDialog'
 
 interface ChatHeaderProps {
   meetup: Meetup
@@ -24,6 +26,7 @@ export function ChatHeader({
   const { t } = useTranslation()
   const { language } = useAuth()
   const navigate = useNavigate()
+  const [isReportOpen, setIsReportOpen] = useState(false)
 
   return (
     <header className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-border/30 bg-card/95 backdrop-blur-md flex items-center justify-between gap-2.5 shrink-0 shadow-2xs z-10">
@@ -84,7 +87,18 @@ export function ChatHeader({
       </div>
 
       {/* Right side actions */}
-      <div className="flex items-center shrink-0">
+      <div className="flex items-center gap-1 shrink-0">
+        <Button
+          onClick={() => setIsReportOpen(true)}
+          variant="ghost"
+          size="sm"
+          aria-label={t('reports.reportChat', 'Reportar')}
+          title={t('reports.reportChat', 'Reportar contenido')}
+          className="min-h-[44px] px-2 text-muted-foreground hover:text-destructive transition-colors"
+        >
+          <Flag className="w-4 h-4" />
+        </Button>
+
         <Button
           onClick={onOpenDeleteDialog}
           variant="ghost"
@@ -97,6 +111,15 @@ export function ChatHeader({
           <span className="hidden sm:inline text-xs font-bold">{t('chats.deleteChat')}</span>
         </Button>
       </div>
+
+      <ReportContentDialog
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        contentType="chat_message"
+        contentId={meetup.id}
+        reportedUserId={meetup.creator_id}
+        title={t('reports.reportChat', 'Reportar conversación')}
+      />
     </header>
   )
 }

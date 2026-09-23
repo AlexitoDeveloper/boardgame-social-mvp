@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CalendarDays, Clock, Swords, ChevronRight } from 'lucide-react'
+import { CalendarDays, Clock, Swords, ChevronRight, Plus } from 'lucide-react'
 import { Badge } from '../../ui/badge'
+import { Button } from '../../ui/button'
 import { Meetup } from '../../../types'
 import { useGameLocale } from '../../../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
@@ -35,12 +36,24 @@ export function MeetupsTab({
   return (
     <div className="space-y-2.5">
       {sortedMeetups.length === 0 ? (
-        <div className="text-center py-12 px-4 bg-card/40 rounded-2xl border border-dashed border-border/40 select-none">
-          <p className="text-sm font-bold text-muted-foreground">
-            {type === 'upcoming' ? t('profile.upcomingEmpty') : t('profile.historyEmpty')}
-          </p>
+        <div className="text-center py-12 px-4 bg-card/40 rounded-2xl border border-dashed border-border/40 select-none space-y-3">
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-muted-foreground">
+              {type === 'upcoming' ? t('profile.upcomingEmpty') : t('profile.historyEmpty')}
+            </p>
+            {isOwnProfile && type === 'upcoming' && (
+              <p className="text-xs text-muted-foreground/80">{t('profile.upcomingEmptyDesc')}</p>
+            )}
+          </div>
           {isOwnProfile && type === 'upcoming' && (
-            <p className="text-xs text-muted-foreground/80 mt-1">{t('profile.upcomingEmptyDesc')}</p>
+            <div className="pt-1">
+              <Link to="/mesa/nueva" className="inline-block">
+                <Button size="sm" variant="outline" className="rounded-xl font-bold text-xs gap-1.5 cursor-pointer">
+                  <Plus className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{t('quickActions.createMeetup', 'Abrir Mesa')}</span>
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       ) : (

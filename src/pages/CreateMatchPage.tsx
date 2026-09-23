@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Zap, Users, AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -89,6 +89,19 @@ export function CreateMatchPage() {
     isOpen: !groupLoading,
     onSuccess: handleMatchSaved,
   })
+
+  // Pre-select game if gameId is passed in searchParams (e.g. from Ludoteca drawer)
+  const gameIdParam = searchParams.get('gameId')
+  useEffect(() => {
+    if (gameIdParam && !selectedGame && groupGames.length > 0) {
+      const match = groupGames.find(
+        (g) => String(g.bgg_id) === String(gameIdParam) || String(g.id) === String(gameIdParam)
+      )
+      if (match) {
+        setSelectedGame(match)
+      }
+    }
+  }, [gameIdParam, selectedGame, groupGames, setSelectedGame])
 
   const isGroupMode = Boolean(groupId && group)
   const winnerAttendee = activeAttendees.find((a) => a.id === winnerId)

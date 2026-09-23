@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Calendar, MapPin, Laptop } from 'lucide-react'
+import { Calendar, MapPin, Laptop, Flag } from 'lucide-react'
 import { Tag } from '../ui/tag'
+import { Button } from '../ui/button'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
 import { useGameLocale } from '../../hooks/useGameLocale'
 import { formatDate } from '../../lib/dateLocale'
 import { useTranslation } from 'react-i18next'
 import { MeetupHeroCarousel } from './MeetupHeroCarousel'
+import { ReportContentDialog } from '../common/ReportContentDialog'
 
 interface MeetupDetailHeroProps {
   meetup: Meetup
@@ -22,6 +24,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
   
   // State for active game index in carousel
   const [activeGameIdx, setActiveGameIdx] = useState(0)
+  const [isReportOpen, setIsReportOpen] = useState(false)
 
   const isMock = USE_MOCKS && meetup.id.startsWith('mock-')
 
@@ -43,10 +46,23 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
       {/* Información e Identidad */}
       <div className="p-6 sm:p-8 space-y-4 flex-1">
         
-        {/* Título de la partida */}
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground text-pretty">
-          {meetup.title || 'Partida de Juego de Mesa'}
-        </h1>
+        {/* Título de la partida y botón de reporte */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground text-pretty">
+            {meetup.title || 'Partida de Juego de Mesa'}
+          </h1>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsReportOpen(true)}
+            className="text-muted-foreground/60 hover:text-destructive shrink-0 mt-0.5 h-8 w-8"
+            title={t('reports.reportMeetup', 'Reportar partida')}
+            aria-label={t('reports.reportMeetup', 'Reportar partida')}
+          >
+            <Flag className="w-4 h-4" />
+          </Button>
+        </div>
         
         {/* Lista de juegos interactiva */}
         {gamesList.length === 0 ? (
@@ -119,6 +135,15 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         </div>
 
       </div>
+
+      <ReportContentDialog
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        contentType="meetup"
+        contentId={meetup.id}
+        reportedUserId={meetup.creator_id}
+        title={t('reports.reportMeetup', 'Reportar partida')}
+      />
     </div>
   )
 }

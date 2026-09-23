@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-[transform,color,background-color,border-color,box-shadow,opacity] duration-150 ease-out-custom focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] select-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer",
   {
     variants: {
       variant: {
@@ -17,11 +17,11 @@ const buttonVariants = cva(
         outline:
           "border border-border/60 bg-transparent shadow-sm hover:bg-muted/50 hover:text-foreground",
         secondary:
-          "bg-muted/90 text-foreground border border-border/50 shadow-xs hover:bg-muted hover:border-border active:scale-[0.98] transition-all",
+          "bg-muted/90 text-foreground border border-border/50 shadow-xs hover:bg-muted hover:border-border",
         ghost: "hover:bg-muted/50 hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         purple:
-          "bg-purple-600 hover:bg-purple-700 text-white shadow-sm border border-purple-500/40 active:scale-[0.98] transition-all",
+          "bg-purple-600 hover:bg-purple-700 text-white shadow-sm border border-purple-500/40",
         premium:
           "bg-gradient-to-r from-primary to-emerald-400 hover:from-primary/95 hover:to-emerald-500 text-white border border-primary/20 shadow-md shadow-primary/15",
       },
@@ -85,7 +85,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           <>
             {loading ? (
-              <Loader2 className="size-4 animate-spin shrink-0" />
+              <Loader2 className="size-4 animate-fast-spin shrink-0" />
             ) : (
               Icon && <Icon className="size-4 shrink-0" />
             )}
