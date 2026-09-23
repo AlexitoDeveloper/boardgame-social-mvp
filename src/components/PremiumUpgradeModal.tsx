@@ -70,7 +70,7 @@ export function PremiumUpgradeModal({ isOpen, onClose, onSuccess }: PremiumUpgra
               {
                 icon: Zap,
                 title: "Límite Ampliado de Partidas",
-                desc: "Crea hasta 10 partidas activas simultáneamente en el tablero en lugar de 5.",
+                desc: "Crea hasta 10 partidas activas simultáneamente en lugar de 5.",
                 color: "text-primary bg-primary/10"
               },
               {

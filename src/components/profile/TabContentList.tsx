@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Meetup, Game } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
 import { MeetupsTab } from './tabs/MeetupsTab'
@@ -51,17 +51,25 @@ export function TabContentList({
   setIsImportModalOpen,
   setIsAddGameModalOpen
 }: TabContentListProps) {
+  const shouldReduceMotion = useReducedMotion()
+
+  const panelMotionProps = {
+    role: 'tabpanel',
+    id: `tabpanel-${activeTab}`,
+    'aria-labelledby': `tab-${activeTab}`,
+    tabIndex: 0,
+    className: 'focus-visible:outline-none',
+    initial: shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 },
+    animate: shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
+    exit: { opacity: 0, transition: { duration: 0.08 } },
+    transition: { duration: 0.14, ease: [0.23, 1, 0.32, 1] as const },
+  }
+
   return (
     <div className="space-y-4">
       <AnimatePresence mode="wait">
         {activeTab === 'upcoming' && (
-          <motion.div
-            key="upcoming-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="upcoming-tab" {...panelMotionProps}>
             <MeetupsTab
               meetups={upcomingMeetups}
               type="upcoming"
@@ -72,13 +80,7 @@ export function TabContentList({
         )}
 
         {activeTab === 'completed' && (
-          <motion.div
-            key="completed-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="completed-tab" {...panelMotionProps}>
             <MeetupsTab
               meetups={completedMeetups}
               type="completed"
@@ -89,13 +91,7 @@ export function TabContentList({
         )}
 
         {activeTab === 'collection' && (
-          <motion.div
-            key="collection-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="collection-tab" {...panelMotionProps}>
             <CollectionTab
               collectionGames={collectionGames}
               loadingCollection={loadingCollection}
@@ -110,13 +106,7 @@ export function TabContentList({
         )}
 
         {activeTab === 'vitrina' && (
-          <motion.div
-            key="vitrina-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="vitrina-tab" {...panelMotionProps}>
             <VitrinaTab
               organizedCount={organizedCount}
               stats={stats}
@@ -126,13 +116,7 @@ export function TabContentList({
         )}
 
         {(activeTab === 'stats' || activeTab === 'mas') && (
-          <motion.div
-            key="stats-tab"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="stats-tab" {...panelMotionProps}>
             <StatsTab
               stats={stats}
               meetups={meetups}

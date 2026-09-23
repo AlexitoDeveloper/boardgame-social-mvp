@@ -13,6 +13,9 @@ import { ChatsPage } from './pages/ChatsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { CreateMatchPage } from './pages/CreateMatchPage'
+import { PrivacyPage } from './pages/legal/PrivacyPage'
+import { TermsPage } from './pages/legal/TermsPage'
+import { AccountDeletionPage } from './pages/legal/AccountDeletionPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -31,22 +34,21 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 function App() {
   return (
     <Routes>
-      {/* Public auth page – outside AppShell */}
+      {/* Public auth & legal pages – outside AppShell */}
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/delete-account" element={<AccountDeletionPage />} />
 
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
+        {/* Core Discovery & Play Navigation */}
         <Route path="/" element={<ExplorePage />} />
-        <Route path="/home-v2" element={<Navigate to="/" replace />} />
         <Route path="/mesa-hub" element={<TableHubPage />} />
         <Route path="/jugar" element={<PlayPage />} />
-        <Route path="/juegos/:id" element={<GameDetailPage />} />
-        {/* Legacy stranger radar redirects to Table Companion play engine */}
-        <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
-        <Route path="/tablero/:id" element={<MeetupDetailPage />} />
-        <Route path="/mesa" element={<Navigate to="/mesa-hub" replace />} />
-        <Route path="/mesa/:id" element={<MeetupDetailPage />} />
         <Route path="/tops" element={<TopsPage />} />
+
+        {/* Chats */}
         <Route
           path="/chats"
           element={
@@ -55,6 +57,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Groups */}
         <Route
           path="/grupos"
           element={
@@ -71,6 +75,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Games / Ludoteca */}
+        <Route path="/juegos/:id" element={<GameDetailPage />} />
+        <Route path="/juego/:id" element={<Navigate to="/juegos/:id" replace />} />
+
+        {/* Match Logging (Canonical /partida/nueva + /crear-partida alias) */}
         <Route
           path="/partida/nueva"
           element={
@@ -80,38 +90,15 @@ function App() {
           }
         />
         <Route
-          path="/perfil"
+          path="/crear-partida"
           element={
             <ProtectedRoute>
-              <ProfilePage />
+              <CreateMatchPage />
             </ProtectedRoute>
           }
         />
-        <Route path="/perfil/:id" element={<ProfilePage />} />
-        <Route
-          path="/tablero/:id/edit"
-          element={
-            <ProtectedRoute>
-              <CreateMeetupPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mesa/:id/edit"
-          element={
-            <ProtectedRoute>
-              <CreateMeetupPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tablero/new"
-          element={
-            <ProtectedRoute>
-              <CreateMeetupPage />
-            </ProtectedRoute>
-          }
-        />
+
+        {/* Meetups / Mesas (Static routes first, then parameterized) */}
         <Route
           path="/mesa/nueva"
           element={
@@ -120,6 +107,33 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/crear-mesa" element={<Navigate to="/mesa/nueva" replace />} />
+        <Route
+          path="/mesa/:id/edit"
+          element={
+            <ProtectedRoute>
+              <CreateMeetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/mesa/:id" element={<MeetupDetailPage />} />
+        <Route path="/mesa" element={<Navigate to="/mesa-hub" replace />} />
+
+        {/* User Profiles */}
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/perfil/:id" element={<ProfilePage />} />
+        {/* Legacy Tablero redirects */}
+        <Route path="/tablero/:id" element={<MeetupDetailPage />} />
+        <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
+
+        {/* Fallback 404 handler */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

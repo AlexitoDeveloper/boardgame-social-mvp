@@ -142,7 +142,7 @@ export function MeetupDetailPage() {
           <h2 className="text-xl font-bold">{t('meetup.errorTitle')}</h2>
           <p className="text-sm font-medium text-foreground/80">{errorMsg || t('meetup.errorDesc')}</p>
         </div>
-        <Button onClick={() => navigate('/')} icon={ArrowLeft} label={t('meetup.backToBoard')} className="mx-auto" />
+        <Button onClick={() => navigate('/')} icon={ArrowLeft} label={t('meetup.backToHome')} className="mx-auto" />
       </section>
     )
   }

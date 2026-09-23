@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
 import { OptimizedImage } from './ui/OptimizedImage'
@@ -35,15 +34,10 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
     : null;
 
   return (
-    <motion.div
-      whileHover={{ y: -3, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-      className="relative w-full aspect-[2/3]"
-    >
+    <div className="relative w-full aspect-[2/3] transition-transform duration-200 ease-out-custom [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:scale-[1.02] active:scale-[0.98]">
       <Link 
         to={`/juegos/${game.bgg_id}`} 
-        className="group relative block w-full h-full overflow-hidden rounded-2xl bg-card border border-border/40 shadow-md hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+        className="group relative block w-full h-full overflow-hidden rounded-2xl bg-card border border-border/40 shadow-md hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 transition-[box-shadow,border-color] duration-200 ease-out-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
       >
         <div className="absolute inset-0 w-full h-full">
           {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
@@ -112,7 +106,7 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
         </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   )
 }
 

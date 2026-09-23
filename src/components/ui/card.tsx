@@ -1,20 +1,20 @@
-﻿import * as React from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
 const cardVariants = cva(
-  "rounded-2xl transition-all text-card-foreground",
+  "rounded-2xl transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out-custom text-card-foreground",
   {
     variants: {
       variant: {
-        default: "border border-border/40 bg-card shadow-sm",
-        glass: "glass-panel bg-card/60 backdrop-blur-xl border border-border/30 shadow-md",
+        default: "border border-border bg-card shadow-sm",
+        glass: "glass-panel bg-card border border-border shadow-md",
         interactive:
-          "border border-border/40 bg-card hover:border-primary/40 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm",
+          "border border-border bg-card hover:border-primary/40 hover:shadow-lg [@media(hover:hover)]:hover:scale-[1.01] active:scale-[0.98] cursor-pointer shadow-sm",
         flat: "border border-border/20 bg-muted/30 shadow-none",
         gradient:
-          "border border-border/40 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-lg shadow-md",
+          "border border-border bg-card shadow-md",
       },
     },
     defaultVariants: {

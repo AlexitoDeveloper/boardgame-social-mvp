@@ -62,23 +62,21 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
   const { t } = useTranslation()
   const [touches, setTouches] = useState<TouchPoint[]>([])
   const [isCountingDown, setIsCountingDown] = useState(false)
-  const [countdownProgress, setCountdownProgress] = useState(0)
   const [winnerTouch, setWinnerTouch] = useState<TouchPoint | null>(null)
   const [winnerPlayer, setWinnerPlayer] = useState<PlayerOption | null>(null)
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const countdownIntervalRef = useRef<number | null>(null)
+  const countdownTimeoutRef = useRef<number | null>(null)
 
   // Reset state on open/close
   useEffect(() => {
     if (!isOpen) {
       setTouches([])
       setIsCountingDown(false)
-      setCountdownProgress(0)
       setWinnerTouch(null)
       setWinnerPlayer(null)
-      if (countdownIntervalRef.current) {
-        window.clearInterval(countdownIntervalRef.current)
+      if (countdownTimeoutRef.current) {
+        window.clearTimeout(countdownTimeoutRef.current)
       }
     }
   }, [isOpen])
@@ -101,63 +99,49 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
 
     if (touches.length >= 2) {
       setIsCountingDown(true)
-      const durationMs = 2200
-      const stepMs = 50
-      let elapsed = 0
 
-      if (countdownIntervalRef.current) {
-        window.clearInterval(countdownIntervalRef.current)
+      if (countdownTimeoutRef.current) {
+        window.clearTimeout(countdownTimeoutRef.current)
       }
 
-      countdownIntervalRef.current = window.setInterval(() => {
-        elapsed += stepMs
-        const progress = Math.min(100, (elapsed / durationMs) * 100)
-        setCountdownProgress(progress)
+      countdownTimeoutRef.current = window.setTimeout(() => {
+        // Pick winner touch
+        setTouches((currentTouches) => {
+          if (currentTouches.length === 0) return currentTouches
+          const winnerIdx = Math.floor(Math.random() * currentTouches.length)
+          const chosen = currentTouches[winnerIdx]
+          setWinnerTouch(chosen)
 
-        if (elapsed >= durationMs) {
-          if (countdownIntervalRef.current) {
-            window.clearInterval(countdownIntervalRef.current)
+          // Vibrate if available on mobile
+          if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            navigator.vibrate([60, 40, 120])
           }
 
-          // Pick winner touch
-          setTouches((currentTouches) => {
-            if (currentTouches.length === 0) return currentTouches
-            const winnerIdx = Math.floor(Math.random() * currentTouches.length)
-            const chosen = currentTouches[winnerIdx]
-            setWinnerTouch(chosen)
-
-            // Vibrate if available on mobile
-            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-              navigator.vibrate([60, 40, 120])
-            }
-
-            confetti({
-              particleCount: 50,
-              spread: 60,
-              origin: { x: chosen.x / window.innerWidth, y: chosen.y / window.innerHeight },
-              colors: ['#10B981', '#3B82F6', '#EF4444', '#F59E0B'],
-            })
-
-            onSelectFirstPlayer?.(null, t('tableHub.firstPlayer.meepleNamed', { color: t(`tableHub.firstPlayer.colors.${chosen.color}`) }))
-            return currentTouches
+          confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { x: chosen.x / window.innerWidth, y: chosen.y / window.innerHeight },
+            colors: ['#10B981', '#3B82F6', '#EF4444', '#F59E0B'],
           })
-          setIsCountingDown(false)
-        }
-      }, stepMs)
+
+          onSelectFirstPlayer?.(null, t('tableHub.firstPlayer.meepleNamed', { color: t(`tableHub.firstPlayer.colors.${chosen.color}`) }))
+          return currentTouches
+        })
+        setIsCountingDown(false)
+      }, 2200)
     } else {
       setIsCountingDown(false)
-      setCountdownProgress(0)
-      if (countdownIntervalRef.current) {
-        window.clearInterval(countdownIntervalRef.current)
+      if (countdownTimeoutRef.current) {
+        window.clearTimeout(countdownTimeoutRef.current)
       }
     }
 
     return () => {
-      if (countdownIntervalRef.current) {
-        window.clearInterval(countdownIntervalRef.current)
+      if (countdownTimeoutRef.current) {
+        window.clearTimeout(countdownTimeoutRef.current)
       }
     }
-  }, [touches.length, winnerTouch, winnerPlayer, onSelectFirstPlayer])
+  }, [touches.length, winnerTouch, winnerPlayer, onSelectFirstPlayer, t])
 
   // Multitouch handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -238,7 +222,6 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
     setWinnerPlayer(null)
     setTouches([])
     setIsCountingDown(false)
-    setCountdownProgress(0)
   }
 
   if (!isOpen) return null
@@ -446,7 +429,6 @@ export const FirstPlayerSelector: FC<FirstPlayerSelectorProps> = ({
           ) : isCountingDown ? (
             <CenterCountdownOverlay
               isCountingDown={isCountingDown}
-              progress={countdownProgress}
               touchCount={touches.length}
             />
           ) : touches.length === 1 ? (

@@ -53,7 +53,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Outfit', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
@@ -65,6 +65,35 @@ export default {
       padding: {
         safeBottom: 'env(safe-area-inset-bottom)',
         safeTop: 'env(safe-area-inset-top)',
+      },
+      transitionTimingFunction: {
+        'ease-out-custom': 'cubic-bezier(0.23, 1, 0.32, 1)',
+        'ease-drawer': 'cubic-bezier(0.32, 0.72, 0, 1)',
+        'ease-in-out-custom': 'cubic-bezier(0.77, 0, 0.175, 1)',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+        'fast-spin': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        'pulse-fast': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
+        'accordion-up': 'accordion-up 0.18s cubic-bezier(0.23, 1, 0.32, 1)',
+        'fast-spin': 'fast-spin 650ms linear infinite',
+        'pulse-fast': 'pulse-fast 1.2s cubic-bezier(0.23, 1, 0.32, 1) infinite',
       },
     },
   },

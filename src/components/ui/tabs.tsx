@@ -50,7 +50,7 @@ export function Tabs<T extends string>({
             onClick={() => onChange(opt.id)}
             className={cn(
               scrollable ? "flex-1 shrink-0 px-3.5 min-w-max h-9 sm:h-10" : "flex-1 h-9 sm:h-10",
-              "rounded-xl text-xs font-bold relative transition-all duration-200 flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none whitespace-nowrap",
+              "rounded-xl text-xs font-bold relative transition-colors duration-150 ease-out-custom active:scale-[0.98] flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 cursor-pointer select-none whitespace-nowrap",
               isActive ? "text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
             )}
           >

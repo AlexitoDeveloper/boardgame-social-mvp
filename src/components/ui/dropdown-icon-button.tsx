@@ -61,10 +61,11 @@ export function DropdownIconButton({
         {open && (
           <motion.div
             role="menu"
-            initial={{ opacity: 0, scale: 0.95, y: 5 }}
+            initial={{ opacity: 0, scale: 0.95, y: 4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 5 }}
-            transition={{ duration: 0.15 }}
+            exit={{ opacity: 0, scale: 0.95, y: 4, transition: { duration: 0.1, ease: [0.23, 1, 0.32, 1] } }}
+            transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+            style={{ transformOrigin: "top right" }}
             className={cn(
               "absolute right-0 mt-2 w-48 bg-card border border-border/60 rounded-2xl shadow-xl py-1.5 z-50 flex flex-col divide-y divide-border/20 text-left animate-none overflow-hidden",
               menuClassName
@@ -83,7 +84,7 @@ export function DropdownIconButton({
                   }}
                   disabled={item.disabled}
                   className={cn(
-                    "w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0 bg-transparent outline-none hover:bg-muted/40 focus-visible:bg-muted/40",
+                    "w-full px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-[background-color,color,transform] duration-150 ease-out-custom active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-left cursor-pointer border-0 bg-transparent outline-none hover:bg-muted/40 focus-visible:bg-muted/40",
                     item.className
                   )}
                 >

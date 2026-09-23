@@ -1,25 +1,39 @@
-import { useEffect, FC } from 'react'
+import { useEffect, useState, FC } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
 interface CenterCountdownOverlayProps {
   isCountingDown: boolean
-  progress: number // 0 to 100
+  progress?: number // optional for backwards compatibility
   touchCount: number
 }
 
 export const CenterCountdownOverlay: FC<CenterCountdownOverlayProps> = ({
   isCountingDown,
-  progress,
   touchCount,
 }) => {
   const { t } = useTranslation()
+  const [secondsRemaining, setSecondsRemaining] = useState(3)
+  const [started, setStarted] = useState(false)
 
-  // Calculate remaining whole seconds (3, 2, 1)
-  const secondsRemaining = Math.max(
-    1,
-    Math.min(3, Math.ceil((1 - progress / 100) * 3))
-  )
+  // Step seconds countdown (3 -> 2 -> 1) and trigger CSS ring transition
+  useEffect(() => {
+    if (!isCountingDown) {
+      setSecondsRemaining(3)
+      setStarted(false)
+      return
+    }
+
+    const raf = requestAnimationFrame(() => setStarted(true))
+    const timer = setInterval(() => {
+      setSecondsRemaining((s) => Math.max(1, s - 1))
+    }, 730)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      clearInterval(timer)
+    }
+  }, [isCountingDown])
 
   // Haptic pulse on second tick
   useEffect(() => {
@@ -37,7 +51,6 @@ export const CenterCountdownOverlay: FC<CenterCountdownOverlayProps> = ({
   const strokeWidth = 8
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const strokeDashoffset = circumference - (progress / 100) * circumference
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none z-30 select-none">
@@ -68,10 +81,11 @@ export const CenterCountdownOverlay: FC<CenterCountdownOverlayProps> = ({
             stroke="#10B981"
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+            strokeDashoffset={started ? 0 : circumference}
             strokeLinecap="round"
             fill="rgba(10, 15, 29, 0.85)"
-            className="transition-all duration-75 ease-linear"
+            style={{ transitionDuration: '2200ms' }}
+            className="transition-[stroke-dashoffset] ease-linear"
           />
         </svg>
 

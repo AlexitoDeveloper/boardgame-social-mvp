@@ -17,6 +17,7 @@ import { Game, Meetup } from '../../../types'
 import { useGameLocale } from '../../../hooks/useGameLocale'
 import { useTranslation } from 'react-i18next'
 import { GamePosterCard } from './GamePosterCard'
+import { ProfileGameDrawer } from './ProfileGameDrawer'
 
 interface CollectionTabProps {
   collectionGames: Game[];
@@ -46,6 +47,7 @@ export function CollectionTab({
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [gameToDelete, setGameToDelete] = useState<Game | null>(null)
+  const [selectedGameForDrawer, setSelectedGameForDrawer] = useState<Game | null>(null)
 
   const [wantToPlayIds, setWantToPlayIds] = useState<number[]>(() => {
     try {
@@ -56,9 +58,11 @@ export function CollectionTab({
     }
   })
 
-  const toggleWantToPlay = (e: React.MouseEvent, bggId: number) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const toggleWantToPlay = (bggId: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     const isCurrentlyWishlisted = wantToPlayIds.includes(bggId)
     const next = isCurrentlyWishlisted
       ? wantToPlayIds.filter(id => id !== bggId)
@@ -223,11 +227,8 @@ export function CollectionTab({
                 game={game}
                 isWishlisted={wantToPlayIds.includes(game.bgg_id)}
                 isUnplayed={!playedBggIds.has(game.bgg_id)}
-                isOwnProfileEditable={isOwnProfileEditable}
                 gameTitle={getGameTitle(game)}
-                onToggleWishlist={toggleWantToPlay}
-                onRemove={(_e, _bggId) => setGameToDelete(game)}
-                removeLabel={t('profile.collection.removeFromCollection')}
+                onClick={() => setSelectedGameForDrawer(game)}
               />
             ))}
           </AnimatePresence>
@@ -280,6 +281,22 @@ export function CollectionTab({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Tabletop Action Drawer (Ergonomic 48px Touch Targets) */}
+      <ProfileGameDrawer
+        game={selectedGameForDrawer}
+        open={!!selectedGameForDrawer}
+        onOpenChange={(open) => !open && setSelectedGameForDrawer(null)}
+        isWishlisted={selectedGameForDrawer ? wantToPlayIds.includes(selectedGameForDrawer.bgg_id) : false}
+        isUnplayed={selectedGameForDrawer ? !playedBggIds.has(selectedGameForDrawer.bgg_id) : false}
+        isOwnProfileEditable={isOwnProfileEditable}
+        gameTitle={selectedGameForDrawer ? getGameTitle(selectedGameForDrawer) : ''}
+        onToggleWishlist={toggleWantToPlay}
+        onRemove={(game) => {
+          setSelectedGameForDrawer(null)
+          setGameToDelete(game)
+        }}
+      />
     </div>
   )
 }

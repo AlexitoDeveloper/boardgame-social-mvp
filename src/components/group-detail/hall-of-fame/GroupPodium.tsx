@@ -86,7 +86,7 @@ export function GroupPodium({ members }: GroupPodiumProps) {
               className="flex-1 flex flex-col items-center -mt-4 z-10"
             >
               <div className="relative mb-2">
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-amber-400 animate-bounce">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-amber-400">
                   <Crown className="w-6 h-6 fill-amber-400/20" />
                 </div>
                 <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-amber-400 shadow-xl ring-4 ring-amber-400/25">
