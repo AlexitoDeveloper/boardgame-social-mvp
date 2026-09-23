@@ -80,7 +80,7 @@ export function ChatConversationList({
           </p>
         </div>
         <Button onClick={() => navigate('/jugar')} size="sm" className="mt-2 gap-1.5 shadow-sm">
-          <span>{t('chats.goToBoard')}</span>
+          <span>{t('chats.goToPlay')}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Button>
       </div>

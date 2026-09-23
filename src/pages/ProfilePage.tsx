@@ -92,7 +92,7 @@ export function ProfilePage() {
           variant="outline"
           size="sm"
           icon={ArrowLeft}
-          label={t('profile.backToBoard')}
+          label={t('profile.backToHome')}
           className="mx-auto cursor-pointer"
         />
       </section>

@@ -62,7 +62,7 @@ export function TabContentList({
     initial: shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 },
     animate: shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
     exit: { opacity: 0, transition: { duration: 0.08 } },
-    transition: { duration: 0.14, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.14, ease: [0.23, 1, 0.32, 1] as const },
   }
 
   return (

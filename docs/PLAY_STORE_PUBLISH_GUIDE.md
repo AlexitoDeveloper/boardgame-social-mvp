@@ -19,8 +19,9 @@ keytool -genkey -v -keystore ludiclub-release.jks -alias ludiclub -keyalg RSA -k
 ### Paso 1.2: Compilar el Bundle de Producción (.aab)
 En la carpeta `android/`:
 ```powershell
-# Sincronizar los cambios web más recientes
-node node_modules/@capacitor/cli/bin/capacitor sync android
+# Compilar web y sincronizar con Android usando pnpm
+pnpm build
+pnpm cap sync android
 
 # Compilar el bundle AAB
 cd android

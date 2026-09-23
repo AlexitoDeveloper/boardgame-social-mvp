@@ -1,31 +1,34 @@
 import { useState, useMemo } from 'react'
-import { Search, Loader2, X } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/button'
-import { Badge } from '../components/ui/badge'
-import { useGroups } from '../hooks/useGroups'
+import { useGroups, Group } from '../hooks/useGroups'
 import { useGroupActions } from '../hooks/useGroupActions'
-import { GroupsHeader } from '../components/groups/GroupsHeader'
+import { useAuth } from '../lib/authContext'
 import { GroupsSkeletonGrid } from '../components/groups/GroupsSkeletonGrid'
 import { GroupsEmptyState } from '../components/groups/GroupsEmptyState'
-import { GroupCard } from '../components/groups/GroupCard'
 import { JoinGroupModal } from '../components/groups/JoinGroupModal'
 import { CreateGroupModal } from '../components/groups/CreateGroupModal'
+import { GroupsHero } from '../components/groups/GroupsHero'
+import { GroupsFilters, GroupFilterMode } from '../components/groups/GroupsFilters'
+import { GroupInteractiveCard } from '../components/groups/GroupInteractiveCard'
+import { GroupQuickPeekSheet } from '../components/groups/GroupQuickPeekSheet'
 
-const containerVars = {
+const gridVars = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.06 },
+    transition: { staggerChildren: 0.05 },
   },
 } as const
 
 export function GroupsPage() {
+  const { user } = useAuth()
   const { groups, loading, error, createGroup, joinGroup } = useGroups()
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
+  const [filterMode, setFilterMode] = useState<GroupFilterMode>('all')
+  const [peekGroup, setPeekGroup] = useState<Group | null>(null)
 
   const actions = useGroupActions({
     groups,
@@ -33,21 +36,37 @@ export function GroupsPage() {
     createGroup,
   })
 
-  // Filter groups by name or description
+  // Aggregated totals
+  const totalMembers = useMemo(() => {
+    return groups.reduce((acc, g) => acc + (g.member_count || 1), 0)
+  }, [groups])
+
+  // Filter groups by query and selected filter mode
   const filteredGroups = useMemo(() => {
+    let result = groups
+
+    if (filterMode === 'created' && user) {
+      result = result.filter((g) => g.creator_id === user.id)
+    } else if (filterMode === 'large') {
+      result = result.filter((g) => (g.member_count || 1) >= 3)
+    }
+
     const query = searchQuery.trim().toLowerCase()
-    if (!query) return groups
-    return groups.filter(
+    if (!query) return result
+
+    return result.filter(
       (g) =>
         g.name.toLowerCase().includes(query) ||
         (g.description && g.description.toLowerCase().includes(query))
     )
-  }, [groups, searchQuery])
+  }, [groups, filterMode, user, searchQuery])
 
   return (
-    <section className="space-y-6 pb-20">
-      {/* Page Header */}
-      <GroupsHeader
+    <section className="space-y-7 pb-24">
+      {/* 1. Hero Spotlight & Quick Actions Deck */}
+      <GroupsHero
+        totalGroups={groups.length}
+        totalMembers={totalMembers}
         onJoinClick={actions.openJoinModal}
         onCreateClick={actions.openCreateModal}
       />
@@ -85,64 +104,51 @@ export function GroupsPage() {
           onCreateClick={actions.openCreateModal}
         />
       ) : (
-        <div className="space-y-4">
-          {/* Search bar & active counters */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
-                aria-hidden="true"
-              />
-              <Input
-                type="search"
-                aria-label={t('groups.searchPlaceholder')}
-                placeholder={t('groups.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-9 h-10 rounded-xl"
-              />
-              {searchQuery && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 rounded-full hover:bg-muted text-muted-foreground"
-                  aria-label={t('common.clear', 'Limpiar')}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
+        <div className="space-y-5">
+          {/* 2. Interactive Search & Segmented Filter Chips */}
+          <GroupsFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            filterMode={filterMode}
+            onFilterChange={setFilterMode}
+            totalFiltered={filteredGroups.length}
+          />
 
-            {searchQuery && (
-              <Badge variant="secondary" className="font-mono-tabular text-xs self-start sm:self-auto py-1">
-                {filteredGroups.length} {filteredGroups.length === 1 ? t('groups.titleSingular', 'grupo') : t('groups.title', 'grupos')}
-              </Badge>
-            )}
-          </div>
-
-          {/* Results grid or no-results notice */}
+          {/* 3. Results Grid */}
           {filteredGroups.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm border border-dashed border-border/40 rounded-2xl">
-              {t('groups.noResults')}
+            <div className="text-center py-16 px-4 text-muted-foreground text-sm border border-dashed border-border/50 rounded-3xl bg-muted/10">
+              <p className="font-semibold text-foreground text-base mb-1">No se encontraron círculos</p>
+              <p className="text-xs text-muted-foreground">Prueba ajustando los filtros o tu término de búsqueda.</p>
             </div>
           ) : (
             <motion.div
-              variants={containerVars}
+              variants={gridVars}
               initial="hidden"
               animate="show"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               {filteredGroups.map((group) => (
-                <GroupCard key={group.id} group={group} />
+                <GroupInteractiveCard
+                  key={group.id}
+                  group={group}
+                  isOwner={user ? group.creator_id === user.id : false}
+                  onQuickPeek={(g) => setPeekGroup(g)}
+                />
               ))}
             </motion.div>
           )}
         </div>
       )}
 
-      {/* Join Group Dialog */}
+      {/* 4. Fluid Slide-Over Quick Peek Drawer */}
+      <GroupQuickPeekSheet
+        group={peekGroup}
+        isOpen={Boolean(peekGroup)}
+        onClose={() => setPeekGroup(null)}
+        isOwner={user && peekGroup ? peekGroup.creator_id === user.id : false}
+      />
+
+      {/* Functional Modals */}
       <JoinGroupModal
         isOpen={actions.isJoinOpen}
         onClose={actions.closeJoinModal}
@@ -153,7 +159,6 @@ export function GroupsPage() {
         onSubmit={actions.handleJoinSubmit}
       />
 
-      {/* Create Group Dialog */}
       <CreateGroupModal
         isOpen={actions.isCreateOpen}
         onClose={actions.closeCreateModal}

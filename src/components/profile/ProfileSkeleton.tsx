@@ -4,7 +4,7 @@ export function ProfileSkeleton() {
   return (
     <div className="space-y-6 max-w-xl mx-auto p-0 pb-6 md:p-4 animate-pulse">
       {/* Header bar Skeleton */}
-      <div className="sticky top-[-2px] pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 z-30 flex items-center justify-between -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 border-b border-border/20">
+      <div className="sticky top-[-2px] pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 z-40 flex items-center justify-between -mx-4 px-4 md:-mx-8 md:px-8 bg-background/85 border-b border-border/20">
         <div className="h-9 w-16 bg-muted rounded-xl" />
         <div className="h-6 w-32 bg-muted rounded-full" />
       </div>

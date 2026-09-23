@@ -13,7 +13,7 @@ interface ProfileModalsProps {
   profile: UserProfile;
   profileId: string;
   currentUserId?: string;
-  saveProfile: (username?: string, city?: string, avatarUrl?: string) => Promise<void>;
+  saveProfile: (username: string, city: string, avatarUrl: string) => Promise<void>;
   savingProfile: boolean;
   isImportModalOpen: boolean;
   setIsImportModalOpen: (val: boolean) => void;
@@ -21,7 +21,7 @@ interface ProfileModalsProps {
   isAddGameModalOpen: boolean;
   setIsAddGameModalOpen: (val: boolean) => void;
   collectionGames: Game[];
-  addToCollection: (bggId: number) => Promise<void>;
+  addToCollection: (game: Game) => Promise<void>;
   selectedRanking: any | null;
   setSelectedRanking: (ranking: any | null) => void;
   isSettingsOpen: boolean;
@@ -75,8 +75,8 @@ export function ProfileModals({
         isOpen={isAddGameModalOpen}
         onClose={() => setIsAddGameModalOpen(false)}
         userCollectionGameIds={collectionGames.map((g) => g.bgg_id)}
-        onAddGame={async (gameId) => {
-          await addToCollection(gameId)
+        onAddGame={async (game) => {
+          await addToCollection(game)
           toast.success(t('toast.gameAddedToCollection', '¡Juego añadido a tu ludoteca!'))
         }}
       />

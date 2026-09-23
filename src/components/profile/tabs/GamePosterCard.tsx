@@ -1,8 +1,6 @@
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Trash2, Bookmark, BookmarkCheck } from 'lucide-react'
+import { BookmarkCheck } from 'lucide-react'
 import { ExpansionBadge } from '../../ui/expansion-badge'
-import { Button } from '../../ui/button'
 import { Game } from '../../../types'
 import { useGameLocale } from '../../../hooks/useGameLocale'
 
@@ -10,22 +8,16 @@ interface GamePosterCardProps {
   game: Game;
   isWishlisted: boolean;
   isUnplayed: boolean;
-  isOwnProfileEditable: boolean;
   gameTitle: string;
-  onToggleWishlist: (e: React.MouseEvent, bggId: number) => void;
-  onRemove: (e: React.MouseEvent, bggId: number) => void;
-  removeLabel?: string;
+  onClick: () => void;
 }
 
 export function GamePosterCard({
   game,
   isWishlisted,
   isUnplayed,
-  isOwnProfileEditable,
   gameTitle,
-  onToggleWishlist,
-  onRemove,
-  removeLabel = 'Quitar de la ludoteca'
+  onClick,
 }: GamePosterCardProps) {
   const { getGameCover } = useGameLocale()
   const coverUrl = getGameCover(game) || game.image_url
@@ -37,14 +29,20 @@ export function GamePosterCard({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className="group relative"
+      className="group relative cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-2xl"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick()
+        }
+      }}
     >
-      <Link
-        to={`/juegos/${game.bgg_id}`}
-        className="block relative rounded-2xl overflow-hidden glass-panel border border-border/40 hover:border-primary/40 hover:shadow-xl transition-all duration-300"
-      >
+      <div className="block relative rounded-2xl overflow-hidden glass-panel border border-border/40 hover:border-primary/40 hover:shadow-xl transition-all duration-300">
         {/* Poster Artwork (2:3 Aspect Ratio) */}
         <div className="w-full aspect-[2/3] relative bg-muted/30 overflow-hidden flex items-center justify-center">
           {coverUrl ? (
@@ -66,9 +64,20 @@ export function GamePosterCard({
             </span>
           )}
 
-          {/* Unplayed / Shelf of Shame Indicator Tag - 100% Solid & High-Contrast (Accessible) */}
+          {/* Wishlist / Quiero Jugar Indicator Ribbon (Top Right) */}
+          {isWishlisted && (
+            <div 
+              className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-purple-600/90 text-white backdrop-blur-md shadow-xs border border-purple-400/30 flex items-center justify-center"
+              title="En tu lista Quiero Jugar"
+              aria-label="En tu lista Quiero Jugar"
+            >
+              <BookmarkCheck className="w-3.5 h-3.5" />
+            </div>
+          )}
+
+          {/* Unplayed / Shelf of Shame Indicator Tag (Bottom Left) */}
           {isUnplayed && (
-            <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
+            <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-md border border-amber-300 select-none">
                 Sin jugar
               </span>
@@ -86,50 +95,6 @@ export function GamePosterCard({
             <span>{game.year_published || 'N/A'}</span>
           </div>
         </div>
-      </Link>
-
-      {/* Tactile Action Icons Overlay - Ergonomic & Touch-Accessible */}
-      <div 
-        className="absolute top-2 right-2 z-30 flex items-center gap-1.5 p-1 rounded-2xl bg-black/75 dark:bg-[#0A0F1D]/90 backdrop-blur-md border border-white/20 shadow-xl pointer-events-auto select-none"
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
-        onPointerDown={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
-      >
-        {/* Bookmark / Quiero Jugar */}
-        <Button
-          type="button"
-          variant={isWishlisted ? "purple" : "secondary"}
-          size="icon-sm"
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onToggleWishlist(e, game.bgg_id)
-          }}
-          title={isWishlisted ? 'Quitar de Quiero Jugar' : 'Marcar Quiero Jugar'}
-          aria-label={isWishlisted ? 'Quitar de Quiero Jugar' : 'Marcar Quiero Jugar'}
-          icon={isWishlisted ? BookmarkCheck : Bookmark}
-        />
-
-        {/* Delete from Collection Button */}
-        {isOwnProfileEditable && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon-sm"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onRemove(e, game.bgg_id)
-            }}
-            title={removeLabel}
-            aria-label={removeLabel}
-            icon={Trash2}
-          />
-        )}
       </div>
     </motion.div>
   )

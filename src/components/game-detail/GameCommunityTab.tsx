@@ -29,7 +29,7 @@ export function GameCommunityTab({
 
   return (
     <div className="space-y-6">
-      {/* Upcoming Scheduled Meetups / Open Tables */}
+      {/* Upcoming Scheduled Meetups */}
       <GameUpcomingMeetupsSection
         upcomingMeetups={upcomingMeetups}
         language={language}
