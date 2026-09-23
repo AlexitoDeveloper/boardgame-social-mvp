@@ -1,0 +1,32 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Run at 00:00 UTC every 4 days to prevent Supabase 7-day inactivity pause
+    - cron: '0 0 */4 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  ping:
+    name: Ping Database Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send keep-alive HTTP GET request
+        run: |
+          if [ -z "${{ secrets.VITE_SUPABASE_URL }}" ] || [ -z "${{ secrets.VITE_SUPABASE_ANON_KEY }}" ]; then
+            echo "Skipping ping: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY secrets not configured in repository."
+            exit 0
+          fi
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/games_cache?limit=1")
+
+          echo "Supabase Keep-Alive HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "Database is active and healthy."
+          else
+            echo "Warning: Received HTTP status $HTTP_STATUS"
+          fi

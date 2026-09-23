@@ -66,7 +66,7 @@ boardgame-social-mvp/
 │   ├── functions/                 # Supabase Edge Functions (bgg-search y bgg-ingest)
 │   ├── *.sql                      # Scripts SQL incrementales de migración
 │   └── schema.sql                 # Esquema base inicial de la base de datos
-├── vercel.json                    # Reglas SPA para despliegue en Vercel
+├── public/_redirects              # Reglas SPA para despliegue en Cloudflare Pages
 └── package.json                   # Dependencias de npm/pnpm
 ```
 
