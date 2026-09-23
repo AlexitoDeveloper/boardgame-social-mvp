@@ -1169,6 +1169,36 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       leftMeetupSuccess: "Has salido de la mesa.",
       profileSaved: "Ajustes del perfil guardados.",
       error: "Ha ocurrido un error inesperado."
+    },
+    legal: {
+      terms: "Términos de Servicio",
+      privacy: "Política de Privacidad",
+      deletion: "Eliminación de Datos"
+    },
+    settings: {
+      legalSection: "Información Legal",
+      deleteAccount: "Eliminar mi cuenta",
+      deleteAccountTitle: "¿Eliminar tu cuenta definitivamente?",
+      deleteAccountWarning: "Esta acción es completamente irreversible. Se eliminarán permanentemente tus datos de acceso, perfil, historial de partidas, colecciones de juegos y mensajes en chats.",
+      deleteConfirmPrompt: "Para confirmar, escribe",
+      confirmDeleteButton: "Eliminar Definitivamente",
+      deleteSuccess: "Tu cuenta y datos han sido eliminados correctamente.",
+      deleteError: "Error al eliminar la cuenta. Inténtalo de nuevo."
+    },
+    reports: {
+      reportChat: "Reportar conversación",
+      reportMeetup: "Reportar partida",
+      dialogTitle: "Reportar contenido o usuario",
+      dialogDesc: "Tu reporte es confidencial. Ayúdanos a mantener la comunidad segura y libre de conductas abusivas.",
+      reasonLabel: "¿Cuál es el motivo del reporte?",
+      detailsLabel: "Detalles adicionales (opcional)",
+      detailsPlaceholder: "Describe brevemente qué ha ocurrido...",
+      submitButton: "Enviar Reporte",
+      sending: "Enviando...",
+      success: "Gracias por avisarnos. Nuestro equipo revisará el contenido.",
+      error: "No se pudo enviar el reporte. Inténtalo de nuevo.",
+      blockSuccess: "Has bloqueado a este usuario.",
+      blockError: "No se pudo bloquear al usuario."
     }
   },
   en: {
@@ -2339,6 +2369,36 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       leftMeetupSuccess: "You have left the meetup.",
       profileSaved: "Profile settings saved.",
       error: "An unexpected error occurred."
+    },
+    legal: {
+      terms: "Terms of Service",
+      privacy: "Privacy Policy",
+      deletion: "Data Deletion"
+    },
+    settings: {
+      legalSection: "Legal Information",
+      deleteAccount: "Delete my account",
+      deleteAccountTitle: "Permanently delete your account?",
+      deleteAccountWarning: "This action is completely irreversible. Your login credentials, profile, match history, game collections, and chat messages will be permanently deleted.",
+      deleteConfirmPrompt: "To confirm, type",
+      confirmDeleteButton: "Permanently Delete",
+      deleteSuccess: "Your account and data have been successfully deleted.",
+      deleteError: "Error deleting account. Please try again."
+    },
+    reports: {
+      reportChat: "Report conversation",
+      reportMeetup: "Report meetup",
+      dialogTitle: "Report content or user",
+      dialogDesc: "Your report is confidential. Help us keep the community safe and free of abusive behavior.",
+      reasonLabel: "What is the reason for this report?",
+      detailsLabel: "Additional details (optional)",
+      detailsPlaceholder: "Briefly describe what happened...",
+      submitButton: "Submit Report",
+      sending: "Sending...",
+      success: "Thank you for reporting. Our moderation team will review this content.",
+      error: "Could not submit report. Please try again.",
+      blockSuccess: "You have blocked this user.",
+      blockError: "Could not block user."
     }
   }
 }

@@ -13,6 +13,9 @@ import { ChatsPage } from './pages/ChatsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { CreateMatchPage } from './pages/CreateMatchPage'
+import { PrivacyPage } from './pages/legal/PrivacyPage'
+import { TermsPage } from './pages/legal/TermsPage'
+import { AccountDeletionPage } from './pages/legal/AccountDeletionPage'
 import { useAuth } from './lib/authContext'
 import { ReactNode } from 'react'
 
@@ -31,13 +34,15 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 function App() {
   return (
     <Routes>
-      {/* Public auth page – outside AppShell */}
+      {/* Public auth & legal pages – outside AppShell */}
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/delete-account" element={<AccountDeletionPage />} />
 
       {/* App shell wraps all in-app pages */}
       <Route element={<AppShell />}>
         <Route path="/" element={<ExplorePage />} />
-        <Route path="/home-v2" element={<Navigate to="/" replace />} />
         <Route path="/mesa-hub" element={<TableHubPage />} />
         <Route path="/jugar" element={<PlayPage />} />
         <Route path="/juegos/:id" element={<GameDetailPage />} />

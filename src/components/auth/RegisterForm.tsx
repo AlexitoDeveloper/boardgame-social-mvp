@@ -91,6 +91,17 @@ export function RegisterForm({
           t('auth.signUpButton')
         )}
       </Button>
+
+      <p className="text-[11px] text-center text-muted-foreground leading-relaxed px-2">
+        {t('auth.legalNotice', 'Al registrarte en Ludiclub, aceptas nuestros')}{' '}
+        <a href="/terms" target="_blank" rel="noreferrer" className="text-primary underline hover:text-primary/80">
+          {t('legal.terms', 'Términos de Servicio')}
+        </a>{' '}
+        {t('common.and', 'y la')}{' '}
+        <a href="/privacy" target="_blank" rel="noreferrer" className="text-primary underline hover:text-primary/80">
+          {t('legal.privacy', 'Política de Privacidad')}
+        </a>.
+      </p>
     </Form>
   )
 }

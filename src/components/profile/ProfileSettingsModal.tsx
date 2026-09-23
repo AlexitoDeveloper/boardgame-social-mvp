@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight } from 'lucide-react'
+import { Sun, Moon, Languages, LogOut, Check, ListOrdered, ChevronRight, FileText, Shield, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../lib/authContext'
 import { useTheme } from '../../lib/useTheme'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet'
 import { Button } from '../ui/button'
+import { DeleteAccountDialog } from './DeleteAccountDialog'
 
 interface ProfileSettingsModalProps {
   isOpen: boolean
@@ -16,6 +18,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   const { language, setLanguage, signOut } = useAuth()
   const { isDark, toggle: toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleSignOut = async () => {
     onClose()
@@ -131,21 +134,73 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
             </Button>
           </div>
 
-          {/* Sign Out Action */}
-          <div className="pt-2 border-t border-border/20">
+          {/* Legal & Policies */}
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+              {t('settings.legalSection', 'Información Legal')}
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose()
+                  navigate('/privacy')
+                }}
+                className="w-full justify-start gap-2 text-xs"
+              >
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <span className="truncate">{t('legal.privacy', 'Privacidad')}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose()
+                  navigate('/terms')
+                }}
+                className="w-full justify-start gap-2 text-xs"
+              >
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="truncate">{t('legal.terms', 'Términos')}</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Account Actions & Danger Zone */}
+          <div className="pt-3 border-t border-border/20 space-y-2">
             <Button
               type="button"
-              variant="destructive"
+              variant="outline"
               size="default"
               onClick={handleSignOut}
-              className="w-full"
+              className="w-full justify-center gap-2"
             >
               <LogOut className="h-4 w-4" />
               <span>{t('nav.signOut')}</span>
             </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="w-full justify-center text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span>{t('settings.deleteAccount', 'Eliminar mi cuenta')}</span>
+            </Button>
           </div>
         </div>
       </SheetContent>
+
+      <DeleteAccountDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+      />
     </Sheet>
   )
 }

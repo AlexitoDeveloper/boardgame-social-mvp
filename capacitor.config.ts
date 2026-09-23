@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.boardgamesocial.app',
-  appName: 'boardgame-social-mvp',
+  appId: 'com.ludiclub.app',
+  appName: 'Ludiclub',
   webDir: 'dist'
 };
 
