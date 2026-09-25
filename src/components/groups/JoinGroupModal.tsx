@@ -53,7 +53,7 @@ export const JoinGroupModal: FC<JoinGroupModalProps> = ({
             <div className="space-y-2">
               <Label
                 htmlFor="join-invite-code"
-                className="text-xs font-black uppercase text-muted-foreground tracking-wider px-1 block"
+                className="text-xs font-bold text-muted-foreground px-1 block"
               >
                 {t('groups.joinModalTitle')}
               </Label>

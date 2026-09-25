@@ -159,8 +159,8 @@ export function LudotecaTab({
       {/* Interactive Matchmaker Strip: "¿Quiénes jugamos hoy?" */}
       <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
         <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1 mr-1">
-            <Sparkles className="w-3 h-3 text-primary" />
+          <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 mr-1">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             Mesa:
           </span>
 
@@ -192,7 +192,7 @@ export function LudotecaTab({
               size="sm"
               onClick={() => setOnlyMyGames(!onlyMyGames)}
               className={`h-7 px-2.5 rounded-lg text-xs font-bold gap-1 cursor-pointer ${
-                onlyMyGames ? 'bg-primary/15 text-primary dark:text-[#FF80B0] border border-primary/30 font-black' : 'text-muted-foreground'
+                onlyMyGames ? 'bg-primary/10 text-primary border border-primary/30 font-black' : 'text-muted-foreground'
               }`}
             >
               <BookmarkCheck className="w-3.5 h-3.5" />

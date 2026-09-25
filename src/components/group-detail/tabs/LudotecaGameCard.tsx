@@ -1,5 +1,5 @@
 import React from 'react'
-import { Users, Clock, Flame } from 'lucide-react'
+import { Users, Clock, Flame, Check } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
 import { MergedGame } from '../../../hooks/useGroupDetail'
@@ -63,7 +63,7 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             <Badge
               variant="secondary"
               size="sm"
-              className="bg-background/85 backdrop-blur-xs border-border/40 font-mono text-[10px] py-0 px-1.5 shadow-2xs"
+              className="bg-background/85 backdrop-blur-xs border-border/40 font-mono-tabular text-[10px] py-0 px-1.5 shadow-2xs"
             >
               <Users className="w-2.5 h-2.5 mr-0.5 text-primary" />
               {game.min_players === game.max_players
@@ -75,9 +75,14 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
 
         {isMine && (
           <div className="absolute top-2 left-2 z-10">
-            <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/90 text-white font-black text-[9px] uppercase tracking-wider shadow-2xs">
+            <Badge
+              variant="raspberry"
+              size="sm"
+              className="text-white font-black text-[11px] px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 rounded-lg"
+            >
+              <Check className="w-3 h-3 stroke-[3]" />
               Mío
-            </span>
+            </Badge>
           </div>
         )}
 
@@ -99,14 +104,14 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             )
           })}
           {owners.length > 3 && (
-            <span className="h-5 min-w-5 px-1 rounded-full bg-background/90 border border-border/40 text-[9px] font-black text-muted-foreground flex items-center justify-center">
+            <span className="h-5 min-w-5 px-1 rounded-full bg-background/90 border border-border/40 text-[9px] font-black text-muted-foreground flex items-center justify-center font-mono-tabular">
               +{owners.length - 3}
             </span>
           )}
         </div>
 
         {game.playing_time && (
-          <div className="absolute bottom-2 right-2.5 z-10 text-[10px] font-mono font-bold text-foreground/90 bg-background/70 backdrop-blur-2xs px-1.5 py-0.5 rounded-md border border-border/20 flex items-center gap-1">
+          <div className="absolute bottom-2 right-2.5 z-10 text-[10px] font-mono-tabular font-bold text-foreground/90 bg-background/70 backdrop-blur-2xs px-1.5 py-0.5 rounded-md border border-border/20 flex items-center gap-1">
             <Clock className="w-2.5 h-2.5 text-muted-foreground" />
             <span>{game.playing_time}m</span>
           </div>
@@ -123,7 +128,7 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             {owners.length === 1 ? owners[0].username : `${owners.length} aportaciones`}
           </span>
           {game.complexity && (
-            <span className="flex items-center gap-0.5 text-[10px] font-mono text-amber-500/90 font-bold shrink-0">
+            <span className="flex items-center gap-0.5 text-[10px] font-mono-tabular text-amber dark:text-amber-hover font-bold shrink-0">
               <Flame className="w-2.5 h-2.5" />
               {game.complexity.toFixed(1)}
             </span>

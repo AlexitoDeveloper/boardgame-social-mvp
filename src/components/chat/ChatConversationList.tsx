@@ -152,7 +152,7 @@ export function ChatConversationList({
 
             <div className="flex flex-col items-end justify-between shrink-0 h-10 min-w-[3.5rem] py-0.5">
               {lastMsg ? (
-                <span className="text-[11px] font-semibold text-muted-foreground tabular-nums">
+                <span className="text-[11px] font-semibold text-muted-foreground font-mono-tabular">
                   {formatTime(lastMsg.created_at)}
                 </span>
               ) : (
@@ -161,7 +161,7 @@ export function ChatConversationList({
 
               <div className="flex items-center gap-1.5 mt-auto">
                 {unreadCount > 0 && (
-                  <Badge variant="default" className="h-5 min-w-[20px] px-1.5 rounded-full text-[10px] font-black leading-none shadow-xs shadow-primary/20">
+                  <Badge variant="default" className="h-5 min-w-[20px] px-1.5 rounded-full text-[10px] font-black leading-none shadow-xs shadow-primary/20 font-mono-tabular">
                     {unreadCount}
                   </Badge>
                 )}

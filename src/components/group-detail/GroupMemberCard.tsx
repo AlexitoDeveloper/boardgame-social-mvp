@@ -55,8 +55,8 @@ export const GroupMemberCard: React.FC<GroupMemberCardProps> = ({
               </Badge>
             )}
             {isMemberCreator ? (
-              <Badge variant="warning" className="text-[10px] px-1.5 py-0 leading-tight flex items-center gap-0.5">
-                <Crown className="w-2.5 h-2.5 fill-amber-500" aria-hidden="true" /> {t('common.creator', 'Creador')}
+              <Badge variant="tag-amber" className="text-[10px] px-1.5 py-0 leading-tight flex items-center gap-0.5">
+                <Crown className="w-2.5 h-2.5 fill-amber text-amber" aria-hidden="true" /> {t('common.creator', 'Creador')}
               </Badge>
             ) : isMemberAdmin ? (
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 leading-tight flex items-center gap-0.5 text-primary border-primary/30 bg-primary/5">
@@ -67,7 +67,9 @@ export const GroupMemberCard: React.FC<GroupMemberCardProps> = ({
 
           <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 truncate">
             {t('groups.memberSince', 'Miembro desde')}{' '}
-            {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
+            <span className="font-mono-tabular">
+              {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
+            </span>
           </p>
         </div>
       </div>
@@ -83,9 +85,9 @@ export const GroupMemberCard: React.FC<GroupMemberCardProps> = ({
             variant="ghost"
             aria-label={t('common.kick', 'Expulsar')}
             title={t('common.kick', 'Expulsar')}
-            className="rounded-xl text-destructive hover:bg-destructive/10 font-bold h-11 w-11 min-h-[44px] min-w-[44px] p-0 flex items-center justify-center cursor-pointer transition-colors"
+            className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 font-bold h-11 w-11 min-h-[44px] min-w-[44px] p-0 flex items-center justify-center cursor-pointer transition-colors"
           >
-            <UserMinus className="w-4 h-4 text-destructive" aria-hidden="true" />
+            <UserMinus className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
           </Button>
         </div>
       )}

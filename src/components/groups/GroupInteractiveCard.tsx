@@ -109,11 +109,11 @@ export const GroupInteractiveCard: FC<GroupInteractiveCardProps> = ({
                 </Badge>
                 {isOwner && (
                   <Badge
-                    variant="outline"
-                    className="text-[10px] font-bold text-amber-500 border-amber-500/30 py-0.5 px-1.5 gap-0.5"
+                    variant="tag-amber"
+                    className="text-[10px] font-bold py-0.5 px-1.5 gap-1"
                   >
                     <Shield className="w-2.5 h-2.5" />
-                    Admin
+                    <span>Admin</span>
                   </Badge>
                 )}
               </div>
@@ -157,7 +157,7 @@ export const GroupInteractiveCard: FC<GroupInteractiveCardProps> = ({
             variant="ghost"
             size="xs"
             onClick={handleCopyCode}
-            className="h-7 text-[11px] font-bold uppercase text-muted-foreground bg-muted/40 border border-border/40 hover:bg-muted/70 hover:text-foreground px-2 py-0.5 rounded-lg transition-colors font-mono-tabular active:scale-95"
+            className="h-7 text-[11px] font-bold text-muted-foreground bg-muted/40 border border-border/40 hover:bg-muted/70 hover:text-foreground px-2 py-0.5 rounded-lg transition-colors font-mono-tabular active:scale-95"
             title={t('groups.copyInviteLink')}
             aria-label={copied ? t('groups.copied') : t('groups.copyInviteLink')}
           >

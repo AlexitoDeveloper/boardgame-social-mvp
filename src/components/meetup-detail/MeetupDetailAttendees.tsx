@@ -47,7 +47,7 @@ export function MeetupDetailAttendees({
         <div className="w-9 h-9 rounded-full border border-dashed border-border/50 flex items-center justify-center text-xs font-bold text-muted-foreground/30">
           ?
         </div>
-        <span className="text-xs font-bold tracking-wide uppercase">{t('meetup.vacantSpot')}</span>
+        <span className="text-xs font-bold text-muted-foreground">{t('meetup.vacantSpot')}</span>
       </div>
     ))
   }
@@ -56,8 +56,8 @@ export function MeetupDetailAttendees({
     <Card className="border-border/30 bg-card/60 backdrop-blur-2xl shadow-lg">
       <CardHeader className="p-4 sm:p-6 pb-3 border-b border-border/20 flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-md font-extrabold tracking-tight uppercase text-primary">{t('meetup.attendeesTitle')}</CardTitle>
-          <CardDescription className="text-xs font-semibold text-muted-foreground mt-0.5">
+          <CardTitle className="text-base font-bold tracking-tight text-foreground">{t('meetup.attendeesTitle')}</CardTitle>
+          <CardDescription className="text-xs font-semibold text-muted-foreground mt-0.5 font-mono-tabular">
             {t('meetup.attendeesCount', { current: attendees.length, max: maxPlayers })}
           </CardDescription>
         </div>
@@ -72,14 +72,14 @@ export function MeetupDetailAttendees({
                   </AvatarFallback>
                 </Avatar>
                 {a.id === creatorId && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center text-zinc-950 shadow-sm ring-1 ring-background">
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#D97706] rounded-full flex items-center justify-center text-white shadow-2xs ring-1 ring-background">
                     <Crown className="w-2 h-2 fill-current" />
                   </div>
                 )}
               </div>
             ))}
           </div>
-          <Badge variant="primary-soft" className="text-xs">
+          <Badge variant="primary-soft" className="text-xs font-mono-tabular">
             {t('meetup.spotsLeft', { count: spotsRemaining })}
           </Badge>
         </div>
@@ -130,8 +130,8 @@ export function MeetupDetailAttendees({
                   )}
 
                   {isUserOrganizer && (
-                    <Badge variant="warning" className="flex items-center gap-1 shrink-0 text-xs">
-                      <Crown className="w-3 h-3 fill-current" />
+                    <Badge variant="tag-amber" className="flex items-center gap-1 shrink-0 text-xs font-bold">
+                      <Crown className="w-3 h-3 fill-amber text-amber" />
                       Master
                     </Badge>
                   )}

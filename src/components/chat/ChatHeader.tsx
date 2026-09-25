@@ -78,7 +78,7 @@ export function ChatHeader({
 
             <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5 mt-0.5 truncate">
               <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span>
+              <span className="font-mono-tabular">
                 {formatDate(meetup.date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }, language)}
               </span>
             </p>

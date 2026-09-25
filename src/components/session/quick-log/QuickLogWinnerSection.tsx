@@ -34,7 +34,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Trophy className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-bold text-muted-foreground">
             {t('quickLog.resultsSection')}
           </span>
         </div>
@@ -137,7 +137,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                   </div>
 
                   {isWinner && (
-                    <Crown className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0 drop-shadow-xs" />
+                    <Crown className="w-4 h-4 text-amber fill-amber shrink-0 drop-shadow-xs" />
                   )}
                 </div>
 

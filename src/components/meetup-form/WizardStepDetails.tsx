@@ -72,7 +72,7 @@ export function WizardStepDetails({
 
       {/* Interactive Player Stepper */}
       <div className="p-4 border border-border/40 rounded-2xl bg-card/40 backdrop-blur-md shadow-sm space-y-3">
-        <Label className="text-xs font-black uppercase tracking-wider text-muted-foreground block text-center">
+        <Label className="text-xs font-bold text-muted-foreground block text-center">
           {t('create.playerCount')}
         </Label>
         
@@ -93,7 +93,7 @@ export function WizardStepDetails({
             <span className="text-3xl sm:text-4xl font-black tracking-tight text-foreground font-mono-tabular">
               {playerCount}
             </span>
-            <span className="block text-xs font-bold text-muted-foreground uppercase">
+            <span className="block text-xs font-bold text-muted-foreground">
               {t('create.playersUnit')}
             </span>
           </div>
@@ -124,7 +124,7 @@ export function WizardStepDetails({
                 playerCount === val ? 'shadow-sm shadow-primary/20' : ''
               }`}
             >
-              {val} {t('common.playersAbbr')}
+              <span className="font-mono-tabular">{val}</span> {t('common.playersAbbr')}
             </Button>
           ))}
           {isCustomCapacity && (
@@ -134,7 +134,7 @@ export function WizardStepDetails({
               size="sm"
               className="h-8 px-2.5 rounded-lg text-xs font-bold shadow-sm shadow-primary/20 cursor-default"
             >
-              {playerCount} {t('common.playersAbbr')}
+              <span className="font-mono-tabular">{playerCount}</span> {t('common.playersAbbr')}
             </Button>
           )}
         </div>

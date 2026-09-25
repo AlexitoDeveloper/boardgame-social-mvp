@@ -128,11 +128,11 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
                 key={`${p.name}-${idx}`}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs transition-colors ${
                   isWinner
-                    ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30 font-bold shadow-xs'
+                    ? 'bg-[#D97706]/15 text-[#B45309] dark:text-[#FBBF24] border border-[#D97706]/35 font-bold shadow-xs'
                     : 'bg-muted/40 text-muted-foreground border border-border/30 font-medium'
                 }`}
               >
-                {isWinner && <Crown className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
+                {isWinner && <Crown className="w-3 h-3 text-[#D97706] dark:text-[#FBBF24] fill-current shrink-0" />}
                 <span className="truncate max-w-[90px]">{p.name}</span>
                 {showScore && (
                   <span className="font-mono-tabular text-xs font-black tracking-tight text-foreground">
@@ -143,17 +143,17 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
             )
           })}
           {orderedPlayers.length > 5 && (
-            <span className="text-[11px] text-muted-foreground font-bold px-1">
+            <span className="text-[11px] text-muted-foreground font-bold px-1 font-mono-tabular">
               +{orderedPlayers.length - 5}
             </span>
           )}
         </div>
       ) : match.winnerName ? (
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30 text-xs font-bold self-start shadow-xs">
-          <Crown className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#D97706]/15 text-[#B45309] dark:text-[#FBBF24] border border-[#D97706]/35 text-xs font-bold self-start shadow-xs">
+          <Crown className="w-3 h-3 text-[#D97706] dark:text-[#FBBF24] fill-current shrink-0" />
           <span>{match.winnerName}</span>
           {hasValidWinnerScore && (
-            <span className="font-mono text-[11px] font-black">({rawWinnerScore} pts)</span>
+            <span className="font-mono-tabular text-[11px] font-black">({rawWinnerScore} pts)</span>
           )}
         </div>
       ) : null}

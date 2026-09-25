@@ -67,8 +67,8 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
               )}
               {game.rating_geek && (
                 <div className="pt-1">
-                  <Badge variant="tag-emerald" className="gap-1 text-[11px] font-black py-0.5">
-                    <Star className="w-3 h-3 fill-current" />
+                  <Badge variant="tag-amber" className="gap-1 text-[11px] font-black py-0.5 font-mono-tabular">
+                    <Star className="w-3 h-3 fill-amber text-amber" />
                     {game.rating_geek.toFixed(1)} BGG
                   </Badge>
                 </div>
@@ -78,7 +78,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
             {/* 3-Column Spec Matrix from GameShelfCard */}
             <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-elevated/60 border border-border/60 text-center mt-3">
               <div>
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Jugadores</span>
+                <span className="block text-[10px] text-muted-foreground font-semibold">Jugadores</span>
                 <span className="font-mono-tabular text-xs font-black text-foreground">
                   {game.min_players === game.max_players
                     ? game.min_players
@@ -86,14 +86,14 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
                 </span>
               </div>
               <div className="border-x border-border/60">
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Tiempo</span>
+                <span className="block text-[10px] text-muted-foreground font-semibold">Tiempo</span>
                 <span className="font-mono-tabular text-xs font-black text-foreground">
                   {game.playing_time ? `${game.playing_time}m` : '—'}
                 </span>
               </div>
               <div>
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">En Grupo</span>
-                <span className="font-mono-tabular text-xs font-black text-emerald-400">
+                <span className="block text-[10px] text-muted-foreground font-semibold">En Grupo</span>
+                <span className="font-mono-tabular text-xs font-black text-foreground">
                   {owners.length} {owners.length === 1 ? 'copia' : 'copias'}
                 </span>
               </div>
@@ -104,11 +104,11 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
         {/* Ownership Matrix */}
         <div className="p-4 rounded-2xl bg-muted/30 border border-border/30 space-y-2.5">
           <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
-            <span className="uppercase tracking-wider">
+            <span>
               {hasMultipleOwners ? `Copias en el grupo (${owners.length})` : 'Copia en el grupo'}
             </span>
             {isOwnedByMe && (
-              <Badge variant="success" size="sm">
+              <Badge variant="tag-emerald" size="sm">
                 En tu colección
               </Badge>
             )}
@@ -142,8 +142,8 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
           {game.complexity ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
               <span className="text-muted-foreground text-[11px] block font-semibold">Complejidad</span>
-              <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5">
-                <Flame className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5 font-mono-tabular">
+                <Flame className="w-3.5 h-3.5 text-amber dark:text-amber-hover" />
                 {game.complexity.toFixed(1)} / 5.0
               </span>
             </div>
@@ -152,8 +152,8 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
           {game.rating_geek ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
               <span className="text-muted-foreground text-[11px] block font-semibold">Geek Rating</span>
-              <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5">
-                <Star className="w-3.5 h-3.5 text-yellow-500" />
+              <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5 font-mono-tabular">
+                <Star className="w-3.5 h-3.5 fill-amber text-amber" />
                 {game.rating_geek.toFixed(1)} / 10
               </span>
             </div>
@@ -162,7 +162,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
           {game.year_published ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
               <span className="text-muted-foreground text-[11px] block font-semibold">Año</span>
-              <span className="font-extrabold text-foreground block mt-0.5">{game.year_published}</span>
+              <span className="font-extrabold text-foreground block mt-0.5 font-mono-tabular">{game.year_published}</span>
             </div>
           ) : null}
         </div>

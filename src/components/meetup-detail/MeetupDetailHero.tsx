@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Calendar, MapPin, Laptop, Flag } from 'lucide-react'
-import { Tag } from '../ui/tag'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Meetup } from '../../types'
 import { USE_MOCKS } from '../../lib/config'
@@ -56,7 +56,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
             variant="ghost"
             size="icon"
             onClick={() => setIsReportOpen(true)}
-            className="text-muted-foreground/60 hover:text-destructive shrink-0 mt-0.5 h-8 w-8"
+            className="text-muted-foreground/60 hover:text-foreground hover:bg-muted/30 shrink-0 mt-0.5 h-8 w-8"
             title={t('reports.reportMeetup', 'Reportar partida')}
             aria-label={t('reports.reportMeetup', 'Reportar partida')}
           >
@@ -66,20 +66,20 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         
         {/* Lista de juegos interactiva */}
         {gamesList.length === 0 ? (
-          <div className="text-sm font-bold text-amber-500 tracking-wide flex items-center gap-1.5 pt-1">
+          <div className="text-sm font-bold text-amber dark:text-amber-hover flex items-center gap-1.5 pt-1">
             <span>{t('meetup.gamesLabel')}</span> 
-            <Tag variant="warning-solid" className="shadow-sm">
+            <Badge variant="tag-amber" className="shadow-2xs">
               {t('meetup.toDecideInChat')}
-            </Tag>
+            </Badge>
           </div>
         ) : (
-          <div className="text-xs sm:text-sm font-bold text-primary tracking-wide flex flex-wrap items-center gap-2 pt-1">
+          <div className="text-xs sm:text-sm font-bold text-primary flex flex-wrap items-center gap-2 pt-1">
             <span>{t('meetup.gamesOnTable', { count: gamesList.length })}</span> 
             <div className="flex flex-wrap gap-1.5 items-center">
               {gamesList.map((g, idx) => {
                 const title = getGameTitle(g)
                 return (
-                  <Tag
+                  <Badge
                     key={g.bgg_id}
                     onClick={() => setActiveGameIdx(idx)}
                     variant={idx === activeGameIdx ? "default" : "secondary"}
@@ -87,7 +87,7 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
                     className="cursor-pointer transition-all hover:scale-105 active:scale-95 max-w-[200px] sm:max-w-[280px]"
                   >
                     <span className="truncate block">{title}</span>
-                  </Tag>
+                  </Badge>
                 )
               })}
             </div>
@@ -98,14 +98,16 @@ export function MeetupDetailHero({ meetup, isPast, isFull, spotsRemaining }: Mee
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold text-muted-foreground pt-3 border-t border-border/30">
           <span className="flex items-center gap-2">
             <Calendar className="h-4.5 w-4.5 text-primary shrink-0" />
-            {formatDate(meetup.date, { 
-              weekday: 'long', 
-              day: 'numeric', 
-              month: 'long', 
-              year: 'numeric', 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            }, language)}
+            <span className="font-mono-tabular">
+              {formatDate(meetup.date, { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              }, language)}
+            </span>
           </span>
           {meetup.is_online ? (
             <span className="flex items-center gap-2">

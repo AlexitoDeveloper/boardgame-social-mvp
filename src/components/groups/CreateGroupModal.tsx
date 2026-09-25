@@ -59,11 +59,11 @@ export const CreateGroupModal: FC<CreateGroupModalProps> = ({
               <div className="flex items-center justify-between px-1">
                 <Label
                   htmlFor="create-group-name"
-                  className="text-xs font-black uppercase text-muted-foreground tracking-wider"
+                  className="text-xs font-bold text-muted-foreground"
                 >
                   {t('groups.groupNameLabel')}
                 </Label>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-[11px] font-mono-tabular text-muted-foreground">
                   {groupName.length}/45
                 </span>
               </div>
@@ -85,11 +85,11 @@ export const CreateGroupModal: FC<CreateGroupModalProps> = ({
               <div className="flex items-center justify-between px-1">
                 <Label
                   htmlFor="create-group-desc"
-                  className="text-xs font-black uppercase text-muted-foreground tracking-wider"
+                  className="text-xs font-bold text-muted-foreground"
                 >
                   {t('groups.groupDescLabel')}
                 </Label>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-[11px] font-mono-tabular text-muted-foreground">
                   {groupDesc.length}/150
                 </span>
               </div>

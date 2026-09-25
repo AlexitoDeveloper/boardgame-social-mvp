@@ -71,7 +71,7 @@ export function ChatMessageStream({
           <div key={msg.id} className="space-y-2.5">
             {showDateLabel && (
               <div className="flex justify-center select-none py-1">
-                <span className="bg-background/90 dark:bg-card border border-border/40 rounded-full px-3 py-0.5 text-[10px] font-bold text-muted-foreground shadow-2xs uppercase tracking-wider">
+                <span className="bg-background/90 dark:bg-card border border-border/40 rounded-full px-3 py-0.5 text-[10px] font-bold text-muted-foreground shadow-2xs font-mono-tabular">
                   {formatDateLabel(msg.created_at)}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export function ChatMessageStream({
 
                 {/* Timestamp */}
                 <span
-                  className={`text-[10px] block font-semibold text-muted-foreground/75 px-1 tabular-nums ${
+                  className={`text-[10px] block font-semibold text-muted-foreground/75 px-1 font-mono-tabular ${
                     isMyMessage ? 'text-right' : 'text-left'
                   }`}
                 >

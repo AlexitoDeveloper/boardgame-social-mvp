@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, ArrowLeft, AlertTriangle, Dices, Calendar, Users } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
 import { Stepper, StepItem } from '../components/ui/stepper'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card'
 import { useCreateMeetup, WizardStep } from '../hooks/useCreateMeetup'
@@ -53,9 +54,18 @@ export function CreateMeetupPage() {
         >
           <ArrowLeft className="w-4 h-4" /> {t('common.back')}
         </Button>
-        <span className="text-xs font-black text-primary uppercase bg-primary/10 border border-primary/20 px-3 py-1 rounded-full tracking-wider select-none">
-          {form.isEditMode ? t('create.editTitle') : `${t('create.activeMeetups')}: ${form.activeMeetupsCount !== null ? form.activeMeetupsCount : 0}/${form.limit}`}
-        </span>
+        <Badge variant="primary-soft" className="text-xs font-bold select-none">
+          {form.isEditMode ? (
+            t('create.editTitle')
+          ) : (
+            <>
+              {t('create.activeMeetups')}:{' '}
+              <span className="font-mono-tabular">
+                {form.activeMeetupsCount !== null ? form.activeMeetupsCount : 0}/{form.limit}
+              </span>
+            </>
+          )}
+        </Badge>
       </div>
 
       <MotionDiv initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

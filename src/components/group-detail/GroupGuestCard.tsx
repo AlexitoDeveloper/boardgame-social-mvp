@@ -63,7 +63,7 @@ export const GroupGuestCard: React.FC<GroupGuestCardProps> = ({
               </Badge>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
+          <p className="text-[11px] text-muted-foreground font-semibold font-mono-tabular mt-0.5">
             {t('groups.guestAdded', 'Añadido')}{' '}
             {formatDate(guest.created_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
           </p>

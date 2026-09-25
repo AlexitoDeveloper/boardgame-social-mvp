@@ -1,5 +1,5 @@
 import { Button } from '../ui/button'
-import { Tag } from '../ui/tag'
+import { Badge } from '../ui/badge'
 import { OptimizedImage } from '../ui/OptimizedImage'
 import { Game } from '../../types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -137,7 +137,7 @@ export function MeetupHeroCarousel({
           <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-2 shadow-inner">
             {isOnline ? <Laptop className="w-9 h-9" /> : <Dices className="w-9 h-9" />}
           </div>
-          <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-bold text-muted-foreground">
             {t('meetup.tableOnBoard', 'Mesa de Juego')}
           </span>
         </div>
@@ -188,27 +188,27 @@ export function MeetupHeroCarousel({
       {/* Badges superiores: Estado de la mesa */}
       <div className="absolute top-3 left-3 z-20 flex gap-2">
         {isPast ? (
-          <Tag variant="secondary-solid" className="shadow-md">
+          <Badge variant="slatenavy" size="sm" className="shadow-md font-bold">
             {t('common.completed', 'Finalizada')}
-          </Tag>
+          </Badge>
         ) : isFull ? (
-          <Tag variant="destructive-solid" className="shadow-md">
+          <Badge variant="slatenavy" size="sm" className="shadow-md font-bold">
             {t('common.full', 'Mesa llena')}
-          </Tag>
+          </Badge>
         ) : spotsRemaining === 1 ? (
-          <Tag variant="warning-solid" className="shadow-md" pulse>
+          <Badge variant="tag-amber" size="sm" pulse className="shadow-md font-bold">
             {t('meetup.lastSpot', 'Última plaza')}
-          </Tag>
+          </Badge>
         ) : (
-          <Tag variant="success-solid" className="shadow-md">
+          <Badge variant="tag-emerald" size="sm" className="shadow-md font-bold">
             {t('meetup.openTable', 'Mesa abierta')}
-          </Tag>
+          </Badge>
         )}
         
         {isMock && (
-          <Tag variant="secondary-solid" className="shadow-md">
+          <Badge variant="secondary" size="sm" className="shadow-md font-bold">
             Demo
-          </Tag>
+          </Badge>
         )}
       </div>
     </div>

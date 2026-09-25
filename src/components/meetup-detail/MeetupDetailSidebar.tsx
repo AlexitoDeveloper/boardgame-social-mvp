@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
 import { Input } from '../ui/input'
 import { ExpansionBadge } from '../ui/expansion-badge'
 import { Form } from '../ui/form'
@@ -203,7 +204,7 @@ export function MeetupDetailSidebar({
 
         {/* Game results cards */}
         <div className="space-y-2.5">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.resultsTitle')}</p>
+          <p className="text-xs font-bold text-muted-foreground block">{t('meetup.resultsTitle')}</p>
           {gamesList.map((game) => {
             const winningId = game.winner_user_id || game.winner_guest_id
             const winner = winningId ? attendees.find(a => a.id === winningId) : null
@@ -231,12 +232,12 @@ export function MeetupDetailSidebar({
                     <ExpansionBadge size="xs" />
                   ) : winner ? (
                     <>
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-amber-500 font-bold text-xs">
-                        <Crown className="w-3.5 h-3.5 fill-current shrink-0" />
+                      <Badge variant="tag-amber" className="flex items-center gap-1 px-2 py-0.5 text-xs font-bold">
+                        <Crown className="w-3.5 h-3.5 fill-amber text-amber shrink-0" />
                         <span className="truncate max-w-[85px]">{winner.username}</span>
-                      </div>
+                      </Badge>
                       {game.winner_score && (
-                        <span className="text-xs font-extrabold text-primary tracking-wide bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md truncate max-w-[120px]">
+                        <span className="text-xs font-extrabold text-primary tracking-wide bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md truncate max-w-[120px] font-mono-tabular">
                           {game.winner_score}
                         </span>
                       )}
@@ -247,7 +248,7 @@ export function MeetupDetailSidebar({
                         {t('meetup.draw')}
                       </div>
                       {game.winner_score && (
-                        <span className="text-xs font-semibold text-muted-foreground tracking-wide truncate max-w-[120px]">
+                        <span className="text-xs font-semibold text-muted-foreground tracking-wide truncate max-w-[120px] font-mono-tabular">
                           {game.winner_score}
                         </span>
                       )}
@@ -260,7 +261,7 @@ export function MeetupDetailSidebar({
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border/20">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t('meetup.attendedTitle')} ({attendedList.length})</p>
+          <p className="text-xs font-bold text-muted-foreground">{t('meetup.attendedTitle')} ({attendedList.length})</p>
           <div className="flex flex-wrap gap-1.5">
             {attendedList.map(a => (
               <div key={a.id} className="px-2.5 py-1 rounded-lg bg-background/50 border border-border/40 text-xs font-medium text-foreground flex items-center gap-1.5">
@@ -299,9 +300,9 @@ export function MeetupDetailSidebar({
               onClick={() => setConfirmCancel(true)}
               variant="ghost"
               size="sm"
-              className="h-8 text-xs text-destructive/80 hover:text-destructive hover:bg-destructive/10 gap-1.5"
+              className="h-8 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 gap-1.5"
             >
-              <Trash2 className="w-3.5 h-3.5" /> {t('meetup.deleteTable', 'Eliminar Mesa')}
+              <Trash2 className="w-3.5 h-3.5 text-muted-foreground" /> {t('meetup.deleteTable', 'Eliminar Mesa')}
             </Button>
           </div>
         )}
@@ -321,7 +322,7 @@ export function MeetupDetailSidebar({
         <div className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
           {/* 1. Who attended */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.whoAttended')}</label>
+            <label className="text-xs font-bold text-muted-foreground block">{t('meetup.whoAttended')}</label>
             <div className="space-y-1.5">
               {attendees.map(a => {
                 const isUser = !a.is_guest
@@ -350,7 +351,7 @@ export function MeetupDetailSidebar({
 
           {/* 2. Winners per game */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.winnersPerGame')}</label>
+            <label className="text-xs font-bold text-muted-foreground block">{t('meetup.winnersPerGame')}</label>
             <div className="space-y-4">
               {gamesList.map((game) => {
                 const gameWinnerId = gameWinners[game.bgg_id] || null
@@ -413,7 +414,7 @@ export function MeetupDetailSidebar({
 
                         {/* Winner score input */}
                         <div className="mt-2 text-left space-y-1">
-                          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">{t('meetup.scorePlaceholder')}</label>
+                          <label className="text-xs font-bold text-muted-foreground block">{t('meetup.scorePlaceholder')}</label>
                           <Input
                             type="text"
                             placeholder="Ej. 104 pts, 15-12, Coop Win..."

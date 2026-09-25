@@ -147,12 +147,12 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
                 </Badge>
 
                 {isCreator ? (
-                  <Badge variant="outline" className="text-[11px] font-bold py-0.5 px-2 bg-amber-500/10 text-amber-500 border-amber-500/30 gap-1">
-                    <Crown className="w-3 h-3 text-amber-500" />
+                  <Badge variant="tag-amber" className="text-[11px] font-bold py-0.5 px-2 gap-1">
+                    <Crown className="w-3 h-3 text-[#D97706] dark:text-[#FBBF24]" />
                     <span>Creador</span>
                   </Badge>
                 ) : isAdmin ? (
-                  <Badge variant="outline" className="text-[11px] font-bold py-0.5 px-2 bg-primary/10 text-primary border-primary/30 gap-1">
+                  <Badge variant="primary-soft" className="text-[11px] font-bold py-0.5 px-2 gap-1">
                     <Shield className="w-3 h-3" />
                     <span>Admin</span>
                   </Badge>

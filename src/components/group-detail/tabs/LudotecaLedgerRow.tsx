@@ -1,5 +1,5 @@
 import React from 'react'
-import { Users, Clock, Flame, ChevronRight } from 'lucide-react'
+import { Users, Clock, Flame, ChevronRight, Check } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
 import { MergedGame } from '../../../hooks/useGroupDetail'
@@ -62,14 +62,19 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
               {title}
             </h4>
             {isMine && (
-              <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-500 font-bold text-[9px] uppercase tracking-wider shrink-0 border border-emerald-500/20">
+              <Badge
+                variant="raspberry"
+                size="sm"
+                className="text-white font-black text-[11px] px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 shrink-0 rounded-lg"
+              >
+                <Check className="w-3 h-3 stroke-[3]" />
                 Mío
-              </span>
+              </Badge>
             )}
           </div>
 
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1 font-mono">
+            <span className="flex items-center gap-1 font-mono-tabular">
               <Users className="w-3 h-3 text-primary/70" />
               {game.min_players === game.max_players
                 ? `${game.min_players} jug.`
@@ -78,7 +83,7 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
             {game.playing_time && (
               <>
                 <span className="text-border">•</span>
-                <span className="flex items-center gap-1 font-mono">
+                <span className="flex items-center gap-1 font-mono-tabular">
                   <Clock className="w-3 h-3 text-muted-foreground/70" />
                   {game.playing_time}m
                 </span>
@@ -87,7 +92,7 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
             {game.complexity && (
               <>
                 <span className="text-border">•</span>
-                <span className="flex items-center gap-1 font-mono text-amber-500/80 font-semibold">
+                <span className="flex items-center gap-1 font-mono-tabular text-amber dark:text-amber-hover font-semibold">
                   <Flame className="w-3 h-3" />
                   {game.complexity.toFixed(1)}
                 </span>
