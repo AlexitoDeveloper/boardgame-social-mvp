@@ -192,7 +192,7 @@ export function LudotecaTab({
               size="sm"
               onClick={() => setOnlyMyGames(!onlyMyGames)}
               className={`h-7 px-2.5 rounded-lg text-xs font-bold gap-1 cursor-pointer ${
-                onlyMyGames ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground'
+                onlyMyGames ? 'bg-primary/15 text-primary dark:text-[#FF80B0] border border-primary/30 font-black' : 'text-muted-foreground'
               }`}
             >
               <BookmarkCheck className="w-3.5 h-3.5" />

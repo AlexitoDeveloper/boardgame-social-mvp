@@ -131,7 +131,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
           {/* Wishlist Toggle Button */}
           <Button
             type="button"
-            variant={isWishlisted ? 'purple' : 'outline'}
+            variant={isWishlisted ? 'secondary' : 'outline'}
             className="w-full h-12 rounded-xl text-sm font-bold justify-center"
             onClick={() => onToggleWishlist(game.bgg_id)}
             icon={isWishlisted ? BookmarkCheck : Bookmark}

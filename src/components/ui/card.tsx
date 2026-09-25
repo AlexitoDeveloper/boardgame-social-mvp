@@ -18,10 +18,16 @@ const cardVariants = cva(
           "border border-border/30 bg-surface-elevated/40 shadow-none",
         notch:
           "card-notch border border-border/80 bg-card shadow-xs hover:border-primary/50 transition-colors",
+        chamfer:
+          "card-chamfer rounded-none border border-border/80 bg-card shadow-punchboard hover:border-primary/50 transition-all",
+        punchboard:
+          "border-2 border-border/90 bg-card shadow-punchboard hover:border-primary/60 transition-all relative overflow-hidden",
         neoprene:
           "border border-white/[0.08] bg-surface-void shadow-subpixel-rim text-foreground",
         elevated:
           "border border-border bg-surface-elevated shadow-[0_2px_0_0_hsl(var(--keycap-shadow)),0_4px_8px_-1px_rgba(0,0,0,0.15)]",
+        foil:
+          "border border-white/20 bg-gradient-to-b from-card to-card/90 shadow-subpixel-rim text-card-foreground",
         gradient:
           "border border-border/80 bg-card shadow-sm",
       },

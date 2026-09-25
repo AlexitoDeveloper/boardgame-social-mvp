@@ -88,7 +88,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       createGroupDesc: "Fusiona colecciones y vota qué jugar."
     },
     explore: {
-      recommendedTitle: "JUEGO RECOMENDADO DEL DÍA",
+      recommendedTitle: "Juego recomendado del día",
       complexity: "Complejidad",
       duration: "Duración",
       minutes: "min",
@@ -1276,7 +1276,7 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
       createGroupDesc: "Merge collections and vote on what to play."
     },
     explore: {
-      recommendedTitle: "RECOMMENDED GAME OF THE DAY",
+      recommendedTitle: "Recommended Game of the Day",
       complexity: "Complexity",
       duration: "Duration",
       minutes: "min",

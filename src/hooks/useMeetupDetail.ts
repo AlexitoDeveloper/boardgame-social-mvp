@@ -505,7 +505,7 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
     const isMock = USE_MOCKS && id.startsWith('mock-')
     setCanceling(true)
 
-    const redirectPath = meetup?.group_id ? `/grupos/${meetup.group_id}?tab=meetups` : '/mesa-hub'
+    const redirectPath = meetup?.group_id ? `/grupos/${meetup.group_id}?tab=meetups` : '/jugar'
 
     if (isMock) {
       setTimeout(() => {

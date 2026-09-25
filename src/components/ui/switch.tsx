@@ -18,7 +18,7 @@ const Switch = React.forwardRef<
       className={cn(
         "group peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-border/80 bg-surface-void shadow-recessed transition-[background-color,border-color,box-shadow] duration-150 ease-out-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-40",
         isSm ? "h-5 w-9 p-0.5" : "h-6.5 w-12 p-0.5",
-        "data-[state=checked]:bg-primary data-[state=checked]:border-primary/80 data-[state=checked]:shadow-[0_0_12px_rgba(16,185,129,0.3)]",
+        "data-[state=checked]:bg-primary data-[state=checked]:border-primary shadow-xs",
         className
       )}
       {...props}

@@ -110,25 +110,25 @@ const toastStyles: Record<
   { card: string; iconBg: string; title: string; desc: string }
 > = {
   success: {
-    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-emerald-500/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-emerald-500/10',
-    iconBg: 'bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-[#10B981]/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-[#10B981]/10',
+    iconBg: 'bg-[#10B981]/15 text-[#10B981] dark:text-[#34D399] border border-[#10B981]/30',
     title: 'text-foreground font-black',
     desc: 'text-muted-foreground',
   },
   error: {
-    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-destructive/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-destructive/10',
-    iconBg: 'bg-destructive/15 text-destructive border border-destructive/30',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-[#C51F5D]/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-[#C51F5D]/10',
+    iconBg: 'bg-[#C51F5D]/15 text-[#C51F5D] dark:text-[#FF80B0] border border-[#C51F5D]/30',
     title: 'text-foreground font-black',
     desc: 'text-muted-foreground',
   },
   info: {
-    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-blue-500/35 text-foreground shadow-2xl shadow-subpixel-rim shadow-blue-500/10',
-    iconBg: 'bg-blue-500/15 text-blue-500 dark:text-blue-400 border border-blue-500/30',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-[#243447]/60 dark:border-[#3A526E]/50 text-foreground shadow-2xl shadow-subpixel-rim shadow-black/20',
+    iconBg: 'bg-[#243447]/20 text-[#243447] dark:text-[#94A3B8] border border-[#243447]/30',
     title: 'text-foreground font-black',
     desc: 'text-muted-foreground',
   },
   default: {
-    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-white/[0.08] text-foreground shadow-2xl shadow-subpixel-rim',
+    card: 'bg-surface-elevated/98 backdrop-blur-2xl border-border/80 text-foreground shadow-2xl shadow-subpixel-rim',
     iconBg: 'bg-surface-plate text-foreground border border-border/60',
     title: 'text-foreground font-black',
     desc: 'text-muted-foreground',

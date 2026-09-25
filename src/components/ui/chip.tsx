@@ -9,15 +9,19 @@ const chipVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:border-border data-[selected=true]:bg-primary/15 data-[selected=true]:text-primary data-[selected=true]:border-primary/40 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground hover:border-border data-[selected=true]:bg-primary/15 data-[selected=true]:text-foreground dark:data-[selected=true]:text-white data-[selected=true]:font-black data-[selected=true]:border-primary/60 data-[selected=true]:shadow-xs",
         primary:
-          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth)),0_3px_6px_-1px_rgba(0,0,0,0.2)]",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:font-black data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_#660D2E,0_3px_6px_-1px_rgba(0,0,0,0.2)]",
         emerald:
-          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth)),0_3px_6px_-1px_rgba(0,0,0,0.2)]",
-        purple:
-          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-purple-500/15 data-[selected=true]:text-purple-700 dark:data-[selected=true]:text-purple-300 data-[selected=true]:border-purple-500/40 data-[selected=true]:shadow-xs",
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-[#10B981] data-[selected=true]:text-white data-[selected=true]:font-black data-[selected=true]:border-[#064E3B]/30 data-[selected=true]:shadow-tactile-emerald",
+        slatenavy:
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-[#243447] data-[selected=true]:text-white data-[selected=true]:font-black data-[selected=true]:border-[#141D26]/40 data-[selected=true]:shadow-tactile-slatenavy",
+        azure:
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-[#0284C7] data-[selected=true]:text-white data-[selected=true]:font-black data-[selected=true]:border-[#03456B]/40 data-[selected=true]:shadow-tactile-azure",
+        amber:
+          "border border-border/70 bg-surface-elevated/70 text-muted-foreground hover:bg-surface-elevated hover:text-foreground data-[selected=true]:bg-[#D97706] data-[selected=true]:text-white data-[selected=true]:font-black data-[selected=true]:border-[#78350F]/40 data-[selected=true]:shadow-tactile-amber",
         chit:
-          "border border-border/80 bg-surface-elevated text-foreground hover:bg-surface-plate data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_hsl(var(--felt-emerald-depth))]",
+          "border border-border/80 bg-surface-elevated text-foreground hover:bg-surface-plate data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground data-[selected=true]:font-black data-[selected=true]:border-primary-foreground/20 data-[selected=true]:shadow-[0_2px_0_0_#660D2E]",
       },
       size: {
         xs: "h-7 px-2 text-xs rounded-lg [&_svg]:size-3",

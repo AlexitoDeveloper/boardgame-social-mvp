@@ -15,11 +15,11 @@ export interface Tier {
 }
 
 const DEFAULT_TIERS: Tier[] = [
-  { id: 'S', name: 'S', color: 'bg-gradient-to-br from-rose-500 to-rose-600 text-white', textColor: 'text-white', games: [] },
-  { id: 'A', name: 'A', color: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white', textColor: 'text-white', games: [] },
-  { id: 'B', name: 'B', color: 'bg-gradient-to-br from-amber-400 to-orange-500 text-white', textColor: 'text-white', games: [] },
-  { id: 'C', name: 'C', color: 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white', textColor: 'text-white', games: [] },
-  { id: 'D', name: 'D', color: 'bg-gradient-to-br from-blue-500 to-indigo-500 text-white', textColor: 'text-white', games: [] },
+  { id: 'S', name: 'S', color: 'bg-[#C51F5D] text-white', textColor: 'text-white', games: [] },
+  { id: 'A', name: 'A', color: 'bg-[#D97706] text-white', textColor: 'text-white', games: [] },
+  { id: 'B', name: 'B', color: 'bg-[#243447] text-white', textColor: 'text-white', games: [] },
+  { id: 'C', name: 'C', color: 'bg-[#0284C7] text-white', textColor: 'text-white', games: [] },
+  { id: 'D', name: 'D', color: 'bg-[#10B981] text-white', textColor: 'text-white', games: [] },
 ]
 
 export function useTops() {

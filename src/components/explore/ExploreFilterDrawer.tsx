@@ -25,7 +25,7 @@ export function ExploreFilterDrawer({
     <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 text-xs">
       {/* Player filter group */}
       <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
-        <span className="text-muted-foreground px-1 flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider select-none">
+        <span className="text-muted-foreground px-1 flex items-center gap-1.5 font-bold text-xs select-none">
           <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={2} aria-hidden="true" />
           <span>{t('explore.playersFilter')}</span>
         </span>
@@ -46,7 +46,7 @@ export function ExploreFilterDrawer({
 
       {/* Complexity filter group with semantic colors */}
       <div className="flex flex-col gap-1.5 bg-muted/20 border border-border/30 rounded-2xl p-2.5 flex-1 w-full sm:min-w-[280px] min-w-0">
-        <span className="text-muted-foreground px-1 flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider select-none">
+        <span className="text-muted-foreground px-1 flex items-center gap-1.5 font-bold text-xs select-none">
           <Brain className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={2} aria-hidden="true" />
           <span>{t('explore.complexityFilter')}</span>
         </span>

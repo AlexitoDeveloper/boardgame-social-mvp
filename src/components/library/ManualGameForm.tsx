@@ -124,7 +124,7 @@ export const ManualGameForm: FC<ManualGameFormProps> = ({ onAddGame, onClose }) 
         </Button>
         <Button
           type="submit"
-          variant="default"
+          variant="emerald"
           size="default"
           disabled={!title.trim() || submitting || success}
           icon={submitting ? Loader2 : success ? Check : Plus}

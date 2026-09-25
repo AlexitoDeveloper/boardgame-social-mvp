@@ -55,8 +55,9 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
 
   return (
     <Card
+      spotlight
       onClick={onClick}
-      className="p-4 sm:p-5 rounded-2xl border border-border/40 bg-card/75 hover:bg-card hover:border-primary/45 hover:shadow-md transition-all duration-150 ease-out cursor-pointer flex flex-col justify-between gap-3.5 group active:scale-[0.99] select-none"
+      className="p-4 sm:p-5 rounded-2xl border border-border/80 bg-card hover:border-primary/50 hover:shadow-md transition-all duration-150 ease-out cursor-pointer flex flex-col justify-between gap-3.5 group active:scale-[0.99] select-none"
     >
       {/* 1. Header: Cover Artwork, Title, Neutral Date & Metadata, Actions */}
       <div className="flex items-start gap-3.5">
@@ -134,7 +135,7 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
                 {isWinner && <Crown className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" />}
                 <span className="truncate max-w-[90px]">{p.name}</span>
                 {showScore && (
-                  <span className="font-mono text-[11px] font-black tracking-tight text-foreground/90">
+                  <span className="font-mono-tabular text-xs font-black tracking-tight text-foreground">
                     {p.score}
                   </span>
                 )}

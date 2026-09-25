@@ -3,6 +3,7 @@ import { Star, Users, Brain, Globe } from 'lucide-react'
 import { Game } from '../types'
 import { OptimizedImage } from './ui/OptimizedImage'
 import { ExpansionBadge } from './ui/expansion-badge'
+import { Badge } from './ui/badge'
 import { Skeleton } from './ui/skeleton'
 import { useGameLocale } from '../hooks/useGameLocale'
 import { cn } from '../lib/utils'
@@ -43,16 +44,16 @@ export function GameCoverCard({ game }: GameCoverCardProps) {
           {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
           <div className="absolute top-2 left-2 z-20 flex flex-wrap gap-1 pointer-events-none">
             {rating && (
-              <span className="flex items-center gap-1 rounded-lg bg-amber-500/90 dark:bg-amber-500/85 backdrop-blur-md px-1.5 py-0.5 text-xs font-black text-white shadow-sm border border-amber-300/30">
-                <Star className="h-3.5 w-3.5 fill-white text-white shrink-0" strokeWidth={2} aria-hidden="true" />
-                {rating}
-              </span>
+              <Badge variant="amber" className="gap-1 px-1.5 py-0.5 text-xs font-mono-tabular shadow-sm">
+                <Star className="h-3 w-3 fill-white text-white shrink-0" strokeWidth={2} aria-hidden="true" />
+                <span>{rating}</span>
+              </Badge>
             )}
             {game.has_spanish_edition && (
-              <span className="flex items-center gap-1 rounded-lg bg-primary/90 dark:bg-primary/85 backdrop-blur-md px-1.5 py-0.5 text-xs font-black text-primary-foreground shadow-sm border border-primary-foreground/20">
-                <Globe className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
-                ESP
-              </span>
+              <Badge variant="raspberry" className="gap-1 px-1.5 py-0.5 text-xs font-bold shadow-sm">
+                <Globe className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden="true" />
+                <span>ESP</span>
+              </Badge>
             )}
             {game.is_expansion && (
               <ExpansionBadge size="xs" />

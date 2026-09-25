@@ -33,7 +33,7 @@ export const PlayCollectionSelector: FC<PlayCollectionSelectorProps> = ({
     <div className="space-y-3 relative z-10">
       {/* Collection Source Dropdown */}
       <div className="space-y-1.5">
-        <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
           <Dices className="w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
           <span>{t('play.groupFilterLabel')}</span>
         </label>
@@ -85,7 +85,7 @@ export const PlayCollectionSelector: FC<PlayCollectionSelectorProps> = ({
           icon={PackageCheck}
           badge={
             onlyUnplayed ? (
-              <span className="px-1.5 py-0.5 rounded-md bg-purple-500/25 text-purple-700 dark:text-purple-300 text-xs font-black uppercase">
+              <span className="px-1.5 py-0.5 rounded-md bg-[#10B981]/15 text-[#065F46] dark:text-[#34D399] text-xs font-bold font-mono-tabular">
                 {t('play.active')}
               </span>
             ) : undefined

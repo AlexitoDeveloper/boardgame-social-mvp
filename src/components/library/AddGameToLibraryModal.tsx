@@ -242,7 +242,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                         ({t('common.guest', 'Invitado')})
                       </span>
                     )}
-                    {isSelected && <Check className="w-3 h-3 text-primary stroke-[3]" />}
+                    {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
                   </FilterChip>
                 )
               })}

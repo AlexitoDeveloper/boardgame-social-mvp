@@ -39,7 +39,7 @@ export const GroupDetailSegmentedNav: FC<GroupDetailSegmentedNavProps> = ({
         icon={Calendar}
         badge={
           meetupsCount > 0 ? (
-            <span className="font-mono-tabular text-[10px] bg-primary/20 text-primary px-1.5 py-0.2 rounded-full font-bold">
+            <span className="font-mono-tabular text-[10px] bg-primary/20 text-primary dark:text-[#FF80B0] px-1.5 py-0.2 rounded-full font-black">
               {meetupsCount}
             </span>
           ) : undefined
@@ -71,7 +71,7 @@ export const GroupDetailSegmentedNav: FC<GroupDetailSegmentedNavProps> = ({
         icon={Layers}
         badge={
           gamesCount > 0 ? (
-            <span className="font-mono-tabular text-[10px] bg-primary/20 text-primary px-1.5 py-0.2 rounded-full font-bold">
+            <span className="font-mono-tabular text-[10px] bg-primary/20 text-primary dark:text-[#FF80B0] px-1.5 py-0.2 rounded-full font-black">
               {gamesCount}
             </span>
           ) : undefined

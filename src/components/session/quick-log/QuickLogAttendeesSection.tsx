@@ -71,7 +71,7 @@ export const QuickLogAttendeesSection: FC<QuickLogAttendeesSectionProps> = ({
                 <span className="truncate max-w-[120px]">{attendee.name}</span>
 
                 {isSelected ? (
-                  <UserCheck className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <UserCheck className="w-3.5 h-3.5 text-white shrink-0" />
                 ) : (
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
                 )}

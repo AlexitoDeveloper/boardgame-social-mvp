@@ -1,5 +1,4 @@
-import React from 'react'
-import { Clock, Users, Flame, Star, Trophy, ExternalLink, CalendarPlus, Zap } from 'lucide-react'
+import { Flame, Star, ExternalLink, CalendarPlus, Zap } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -66,30 +65,38 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
                   Original: {game.title}
                 </SheetDescription>
               )}
+              {game.rating_geek && (
+                <div className="pt-1">
+                  <Badge variant="tag-emerald" className="gap-1 text-[11px] font-black py-0.5">
+                    <Star className="w-3 h-3 fill-current" />
+                    {game.rating_geek.toFixed(1)} BGG
+                  </Badge>
+                </div>
+              )}
             </SheetHeader>
 
-            {/* Quick Metrics Tag Strip */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-2">
-              <Badge variant="primary-soft" size="sm" className="font-mono">
-                <Users className="w-3 h-3 mr-1 text-primary" />
-                {game.min_players === game.max_players
-                  ? `${game.min_players} jugadores`
-                  : `${game.min_players ?? 1} - ${game.max_players ?? '?'} jugadores`}
-              </Badge>
-
-              {game.playing_time && (
-                <Badge variant="secondary" size="sm" className="font-mono">
-                  <Clock className="w-3 h-3 mr-1 text-muted-foreground" />
-                  {game.playing_time} min
-                </Badge>
-              )}
-
-              {game.bgg_rank && (
-                <Badge variant="purple" size="sm" className="font-mono">
-                  <Trophy className="w-3 h-3 mr-1 text-purple-600 dark:text-purple-400" />
-                  BGG #{game.bgg_rank}
-                </Badge>
-              )}
+            {/* 3-Column Spec Matrix from GameShelfCard */}
+            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-elevated/60 border border-border/60 text-center mt-3">
+              <div>
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Jugadores</span>
+                <span className="font-mono-tabular text-xs font-black text-foreground">
+                  {game.min_players === game.max_players
+                    ? game.min_players
+                    : `${game.min_players ?? 1}–${game.max_players ?? '?'}`}
+                </span>
+              </div>
+              <div className="border-x border-border/60">
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Tiempo</span>
+                <span className="font-mono-tabular text-xs font-black text-foreground">
+                  {game.playing_time ? `${game.playing_time}m` : '—'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold">En Grupo</span>
+                <span className="font-mono-tabular text-xs font-black text-emerald-400">
+                  {owners.length} {owners.length === 1 ? 'copia' : 'copias'}
+                </span>
+              </div>
             </div>
           </div>
         </div>

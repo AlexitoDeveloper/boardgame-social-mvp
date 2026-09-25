@@ -429,7 +429,7 @@ export function MeetupDetailPage() {
                           className={cn(
                             "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm h-auto hover:bg-transparent",
                             selectedRatio === 'story'
-                              ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5"
+                              ? "border-primary bg-primary/15 text-primary dark:text-white font-black shadow-md shadow-primary/5"
                               : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
                           )}
                         >
@@ -442,7 +442,7 @@ export function MeetupDetailPage() {
                           className={cn(
                             "p-3 rounded-xl border text-xs font-bold text-center flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm shadow-sm h-auto hover:bg-transparent",
                             selectedRatio === 'square'
-                              ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5"
+                              ? "border-primary bg-primary/15 text-primary dark:text-white font-black shadow-md shadow-primary/5"
                               : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
                           )}
                         >
@@ -463,7 +463,7 @@ export function MeetupDetailPage() {
                             className={cn(
                               "px-3 py-2.5 rounded-xl border text-xs font-extrabold capitalize text-left flex items-center gap-2 transition-all duration-200 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98] backdrop-blur-sm h-auto hover:bg-transparent",
                               selectedTheme === themeKey
-                                ? "border-primary bg-primary/15 text-primary shadow-md shadow-primary/5 shadow-inner"
+                                ? "border-primary bg-primary/15 text-primary dark:text-white font-black shadow-md shadow-primary/5 shadow-inner"
                                 : "border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
                             )}
                           >
@@ -475,7 +475,7 @@ export function MeetupDetailPage() {
                     </div>
                     
                     <div className="bg-primary/5 border border-primary/15 rounded-2xl p-4 space-y-1.5 font-semibold">
-                      <p className="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1">
+                      <p className="text-xs font-extrabold text-primary dark:text-[#FF80B0] uppercase tracking-wider flex items-center gap-1">
                         {t('meetup.tipsTitle')}
                       </p>
                       <p className="text-xs text-muted-foreground leading-relaxed">

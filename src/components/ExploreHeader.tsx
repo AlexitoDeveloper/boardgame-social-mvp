@@ -102,7 +102,7 @@ export function ExploreHeader({
               >
                 <Button
                   onClick={clearFilters}
-                  variant="destructive"
+                  variant="outline"
                   size="default"
                   className="gap-1.5 h-12 sm:h-11 px-3.5 rounded-xl cursor-pointer"
                   aria-label={t('explore.clear', 'Limpiar filtros')}

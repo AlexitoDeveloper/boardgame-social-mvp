@@ -6,38 +6,44 @@
 
 @layer base {
   :root {
-    /* Grand Game Mat - Clean Light Mode */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* 8BEES Palette - Alabaster Linen Canvas (#E2E2D2) & Abyssal Carbon Ink (#141D26) */
+    --background: 60 18% 89%;
+    --foreground: 210 31% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    /* Vibrant Emerald Gaming Felt Accent */
-    --primary: 158 70% 40%;
+    --card-foreground: 210 31% 11%;
+    /* Crimson Raspberry Primary Interactive Trigger (#C51F5D) */
+    --primary: 338 73% 45%;
     --primary-foreground: 0 0% 100%;
-    /* Royal Purple Secondary Accent */
-    --secondary: 270 91% 96%;
-    --secondary-foreground: 273 67% 39%;
-    --success: 142.1 76.2% 36.3%;
+    /* Slate Navy Secondary Anchor (#243447) */
+    --secondary: 213 33% 21%;
+    --secondary-foreground: 0 0% 100%;
+    /* Emerald Tag & Verification Accent (#10B981) */
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
-    /* Ruby Crimson Destructive Accent - 4.92:1 WCAG AA contrast */
-    --destructive: 354 78% 50%;
+    /* Crimson Raspberry Accent */
+    --accent: 338 73% 45%;
+    --accent-foreground: 0 0% 100%;
+    /* Destructive semantic text (Unified with Crimson Raspberry #C51F5D brand alert) */
+    --destructive: 338 73% 45%;
     --destructive-foreground: 0 0% 100%;
-    --muted: 210 28% 95%;
-    --muted-foreground: 215 16% 47%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 158 70% 40%;
-    --radius: 1rem;
-    --shadow-color: 220 30% 10%;
-    /* 4-Tier Surface Elevation Scale */
-    --surface-void: 210 40% 98%;
-    --surface-ground: 0 0% 100%;
-    --surface-elevated: 214 32% 95%;
-    --surface-plate: 0 0% 100%;
-    /* Felt & Tactile Depth Tokens */
-    --felt-emerald: 158 70% 40%;
-    --felt-emerald-depth: 158 80% 28%;
-    --keycap-shadow: 214 25% 82%;
+    --muted: 60 15% 82%;
+    --muted-foreground: 210 20% 35%;
+    --border: 60 14% 78%;
+    --input: 60 14% 78%;
+    --ring: 338 73% 45%;
+    --radius: 0.75rem;
+    --shadow-color: 210 31% 11%;
+    /* 4-Tier Surface Elevation Scale (Alabaster Linen to Crisp Elevated) */
+    --surface-void: 60 15% 82%;
+    --surface-ground: 60 18% 89%;
+    --surface-elevated: 0 0% 100%;
+    --surface-plate: 60 18% 95%;
+    /* Stepped Keycap Depth Tokens (Deep Crimson Underside #660D2E & Carbon Ink #141D26) */
+    --awards-depth: 337 78% 22%;
+    --flame-depth: 210 31% 11%;
+    --felt-emerald: 160 84% 39%;
+    --felt-emerald-depth: 163 94% 17%;
+    --keycap-shadow: 60 14% 70%;
     /* Custom animation easing tokens (Emil Kowalski) */
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -45,38 +51,44 @@
   }
 
   .dark {
-    /* Grand Game Mat - Midnight Slate Neoprene (#0A0F1D) */
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
-    --card: 222 40% 11%;
-    --card-foreground: 210 40% 98%;
-    /* Vibrant Emerald Gaming Felt Accent (#10B981) */
-    --primary: 158 70% 43%;
+    /* 8BEES Palette - Abyssal Carbon Ink Canvas (#141D26) & Alabaster Linen Text (#E2E2D2) */
+    --background: 210 31% 11%;
+    --foreground: 60 20% 88%;
+    --card: 213 30% 16%;
+    --card-foreground: 60 20% 88%;
+    /* Solid Crimson Raspberry Trigger (#C51F5D) */
+    --primary: 338 73% 45%;
     --primary-foreground: 0 0% 100%;
-    /* Royal Purple Secondary Accent (#D8B4FE / 10.5:1 contrast) */
-    --secondary: 271 70% 18%;
-    --secondary-foreground: 270 95% 82%;
-    --success: 152 65% 42%;
+    /* Slate Navy Secondary Surface (#2B3E55 / #243447) */
+    --secondary: 213 33% 25%;
+    --secondary-foreground: 0 0% 100%;
+    /* Radiant Emerald Tag & Verification Accent (#34D399) */
+    --success: 160 84% 45%;
     --success-foreground: 0 0% 100%;
-    /* Ruby Crimson Destructive Accent - High contrast on Midnight Slate */
-    --destructive: 352 82% 58%;
+    /* Crimson Raspberry Accent */
+    --accent: 338 73% 45%;
+    --accent-foreground: 0 0% 100%;
+    /* Destructive semantic text (Solid Crimson Raspberry #C51F5D) */
+    --destructive: 338 73% 45%;
     --destructive-foreground: 0 0% 100%;
-    --muted: 222 30% 15%;
-    --muted-foreground: 217 19% 65%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 158 70% 43%;
-    --radius: 1rem;
+    --muted: 210 25% 18%;
+    --muted-foreground: 60 15% 70%;
+    --border: 213 25% 24%;
+    --input: 213 25% 24%;
+    --ring: 338 73% 45%;
+    --radius: 0.75rem;
     --shadow-color: 0 0% 0%;
-    /* 4-Tier Surface Elevation Scale */
-    --surface-void: 222 47% 5%;
-    --surface-ground: 222 47% 7%;
-    --surface-elevated: 222 40% 11%;
-    --surface-plate: 222 36% 15%;
-    /* Felt & Tactile Depth Tokens */
-    --felt-emerald: 158 70% 43%;
-    --felt-emerald-depth: 158 80% 24%;
-    --keycap-shadow: 222 45% 4%;
+    /* 4-Tier Surface Elevation Scale (Carbon Void to Slate Plate) */
+    --surface-void: 210 31% 8%;
+    --surface-ground: 210 31% 11%;
+    --surface-elevated: 213 30% 16%;
+    --surface-plate: 213 28% 20%;
+    /* Stepped Keycap Depth Tokens (Crimson Under-Keycap #540924) */
+    --awards-depth: 337 80% 18%;
+    --flame-depth: 210 31% 6%;
+    --felt-emerald: 160 84% 45%;
+    --felt-emerald-depth: 163 94% 14%;
+    --keycap-shadow: 210 31% 6%;
   }
 
   * {
@@ -220,12 +232,42 @@
     );
   }
 
+  /* Machined Industrial 45° Chamfer Cut */
+  .card-chamfer {
+    clip-path: polygon(
+      0 0,
+      calc(100% - 16px) 0,
+      100% 16px,
+      100% 100%,
+      0 100%
+    );
+  }
+
   /* Machined Tactile Keycap Travel */
   .tactile-keycap {
     transition: transform 75ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 75ms cubic-bezier(0.23, 1, 0.32, 1);
   }
   .tactile-keycap:active {
-    transform: translateY(2px);
+    transform: translateY(2.5px);
+  }
+
+  /* Rotating Domain Seal Animation (360deg spin) */
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 16s linear infinite;
+  }
+
+  /* Perforated Sticker Stamp */
+  .sticker-stamp {
+    position: relative;
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.25);
   }
 
   /* Sleek Neoprene Custom Scrollbar */

@@ -51,7 +51,7 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
             <Icon className="h-3 w-3 shrink-0" />
             <span>{modeLabel}</span>
           </Badge>
-          <Calendar className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </div>
 
         {/* Title */}
@@ -67,7 +67,7 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt={username} />
             ) : null}
-            <AvatarFallback className="text-xs bg-muted font-bold">
+            <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
               {username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -75,7 +75,7 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
             <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors truncate">
               {username}
             </span>
-            <span className="text-xs text-zinc-500 font-medium">
+            <span className="text-xs text-muted-foreground font-mono-tabular">
               {formatDate(ranking.created_at, { day: 'numeric', month: 'short' }, language)}
             </span>
           </div>

@@ -153,7 +153,7 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
                     </Badge>
                   )}
                   {suggestedGame.is_unplayed && (
-                    <Badge variant="purple" size="sm">
+                    <Badge variant="secondary" size="sm">
                       <PackageCheck className="w-3.5 h-3.5 mr-1 text-muted-foreground" aria-hidden="true" />
                       {t('play.unplayedBadge')}
                     </Badge>
@@ -176,7 +176,7 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
                 <RotateCw className={`w-4 h-4 ${isSpinning ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span>{t('play.spinAgain')}</span>
               </Button>
-              <Button type="button" variant="purple" onClick={onOpenVoting} disabled={isSpinning} size="lg" className="w-full sm:w-auto">
+              <Button type="button" variant="azure" onClick={onOpenVoting} disabled={isSpinning} size="lg" className="w-full sm:w-auto">
                 <Vote className="w-4 h-4 text-white" aria-hidden="true" />
                 <span>{t('play.expressVotingShort')}</span>
               </Button>
@@ -189,7 +189,7 @@ export const GameDecisionCard: FC<GameDecisionCardProps> = ({
                 <RotateCw className={`w-4 h-4 ${isSpinning ? 'animate-spin' : ''}`} aria-hidden="true" />
                 <span>{t('play.spinRoulette')}</span>
               </Button>
-              <Button type="button" variant="purple" size="lg" disabled={isSpinning} onClick={onOpenVoting} className="w-full sm:w-auto">
+              <Button type="button" variant="slatenavy" size="lg" disabled={isSpinning} onClick={onOpenVoting} className="w-full sm:w-auto">
                 <Vote className="w-4 h-4 text-white" aria-hidden="true" />
                 <span>{t('play.expressVoting')}</span>
               </Button>

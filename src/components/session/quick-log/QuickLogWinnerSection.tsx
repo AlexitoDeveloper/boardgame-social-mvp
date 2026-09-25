@@ -144,13 +144,14 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                 {/* Score Input */}
                 <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <Input
+                    tabular
                     type="number"
                     inputMode="numeric"
                     placeholder={t('quickLog.pointsAbbr')}
                     aria-label={`${attendee.name} ${t('quickLog.optionalScoresHint')}`}
                     value={scores[attendee.id] ?? ''}
                     onChange={(e) => setPlayerScore(attendee.id, e.target.value)}
-                    className="w-16 h-7 text-xs text-center font-mono font-bold rounded-lg"
+                    className="w-16 h-7 text-xs text-center font-mono-tabular font-black rounded-lg"
                   />
                   <span className="text-[10px] text-muted-foreground font-semibold">{t('quickLog.pointsAbbr')}</span>
                 </div>

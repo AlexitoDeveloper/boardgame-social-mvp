@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis } from 'recharts'
 import { Skull, Swords, Zap, Crown, Flame } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart'
 import { Meetup, UserProfile } from '../../types'
 import { UserStats } from '../../hooks/useProfile'
@@ -177,15 +178,15 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
       {/* 2. Nemesis & Victim */}
       <div className="grid grid-cols-2 gap-3">
         {/* Nemesis */}
-        <Card className="border-border/30 bg-card/60 rounded-2xl shadow-lg overflow-hidden group hover:border-rose-500/30 transition-all duration-300">
+        <Card className="border-border/30 bg-card/60 rounded-2xl shadow-lg overflow-hidden group hover:border-primary/30 transition-all duration-300">
           <CardContent className="p-4 space-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <Skull className="w-3.5 h-3.5 text-rose-500" />
-              <span className="text-xs font-black uppercase tracking-widest text-rose-500">{t('profile.advancedStats.nemesisLabel')}</span>
-            </div>
+            <Badge variant="slatenavy" className="gap-1.5 text-xs">
+              <Skull className="w-3 h-3 text-white" />
+              <span>{t('profile.advancedStats.nemesisLabel')}</span>
+            </Badge>
             {nemesis ? (
               <div className="space-y-1.5">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-rose-500/30 shadow-md mx-auto">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-border/70 shadow-md mx-auto">
                   <img
                     src={nemesis.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(nemesis.username)}`}
                     alt={nemesis.username}
@@ -193,7 +194,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{nemesis.username}</p>
-                <p className="text-xs text-rose-500 font-bold text-center">{t('profile.advancedStats.nemesisBeat', { count: nemesis.count })}</p>
+                <p className="text-xs text-primary dark:text-[#FF80B0] font-bold text-center">{t('profile.advancedStats.nemesisBeat', { count: nemesis.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">
@@ -206,15 +207,15 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
         </Card>
 
         {/* Victim */}
-        <Card className="border-border/30 bg-card/60 rounded-2xl shadow-lg overflow-hidden group hover:border-amber-500/30 transition-all duration-300">
+        <Card className="border-border/30 bg-card/60 rounded-2xl shadow-lg overflow-hidden group hover:border-emerald-500/30 transition-all duration-300">
           <CardContent className="p-4 space-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <Crown className="w-3.5 h-3.5 text-amber-500 fill-current" />
-              <span className="text-xs font-black uppercase tracking-widest text-amber-500">{t('profile.advancedStats.victimLabel')}</span>
-            </div>
+            <Badge variant="tag-emerald" className="gap-1.5 text-xs">
+              <Crown className="w-3 h-3" />
+              <span>{t('profile.advancedStats.victimLabel')}</span>
+            </Badge>
             {victim ? (
               <div className="space-y-1.5">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-500/30 shadow-md mx-auto">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500/30 shadow-md mx-auto">
                   <img
                     src={victim.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(victim.username)}`}
                     alt={victim.username}
@@ -222,7 +223,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                   />
                 </div>
                 <p className="text-xs font-black text-foreground text-center truncate">{victim.username}</p>
-                <p className="text-xs text-amber-500 font-bold text-center">{t('profile.advancedStats.victimBeat', { count: victim.count })}</p>
+                <p className="text-xs text-[#065F46] dark:text-[#34D399] font-bold text-center">{t('profile.advancedStats.victimBeat', { count: victim.count })}</p>
               </div>
             ) : (
               <div className="text-center py-2">

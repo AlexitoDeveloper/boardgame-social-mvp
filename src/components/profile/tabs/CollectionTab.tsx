@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Dices, Download, Plus, Search, X, Trash2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Chip } from '../../ui/chip'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
@@ -167,26 +168,32 @@ export function CollectionTab({
 
       {/* Horizontal Filter Chips with Instant Counter Badges */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-        {filterChips.map(chip => (
-          <Chip
-            key={chip.id}
-            variant="purple"
-            size="sm"
-            selected={filter === chip.id}
-            onClick={() => setFilter(chip.id)}
-            badge={
-              <span className={`text-[10px] font-mono-tabular px-1.5 py-0.5 rounded-full font-black ${
-                filter === chip.id 
-                  ? 'bg-purple-500/25 text-purple-700 dark:text-purple-300' 
-                  : 'bg-muted text-muted-foreground'
-              }`}>
-                {chip.count}
-              </span>
-            }
-          >
-            {chip.label}
-          </Chip>
-        ))}
+        {filterChips.map(chip => {
+          const isSelected = filter === chip.id
+          return (
+            <Chip
+              key={chip.id}
+              variant="default"
+              size="sm"
+              selected={isSelected}
+              onClick={() => setFilter(chip.id)}
+              badge={
+                <span
+                  className={cn(
+                    "text-[10px] font-mono-tabular px-1.5 py-0.5 rounded-full font-black transition-colors",
+                    isSelected
+                      ? "bg-primary text-white shadow-xs"
+                      : "bg-surface-void text-muted-foreground border border-border/40"
+                  )}
+                >
+                  {chip.count}
+                </span>
+              }
+            >
+              {chip.label}
+            </Chip>
+          )
+        })}
       </div>
 
       {/* Zero-CLS Skeleton Loading Grid */}
@@ -244,7 +251,7 @@ export function CollectionTab({
       <Dialog open={!!gameToDelete} onOpenChange={(open) => !open && setGameToDelete(null)}>
         <DialogContent className="max-w-sm w-full p-5 sm:p-6 bg-card border border-border/40 shadow-2xl rounded-3xl space-y-4">
           <DialogHeader className="space-y-1.5">
-            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-1">
+            <div className="w-11 h-11 rounded-2xl bg-surface-elevated text-muted-foreground border border-border/60 flex items-center justify-center mb-1">
               <Trash2 className="w-5 h-5" />
             </div>
             <DialogTitle className="text-lg font-black text-foreground tracking-tight">

@@ -68,8 +68,8 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       <div className="flex-1 min-w-0 text-center md:text-left flex flex-col justify-between h-full space-y-4">
         <div className="space-y-2">
           {/* Badge */}
-          <Badge variant="primary-soft" className="gap-1.5 px-3 py-1 text-xs border-primary/25 relative z-20">
-            <Star className="w-3.5 h-3.5 fill-primary/30" strokeWidth={2} aria-hidden="true" />
+          <Badge variant="raspberry" className="gap-1.5 px-3 py-1 text-xs relative z-20">
+            <Star className="w-3.5 h-3.5 fill-white text-white" strokeWidth={2} aria-hidden="true" />
             <span>{t('explore.recommendedTitle')}</span>
           </Badge>
 
@@ -86,9 +86,9 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
           {/* Subtitle / Edition */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-semibold text-muted-foreground">
             {isSpanish && (
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-xs">
+              <Badge variant="tag-emerald">
                 {t('explore.spanishEdition')}
-              </span>
+              </Badge>
             )}
             {game.is_expansion && (
               <ExpansionBadge size="sm" />

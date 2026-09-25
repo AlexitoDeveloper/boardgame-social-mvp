@@ -1,112 +1,153 @@
 import * as React from "react"
 import { Badge } from "@/components/ui/badge"
+import { ExpansionBadge } from "@/components/ui/expansion-badge"
 import { Chip } from "@/components/ui/chip"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { MeepleColorKey } from "@/lib/design-tokens"
+import { Sparkles, ShieldCheck, Flame, Users, Clock, Award } from "lucide-react"
 
 export function BadgeShowcase() {
-  const [selectedChip, setSelectedChip] = React.useState<string>("worker")
-  const [selectedMeeple, setSelectedMeeple] = React.useState<MeepleColorKey>("green")
-
-  const meepleKeys: MeepleColorKey[] = [
-    "red",
-    "blue",
-    "yellow",
-    "green",
-    "purple",
-    "orange",
-  ]
+  const [selectedCategory, setSelectedCategory] = React.useState<string>("all")
+  const [selectedPlayerColor, setSelectedPlayerColor] = React.useState<string>("green")
 
   return (
-    <Card variant="neoprene" className="p-6">
+    <Card className="p-6 bg-card border border-border/80">
       <CardHeader className="p-0 pb-4">
         <CardTitle className="text-lg font-black tracking-tight text-foreground flex items-center gap-2">
-          <span>03. Punchboard Chits &amp; Player Tokens</span>
+          <span>03. Metadatos, Estados y Filtros Táctiles</span>
           <span className="text-xs font-mono font-normal text-muted-foreground">
-            (Chits, Meeple Accents &amp; Tabular Scores)
+            (Badges de Mesa, Tags de Edición &amp; Chips Ergonómicas)
           </span>
         </CardTitle>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Indicadores ligeros y funcionales integrados con la paleta 8BEES, sin bordes toscos de cartón.
+        </p>
       </CardHeader>
+
       <CardContent className="p-0 space-y-6">
+        {/* 1. Status Badges */}
         <div>
           <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
-            Semantic Meeple Player Colors
+            Estados de Mesa y Partida
           </p>
           <div className="flex flex-wrap items-center gap-2.5">
-            {meepleKeys.map((key) => (
-              <Badge
-                key={key}
-                variant={`meeple-${key}` as any}
-                shape="chit"
-                className="cursor-pointer"
-              >
-                Player: {key}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
-            Tabular Score Badges &amp; Shapes (Chit vs Pill)
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="default" shape="chit" tabular>
-              +142 Victory Points
+            <Badge variant="tag-emerald" className="gap-1.5 font-bold">
+              <span className="size-1.5 rounded-full bg-white animate-pulse" />
+              Mesa de Grupo (Abierta)
             </Badge>
-            <Badge variant="secondary" shape="chit" tabular>
-              3.85 / 5 Weight
+            <Badge variant="slatenavy" className="font-bold">
+              Solo Miembros del Grupo
             </Badge>
-            <Badge variant="success" shape="pill" tabular>
-              Rank #01
+            <Badge variant="raspberry" className="font-bold">
+              Última Plaza
             </Badge>
-            <Badge variant="warning" shape="pill" tabular pulse>
-              Live Turn 04
+            <Badge variant="outline" className="font-mono text-xs">
+              Mesa Completa
             </Badge>
-            <Badge variant="chit" tabular>
-              Chit Border Relief
+            <Badge variant="secondary" className="gap-1">
+              <Flame className="size-3 text-primary dark:text-[#FF80B0]" />
+              Partida en Curso
             </Badge>
           </div>
         </div>
 
+        {/* 2. Catalog & Edition Tags */}
         <div>
           <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
-            Tactile Filter Chips &amp; Meeple Indicators
+            Etiquetas de Edición &amp; Certificación (8BEES)
           </p>
           <div className="flex flex-wrap items-center gap-2.5">
+            <Badge variant="tag-emerald" className="gap-1 font-bold">
+              <ShieldCheck className="size-3.5" />
+              Edición en español
+            </Badge>
+            <ExpansionBadge size="sm" />
+            <Badge variant="tag-emerald" className="gap-1 font-bold">
+              <Sparkles className="size-3.5" />
+              Copia verificada en club
+            </Badge>
+            <Badge variant="outline" className="gap-1 font-mono text-xs font-semibold">
+              <Award className="size-3 text-amber-400" />
+              Spiel des Jahres
+            </Badge>
+            <Badge variant="outline" className="gap-1 font-mono text-xs">
+              <Users className="size-3 text-primary" />
+              2 – 5 Jugadores
+            </Badge>
+            <Badge variant="outline" className="gap-1 font-mono text-xs">
+              <Clock className="size-3 text-primary" />
+              90 – 120 min
+            </Badge>
+            <Badge variant="outline" className="font-mono text-xs font-bold text-primary dark:text-[#FF80B0]">
+              3.85 / 5 Peso
+            </Badge>
+          </div>
+        </div>
+
+        {/* 3. Interactive Filter Chips */}
+        <div>
+          <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
+            Chips de Filtro Interactivas (Accesibilidad WCAG AAA)
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
             <Chip
-              variant="chit"
-              selected={selectedChip === "worker"}
-              onClick={() => setSelectedChip("worker")}
+              selected={selectedCategory === "all"}
+              onClick={() => setSelectedCategory("all")}
+              size="sm"
+              badge={<span className="text-[10px] font-mono-tabular opacity-80">24</span>}
             >
-              Colocación de Trabajadores
+              Todas las Mesas
             </Chip>
             <Chip
-              variant="chit"
-              selected={selectedChip === "deckbuilding"}
-              onClick={() => setSelectedChip("deckbuilding")}
+              selected={selectedCategory === "my-games"}
+              onClick={() => setSelectedCategory("my-games")}
+              size="sm"
+              badge={<span className="text-[10px] font-mono-tabular opacity-80">4</span>}
             >
-              Construcción de Mazos
+              Mis Quedadas
             </Chip>
             <Chip
-              variant="chit"
-              selected={selectedChip === "euro"}
-              onClick={() => setSelectedChip("euro")}
+              selected={selectedCategory === "eurogames"}
+              onClick={() => setSelectedCategory("eurogames")}
+              size="sm"
+              badge={<span className="text-[10px] font-mono-tabular opacity-80">11</span>}
             >
-              Eurogame Pesado
+              Eurogames
+            </Chip>
+            <Chip
+              selected={selectedCategory === "ameritrash"}
+              onClick={() => setSelectedCategory("ameritrash")}
+              size="sm"
+              badge={<span className="text-[10px] font-mono-tabular opacity-80">6</span>}
+            >
+              Temáticos
+            </Chip>
+            <Chip
+              selected={selectedCategory === "party"}
+              onClick={() => setSelectedCategory("party")}
+              size="sm"
+              badge={<span className="text-[10px] font-mono-tabular opacity-80">3</span>}
+            >
+              Party / Fillers
             </Chip>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 mt-3">
-            {meepleKeys.map((key) => (
+        {/* 4. Player Color Selector Chips */}
+        <div>
+          <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
+            Asignación de Color de Jugador / Facción
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            {(["green", "blue", "red", "yellow", "purple", "orange"] as const).map((color) => (
               <Chip
-                key={key}
-                meepleColor={key}
-                selected={selectedMeeple === key}
-                onClick={() => setSelectedMeeple(key)}
+                key={color}
+                meepleColor={color}
                 size="sm"
+                selected={selectedPlayerColor === color}
+                onClick={() => setSelectedPlayerColor(color)}
+                className="capitalize text-xs font-bold"
               >
-                Jugador {key}
+                {color === "green" ? "Verde (Tú)" : color}
               </Chip>
             ))}
           </div>

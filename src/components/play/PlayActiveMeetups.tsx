@@ -1,7 +1,9 @@
 import { FC, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Play, Plus, ArrowRight, Dices, CheckCircle2 } from 'lucide-react'
+import { Play, Plus, ArrowRight, Dices, CheckCircle2, Clock, MapPin, Users } from 'lucide-react'
 import { Button } from '../ui/button'
+import { Card } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { Skeleton } from '../ui/skeleton'
 import { useAuth } from '../../lib/authContext'
 import { supabase } from '../../lib/supabaseClient'
@@ -134,8 +136,8 @@ export const PlayActiveMeetups: FC = () => {
 
       {loadingMeetups ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Skeleton className="h-28 rounded-2xl" />
-          <Skeleton className="h-28 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
         </div>
       ) : activeMeetups.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -143,51 +145,79 @@ export const PlayActiveMeetups: FC = () => {
             const gameTitle = meetup.gameTitle || meetup.title
             const gameImg = meetup.gameImg || null
             const isToday = new Date(meetup.date).toDateString() === new Date().toDateString()
+            const attendeesCount = meetup.joined_players?.length || 1
 
             return (
-              <div
+              <Card
                 key={meetup.id}
+                spotlight
                 onClick={() => navigate(`/mesa/${meetup.id}`)}
-                className="p-4 rounded-2xl glass-panel border border-border/40 hover:border-border/80 transition-all cursor-pointer shadow-xs hover:shadow-md flex items-center gap-3.5 group active:scale-[0.99]"
+                className="p-4 sm:p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between gap-3 group active:scale-[0.99]"
               >
-                {gameImg ? (
-                  <img
-                    src={gameImg}
-                    alt={gameTitle}
-                    className="w-14 h-14 rounded-xl object-cover shrink-0 border border-border/20 group-hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-xl bg-muted text-muted-foreground flex items-center justify-center shrink-0">
-                    <Dices className="w-6 h-6" aria-hidden="true" />
+                <div>
+                  {/* Top Bar: Status Badge & Time */}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <Badge
+                      variant={isToday ? "tag-emerald" : "slatenavy"}
+                      className="text-[10px] font-bold py-0.5 px-2"
+                    >
+                      {isToday ? t('common.today', 'Hoy') : t('play.upcoming', 'Próxima')}
+                    </Badge>
+                    <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
+                      <Clock className="size-3 text-muted-foreground" />
+                      {formatDate(
+                        meetup.date,
+                        { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
+                        i18n.language as any
+                      )}
+                    </span>
                   </div>
-                )}
 
-                <div className="flex-1 min-w-0 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                      {gameTitle}
-                    </h4>
-                    {isToday && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 font-black text-xs uppercase tracking-wider">
-                        {t('common.today')}
-                      </span>
+                  {/* Game & Details Row */}
+                  <div className="flex items-start gap-3">
+                    {gameImg ? (
+                      <img
+                        src={gameImg}
+                        alt={gameTitle}
+                        className="w-12 h-12 rounded-xl object-cover shrink-0 border border-border/40 group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-muted/60 text-muted-foreground flex items-center justify-center shrink-0 border border-border/40">
+                        <Dices className="w-6 h-6" aria-hidden="true" />
+                      </div>
                     )}
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <h4 className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors">
+                        {gameTitle}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-medium flex items-center gap-1 truncate">
+                        <MapPin className="size-3 text-primary shrink-0" />
+                        <span className="truncate">
+                          {meetup.is_online ? t('common.online') : meetup.location || meetup.city || t('common.inPersonTable')}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    {formatDate(
-                      meetup.date,
-                      { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
-                      i18n.language as any
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground/80 font-semibold truncate">
-                    {meetup.is_online ? t('common.online') : meetup.location || meetup.city || t('common.inPersonTable')} •{' '}
-                    {meetup.joined_players?.length || 1}/{meetup.max_players} {t('common.playersAbbr')}
-                  </p>
                 </div>
 
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true" />
-              </div>
+                {/* Footer: Attendees & Action */}
+                <div className="pt-2.5 border-t border-border/60 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold font-mono-tabular">
+                    <Users className="size-3.5 text-muted-foreground" />
+                    <span>
+                      {attendeesCount}/{meetup.max_players} {t('common.playersAbbr', 'jug.')}
+                    </span>
+                  </div>
+
+                  <Button
+                    size="xs"
+                    variant="default"
+                    label={t('common.view', 'Ver Mesa')}
+                    icon={ArrowRight}
+                  />
+                </div>
+              </Card>
             )
           })}
         </div>

@@ -35,25 +35,25 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Nemesis Card */}
         {nemesis ? (
-          <Card className="border-rose-500/20 bg-gradient-to-br from-rose-950/20 via-card/50 to-card/30 overflow-hidden relative group">
-            <div className="absolute -right-6 -bottom-6 text-rose-500/10 pointer-events-none group-hover:scale-110 transition-transform">
+          <Card spotlight className="border-border/60 bg-card/60 overflow-hidden relative group">
+            <div className="absolute -right-6 -bottom-6 text-foreground/[0.03] pointer-events-none group-hover:scale-110 transition-transform">
               <Skull className="w-28 h-28" />
             </div>
             <CardContent className="p-4 relative z-10 space-y-3">
               <div className="flex items-center justify-between">
-                <Badge variant="destructive" className="bg-rose-500/15 text-rose-400 border border-rose-500/30 gap-1 text-xs">
-                  <Skull className="w-3 h-3" />
+                <Badge variant="slatenavy" className="gap-1.5 text-xs">
+                  <Skull className="w-3 h-3 text-white" />
                   {t('groups.nemesis')}
                 </Badge>
-                <span className="text-xs font-mono text-muted-foreground">
+                <span className="text-xs font-mono-tabular text-muted-foreground font-bold">
                   {nemesis.totalMatchesTogether} {t('groups.matchesTogether')}
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <Avatar className="w-12 h-12 border-2 border-rose-500/40 ring-2 ring-rose-500/20 shadow-md">
+                <Avatar className="w-12 h-12 border-2 border-border/80 shadow-md">
                   <AvatarImage src={nemesis.opponentAvatar || ''} alt={nemesis.opponentName} />
-                  <AvatarFallback className="bg-rose-950 text-rose-300 font-bold">
+                  <AvatarFallback className="bg-surface-elevated text-foreground font-bold">
                     <User className="w-5 h-5" />
                   </AvatarFallback>
                 </Avatar>
@@ -61,7 +61,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                   <p className="font-extrabold text-sm sm:text-base text-foreground truncate">
                     {nemesis.opponentName}
                   </p>
-                  <p className="text-xs text-rose-300/80 font-medium">
+                  <p className="text-xs text-primary dark:text-[#FF80B0] font-bold">
                     {nemesis.count} {t('groups.lossesAgainstCount')}
                   </p>
                 </div>
@@ -80,25 +80,25 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
 
         {/* Favorite Victim Card */}
         {favoriteVictim ? (
-          <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-950/20 via-card/50 to-card/30 overflow-hidden relative group">
-            <div className="absolute -right-6 -bottom-6 text-emerald-500/10 pointer-events-none group-hover:scale-110 transition-transform">
+          <Card spotlight className="border-border/60 bg-card/60 overflow-hidden relative group">
+            <div className="absolute -right-6 -bottom-6 text-foreground/[0.03] pointer-events-none group-hover:scale-110 transition-transform">
               <Target className="w-28 h-28" />
             </div>
             <CardContent className="p-4 relative z-10 space-y-3">
               <div className="flex items-center justify-between">
-                <Badge variant="default" className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 gap-1 text-xs">
+                <Badge variant="tag-emerald" className="gap-1.5 text-xs">
                   <Target className="w-3 h-3" />
                   {t('groups.favoriteVictim')}
                 </Badge>
-                <span className="text-xs font-mono text-muted-foreground">
+                <span className="text-xs font-mono-tabular text-muted-foreground font-bold">
                   {favoriteVictim.totalMatchesTogether} {t('groups.matchesTogether')}
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <Avatar className="w-12 h-12 border-2 border-emerald-500/40 ring-2 ring-emerald-500/20 shadow-md">
+                <Avatar className="w-12 h-12 border-2 border-border/80 shadow-md">
                   <AvatarImage src={favoriteVictim.opponentAvatar || ''} alt={favoriteVictim.opponentName} />
-                  <AvatarFallback className="bg-emerald-950 text-emerald-300 font-bold">
+                  <AvatarFallback className="bg-surface-elevated text-foreground font-bold">
                     <User className="w-5 h-5" />
                   </AvatarFallback>
                 </Avatar>
@@ -106,7 +106,7 @@ export function GroupRivalries({ nemesis, favoriteVictim }: GroupRivalriesProps)
                   <p className="font-extrabold text-sm sm:text-base text-foreground truncate">
                     {favoriteVictim.opponentName}
                   </p>
-                  <p className="text-xs text-emerald-300/80 font-medium">
+                  <p className="text-xs text-[#065F46] dark:text-[#34D399] font-bold">
                     {favoriteVictim.count} {t('groups.winsAgainstCount')}
                   </p>
                 </div>

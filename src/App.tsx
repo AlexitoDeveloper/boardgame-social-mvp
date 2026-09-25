@@ -2,7 +2,6 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
 import { CreateMeetupPage } from './pages/CreateMeetupPage'
 import { ExplorePage } from './pages/ExplorePage'
-import { TableHubPage } from './pages/TableHubPage'
 import { PlayPage } from './pages/PlayPage'
 import { MeetupDetailPage } from './pages/MeetupDetailPage'
 import { AuthPage } from './pages/AuthPage'
@@ -45,7 +44,6 @@ function App() {
       <Route element={<AppShell />}>
         {/* Core Discovery & Play Navigation */}
         <Route path="/" element={<ExplorePage />} />
-        <Route path="/mesa-hub" element={<TableHubPage />} />
         <Route path="/jugar" element={<PlayPage />} />
         <Route path="/tops" element={<TopsPage />} />
         <Route path="/design-system" element={<DesignSystemPlaygroundPage />} />
@@ -119,7 +117,7 @@ function App() {
           }
         />
         <Route path="/mesa/:id" element={<MeetupDetailPage />} />
-        <Route path="/mesa" element={<Navigate to="/mesa-hub" replace />} />
+        <Route path="/mesa" element={<Navigate to="/jugar" replace />} />
 
         {/* User Profiles */}
         <Route
@@ -131,9 +129,6 @@ function App() {
           }
         />
         <Route path="/perfil/:id" element={<ProfilePage />} />
-        {/* Legacy Tablero redirects */}
-        <Route path="/tablero/:id" element={<MeetupDetailPage />} />
-        <Route path="/tablero" element={<Navigate to="/jugar" replace />} />
 
         {/* Fallback 404 handler */}
         <Route path="*" element={<Navigate to="/" replace />} />
