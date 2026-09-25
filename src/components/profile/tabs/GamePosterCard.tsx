@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { BookmarkCheck } from 'lucide-react'
 import { ExpansionBadge } from '../../ui/expansion-badge'
+import { Badge } from '../../ui/badge'
 import { Game } from '../../../types'
 import { useGameLocale } from '../../../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 
 interface GamePosterCardProps {
   game: Game;
@@ -19,6 +21,7 @@ export function GamePosterCard({
   gameTitle,
   onClick,
 }: GamePosterCardProps) {
+  const { t } = useTranslation()
   const { getGameCover } = useGameLocale()
   const coverUrl = getGameCover(game) || game.image_url
 
@@ -68,19 +71,26 @@ export function GamePosterCard({
           {isWishlisted && (
             <div 
               className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-purple-600/90 text-white backdrop-blur-md shadow-xs border border-purple-400/30 flex items-center justify-center"
-              title="En tu lista Quiero Jugar"
-              aria-label="En tu lista Quiero Jugar"
+              title={t('profile.collection.wishlistBadgeTitle', 'En tu lista Quiero Jugar')}
+              aria-label={t('profile.collection.wishlistBadgeTitle', 'En tu lista Quiero Jugar')}
             >
               <BookmarkCheck className="w-3.5 h-3.5" />
             </div>
           )}
 
-          {/* Unplayed / Shelf of Shame Indicator Tag (Bottom Left) */}
-          {isUnplayed && (
-            <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-md border border-amber-300 select-none">
-                Sin jugar
-              </span>
+          {/* Bottom-left overlay: Unplayed badge + Expansion badge */}
+          {(isUnplayed || game.is_expansion) && (
+            <div className="absolute bottom-2 left-2 z-10 pointer-events-none flex flex-wrap items-center gap-1">
+              {isUnplayed && (
+                <Badge
+                  variant="amber"
+                  size="sm"
+                  className="font-black shadow-md select-none"
+                >
+                  {t('profile.collection.unplayedBadge', 'Sin jugar')}
+                </Badge>
+              )}
+              {game.is_expansion && <ExpansionBadge size="xs" />}
             </div>
           )}
         </div>
@@ -91,7 +101,6 @@ export function GamePosterCard({
             {gameTitle}
           </h4>
           <div className="flex items-center justify-center gap-1.5 text-xs font-mono-tabular text-muted-foreground font-semibold">
-            {game.is_expansion && <ExpansionBadge size="xs" />}
             <span>{game.year_published || 'N/A'}</span>
           </div>
         </div>

@@ -36,10 +36,10 @@ export const GameCoverCard = memo(function GameCoverCard({ game }: GameCoverCard
     : null;
 
   return (
-    <div className="relative w-full aspect-[2/3] transition-transform duration-150 ease-out-custom [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:scale-[1.02] [@media(hover:hover)]:active:scale-[0.98]">
+    <div className="relative w-full aspect-[2/3] [@media(hover:hover)]:transition-transform [@media(hover:hover)]:duration-150 [@media(hover:hover)]:ease-out-custom [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:scale-[1.02] [@media(hover:hover)]:active:scale-[0.98]">
       <Link 
         to={`/juegos/${game.bgg_id}`} 
-        className="group relative block w-full h-full overflow-hidden rounded-2xl bg-card border border-border/40 shadow-sm hover:shadow-xl hover:shadow-primary/15 hover:border-primary/50 transition-[box-shadow,border-color] duration-150 ease-out-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+        className="group relative block w-full h-full overflow-hidden rounded-2xl bg-card border border-border/40 shadow-sm [@media(hover:hover)]:hover:shadow-xl [@media(hover:hover)]:hover:shadow-primary/15 [@media(hover:hover)]:hover:border-primary/50 transition-[box-shadow,border-color] duration-150 ease-out-custom focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
       >
         <div className="absolute inset-0 w-full h-full">
           {/* Floating Badges (Always visible for mobile & quick desktop discovery) */}
@@ -68,12 +68,12 @@ export const GameCoverCard = memo(function GameCoverCard({ game }: GameCoverCard
               alt={title}
               widthSize={250}
               fit="contain"
-              className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-[transform,filter] duration-200 ease-out group-hover:scale-105 group-hover:brightness-[0.7]"
+              className="absolute inset-0 h-full w-full object-contain p-2 z-0 transition-[transform,filter] duration-200 ease-out-custom [@media(hover:hover)]:group-hover:scale-105 [@media(hover:hover)]:group-hover:brightness-[0.7]"
             />
           </div>
 
-          {/* Hover Details Overlay (Desktop only) */}
-          <div className="absolute inset-0 hidden sm:flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 z-10 select-none pointer-events-none">
+          {/* Hover Details Overlay — desktop pointer devices only, never fires on touch scroll */}
+          <div className="absolute inset-0 hidden [@media(hover:hover)]:flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/45 to-transparent p-3.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 z-10 select-none pointer-events-none">
             <div className="space-y-1.5 text-white">
               {/* Title */}
               <h4 className="text-xs font-black leading-tight line-clamp-2 tracking-tight group-hover:text-white transition-colors duration-150 text-pretty">

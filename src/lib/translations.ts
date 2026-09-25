@@ -358,7 +358,25 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         unplayedDesc: "Juegos en ludoteca sin partidas registradas",
         searchPlaceholder: "Buscar en la colección...",
         addedWantToPlay: "¡Añadido a Quiero Jugar!",
-        removedWantToPlay: "Eliminado de Quiero Jugar"
+        removedWantToPlay: "Eliminado de Quiero Jugar",
+        unplayedBadge: "Sin jugar",
+        wishlistBadgeTitle: "En tu lista Quiero Jugar",
+        drawer: {
+          players: "{{min}}-{{max}} jug.",
+          singlePlayer: "{{count}} jug.",
+          unplayed: "Sin jugar",
+          wishlistRemove: "Quitar de Quiero Jugar",
+          wishlistAdd: "Marcar como Quiero Jugar",
+          createMatch: "Crear partida con este juego",
+          viewGame: "Ver ficha completa del juego",
+          removeGame: "Quitar de mi ludoteca",
+          removeConfirmPrompt: "¿Seguro que deseas eliminar",
+          fromCollection: "de tu ludoteca?"
+        },
+        emptyUnplayed: "¡Sin juegos en la estantería de la vergüenza! Has jugado a todos los títulos de tu ludoteca.",
+        emptyWantToPlay: "Aún no has marcado ningún juego en tu lista de Quiero Jugar.",
+        noSearchResults: "No hay juegos que coincidan con la búsqueda",
+        clearSearch: "Limpiar búsqueda"
       },
       upcomingEmpty: "No hay partidas programadas.",
       upcomingEmptyDesc: "Organiza una mesa con tus amigos o grupo para empezar a jugar.",
@@ -1546,7 +1564,25 @@ export const translations: Record<AppLanguage, Record<string, any>> = {
         unplayedDesc: "Collection games with no recorded plays",
         searchPlaceholder: "Search collection...",
         addedWantToPlay: "Added to Want to Play!",
-        removedWantToPlay: "Removed from Want to Play"
+        removedWantToPlay: "Removed from Want to Play",
+        unplayedBadge: "Unplayed",
+        wishlistBadgeTitle: "In your Want to Play list",
+        drawer: {
+          players: "{{min}}-{{max}} pl.",
+          singlePlayer: "{{count}} pl.",
+          unplayed: "Unplayed",
+          wishlistRemove: "Remove from Want to Play",
+          wishlistAdd: "Mark as Want to Play",
+          createMatch: "Create meetup with this game",
+          viewGame: "View full game details",
+          removeGame: "Remove from collection",
+          removeConfirmPrompt: "Are you sure you want to remove",
+          fromCollection: "from your collection?"
+        },
+        emptyUnplayed: "No games on the shelf of shame! You have played every title in your collection.",
+        emptyWantToPlay: "You haven't marked any games in your Want to Play list yet.",
+        noSearchResults: "No games match your search",
+        clearSearch: "Clear search"
       },
       upcomingEmpty: "No scheduled meetups.",
       upcomingEmptyDesc: "Host a table with your friends or group to start playing.",

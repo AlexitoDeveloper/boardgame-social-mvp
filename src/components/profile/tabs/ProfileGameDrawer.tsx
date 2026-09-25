@@ -21,6 +21,7 @@ import { Badge } from '../../ui/badge'
 import { ExpansionBadge } from '../../ui/expansion-badge'
 import { Game } from '../../../types'
 import { useGameLocale } from '../../../hooks/useGameLocale'
+import { useTranslation } from 'react-i18next'
 
 interface ProfileGameDrawerProps {
   game: Game | null
@@ -45,6 +46,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
   onToggleWishlist,
   onRemove,
 }) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { getGameCover } = useGameLocale()
 
@@ -104,16 +106,16 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
             {/* Quick Badges Row */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
               {isUnplayed && (
-                <Badge variant="warning" size="sm" className="font-bold text-xs py-0 px-2">
-                  Sin jugar
+                <Badge variant="warning" size="sm" className="font-bold text-xs py-0 px-2 uppercase tracking-wide">
+                  {t('profile.collection.unplayedBadge', 'Sin jugar')}
                 </Badge>
               )}
               {(game.min_players || game.max_players) && (
                 <Badge variant="secondary" size="sm" className="font-mono text-xs py-0 px-2">
                   <Users className="w-2.5 h-2.5 mr-1 text-primary" />
                   {game.min_players === game.max_players
-                    ? `${game.min_players} jug.`
-                    : `${game.min_players ?? 1}-${game.max_players ?? '?'} jug.`}
+                    ? t('profile.collection.drawer.singlePlayer', '{{count}} jug.', { count: game.min_players ?? 0 })
+                    : t('profile.collection.drawer.players', '{{min}}-{{max}} jug.', { min: game.min_players ?? 1, max: game.max_players ?? '?' })}
                 </Badge>
               )}
               {game.playing_time && (
@@ -135,7 +137,9 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
             className="w-full h-12 rounded-xl text-sm font-bold justify-center"
             onClick={() => onToggleWishlist(game.bgg_id)}
             icon={isWishlisted ? BookmarkCheck : Bookmark}
-            label={isWishlisted ? 'Quitar de Quiero Jugar' : 'Marcar como Quiero Jugar'}
+            label={isWishlisted
+              ? t('profile.collection.drawer.wishlistRemove', 'Quitar de Quiero Jugar')
+              : t('profile.collection.drawer.wishlistAdd', 'Marcar como Quiero Jugar')}
           />
 
           {/* Create Match CTA */}
@@ -145,7 +149,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
             className="w-full h-12 rounded-xl text-sm font-bold justify-center"
             onClick={handleCreateMatch}
             icon={CalendarPlus}
-            label="Crear partida con este juego"
+            label={t('profile.collection.drawer.createMatch', 'Crear partida con este juego')}
           />
 
           {/* Game Detail View CTA */}
@@ -155,7 +159,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
             className="w-full h-12 rounded-xl text-sm font-bold justify-center"
             onClick={handleOpenGameDetail}
             icon={ExternalLink}
-            label="Ver ficha completa del juego"
+            label={t('profile.collection.drawer.viewGame', 'Ver ficha completa del juego')}
           />
 
           {/* Destructive Action: Remove from Collection */}
@@ -166,7 +170,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
               className="w-full h-11 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 justify-center mt-1"
               onClick={handleRemove}
               icon={Trash2}
-              label="Quitar de mi ludoteca"
+              label={t('profile.collection.drawer.removeGame', 'Quitar de mi ludoteca')}
             />
           )}
         </div>

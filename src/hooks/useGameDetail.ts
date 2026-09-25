@@ -18,26 +18,45 @@ export interface GameOwner {
   city: string | null;
 }
 
+interface CachedGameDetail {
+  game: Game;
+  baseGame: Game | null;
+  expansions: Game[];
+  playsCount: number;
+  winnersLog: GameWinner[];
+  owners: GameOwner[];
+  upcomingMeetups: Meetup[];
+  isInCollection: boolean;
+  currentUserCity: string | null;
+  timestamp: number;
+}
+
+const gameDetailCache = new Map<string, CachedGameDetail>()
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
 export function useGameDetail(bggIdStr: string | undefined) {
   const { user } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const bggId = bggIdStr ? parseInt(bggIdStr, 10) : NaN
+  const cacheKey = !isNaN(bggId) ? `${bggId}_${user?.id || 'anon'}` : null
+  const cachedData = cacheKey ? gameDetailCache.get(cacheKey) : null
+  const isCacheFresh = cachedData ? (Date.now() - cachedData.timestamp < CACHE_TTL_MS) : false
+
+  const [loading, setLoading] = useState(!isCacheFresh)
   const [error, setError] = useState<string | null>(null)
-  const [game, setGame] = useState<Game | null>(null)
-  const [baseGame, setBaseGame] = useState<Game | null>(null)
-  const [expansions, setExpansions] = useState<Game[]>([])
+  const [game, setGame] = useState<Game | null>(() => (isCacheFresh && cachedData ? cachedData.game : null))
+  const [baseGame, setBaseGame] = useState<Game | null>(() => (isCacheFresh && cachedData ? cachedData.baseGame : null))
+  const [expansions, setExpansions] = useState<Game[]>(() => (isCacheFresh && cachedData ? cachedData.expansions : []))
   
   // Real-time Community Stats
-  const [playsCount, setPlaysCount] = useState(0)
-  const [winnersLog, setWinnersLog] = useState<GameWinner[]>([])
-  const [owners, setOwners] = useState<GameOwner[]>([])
-  const [upcomingMeetups, setUpcomingMeetups] = useState<Meetup[]>([])
+  const [playsCount, setPlaysCount] = useState<number>(() => (isCacheFresh && cachedData ? cachedData.playsCount : 0))
+  const [winnersLog, setWinnersLog] = useState<GameWinner[]>(() => (isCacheFresh && cachedData ? cachedData.winnersLog : []))
+  const [owners, setOwners] = useState<GameOwner[]>(() => (isCacheFresh && cachedData ? cachedData.owners : []))
+  const [upcomingMeetups, setUpcomingMeetups] = useState<Meetup[]>(() => (isCacheFresh && cachedData ? cachedData.upcomingMeetups : []))
   
   // Personal Collection Status
-  const [isInCollection, setIsInCollection] = useState(false)
+  const [isInCollection, setIsInCollection] = useState<boolean>(() => (isCacheFresh && cachedData ? cachedData.isInCollection : false))
   const [actionLoading, setActionLoading] = useState(false)
-  const [currentUserCity, setCurrentUserCity] = useState<string | null>(null)
-
-  const bggId = bggIdStr ? parseInt(bggIdStr, 10) : NaN
+  const [currentUserCity, setCurrentUserCity] = useState<string | null>(() => (isCacheFresh && cachedData ? cachedData.currentUserCity : null))
 
   const fetchGameDetails = useCallback(async () => {
     if (isNaN(bggId)) {
@@ -46,6 +65,23 @@ export function useGameDetail(bggIdStr: string | undefined) {
       return
     }
 
+    const currentKey = `${bggId}_${user?.id || 'anon'}`
+    const existingCache = gameDetailCache.get(currentKey)
+    if (existingCache && Date.now() - existingCache.timestamp < CACHE_TTL_MS) {
+      setGame(existingCache.game)
+      setBaseGame(existingCache.baseGame)
+      setExpansions(existingCache.expansions)
+      setPlaysCount(existingCache.playsCount)
+      setWinnersLog(existingCache.winnersLog)
+      setOwners(existingCache.owners)
+      setUpcomingMeetups(existingCache.upcomingMeetups)
+      setIsInCollection(existingCache.isInCollection)
+      setCurrentUserCity(existingCache.currentUserCity)
+      setLoading(false)
+      return
+    }
+
+    // If changing game or first load without cache, show skeleton
     setLoading(true)
     setError(null)
 
@@ -72,15 +108,17 @@ export function useGameDetail(bggIdStr: string | undefined) {
         }
         setGame(gameData)
         setPlaysCount(4)
-        setWinnersLog([
+        const mockWinners = [
           { name: 'alex', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex', wins: 3 },
           { name: 'tester2', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Tester', wins: 1 }
-        ])
-        setOwners([
+        ]
+        setWinnersLog(mockWinners)
+        const mockOwners = [
           { user_id: 'mock-u1', username: 'boardgamer_alex', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex', city: 'Madrid' },
           { user_id: 'mock-u2', username: 'meeple_sara', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sara', city: 'Barcelona' }
-        ])
-        setUpcomingMeetups([
+        ]
+        setOwners(mockOwners)
+        const mockMeetups = [
           {
             id: 'mock-m1',
             creator_id: 'mock-u1',
@@ -113,16 +151,32 @@ export function useGameDetail(bggIdStr: string | undefined) {
               avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=HexCounter'
             }
           }
-        ])
+        ]
+        setUpcomingMeetups(mockMeetups)
         const mockProfileId = user?.id || 'mock-u1'
         const mockKey = `ludiclub_mock_collection_${mockProfileId}`
+        let inColl = false
         try {
           const stored = localStorage.getItem(mockKey) || localStorage.getItem(`boardgame_social_mock_collection_${mockProfileId}`)
           const list = stored ? JSON.parse(stored) : []
-          setIsInCollection(list.some((g: any) => g.bgg_id === bggId))
+          inColl = list.some((g: any) => g.bgg_id === bggId)
         } catch {
-          setIsInCollection(false)
+          inColl = false
         }
+        setIsInCollection(inColl)
+
+        gameDetailCache.set(currentKey, {
+          game: gameData,
+          baseGame: null,
+          expansions: [],
+          playsCount: 4,
+          winnersLog: mockWinners,
+          owners: mockOwners,
+          upcomingMeetups: mockMeetups,
+          isInCollection: inColl,
+          currentUserCity: 'Madrid',
+          timestamp: Date.now()
+        })
       } else {
         setError('Juego no encontrado')
       }
@@ -156,42 +210,39 @@ export function useGameDetail(bggIdStr: string | undefined) {
         }
       }
 
-      setGame(gameData as Game)
+      const castGame = gameData as Game
+      setGame(castGame)
+      // Instant display: unblock UI skeleton immediately now that primary game is loaded!
+      setLoading(false)
 
-      if (gameData) {
-        const castGame = gameData as Game;
-        
-        // 3. Fetch Base Game if it is an expansion
-        if (castGame.is_expansion && castGame.bgg_base_game_id) {
-          const { data: baseData } = await supabase
-            .from('games')
-            .select('*')
-            .eq('bgg_id', castGame.bgg_base_game_id)
-            .maybeSingle()
-          setBaseGame(baseData as Game || null)
-        } else {
-          setBaseGame(null)
-        }
+      // 3. Concurrently fetch all secondary details in parallel
+      const [
+        baseResult,
+        expansionsResult,
+        playsResult,
+        winnersResult,
+        ownersResult,
+        userStatusResult,
+        meetupsResult
+      ] = await Promise.allSettled([
+        // Base Game (if expansion)
+        castGame.is_expansion && castGame.bgg_base_game_id
+          ? supabase.from('games').select('*').eq('bgg_id', castGame.bgg_base_game_id).maybeSingle()
+          : Promise.resolve({ data: null, error: null }),
 
-        // 4. Fetch Expansions if it is a base game
-        const { data: expansionsData } = await supabase
-          .from('games')
-          .select('*')
-          .eq('bgg_base_game_id', castGame.bgg_id)
-        setExpansions(expansionsData as Game[] || [])
+        // Expansions (if base game)
+        !castGame.is_expansion
+          ? supabase.from('games').select('*').eq('bgg_base_game_id', castGame.bgg_id)
+          : Promise.resolve({ data: [], error: null }),
 
-        // 5. Fetch total Plays count
-        const { count: playCount, error: countError } = await supabase
+        // Plays count
+        supabase
           .from('meetup_games')
           .select('*', { count: 'exact', head: true })
-          .eq('game_id', bggId)
-        
-        if (!countError) {
-          setPlaysCount(playCount || 0)
-        }
+          .eq('game_id', bggId),
 
-        // 6. Fetch winners log
-        const { data: winnersData, error: winnersError } = await supabase
+        // Winners log
+        supabase
           .from('meetup_games')
           .select(`
             winner_user_id,
@@ -200,21 +251,89 @@ export function useGameDetail(bggIdStr: string | undefined) {
             winner_guest:meetup_guests (guest_name)
           `)
           .eq('game_id', bggId)
-          .or('winner_user_id.not.is.null,winner_guest_id.not.is.null')
+          .or('winner_user_id.not.is.null,winner_guest_id.not.is.null'),
 
-        if (!winnersError && winnersData) {
+        // Owners (local ludoteca)
+        supabase
+          .from('user_collection')
+          .select('user_id, users:users (username, avatar_url, city)')
+          .eq('game_id', bggId),
+
+        // User personal collection status & city
+        user?.id
+          ? Promise.all([
+              supabase.from('user_collection').select('user_id').eq('user_id', user.id).eq('game_id', bggId).maybeSingle(),
+              supabase.from('users').select('city').eq('id', user.id).maybeSingle()
+            ])
+          : Promise.resolve([{ data: null }, { data: null }]),
+
+        // Upcoming meetups
+        supabase
+          .from('meetup_games')
+          .select(`
+            meetup:meetups!inner (
+              id,
+              creator_id,
+              title,
+              description,
+              date,
+              location,
+              city,
+              max_players,
+              joined_players,
+              completed,
+              is_online,
+              platform,
+              users:users!meetups_creator_id_fkey (
+                username,
+                avatar_url
+              )
+            )
+          `)
+          .eq('game_id', bggId)
+          .eq('meetups.completed', false)
+          .gte('meetups.date', new Date().toISOString())
+      ])
+
+      // Parse base game
+      let resolvedBaseGame: Game | null = null
+      if (baseResult.status === 'fulfilled') {
+        const val = baseResult.value as any
+        if (val?.data) resolvedBaseGame = val.data as Game
+      }
+      setBaseGame(resolvedBaseGame)
+
+      // Parse expansions
+      let resolvedExpansions: Game[] = []
+      if (expansionsResult.status === 'fulfilled') {
+        const val = expansionsResult.value as any
+        if (val?.data && Array.isArray(val.data)) resolvedExpansions = val.data as Game[]
+      }
+      setExpansions(resolvedExpansions)
+
+      // Parse plays count
+      let resolvedPlaysCount = 0
+      if (playsResult.status === 'fulfilled') {
+        const val = playsResult.value as any
+        if (val?.count != null) resolvedPlaysCount = val.count
+      }
+      setPlaysCount(resolvedPlaysCount)
+
+      // Parse winners log
+      let resolvedWinners: GameWinner[] = []
+      if (winnersResult.status === 'fulfilled') {
+        const val = winnersResult.value as any
+        if (!val?.error && val?.data) {
           const groupedWinners: Record<string, { wins: number; avatar_url: string | null }> = {}
-          winnersData.forEach((row: any) => {
+          val.data.forEach((row: any) => {
             let name = ''
             let avatar: string | null = null
-            
             if (row.winner_user) {
               name = row.winner_user.username
               avatar = row.winner_user.avatar_url
             } else if (row.winner_guest) {
               name = row.winner_guest.guest_name + ' (Invitado)'
             }
-            
             if (name) {
               if (!groupedWinners[name]) {
                 groupedWinners[name] = { wins: 0, avatar_url: avatar }
@@ -222,124 +341,89 @@ export function useGameDetail(bggIdStr: string | undefined) {
               groupedWinners[name].wins += 1
             }
           })
-          
-          const sortedWinners = Object.entries(groupedWinners)
+          resolvedWinners = Object.entries(groupedWinners)
             .map(([name, stats]) => ({
               name,
               avatar_url: stats.avatar_url,
               wins: stats.wins
             }))
             .sort((a, b) => b.wins - a.wins)
-
-          setWinnersLog(sortedWinners)
-        }
-
-        // 7. Fetch game owners (ludoteca local)
-        try {
-          const { data: collData, error: collError } = await supabase
-            .from('user_collection')
-            .select('user_id, users:users (username, avatar_url, city)')
-            .eq('game_id', bggId)
-
-          if (!collError && collData) {
-            const mappedOwners = collData
-              .map((row: any) => {
-                if (row.users) {
-                  return {
-                    user_id: row.user_id,
-                    username: row.users.username,
-                    avatar_url: row.users.avatar_url,
-                    city: row.users.city || null
-                  }
-                }
-                return null
-              })
-              .filter((o): o is GameOwner => !!o)
-            setOwners(mappedOwners)
-          }
-        } catch (err) {
-          console.warn("Could not query user_collection (it might not exist yet):", err)
-          setOwners([])
-        }
-
-        // 8. Fetch personal collection status & current user profile city
-        if (user?.id) {
-          try {
-            const [ownRes, userRes] = await Promise.all([
-              supabase
-                .from('user_collection')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('game_id', bggId)
-                .maybeSingle(),
-              supabase
-                .from('users')
-                .select('city')
-                .eq('id', user.id)
-                .maybeSingle()
-            ])
-            setIsInCollection(!!ownRes.data)
-            if (userRes.data) {
-              setCurrentUserCity(userRes.data.city || null)
-            }
-          } catch {
-            setIsInCollection(false)
-          }
-        }
-
-        // 9. Fetch upcoming meetups for this game
-        try {
-          const { data: mGamesData, error: mGamesError } = await supabase
-            .from('meetup_games')
-            .select(`
-              meetup:meetups!inner (
-                id,
-                creator_id,
-                title,
-                description,
-                date,
-                location,
-                city,
-                max_players,
-                joined_players,
-                completed,
-                is_online,
-                platform,
-                users:users!meetups_creator_id_fkey (
-                  username,
-                  avatar_url
-                )
-              )
-            `)
-            .eq('game_id', bggId)
-            .eq('meetups.completed', false)
-            .gte('meetups.date', new Date().toISOString())
-
-          if (!mGamesError && mGamesData) {
-            const formattedMeetups: Meetup[] = mGamesData
-              .map((row: any) => {
-                const m = row.meetup
-                if (!m) return null
-                return {
-                  ...m,
-                  users: m.users ? { id: m.creator_id, username: m.users.username, avatar_url: m.users.avatar_url } : null
-                }
-              })
-              .filter((m): m is Meetup => !!m)
-              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            setUpcomingMeetups(formattedMeetups)
-          } else {
-            setUpcomingMeetups([])
-          }
-        } catch (mErr) {
-          console.warn("Could not load upcoming meetups for game page:", mErr)
-          setUpcomingMeetups([])
         }
       }
+      setWinnersLog(resolvedWinners)
+
+      // Parse owners
+      let resolvedOwners: GameOwner[] = []
+      if (ownersResult.status === 'fulfilled') {
+        const val = ownersResult.value as any
+        if (!val?.error && val?.data) {
+          resolvedOwners = val.data
+            .map((row: any) => {
+              if (row.users) {
+                return {
+                  user_id: row.user_id,
+                  username: row.users.username,
+                  avatar_url: row.users.avatar_url,
+                  city: row.users.city || null
+                }
+              }
+              return null
+            })
+            .filter((o: any): o is GameOwner => !!o)
+        }
+      }
+      setOwners(resolvedOwners)
+
+      // Parse current user collection & city
+      let resolvedInCollection = false
+      let resolvedCity: string | null = null
+      if (userStatusResult.status === 'fulfilled') {
+        const val = userStatusResult.value as any
+        if (Array.isArray(val)) {
+          const [ownRes, userRes] = val
+          resolvedInCollection = !!ownRes?.data
+          resolvedCity = userRes?.data?.city || null
+        }
+      }
+      setIsInCollection(resolvedInCollection)
+      setCurrentUserCity(resolvedCity)
+
+      // Parse upcoming meetups
+      let resolvedMeetups: Meetup[] = []
+      if (meetupsResult.status === 'fulfilled') {
+        const val = meetupsResult.value as any
+        if (!val?.error && val?.data) {
+          resolvedMeetups = val.data
+            .map((row: any) => {
+              const m = row.meetup
+              if (!m) return null
+              return {
+                ...m,
+                users: m.users ? { id: m.creator_id, username: m.users.username, avatar_url: m.users.avatar_url } : null
+              }
+            })
+            .filter((m: any): m is Meetup => !!m)
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        }
+      }
+      setUpcomingMeetups(resolvedMeetups)
+
+      // Populate cache for instantaneous subsequent visits
+      gameDetailCache.set(currentKey, {
+        game: castGame,
+        baseGame: resolvedBaseGame,
+        expansions: resolvedExpansions,
+        playsCount: resolvedPlaysCount,
+        winnersLog: resolvedWinners,
+        owners: resolvedOwners,
+        upcomingMeetups: resolvedMeetups,
+        isInCollection: resolvedInCollection,
+        currentUserCity: resolvedCity,
+        timestamp: Date.now()
+      })
     } catch (err: any) {
       console.error('Error fetching game details:', err)
       setError(err.message || 'Error al cargar los detalles del juego')
-    } finally {
       setLoading(false)
     }
   }, [bggId, user?.id])
@@ -370,6 +454,11 @@ export function useGameDetail(bggIdStr: string | undefined) {
       } catch (err) {
         console.warn('Could not update mock collection localStorage', err)
       }
+      const cKey = `${bggId}_${mockProfileId}`
+      const cached = gameDetailCache.get(cKey)
+      if (cached) {
+        cached.isInCollection = nextState
+      }
       window.dispatchEvent(new Event('collection_update'))
       return { success: true, added: nextState }
     }
@@ -382,6 +471,7 @@ export function useGameDetail(bggIdStr: string | undefined) {
     }
 
     try {
+      const cKey = `${bggId}_${user.id}`
       if (isInCollection) {
         const { error: delErr } = await supabase
           .from('user_collection')
@@ -394,6 +484,11 @@ export function useGameDetail(bggIdStr: string | undefined) {
         
         // Remove self from local owners array
         setOwners(prev => prev.filter(o => o.user_id !== user.id))
+        const cached = gameDetailCache.get(cKey)
+        if (cached) {
+          cached.isInCollection = false
+          cached.owners = cached.owners.filter(o => o.user_id !== user.id)
+        }
         return { success: true, added: false }
       } else {
         const { error: insErr } = await supabase
@@ -404,6 +499,7 @@ export function useGameDetail(bggIdStr: string | undefined) {
         setIsInCollection(true)
         
         // Add self to local owners array
+        let newOwner: GameOwner | null = null
         try {
           const { data: selfProf } = await supabase
             .from('users')
@@ -412,19 +508,29 @@ export function useGameDetail(bggIdStr: string | undefined) {
             .single()
             
           if (selfProf) {
+            newOwner = {
+              user_id: user.id,
+              username: selfProf.username,
+              avatar_url: selfProf.avatar_url,
+              city: selfProf.city || null
+            }
             setOwners(prev => [
-              ...prev,
-              {
-                user_id: user.id,
-                username: selfProf.username,
-                avatar_url: selfProf.avatar_url,
-                city: selfProf.city || null
-              }
+              ...prev.filter(o => o.user_id !== user.id),
+              newOwner!
             ])
           }
         } catch (profileErr) {
           console.warn("Could not load self profile to append to owners list:", profileErr)
         }
+
+        const cached = gameDetailCache.get(cKey)
+        if (cached) {
+          cached.isInCollection = true
+          if (newOwner) {
+            cached.owners = [...cached.owners.filter(o => o.user_id !== user.id), newOwner]
+          }
+        }
+
         return { success: true, added: true }
       }
     } catch (err: any) {

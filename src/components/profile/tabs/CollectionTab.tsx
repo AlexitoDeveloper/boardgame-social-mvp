@@ -141,7 +141,7 @@ export function CollectionTab({
               size="icon-xs"
               onClick={() => setSearchQuery('')}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label="Limpiar búsqueda"
+              aria-label={t('profile.collection.clearSearch', 'Limpiar búsqueda')}
               icon={X}
             />
           )}
@@ -198,7 +198,7 @@ export function CollectionTab({
 
       {/* Zero-CLS Skeleton Loading Grid */}
       {loadingCollection ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="space-y-2">
               <Skeleton className="aspect-[2/3] w-full rounded-2xl" />
@@ -211,11 +211,11 @@ export function CollectionTab({
           <Dices className="w-10 h-10 text-muted-foreground/30 mx-auto" />
           <p className="text-sm font-bold text-muted-foreground">
             {searchQuery
-              ? 'No hay juegos que coincidan con la búsqueda'
+              ? t('profile.collection.noSearchResults', 'No hay juegos que coincidan con la búsqueda')
               : filter === 'unplayed'
-                ? '¡Sin juegos en la estantería de la vergüenza! Has jugado a todos los títulos de tu ludoteca.'
+                ? t('profile.collection.emptyUnplayed', '¡Sin juegos en la estantería de la vergüenza! Has jugado a todos los títulos de tu ludoteca.')
                 : filter === 'want_to_play'
-                  ? 'Aún no has marcado ningún juego en tu lista de Quiero Jugar.'
+                  ? t('profile.collection.emptyWantToPlay', 'Aún no has marcado ningún juego en tu lista de Quiero Jugar.')
                   : t('profile.collection.emptyTitle')}
           </p>
           {isOwnProfileEditable && (
@@ -226,7 +226,7 @@ export function CollectionTab({
         </div>
       ) : (
         /* Letterboxd / BG Stats 2:3 Aspect Ratio Grid */
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           <AnimatePresence mode="popLayout">
             {filteredGames.map(game => (
               <GamePosterCard
@@ -258,7 +258,9 @@ export function CollectionTab({
               {t('profile.collection.removeFromCollection', 'Quitar de mi ludoteca')}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-              ¿Seguro que deseas eliminar <span className="font-bold text-foreground">{gameToDelete ? getGameTitle(gameToDelete) : ''}</span> de tu ludoteca?
+              {t('profile.collection.drawer.removeConfirmPrompt', '¿Seguro que deseas eliminar')}{' '}
+              <span className="font-bold text-foreground">{gameToDelete ? getGameTitle(gameToDelete) : ''}</span>{' '}
+              {t('profile.collection.drawer.fromCollection', 'de tu ludoteca?')}
             </DialogDescription>
           </DialogHeader>
 
