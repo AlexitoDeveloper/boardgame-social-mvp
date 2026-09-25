@@ -30,7 +30,7 @@ export function BrandLogoIcon({
     <div
       className={cn(
         'relative shrink-0 select-none flex items-center justify-center bg-transparent',
-        glow && 'filter drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]',
+        glow,
         className
       )}
     >
