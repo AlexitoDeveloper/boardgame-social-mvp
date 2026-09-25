@@ -4,8 +4,8 @@ import { ExploreHeader } from '../components/ExploreHeader'
 import { ExploreSearchResults } from '../components/explore/ExploreSearchResults'
 import { ExploreCarousels } from '../components/explore/ExploreCarousels'
 import { ExploreLoadingState } from '../components/explore/ExploreLoadingState'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { cn } from '../lib/utils'
 
 export function ExplorePage() {
   const { t } = useTranslation()
@@ -64,49 +64,31 @@ export function ExplorePage() {
 
       {/* Main View Transition Area */}
       <div className="min-h-[400px]">
-        {isFiltering ? (
+        {isFiltering && (
           <ExploreSearchResults
             loading={loadingSearch}
             searchResults={searchResults}
           />
-        ) : (
-          <div className="space-y-5">
-            <AnimatePresence mode="wait">
-              {loadingCarousels ? (
-                <motion.div
-                  key="carousels-skeleton"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ExploreLoadingState />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="carousels-content"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <ExploreCarousels
-                    featuredGame={featuredGame}
-                    top10={top10}
-                    novedades={novedades}
-                    fastGames={fastGames}
-                    paraDos={paraDos}
-                    heavyGames={heavyGames}
-                    top10Month={top10Month}
-                    partyGames={partyGames}
-                    communityRankings={communityRankings}
-                    classics={classics}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         )}
+
+        <div className={cn("space-y-5", isFiltering && "hidden")}>
+          {loadingCarousels ? (
+            <ExploreLoadingState />
+          ) : (
+            <ExploreCarousels
+              featuredGame={featuredGame}
+              top10={top10}
+              novedades={novedades}
+              fastGames={fastGames}
+              paraDos={paraDos}
+              heavyGames={heavyGames}
+              top10Month={top10Month}
+              partyGames={partyGames}
+              communityRankings={communityRankings}
+              classics={classics}
+            />
+          )}
+        </div>
       </div>
     </section>
   )

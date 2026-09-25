@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Users, Brain, Globe } from 'lucide-react'
 import { FilterChip } from '../ui/chip'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,7 @@ interface ExploreFilterDrawerProps {
   onSpanishOnlyChange: (val: boolean) => void;
 }
 
-export function ExploreFilterDrawer({
+export const ExploreFilterDrawer = memo(function ExploreFilterDrawer({
   playerFilter,
   onPlayerFilterChange,
   complexityFilter,
@@ -84,6 +85,6 @@ export function ExploreFilterDrawer({
       </div>
     </div>
   )
-}
+})
 
 export default ExploreFilterDrawer;

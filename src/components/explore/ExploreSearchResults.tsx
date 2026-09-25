@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Library } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +11,7 @@ interface ExploreSearchResultsProps {
   searchResults: Game[];
 }
 
-export function ExploreSearchResults({ loading, searchResults }: ExploreSearchResultsProps) {
+export const ExploreSearchResults = memo(function ExploreSearchResults({ loading, searchResults }: ExploreSearchResultsProps) {
   const { t } = useTranslation()
 
   return (
@@ -26,17 +27,17 @@ export function ExploreSearchResults({ loading, searchResults }: ExploreSearchRe
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
           >
             <ExploreSkeletonGrid />
           </motion.div>
         ) : searchResults.length === 0 ? (
           <motion.div
             key="search-empty"
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
             className="text-center py-20 px-4 border border-dashed border-border/60 rounded-3xl bg-muted/10"
           >
             <div className="w-16 h-16 rounded-2xl bg-muted/40 border border-border/40 flex items-center justify-center mx-auto mb-4">
@@ -48,10 +49,10 @@ export function ExploreSearchResults({ loading, searchResults }: ExploreSearchRe
         ) : (
           <motion.div
             key="search-results"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.15 }}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
           >
             {searchResults.map((game) => (
@@ -62,6 +63,6 @@ export function ExploreSearchResults({ loading, searchResults }: ExploreSearchRe
       </AnimatePresence>
     </div>
   )
-}
+})
 
 export default ExploreSearchResults;

@@ -17,7 +17,9 @@ interface FeaturedGameHeroProps {
   game: Game | null;
 }
 
-export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
+import { memo } from 'react'
+
+export const FeaturedGameHero = memo(function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
   const { t } = useTranslation()
   const { getGameTitle, getGamePublisher, getGameCover } = useGameLocale()
   if (!game) return null
@@ -43,7 +45,7 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -3 }}
       transition={{ duration: 0.35, type: 'spring', damping: 25, stiffness: 300 }}
-      className="w-full relative rounded-3xl overflow-hidden border border-border/50 bg-card p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-lg hover:border-primary/40 hover:shadow-xl transition-all duration-300 group"
+      className="w-full relative rounded-3xl overflow-hidden border border-border/50 bg-card p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center shadow-lg hover:border-primary/40 hover:shadow-xl transition-[border-color,box-shadow] duration-200 group"
     >
       {/* Full-card accessible overlay link */}
       <Link 
@@ -133,6 +135,6 @@ export function FeaturedGameHero({ game }: FeaturedGameHeroProps) {
       </div>
     </motion.div>
   )
-}
+})
 
 export default FeaturedGameHero;

@@ -1,5 +1,5 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Calendar, Layers, ListOrdered } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Badge } from './ui/badge'
@@ -22,7 +22,7 @@ interface CommunityRankingCardProps {
   ranking: CommunityRanking;
 }
 
-export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
+export const CommunityRankingCard = memo(function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
   const { language } = useAuth()
   const username = ranking.user?.username || 'Usuario'
   const avatarUrl = ranking.user?.avatar_url || undefined
@@ -32,15 +32,11 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
   return (
     <Link
       to={`/perfil/${ranking.user_id}?ranking=${ranking.id}`}
-      className="group relative block h-[180px] w-full overflow-hidden rounded-2xl bg-card border border-border/30 shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30 select-none"
+      className="group relative block h-[180px] w-full overflow-hidden rounded-2xl bg-card border border-border/30 shadow-sm transition-[transform,border-color,box-shadow] duration-150 [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:shadow-md [@media(hover:hover)]:hover:border-primary/30 select-none"
     >
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="absolute inset-0 p-4 flex flex-col justify-between"
-      >
+      <div className="absolute inset-0 p-4 flex flex-col justify-between">
         {/* Glow decoration */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:from-primary/20 transition-all duration-300" />
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-emerald-500/5 rounded-full pointer-events-none group-hover:from-primary/20 transition-colors duration-200" />
 
         {/* Top Section: Badge & Icon */}
         <div className="flex justify-between items-start z-10">
@@ -80,8 +76,8 @@ export function CommunityRankingCard({ ranking }: CommunityRankingCardProps) {
             </span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </Link>
   )
-}
+})
 export default CommunityRankingCard;

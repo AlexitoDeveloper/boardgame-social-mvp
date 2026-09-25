@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { Game } from '../types'
 import { USE_MOCKS } from '../lib/config'
@@ -357,16 +357,26 @@ export function useExploreGames(
     }
   }, [search, playerFilter, complexityFilter, spanishOnly])
 
+  // Track previous search to only debounce when typing text
+  const prevSearchRef = useRef(search)
+
   useEffect(() => {
     if (isFiltering) {
+      setLoadingSearch(true)
+      const isTextTyping = prevSearchRef.current !== search
+      prevSearchRef.current = search
+
+      const delay = isTextTyping ? 300 : 0
       const handler = setTimeout(() => {
         fetchFilteredGames()
-      }, 300) // 300ms debounce
+      }, delay)
       return () => clearTimeout(handler)
     } else {
+      prevSearchRef.current = search
       setSearchResults([])
+      setLoadingSearch(false)
     }
-  }, [isFiltering, fetchFilteredGames])
+  }, [isFiltering, search, fetchFilteredGames])
 
   return {
     loadingCarousels,

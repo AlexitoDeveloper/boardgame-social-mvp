@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { Search as SearchIcon, X, SlidersHorizontal } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../lib/utils'
@@ -21,7 +21,7 @@ interface ExploreHeaderProps {
   onSpanishOnlyChange: (val: boolean) => void;
 }
 
-export function ExploreHeader({
+export const ExploreHeader = memo(function ExploreHeader({
   search,
   onSearchChange,
   playerFilter,
@@ -38,10 +38,18 @@ export function ExploreHeader({
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrolled = window.scrollY > 50
+          setIsScrolled(prev => (prev !== scrolled ? scrolled : prev))
+          ticking = false
+        })
+        ticking = true
+      }
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -133,14 +141,9 @@ export function ExploreHeader({
         </div>
       </div>
 
-      {/* Filters Row container with smooth GPU compositing */}
-      <div
-        className={cn(
-          "grid transition-[grid-template-rows,opacity,margin-top] duration-200 ease-out-custom",
-          showFilters ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0 mt-0 pointer-events-none"
-        )}
-      >
-        <div className="overflow-hidden">
+      {/* Filters Row container - zero layout thrashing */}
+      {showFilters && (
+        <div className="mt-3 animate-in fade-in-50 duration-150">
           <ExploreFilterDrawer
             playerFilter={playerFilter}
             onPlayerFilterChange={onPlayerFilterChange}
@@ -150,9 +153,9 @@ export function ExploreHeader({
             onSpanishOnlyChange={onSpanishOnlyChange}
           />
         </div>
-      </div>
+      )}
     </div>
   )
-}
+})
 
 export default ExploreHeader;

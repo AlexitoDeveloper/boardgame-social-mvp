@@ -1,6 +1,6 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { ListOrdered, Plus } from 'lucide-react'
-import { motion, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Game } from '../../types'
 import { FeaturedGameHero } from '../FeaturedGameHero'
@@ -23,29 +23,7 @@ interface ExploreCarouselsProps {
   classics: Game[];
 }
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.07,
-    },
-  },
-}
-
-const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: 'easeOut',
-    },
-  },
-}
-
-export function ExploreCarousels({
+export const ExploreCarousels = memo(function ExploreCarousels({
   featuredGame,
   top10,
   novedades,
@@ -60,85 +38,64 @@ export function ExploreCarousels({
   const { t } = useTranslation()
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       {/* Juego Recomendado del Día */}
       {featuredGame && (
-        <motion.div variants={sectionVariants}>
-          <FeaturedGameHero game={featuredGame} />
-        </motion.div>
+        <FeaturedGameHero game={featuredGame} />
       )}
 
       {/* Top 10 Weekly (Played count based) */}
-      <motion.div variants={sectionVariants}>
-        <GameCarousel 
-          games={top10} 
-          title={t('explore.top10Week')} 
-          variant="top10" 
-        />
-      </motion.div>
+      <GameCarousel 
+        games={top10} 
+        title={t('explore.top10Week')} 
+        variant="top10" 
+      />
 
       {/* Novedades */}
-      <motion.div variants={sectionVariants}>
-        <GameCarousel 
-          games={novedades} 
-          title={t('explore.newSpain')} 
-        />
-      </motion.div>
+      <GameCarousel 
+        games={novedades} 
+        title={t('explore.newSpain')} 
+      />
 
       {/* Partidas Rápidas */}
       {fastGames.length > 0 && (
-        <motion.div variants={sectionVariants}>
-          <GameCarousel 
-            games={fastGames} 
-            title={t('explore.fastGames')} 
-          />
-        </motion.div>
+        <GameCarousel 
+          games={fastGames} 
+          title={t('explore.fastGames')} 
+        />
       )}
 
       {/* Juegos para 2 */}
-      <motion.div variants={sectionVariants}>
-        <GameCarousel 
-          games={paraDos} 
-          title={t('explore.for2Players')} 
-        />
-      </motion.div>
+      <GameCarousel 
+        games={paraDos} 
+        title={t('explore.for2Players')} 
+      />
 
       {/* Euros y Estrategia Pesada */}
       {heavyGames.length > 0 && (
-        <motion.div variants={sectionVariants}>
-          <GameCarousel 
-            games={heavyGames} 
-            title={t('explore.heavyGames')} 
-          />
-        </motion.div>
+        <GameCarousel 
+          games={heavyGames} 
+          title={t('explore.heavyGames')} 
+        />
       )}
 
       {/* Top 10 Monthly (Played count based) */}
-      <motion.div variants={sectionVariants}>
-        <GameCarousel 
-          games={top10Month} 
-          title={t('explore.top10Month')} 
-          variant="top10" 
-        />
-      </motion.div>
+      <GameCarousel 
+        games={top10Month} 
+        title={t('explore.top10Month')} 
+        variant="top10" 
+      />
 
       {/* Fiesta y Grupos Grandes */}
       {partyGames.length > 0 && (
-        <motion.div variants={sectionVariants}>
-          <GameCarousel 
-            games={partyGames} 
-            title={t('explore.partyGames')} 
-          />
-        </motion.div>
+        <GameCarousel 
+          games={partyGames} 
+          title={t('explore.partyGames')} 
+        />
       )}
 
       {/* Community Rankings & Tops Spotlight */}
-      <motion.div variants={sectionVariants} className="space-y-3 py-1">
+      <div className="space-y-3 py-1">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-lg font-black font-display tracking-tight text-foreground">
             {t('explore.communityRankingsTitle', 'Rankings de la Comunidad')}
@@ -156,7 +113,7 @@ export function ExploreCarousels({
         </div>
 
         {communityRankings.length > 0 ? (
-          <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1.5 snap-x snap-mandatory scroll-smooth no-scrollbar">
+          <div className="w-full max-w-full min-w-0 flex gap-4 overflow-x-auto pb-4 pt-1 px-1.5 snap-x snap-proximity md:snap-none scroll-smooth no-scrollbar overscroll-x-contain">
             {communityRankings.map((ranking) => (
               <div 
                 key={ranking.id}
@@ -189,17 +146,15 @@ export function ExploreCarousels({
             </Button>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Classics */}
-      <motion.div variants={sectionVariants}>
-        <GameCarousel 
-          games={classics} 
-          title={t('explore.classicsBgg')} 
-        />
-      </motion.div>
-    </motion.div>
+      <GameCarousel 
+        games={classics} 
+        title={t('explore.classicsBgg')} 
+      />
+    </div>
   )
-}
+})
 
 export default ExploreCarousels;

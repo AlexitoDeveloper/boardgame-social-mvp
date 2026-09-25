@@ -90,9 +90,9 @@ export function OptimizedImage({
 
   return (
     <div className={cn("relative overflow-hidden shrink-0 flex items-center justify-center bg-muted/20", className)}>
-      {/* Subtle pulse skeleton while image loads */}
+      {/* Lightweight placeholder while image loads */}
       {loading && (
-        <div className="absolute inset-0 bg-muted/40 animate-pulse z-10" />
+        <div className="absolute inset-0 bg-muted/30 z-10 pointer-events-none" />
       )}
       
       <img
