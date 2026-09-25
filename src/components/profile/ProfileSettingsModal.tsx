@@ -43,7 +43,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
           <SheetBody className="pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {/* Theme Selector */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+            <span className="text-xs font-bold text-muted-foreground">
               {t('nav.theme')}
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -55,7 +55,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                 className="w-full justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <Sun className="h-4 w-4 text-amber-500" />
+                  <Sun className="h-4 w-4 text-amber dark:text-amber-hover" />
                   <span>{t('nav.light')}</span>
                 </div>
                 {!isDark && <Check className="h-3.5 w-3.5 ml-auto" />}
@@ -79,7 +79,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
 
           {/* Language Selector */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+            <span className="text-xs font-bold text-muted-foreground">
               {t('nav.changeLang')}
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -115,7 +115,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
 
           {/* Creator Tools Quick Access */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+            <span className="text-xs font-bold text-muted-foreground">
               {t('nav.tools', 'Herramientas')}
             </span>
             <Button
@@ -138,7 +138,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
 
           {/* Legal & Policies */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-foreground/80 uppercase tracking-wider">
+            <span className="text-xs font-bold text-muted-foreground">
               {t('settings.legalSection', 'Información Legal')}
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -190,7 +190,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               variant="ghost"
               size="sm"
               onClick={() => setIsDeleteDialogOpen(true)}
-              className="w-full justify-center text-xs text-destructive hover:bg-destructive/10 hover:text-destructive gap-1.5"
+              className="w-full justify-center text-xs text-muted-foreground hover:text-foreground gap-1.5 cursor-pointer"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>{t('settings.deleteAccount', 'Eliminar mi cuenta')}</span>

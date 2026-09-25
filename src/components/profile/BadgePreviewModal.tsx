@@ -37,14 +37,14 @@ export function BadgePreviewModal({
               </Badge>
             )}
             {!unlocked && (
-              <Badge variant="destructive" size="lg">Bloqueado</Badge>
+              <Badge variant="secondary" size="lg">Bloqueado</Badge>
             )}
           </div>
           <DialogTitle className="text-lg sm:text-xl font-black text-foreground tracking-tight">
             {title}
           </DialogTitle>
           {subtitle && (
-            <p className="text-xs sm:text-sm font-extrabold text-muted-foreground uppercase tracking-widest">
+            <p className="text-xs sm:text-sm font-bold text-muted-foreground">
               {subtitle}
             </p>
           )}
@@ -81,7 +81,7 @@ export function BadgePreviewModal({
           <div className="w-full space-y-1.5 mt-2 pt-3 border-t border-border/20 text-left">
             <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
               <span>Progreso</span>
-              <span className="text-foreground">{progressPercent}%</span>
+              <span className="text-foreground font-mono-tabular font-bold">{progressPercent}%</span>
             </div>
             <div className="w-full h-2 rounded-full bg-background border border-border/30 overflow-hidden">
               <div 

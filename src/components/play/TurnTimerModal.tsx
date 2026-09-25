@@ -90,15 +90,15 @@ export const TurnTimerModal: FC<TurnTimerModalProps> = ({ isOpen, onClose }) => 
           <div
             className={`text-5xl sm:text-6xl font-black font-mono-tabular tracking-tight transition-colors ${
               timeLeft <= 5 && timeLeft > 0
-                ? 'text-destructive animate-pulse'
+                ? 'text-amber dark:text-amber-hover animate-pulse'
                 : timeLeft === 0
-                ? 'text-muted-foreground'
+                ? 'text-primary dark:text-[#FF80B0]'
                 : 'text-foreground'
             }`}
           >
             {formatSeconds(timeLeft)}
           </div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <p className="text-xs font-bold text-muted-foreground">
             {isRunning ? 'Turno en curso' : timeLeft === 0 ? '¡Tiempo agotado!' : 'En pausa'}
           </p>
         </div>

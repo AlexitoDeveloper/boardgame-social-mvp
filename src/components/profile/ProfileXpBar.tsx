@@ -23,7 +23,7 @@ export function ProfileXpBar({
 
   return (
     <div className="space-y-1.5 w-full bg-muted/40 p-2.5 rounded-xl border border-border/20 relative">
-      <div className="flex justify-between items-center text-xs font-bold text-muted-foreground uppercase tracking-wider">
+      <div className="flex justify-between items-center text-xs font-bold text-muted-foreground">
         <span className="flex items-center gap-1.5">
           {t('profile.xpTitle')}
           <Button
@@ -39,7 +39,7 @@ export function ProfileXpBar({
             <Info className="w-3.5 h-3.5 shrink-0" />
           </Button>
         </span>
-        <span className="text-foreground font-black">
+        <span className="text-foreground font-black font-mono-tabular">
           {xpCurrent} / {xpRange} XP
         </span>
       </div>
@@ -78,7 +78,7 @@ export function ProfileXpBar({
                   <span className="text-base leading-none shrink-0">🎲</span>
                   <span>{t('profile.xpRules.meetup')}</span>
                 </span>
-                <span className="text-emerald-500 dark:text-emerald-400 font-black font-mono text-xs whitespace-nowrap ml-2">
+                <span className="text-emerald-700 dark:text-emerald-300 font-black font-mono-tabular text-xs whitespace-nowrap ml-2">
                   +100 XP
                 </span>
               </div>
@@ -88,7 +88,7 @@ export function ProfileXpBar({
                   <span className="text-base leading-none shrink-0">⚔️</span>
                   <span>{t('profile.xpRules.win')}</span>
                 </span>
-                <span className="text-rose-500 dark:text-rose-400 font-black font-mono text-xs whitespace-nowrap ml-2">
+                <span className="text-primary dark:text-[#FF80B0] font-black font-mono-tabular text-xs whitespace-nowrap ml-2">
                   +250 XP
                 </span>
               </div>
@@ -98,7 +98,7 @@ export function ProfileXpBar({
                   <span className="text-base leading-none shrink-0">👑</span>
                   <span>{t('profile.xpRules.master')}</span>
                 </span>
-                <span className="text-amber-500 dark:text-amber-400 font-black font-mono text-xs whitespace-nowrap ml-2">
+                <span className="text-amber dark:text-amber-hover font-black font-mono-tabular text-xs whitespace-nowrap ml-2">
                   +150 XP
                 </span>
               </div>
@@ -108,7 +108,7 @@ export function ProfileXpBar({
                   <span className="text-base leading-none shrink-0">✨</span>
                   <span>{t('profile.xpRules.ranking')}</span>
                 </span>
-                <span className="text-cyan-500 dark:text-cyan-400 font-black font-mono text-xs whitespace-nowrap ml-2">
+                <span className="text-azure dark:text-[#60A5FA] font-black font-mono-tabular text-xs whitespace-nowrap ml-2">
                   +200 XP
                 </span>
               </div>

@@ -64,10 +64,10 @@ export function ReportContentDialog({
     <Dialog open={isOpen} onOpenChange={(open) => !open && !submitting && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="w-10 h-10 rounded-full bg-destructive/15 text-destructive flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-amber/15 text-amber dark:text-amber-hover flex items-center justify-center">
             <Flag className="h-5 w-5" />
           </div>
-          <DialogTitle>
+          <DialogTitle className="text-foreground font-black">
             {title || t('reports.dialogTitle', 'Reportar contenido o usuario')}
           </DialogTitle>
           <DialogDescription>

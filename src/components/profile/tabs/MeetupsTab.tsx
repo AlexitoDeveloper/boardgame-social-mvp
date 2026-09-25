@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CalendarDays, Clock, Swords, ChevronRight, Plus } from 'lucide-react'
+import { CalendarDays, Clock, Swords, ChevronRight, Plus, Crown } from 'lucide-react'
 import { Badge } from '../../ui/badge'
 import { Button } from '../../ui/button'
 import { Meetup } from '../../../types'
@@ -77,7 +77,7 @@ export function MeetupsTab({
             >
               <Link to={`/mesa/${meetup.id}`}>
                 <div className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl glass-panel hover:border-primary/30 hover:shadow-md transition-all group border-border/30 ${
-                  type === 'completed' && isWinner ? 'border-rose-500/25 bg-rose-500/[0.02]' : ''
+                  type === 'completed' && isWinner ? 'border-amber/30 bg-amber/5' : ''
                 }`}>
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-12 h-12 shrink-0">
@@ -89,7 +89,7 @@ export function MeetupsTab({
                         )}
                       </div>
                       {gamesList.length > 1 && (
-                        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-xs">
+                        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-xs font-mono-tabular">
                           +{gamesList.length - 1}
                         </div>
                       )}
@@ -114,13 +114,13 @@ export function MeetupsTab({
                         </span>
 
                         {type === 'completed' && isWinner && (
-                          <Badge variant="destructive" size="sm" className="flex items-center gap-0.5 shrink-0">
-                            <Swords className="w-2.5 h-2.5 fill-current" /> {t('common.won')}
+                          <Badge variant="tag-amber" size="sm" className="flex items-center gap-1 shrink-0 font-bold font-mono-tabular">
+                            <Crown className="w-3 h-3 fill-amber text-amber shrink-0" /> {t('common.won')}
                           </Badge>
                         )}
 
                         {type === 'completed' && !didAttend && (
-                          <Badge variant="destructive" size="sm" className="shrink-0">
+                          <Badge variant="secondary" size="sm" className="shrink-0 font-bold">
                             {t('profile.absent')}
                           </Badge>
                         )}

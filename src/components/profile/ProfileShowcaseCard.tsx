@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Crown, MapPin, Calendar } from 'lucide-react'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { Tag } from '../ui/tag'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal'
 import { PremiumDeactivateModal } from '../PremiumDeactivateModal'
@@ -54,7 +54,7 @@ export function ProfileShowcaseCard({
               {profile.username?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-1 -right-1 z-20 bg-primary border-4 border-card text-white text-xs font-black rounded-full h-8 w-8 flex items-center justify-center shadow-lg">
+          <div className="absolute -bottom-1 -right-1 z-20 bg-primary border-4 border-card text-white text-xs font-black font-mono-tabular rounded-full h-8 w-8 flex items-center justify-center shadow-lg">
             {playerLevel}
           </div>
         </div>
@@ -65,9 +65,9 @@ export function ProfileShowcaseCard({
               <span>{profile.username}</span>
               {profile.is_premium ? (
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <Tag variant="default" className="shrink-0">
-                    <Crown className="w-3 h-3 shrink-0" /> PRO
-                  </Tag>
+                  <Badge variant="amber" size="sm" className="shrink-0 font-black">
+                    <Crown className="w-3 h-3 shrink-0 mr-1" /> PRO
+                  </Badge>
                   {isOwnProfileEditable && (
                     <>
                       <Button
@@ -110,7 +110,7 @@ export function ProfileShowcaseCard({
                 )
               )}
             </h2>
-            <span className="text-xs font-extrabold text-primary block mt-0.5 tracking-wider uppercase">
+            <span className="text-xs font-bold text-primary block mt-0.5">
               {playerTitle}
             </span>
           </div>

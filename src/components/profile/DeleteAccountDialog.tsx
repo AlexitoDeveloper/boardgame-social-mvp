@@ -40,10 +40,10 @@ export function DeleteAccountDialog({ isOpen, onClose }: DeleteAccountDialogProp
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isDeleting && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="w-10 h-10 rounded-full bg-destructive/15 text-destructive flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-amber/15 text-amber dark:text-amber-hover flex items-center justify-center">
             <AlertTriangle className="h-5 w-5" />
           </div>
-          <DialogTitle className="text-destructive">
+          <DialogTitle className="text-foreground font-black">
             {t('settings.deleteAccountTitle', '¿Eliminar tu cuenta definitivamente?')}
           </DialogTitle>
           <DialogDescription>
@@ -57,7 +57,7 @@ export function DeleteAccountDialog({ isOpen, onClose }: DeleteAccountDialogProp
         <DialogBody className="space-y-3">
           <Label htmlFor="confirm-delete" className="text-xs font-semibold">
             {t('settings.deleteConfirmPrompt', 'Para confirmar, escribe')} &quot;
-            <span className="font-mono text-destructive font-bold">{requiredWord}</span>&quot;:
+            <span className="font-mono font-bold text-foreground">{requiredWord}</span>&quot;:
           </Label>
           <Input
             id="confirm-delete"

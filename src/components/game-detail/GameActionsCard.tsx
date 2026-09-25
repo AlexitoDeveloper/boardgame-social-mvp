@@ -22,7 +22,7 @@ export function GameActionsCard({
 
   return (
     <Card variant="default" className="p-5 shadow-lg space-y-4 bg-card border border-border/40">
-      <h3 className="text-xs font-black uppercase tracking-wider text-foreground border-b border-border/40 pb-3">
+      <h3 className="text-xs font-bold text-foreground border-b border-border/40 pb-3">
         {t('gameDetail.actionsTitle')}
       </h3>
       

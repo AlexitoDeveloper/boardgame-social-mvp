@@ -31,11 +31,11 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
   let complexityBadgeClass = 'text-muted-foreground border-border/50 bg-muted/40'
   if (complexity > 0) {
     if (complexity <= 2.2) {
-      complexityBadgeClass = 'text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+      complexityBadgeClass = 'text-emerald-700 dark:text-emerald-300 border-emerald-500/30 bg-emerald-500/10'
     } else if (complexity <= 3.5) {
-      complexityBadgeClass = 'text-amber-600 dark:text-amber-400 border-amber-500/30 bg-amber-500/10'
+      complexityBadgeClass = 'text-amber dark:text-amber-hover border-amber/30 bg-amber/10'
     } else {
-      complexityBadgeClass = 'text-rose-600 dark:text-rose-400 border-rose-500/30 bg-rose-500/10'
+      complexityBadgeClass = 'text-primary dark:text-[#FF80B0] border-primary/30 bg-primary/10'
     }
   }
 
@@ -114,29 +114,29 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
         <div className="flex-grow space-y-2 md:space-y-3 pb-1 md:pb-2 select-text min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             {game.year_published && (
-              <Badge variant="secondary" size="sm" className="font-bold">
+              <Badge variant="secondary" size="sm" className="font-bold font-mono-tabular">
                 <CalendarDays className="h-3 w-3 mr-1 opacity-70" />
                 {game.year_published}
               </Badge>
             )}
 
             {playersDisplay && (
-              <Badge variant="outline" size="sm" className="font-bold bg-card/60 border-border/60">
+              <Badge variant="outline" size="sm" className="font-bold font-mono-tabular bg-card/60 border-border/60">
                 <Users className="h-3 w-3 mr-1 opacity-70" />
                 {playersDisplay}
               </Badge>
             )}
 
             {complexity > 0 && (
-              <Badge variant="outline" size="sm" className={cn("font-bold border", complexityBadgeClass)}>
+              <Badge variant="outline" size="sm" className={cn("font-bold font-mono-tabular border", complexityBadgeClass)}>
                 <Brain className="h-3 w-3 mr-1 opacity-80" />
                 {complexity.toFixed(1)} / 5
               </Badge>
             )}
 
             {game.rating_average != null && game.rating_average > 0 && (
-              <Badge variant="outline" size="sm" className="font-bold text-amber-500 border-amber-500/30 bg-amber-500/10">
-                <Star className="h-3 w-3 mr-1 fill-amber-500/40 text-amber-500" />
+              <Badge variant="tag-amber" size="sm" className="font-bold font-mono-tabular">
+                <Star className="h-3 w-3 mr-1 fill-amber text-amber" />
                 {game.rating_average.toFixed(1)}
               </Badge>
             )}

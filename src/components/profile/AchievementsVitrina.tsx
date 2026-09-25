@@ -39,7 +39,7 @@ export function AchievementsVitrina({
     <div className="space-y-4">
       {/* Vitrina Header with Unlocked Counter */}
       <div className="flex items-center justify-between px-1 select-none">
-        <h3 className="text-xs font-extrabold uppercase text-muted-foreground tracking-widest flex items-center gap-1.5 text-left">
+        <h3 className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 text-left">
           <Award className="w-4 h-4 text-primary" /> {t('profile.achievements.title')}
         </h3>
         <Badge variant="primary-soft" size="sm" className="font-mono-tabular">

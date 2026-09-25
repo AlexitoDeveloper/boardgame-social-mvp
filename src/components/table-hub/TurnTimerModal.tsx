@@ -107,16 +107,16 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
           {/* Large Countdown Display */}
           <div className={`p-6 rounded-3xl border-2 text-center transition-all ${
             isTimeUp
-              ? 'bg-rose-500/20 border-rose-500/60 shadow-xl shadow-rose-500/10 animate-pulse'
+              ? 'bg-primary/10 border-primary/40 shadow-xl shadow-primary/10 animate-pulse'
               : isLowTime
-              ? 'bg-amber-500/15 border-amber-500/50 shadow-lg shadow-amber-500/10 animate-bounce'
+              ? 'bg-amber/10 border-amber/40 shadow-lg shadow-amber/10 animate-bounce'
               : 'bg-muted/20 border-border/40'
           }`}>
-            <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold text-muted-foreground">
               {t('tableHub.turnTimer.turnNumber', { count: turnCount })}
             </span>
-            <div className={`text-6xl font-black tracking-tight font-mono my-2 ${
-              isTimeUp ? 'text-rose-500' : isLowTime ? 'text-amber-400' : 'text-foreground'
+            <div className={`text-6xl font-black tracking-tight font-mono-tabular my-2 ${
+              isTimeUp ? 'text-primary dark:text-[#FF80B0]' : isLowTime ? 'text-amber dark:text-amber-hover' : 'text-foreground'
             }`}>
               {formattedTime}
             </div>
@@ -125,7 +125,7 @@ export function TurnTimerModal({ open, onOpenChange }: TurnTimerModalProps) {
             <div className="w-full bg-muted/50 rounded-full h-2.5 overflow-hidden mt-3 border border-border/30">
               <div
                 className={`h-full transition-all duration-1000 ${
-                  isTimeUp ? 'bg-rose-500' : isLowTime ? 'bg-amber-400' : 'bg-primary'
+                  isTimeUp ? 'bg-primary' : isLowTime ? 'bg-amber' : 'bg-primary'
                 }`}
                 style={{ width: `${progressPercent}%` }}
               />
