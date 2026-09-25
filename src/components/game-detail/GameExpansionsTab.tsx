@@ -21,15 +21,15 @@ export function GameExpansionsTab({ game, baseGame, expansions }: GameExpansions
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 border-b border-border/40 pb-3">
-        <Puzzle className="h-5 w-5 text-purple-500" />
+        <Puzzle className="h-5 w-5 text-sky-500 dark:text-sky-400" />
         <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
           {game.is_expansion ? t('gameDetail.baseGameRequired') : t('gameDetail.availableExpansions', { count: expansions.length })}
         </h3>
       </div>
 
       {game.is_expansion && baseGame && (
-        <Card variant="glass" className="border-purple-500/20 bg-purple-500/5 p-5 space-y-3">
-          <div className="flex items-center gap-2 text-purple-500">
+        <Card variant="glass" className="border-sky-500/25 bg-sky-500/5 dark:border-sky-400/25 dark:bg-sky-400/5 p-5 space-y-3">
+          <div className="flex items-center gap-2 text-sky-500 dark:text-sky-400">
             <Info className="h-5 w-5" />
             <h4 className="text-xs font-black uppercase tracking-wider">{t('gameDetail.requiresBaseGameTitle')}</h4>
           </div>

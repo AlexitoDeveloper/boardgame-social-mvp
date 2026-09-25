@@ -38,40 +38,60 @@ interface DesktopNavbarProps {
   onSignOut: () => void
 }
 
-function DesktopNavItem({ to, label, icon, badgeCount = 0 }: { to: string; label: string; icon: LucideIcon; badgeCount?: number }) {
+function DesktopNavItem({
+  to,
+  label,
+  icon,
+  badgeCount = 0,
+}: {
+  to: string
+  label: string
+  icon: LucideIcon
+  badgeCount?: number
+}) {
+  const isExact = to === '/'
+
   return (
-    <Button asChild variant="ghost" className="w-full justify-start h-auto p-0 overflow-hidden">
-      <NavLink
-        to={to}
-        className={({ isActive }) =>
-          cn(
-            'relative flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium transition-colors duration-200',
-            isActive ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-          )
-        }
-      >
-        {({ isActive }) => (
-          <>
-            {isActive && (
-              <MotionDiv
-                layoutId="desktop-nav-active"
-                className="absolute inset-0 bg-primary/15 dark:bg-primary/20 rounded-xl z-0"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              />
-            )}
-            <div className="relative z-10 flex items-center gap-3">
-              {createElement(icon, { 'aria-hidden': true, focusable: false, className: 'h-5 w-5 shrink-0' })}
-              <span>{label}</span>
-            </div>
-            {badgeCount > 0 && (
-              <span className="relative z-10 min-w-[18px] h-[18px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-black shrink-0 shadow-xs ring-1 ring-background">
-                {badgeCount}
-              </span>
-            )}
-          </>
-        )}
-      </NavLink>
-    </Button>
+    <NavLink
+      to={to}
+      end={isExact}
+      className={({ isActive }) =>
+        cn(
+          'relative flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-160 select-none outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden',
+          isActive
+            ? 'text-primary font-bold shadow-2xs'
+            : 'text-muted-foreground hover:text-foreground hover:bg-surface-elevated/60 active:translate-y-[1px]'
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && (
+            <MotionDiv
+              layoutId="desktop-nav-active"
+              className="absolute inset-0 bg-primary/12 dark:bg-primary/20 rounded-xl z-0"
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+            />
+          )}
+          <div className="relative z-10 flex items-center gap-3">
+            {createElement(icon, {
+              'aria-hidden': true,
+              focusable: false,
+              className: cn(
+                'h-5 w-5 shrink-0 transition-colors',
+                isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+              ),
+            })}
+            <span>{label}</span>
+          </div>
+          {badgeCount > 0 && (
+            <span className="relative z-10 min-w-[18px] h-[18px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-black shrink-0 shadow-xs ring-1 ring-background">
+              {badgeCount}
+            </span>
+          )}
+        </>
+      )}
+    </NavLink>
   )
 }
 
@@ -87,7 +107,7 @@ export function DesktopNavbar({
   const { t } = useTranslation()
 
   return (
-    <aside className="hidden w-72 glass-panel linen-finish p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
+    <aside className="hidden w-72 shrink-0 glass-panel linen-finish p-4 md:flex md:flex-col sticky top-0 h-dvh overflow-y-auto z-40 border-y-0 border-l-0 border-r rounded-none">
       {/* Brand Header */}
       <div className="mb-6 pt-safeTop px-2">
         <NavLink to="/" className="inline-block rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary">

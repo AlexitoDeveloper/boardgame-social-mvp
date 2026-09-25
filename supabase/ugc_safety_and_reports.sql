@@ -70,3 +70,7 @@ on public.user_blocks
 for delete
 to authenticated
 using (blocker_id = auth.uid());
+
+-- 3. Grant table permissions to Supabase API roles
+grant all on table public.content_reports to anon, authenticated, service_role;
+grant all on table public.user_blocks to anon, authenticated, service_role;

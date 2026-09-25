@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CalendarDays, Clock, Swords, ChevronRight, Plus, Crown } from 'lucide-react'
+import { CalendarDays, Clock, ChevronRight, Plus, Crown } from 'lucide-react'
 import { Badge } from '../../ui/badge'
 import { Button } from '../../ui/button'
 import { Meetup } from '../../../types'

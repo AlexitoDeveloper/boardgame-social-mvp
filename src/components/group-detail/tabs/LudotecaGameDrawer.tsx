@@ -8,6 +8,7 @@ import {
 } from '../../ui/sheet'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
+import { ExpansionBadge } from '../../ui/expansion-badge'
 import { Button } from '../../ui/button'
 import { MergedGame } from '../../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
@@ -65,20 +66,21 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
                   Original: {game.title}
                 </SheetDescription>
               )}
-              {game.rating_geek && (
-                <div className="pt-1">
-                  <Badge variant="tag-amber" className="gap-1 text-[11px] font-black py-0.5 font-mono-tabular">
+              <div className="pt-1 flex items-center gap-1.5 flex-wrap">
+                {game.is_expansion && <ExpansionBadge size="xs" />}
+                {game.rating_geek && (
+                  <Badge variant="tag-amber" className="gap-1 text-xs font-black py-0.5 font-mono-tabular">
                     <Star className="w-3 h-3 fill-amber text-amber" />
                     {game.rating_geek.toFixed(1)} BGG
                   </Badge>
-                </div>
-              )}
+                )}
+              </div>
             </SheetHeader>
 
             {/* 3-Column Spec Matrix from GameShelfCard */}
             <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-elevated/60 border border-border/60 text-center mt-3">
               <div>
-                <span className="block text-[10px] text-muted-foreground font-semibold">Jugadores</span>
+                <span className="block text-xs text-muted-foreground font-semibold">Jugadores</span>
                 <span className="font-mono-tabular text-xs font-black text-foreground">
                   {game.min_players === game.max_players
                     ? game.min_players
@@ -86,13 +88,13 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
                 </span>
               </div>
               <div className="border-x border-border/60">
-                <span className="block text-[10px] text-muted-foreground font-semibold">Tiempo</span>
+                <span className="block text-xs text-muted-foreground font-semibold">Tiempo</span>
                 <span className="font-mono-tabular text-xs font-black text-foreground">
                   {game.playing_time ? `${game.playing_time}m` : '—'}
                 </span>
               </div>
               <div>
-                <span className="block text-[10px] text-muted-foreground font-semibold">En Grupo</span>
+                <span className="block text-xs text-muted-foreground font-semibold">En Grupo</span>
                 <span className="font-mono-tabular text-xs font-black text-foreground">
                   {owners.length} {owners.length === 1 ? 'copia' : 'copias'}
                 </span>
@@ -108,7 +110,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
               {hasMultipleOwners ? `Copias en el grupo (${owners.length})` : 'Copia en el grupo'}
             </span>
             {isOwnedByMe && (
-              <Badge variant="tag-emerald" size="sm">
+              <Badge variant="tag-emerald" size="sm" className="text-xs">
                 En tu colección
               </Badge>
             )}
@@ -122,9 +124,9 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
                   key={owner.user_id}
                   className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-background border border-border/40 text-xs font-semibold shadow-2xs"
                 >
-                  <Avatar className="w-5 h-5 border border-primary/20">
+                  <Avatar className="w-6 h-6 border border-primary/20">
                     <AvatarImage src={owner.avatar_url || undefined} />
-                    <AvatarFallback className="text-[9px] font-black bg-primary/10 text-primary">
+                    <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
                       {owner.username.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -141,7 +143,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
           {game.complexity ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
-              <span className="text-muted-foreground text-[11px] block font-semibold">Complejidad</span>
+              <span className="text-muted-foreground text-xs block font-semibold">Complejidad</span>
               <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5 font-mono-tabular">
                 <Flame className="w-3.5 h-3.5 text-amber dark:text-amber-hover" />
                 {game.complexity.toFixed(1)} / 5.0
@@ -151,7 +153,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
 
           {game.rating_geek ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
-              <span className="text-muted-foreground text-[11px] block font-semibold">Geek Rating</span>
+              <span className="text-muted-foreground text-xs block font-semibold">Geek Rating</span>
               <span className="font-extrabold text-foreground flex items-center gap-1 mt-0.5 font-mono-tabular">
                 <Star className="w-3.5 h-3.5 fill-amber text-amber" />
                 {game.rating_geek.toFixed(1)} / 10
@@ -161,7 +163,7 @@ export const LudotecaGameDrawer: React.FC<LudotecaGameDrawerProps> = ({
 
           {game.year_published ? (
             <div className="p-3 rounded-xl bg-card/60 border border-border/30">
-              <span className="text-muted-foreground text-[11px] block font-semibold">Año</span>
+              <span className="text-muted-foreground text-xs block font-semibold">Año</span>
               <span className="font-extrabold text-foreground block mt-0.5 font-mono-tabular">{game.year_published}</span>
             </div>
           ) : null}

@@ -2,6 +2,7 @@ import React from 'react'
 import { Users, Clock, Flame, Check } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
+import { ExpansionBadge } from '../../ui/expansion-badge'
 import { MergedGame } from '../../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
 
@@ -49,7 +50,7 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             className="h-full w-full object-cover transition-transform duration-250 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-muted/30 text-muted-foreground/30 font-black text-xs">
+          <div className="h-full w-full flex items-center justify-center bg-muted/30 text-muted-foreground/40 font-black text-xs">
             SIN PORTADA
           </div>
         )}
@@ -63,9 +64,9 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             <Badge
               variant="secondary"
               size="sm"
-              className="bg-background/85 backdrop-blur-xs border-border/40 font-mono-tabular text-[10px] py-0 px-1.5 shadow-2xs"
+              className="bg-background/85 backdrop-blur-xs border-border/40 font-mono-tabular text-xs py-0.5 px-2 shadow-2xs"
             >
-              <Users className="w-2.5 h-2.5 mr-0.5 text-primary" />
+              <Users className="w-3 h-3 mr-0.5 text-primary" />
               {game.min_players === game.max_players
                 ? `${game.min_players} jug.`
                 : `${game.min_players ?? 1}-${game.max_players ?? '?'} jug.`}
@@ -73,18 +74,22 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
           )}
         </div>
 
-        {isMine && (
-          <div className="absolute top-2 left-2 z-10">
+        {/* Top Left Badges: Ownership & Expansion */}
+        <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+          {isMine && (
             <Badge
               variant="raspberry"
               size="sm"
-              className="text-white font-black text-[11px] px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 rounded-lg"
+              className="text-white font-black text-xs px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 rounded-lg"
             >
               <Check className="w-3 h-3 stroke-[3]" />
               Mío
             </Badge>
-          </div>
-        )}
+          )}
+          {game.is_expansion && (
+            <ExpansionBadge size="xs" />
+          )}
+        </div>
 
         {/* Bottom Floating Owner Stack */}
         <div className="absolute bottom-2 left-2.5 z-10 flex items-center -space-x-1.5">
@@ -93,26 +98,26 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
             return (
               <Avatar
                 key={owner.user_id}
-                className="h-5 w-5 border-2 border-background shadow-xs ring-1 ring-border/20"
+                className="h-6 w-6 border-2 border-background shadow-xs ring-1 ring-border/20"
                 title={isMe ? 'Tú aportaste esta copia' : owner.username}
               >
                 <AvatarImage src={owner.avatar_url || undefined} />
-                <AvatarFallback className="text-[8px] font-black bg-primary/20 text-primary">
+                <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
                   {owner.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             )
           })}
           {owners.length > 3 && (
-            <span className="h-5 min-w-5 px-1 rounded-full bg-background/90 border border-border/40 text-[9px] font-black text-muted-foreground flex items-center justify-center font-mono-tabular">
+            <span className="h-6 min-w-6 px-1 rounded-full bg-background/90 border border-border/40 text-xs font-black text-muted-foreground flex items-center justify-center font-mono-tabular">
               +{owners.length - 3}
             </span>
           )}
         </div>
 
         {game.playing_time && (
-          <div className="absolute bottom-2 right-2.5 z-10 text-[10px] font-mono-tabular font-bold text-foreground/90 bg-background/70 backdrop-blur-2xs px-1.5 py-0.5 rounded-md border border-border/20 flex items-center gap-1">
-            <Clock className="w-2.5 h-2.5 text-muted-foreground" />
+          <div className="absolute bottom-2 right-2.5 z-10 text-xs font-mono-tabular font-bold text-foreground/90 bg-background/80 backdrop-blur-2xs px-2 py-0.5 rounded-md border border-border/20 flex items-center gap-1">
+            <Clock className="w-3 h-3 text-muted-foreground" />
             <span>{game.playing_time}m</span>
           </div>
         )}
@@ -120,16 +125,16 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
 
       {/* Typography Block */}
       <div className="p-3 space-y-1">
-        <h4 className="font-extrabold text-xs text-foreground tracking-tight line-clamp-1 group-hover:text-primary transition-colors duration-160">
+        <h4 className="font-extrabold text-xs sm:text-sm text-foreground tracking-tight line-clamp-1 group-hover:text-primary transition-colors duration-160">
           {title}
         </h4>
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground/75 font-semibold">
+        <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
           <span className="truncate">
             {owners.length === 1 ? owners[0].username : `${owners.length} aportaciones`}
           </span>
           {game.complexity && (
-            <span className="flex items-center gap-0.5 text-[10px] font-mono-tabular text-amber dark:text-amber-hover font-bold shrink-0">
-              <Flame className="w-2.5 h-2.5" />
+            <span className="flex items-center gap-0.5 text-xs font-mono-tabular text-amber dark:text-amber-hover font-bold shrink-0">
+              <Flame className="w-3 h-3" />
               {game.complexity.toFixed(1)}
             </span>
           )}

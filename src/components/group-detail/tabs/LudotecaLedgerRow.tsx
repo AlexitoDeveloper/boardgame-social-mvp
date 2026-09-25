@@ -2,6 +2,7 @@ import React from 'react'
 import { Users, Clock, Flame, ChevronRight, Check } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
+import { ExpansionBadge } from '../../ui/expansion-badge'
 import { MergedGame } from '../../../hooks/useGroupDetail'
 import { User } from '@supabase/supabase-js'
 
@@ -50,14 +51,14 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground/40 font-bold">
+            <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground/40 font-bold">
               BOX
             </div>
           )}
         </div>
 
         <div className="min-w-0 flex-1 space-y-0.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h4 className="font-bold text-xs sm:text-sm text-foreground truncate group-hover:text-primary transition-colors">
               {title}
             </h4>
@@ -65,15 +66,18 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
               <Badge
                 variant="raspberry"
                 size="sm"
-                className="text-white font-black text-[11px] px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 shrink-0 rounded-lg"
+                className="text-white font-black text-xs px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 shrink-0 rounded-lg"
               >
                 <Check className="w-3 h-3 stroke-[3]" />
                 Mío
               </Badge>
             )}
+            {game.is_expansion && (
+              <ExpansionBadge size="xs" />
+            )}
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1 font-mono-tabular">
               <Users className="w-3 h-3 text-primary/70" />
               {game.min_players === game.max_players
@@ -106,21 +110,21 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
       <div className="flex items-center gap-3 shrink-0">
         <div className="hidden sm:flex items-center -space-x-1.5">
           {owners.slice(0, 3).map((owner) => (
-            <Avatar key={owner.user_id} className="h-5 w-5 border border-background">
+            <Avatar key={owner.user_id} className="h-6 w-6 border-2 border-background shadow-xs ring-1 ring-border/20">
               <AvatarImage src={owner.avatar_url || undefined} />
-              <AvatarFallback className="text-[8px] font-black bg-primary/20 text-primary">
+              <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
                 {owner.username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ))}
           {owners.length > 3 && (
-            <span className="text-[10px] font-black text-muted-foreground px-1">
+            <span className="text-xs font-black text-muted-foreground px-1 font-mono-tabular">
               +{owners.length - 3}
             </span>
           )}
         </div>
 
-        <Badge variant="secondary" size="sm" className="hidden md:inline-flex text-[10px] font-mono">
+        <Badge variant="secondary" size="sm" className="hidden md:inline-flex text-xs font-mono">
           {owners.length === 1 ? '1 copia' : `${owners.length} copias`}
         </Badge>
 

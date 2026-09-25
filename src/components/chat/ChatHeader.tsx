@@ -24,7 +24,7 @@ export function ChatHeader({
   onOpenDeleteDialog
 }: ChatHeaderProps) {
   const { t } = useTranslation()
-  const { language } = useAuth()
+  const { user, language } = useAuth()
   const navigate = useNavigate()
   const [isReportOpen, setIsReportOpen] = useState(false)
 
@@ -117,7 +117,7 @@ export function ChatHeader({
         onClose={() => setIsReportOpen(false)}
         contentType="chat_message"
         contentId={meetup.id}
-        reportedUserId={meetup.creator_id}
+        reportedUserId={meetup.creator_id !== user?.id ? meetup.creator_id : null}
         title={t('reports.reportChat', 'Reportar conversación')}
       />
     </header>
