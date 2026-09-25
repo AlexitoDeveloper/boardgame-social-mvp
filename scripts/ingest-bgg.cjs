@@ -13,14 +13,18 @@ const MAX_INGEST_RANK = 5000;
 dotenv.config({ path: path.join(__dirname, '../.env.local') });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Error: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in env variables.');
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Error: Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY / VITE_SUPABASE_ANON_KEY in env variables.');
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠️ Warning: SUPABASE_SERVICE_ROLE_KEY not set in .env.local. Running with anon key will fail storage uploads and catalog upserts under hardened RLS.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,

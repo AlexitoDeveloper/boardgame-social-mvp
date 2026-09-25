@@ -24,14 +24,18 @@ dotenv.config({ path: path.join(__dirname, '../.env') });         // base vars
 dotenv.config({ path: path.join(__dirname, '../.env.local') });   // local overrides
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in .env.local');
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY / VITE_SUPABASE_ANON_KEY in environment.');
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn('⚠️ Warning: SUPABASE_SERVICE_ROLE_KEY not set in .env.local. Running with anon key may fail due to catalog RLS policies.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
