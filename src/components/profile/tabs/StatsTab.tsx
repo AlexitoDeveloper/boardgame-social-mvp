@@ -48,7 +48,7 @@ export function StatsTab({
           <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-muted-foreground">
             <ListOrdered className="w-4 h-4 text-primary shrink-0" />
             <span>{t('profile.stats.rankings')}</span>
-            <span className="font-mono-tabular bg-muted px-1.5 py-0.5 rounded-full text-[10px] text-foreground">
+            <span className="font-mono-tabular bg-muted px-1.5 py-0.5 rounded-full text-xs text-foreground">
               {savedRankings.length}
             </span>
           </div>
@@ -91,7 +91,7 @@ export function StatsTab({
                 <div className="space-y-1 flex-1 min-w-0 pr-3">
                   <h4 className="font-extrabold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
                     <span className="truncate">{ranking.title || t('tops.untitled', 'Sin título')}</span>
-                    <Badge variant="primary-soft" className="shrink-0 text-[10px] py-0">
+                    <Badge variant="primary-soft" className="shrink-0 text-xs py-0">
                       {ranking.mode === 'tier' ? 'Tier List' : 'Top 10'}
                     </Badge>
                   </h4>

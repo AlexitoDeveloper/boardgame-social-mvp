@@ -108,7 +108,7 @@ export const MatchChronicleHero: React.FC<MatchChronicleHeroProps> = ({
                   <span className="font-mono text-xs font-black ml-1">({match.winnerScore} pts)</span>
                 )}
                 {marginOfVictory !== null && marginOfVictory > 0 && (
-                  <span className="text-[10px] font-bold text-muted-foreground ml-1 hidden sm:inline">
+                  <span className="text-xs font-bold text-muted-foreground ml-1 hidden sm:inline">
                     (+{marginOfVictory} de margen)
                   </span>
                 )}

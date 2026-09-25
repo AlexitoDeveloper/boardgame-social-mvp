@@ -66,7 +66,7 @@ export function Tabs<T extends string>({
               <span className={cn(hideLabelsOnMobile && !scrollable && Icon ? "hidden min-[440px]:inline" : "")}>{opt.label}</span>
               {opt.count !== undefined && (
                 <span className={cn(
-                  "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black leading-none shrink-0 border",
+                  "inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-xs font-black leading-none shrink-0 border",
                   isActive ? "bg-primary-foreground/20 text-primary-foreground border-transparent" : "bg-muted text-muted-foreground border-border/40"
                 )}>
                   {opt.count}

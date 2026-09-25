@@ -112,7 +112,7 @@ export function Stepper({
                   </span>
                   {step.description && (
                     <span className={cn(
-                      "hidden md:block truncate text-[10px] mt-0.5",
+                      "hidden md:block truncate text-xs mt-0.5",
                       isActive ? "text-foreground/80 dark:text-white/80 font-bold" : "text-muted-foreground font-medium"
                     )}>
                       {step.description}

@@ -159,7 +159,7 @@ export const PlayActiveMeetups: FC = () => {
                   <div className="flex items-center justify-between gap-2 mb-2.5">
                     <Badge
                       variant={isToday ? "tag-emerald" : "slatenavy"}
-                      className="text-[10px] font-bold py-0.5 px-2"
+                      className="text-xs font-bold py-0.5 px-2"
                     >
                       {isToday ? t('common.today', 'Hoy') : t('play.upcoming', 'Próxima')}
                     </Badge>

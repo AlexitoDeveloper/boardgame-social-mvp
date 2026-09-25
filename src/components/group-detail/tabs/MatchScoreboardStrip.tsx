@@ -44,7 +44,7 @@ export const MatchScoreboardStrip: React.FC<MatchScoreboardStripProps> = ({ scor
               }`}
             >
               <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-[10px] opacity-70 font-mono font-black">
+                <span className="text-xs opacity-70 font-mono font-black">
                   {idx + 1}º
                 </span>
                 <span className="truncate max-w-[70px] text-xs">

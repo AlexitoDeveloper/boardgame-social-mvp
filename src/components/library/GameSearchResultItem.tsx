@@ -49,7 +49,7 @@ export function GameSearchResultItem({
               </span>
             )}
             {game.isFromBgg && (
-              <Badge variant="outline" size="sm" className="text-[10px] px-1.5 py-0">
+              <Badge variant="outline" size="sm" className="text-xs px-1.5 py-0">
                 BGG
               </Badge>
             )}

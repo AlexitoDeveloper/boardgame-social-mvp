@@ -86,7 +86,7 @@ export function FirstPlayerModal({ open, onOpenChange }: FirstPlayerModalProps) 
                 ? 'bg-muted/40 border-border/40 opacity-70 scale-95' 
                 : 'bg-amber-500/15 border-amber-500/30 scale-100 shadow-xl'
             }`}>
-              <span className="text-[11px] font-black uppercase tracking-wider text-amber-500">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-500">
                 {isSpinning ? t('tableHub.firstPlayerModal.drawing') : t('tableHub.firstPlayerModal.turnBegins')}
               </span>
               <h3 className="text-2xl font-black text-foreground mt-0.5">

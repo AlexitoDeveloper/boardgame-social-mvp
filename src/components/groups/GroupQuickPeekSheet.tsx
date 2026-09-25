@@ -81,11 +81,11 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[11px] font-mono-tabular py-0.5">
+                  <Badge variant="secondary" className="text-xs font-mono-tabular py-0.5">
                     {group.member_count || 1} {group.member_count === 1 ? t('groups.memberCard') : t('groups.membersCard')}
                   </Badge>
                   {isOwner && (
-                    <Badge variant="outline" className="text-[10px] text-amber-500 border-amber-500/30 gap-1">
+                    <Badge variant="outline" className="text-xs text-amber-500 border-amber-500/30 gap-1">
                       <Shield className="w-2.5 h-2.5" />
                       Admin
                     </Badge>
@@ -104,7 +104,7 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 gap-3 py-1">
             <div className="p-3 rounded-2xl bg-muted/30 border border-border/40 space-y-1">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
                 Comunidad
               </span>
               <div className="flex items-center gap-1.5 text-foreground font-black font-mono-tabular text-lg">
@@ -114,7 +114,7 @@ export const GroupQuickPeekSheet: FC<GroupQuickPeekSheetProps> = ({
             </div>
 
             <div className="p-3 rounded-2xl bg-muted/30 border border-border/40 space-y-1">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
                 Fundado
               </span>
               <div className="flex items-center gap-1.5 text-foreground font-black font-mono-tabular text-sm py-0.5">

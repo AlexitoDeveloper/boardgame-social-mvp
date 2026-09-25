@@ -178,7 +178,7 @@ export function WizardStepDetails({
             <CheckCircle2 className="w-4 h-4" />
             {t('create.summaryReview')}
           </span>
-          <Badge variant="primary-soft" className="text-[10px]">
+          <Badge variant="primary-soft" className="text-xs">
             {playerCount} {t('common.playersAbbr')}
           </Badge>
         </div>
@@ -201,7 +201,7 @@ export function WizardStepDetails({
             <p className="font-bold text-foreground truncate">
               {selectedGames.length > 0 ? getGameTitle(selectedGames[0]) : t('create.noGamesSelected')}
             </p>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-muted-foreground text-[11px] mt-0.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-muted-foreground text-xs mt-0.5">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-primary" />
                 {date ? formatDate(date, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }, language) : '—'}

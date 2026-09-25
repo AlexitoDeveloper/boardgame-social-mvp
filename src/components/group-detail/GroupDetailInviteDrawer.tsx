@@ -48,7 +48,7 @@ export const GroupDetailInviteDrawer: FC<GroupDetailInviteDrawerProps> = ({
       >
         <SheetHeader className="text-left space-y-1.5">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="gap-1 text-[11px] font-bold py-0.5">
+            <Badge variant="secondary" className="gap-1 text-xs font-bold py-0.5">
               <Sparkles className="w-3 h-3 text-primary" />
               <span>Invitaciones</span>
             </Badge>
@@ -64,7 +64,7 @@ export const GroupDetailInviteDrawer: FC<GroupDetailInviteDrawerProps> = ({
         {/* Invite Code Showcase */}
         <div className="p-4 rounded-2xl bg-card border border-border/50 shadow-xs flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
               Código de Acceso
             </span>
             <span className="font-mono-tabular text-base font-black text-foreground tracking-widest">
@@ -115,7 +115,7 @@ export const GroupDetailInviteDrawer: FC<GroupDetailInviteDrawerProps> = ({
           />
         </div>
 
-        <div className="pt-2 text-center text-[11px] text-muted-foreground flex items-center justify-center gap-1.5">
+        <div className="pt-2 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-primary/70" />
           <span>Solo los miembros con el enlace pueden acceder a este grupo privado.</span>
         </div>

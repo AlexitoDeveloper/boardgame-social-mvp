@@ -51,7 +51,7 @@ export function ChatMessageStream({
             {t('chats.emptyActiveRoomDesc')}
           </p>
         </div>
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
           <Sparkles className="w-3 h-3" />
           <span>¡Saluda a los jugadores de la mesa!</span>
         </div>
@@ -71,7 +71,7 @@ export function ChatMessageStream({
           <div key={msg.id} className="space-y-2.5">
             {showDateLabel && (
               <div className="flex justify-center select-none py-1">
-                <span className="bg-background/90 dark:bg-card border border-border/40 rounded-full px-3 py-0.5 text-[10px] font-bold text-muted-foreground shadow-2xs font-mono-tabular">
+                <span className="bg-background/90 dark:bg-card border border-border/40 rounded-full px-3 py-0.5 text-xs font-bold text-muted-foreground shadow-2xs font-mono-tabular">
                   {formatDateLabel(msg.created_at)}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export function ChatMessageStream({
               {!isMyMessage && (
                 <Avatar className="w-7 h-7 sm:w-8 sm:h-8 border border-border/40 shrink-0 mt-0.5 shadow-2xs">
                   <AvatarImage src={msg.avatar_url || undefined} alt={msg.sender_name} />
-                  <AvatarFallback className="bg-primary/20 text-primary text-[10px] font-bold">
+                  <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
                     {msg.sender_name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -92,11 +92,11 @@ export function ChatMessageStream({
                 {/* Sender name for group members */}
                 {!isMyMessage && (
                   <div className="flex items-center gap-1.5 px-1">
-                    <span className="text-[11px] font-black text-primary truncate tracking-tight">
+                    <span className="text-xs font-black text-primary truncate tracking-tight">
                       {msg.sender_name}
                     </span>
                     {msg.guest_id && (
-                      <span className="text-[10px] text-muted-foreground font-medium lowercase">
+                      <span className="text-xs text-muted-foreground font-medium lowercase">
                         ({t('chats.guestTag')})
                       </span>
                     )}
@@ -116,7 +116,7 @@ export function ChatMessageStream({
 
                 {/* Timestamp */}
                 <span
-                  className={`text-[10px] block font-semibold text-muted-foreground/75 px-1 font-mono-tabular ${
+                  className={`text-xs block font-semibold text-muted-foreground/75 px-1 font-mono-tabular ${
                     isMyMessage ? 'text-right' : 'text-left'
                   }`}
                 >

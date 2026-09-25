@@ -63,7 +63,7 @@ export const CreateGroupModal: FC<CreateGroupModalProps> = ({
                 >
                   {t('groups.groupNameLabel')}
                 </Label>
-                <span className="text-[11px] font-mono-tabular text-muted-foreground">
+                <span className="text-xs font-mono-tabular text-muted-foreground">
                   {groupName.length}/45
                 </span>
               </div>
@@ -89,7 +89,7 @@ export const CreateGroupModal: FC<CreateGroupModalProps> = ({
                 >
                   {t('groups.groupDescLabel')}
                 </Label>
-                <span className="text-[11px] font-mono-tabular text-muted-foreground">
+                <span className="text-xs font-mono-tabular text-muted-foreground">
                   {groupDesc.length}/150
                 </span>
               </div>

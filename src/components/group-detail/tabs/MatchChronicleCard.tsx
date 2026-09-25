@@ -143,7 +143,7 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
             )
           })}
           {orderedPlayers.length > 5 && (
-            <span className="text-[11px] text-muted-foreground font-bold px-1 font-mono-tabular">
+            <span className="text-xs text-muted-foreground font-bold px-1 font-mono-tabular">
               +{orderedPlayers.length - 5}
             </span>
           )}
@@ -153,7 +153,7 @@ export const MatchChronicleCard: React.FC<MatchChronicleCardProps> = ({
           <Crown className="w-3 h-3 text-[#D97706] dark:text-[#FBBF24] fill-current shrink-0" />
           <span>{match.winnerName}</span>
           {hasValidWinnerScore && (
-            <span className="font-mono-tabular text-[11px] font-black">({rawWinnerScore} pts)</span>
+            <span className="font-mono-tabular text-xs font-black">({rawWinnerScore} pts)</span>
           )}
         </div>
       ) : null}

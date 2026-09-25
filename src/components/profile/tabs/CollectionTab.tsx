@@ -180,7 +180,7 @@ export function CollectionTab({
               badge={
                 <span
                   className={cn(
-                    "text-[10px] font-mono-tabular px-1.5 py-0.5 rounded-full font-black transition-colors",
+                    "text-xs font-mono-tabular px-1.5 py-0.5 rounded-full font-black transition-colors",
                     isSelected
                       ? "bg-primary text-white shadow-xs"
                       : "bg-surface-void text-muted-foreground border border-border/40"
@@ -243,7 +243,7 @@ export function CollectionTab({
       )}
 
       {/* Attribution */}
-      <div className="text-[11px] text-center text-muted-foreground/50 font-semibold pt-2 select-none">
+      <div className="text-xs text-center text-muted-foreground/50 font-semibold pt-2 select-none">
         {t('profile.collection.attribution')} <a href="https://boardgamegeek.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors hover:underline">BoardGameGeek</a>
       </div>
 

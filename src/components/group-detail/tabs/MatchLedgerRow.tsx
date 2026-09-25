@@ -48,7 +48,7 @@ export const MatchLedgerRow: React.FC<MatchLedgerRowProps> = ({
               {match.gameTitle || match.title}
             </h4>
             {match.boardPhotoUrl && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
                 <ImageIcon className="w-2.5 h-2.5" />
                 <span>{t('meetup.photo', 'Foto')}</span>
               </span>
@@ -84,7 +84,7 @@ export const MatchLedgerRow: React.FC<MatchLedgerRowProps> = ({
             {scores.slice(0, 3).map((s, idx) => (
               <span
                 key={`${s.name}-${idx}`}
-                className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
+                className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded-md ${
                   s.isWinner ? 'bg-amber-500/15 text-amber-500' : 'bg-muted/60 text-muted-foreground'
                 }`}
               >
@@ -92,7 +92,7 @@ export const MatchLedgerRow: React.FC<MatchLedgerRowProps> = ({
               </span>
             ))}
             {scores.length > 3 && (
-              <span className="text-[10px] text-muted-foreground font-bold">+{scores.length - 3}</span>
+              <span className="text-xs text-muted-foreground font-bold">+{scores.length - 3}</span>
             )}
           </div>
         )}

@@ -100,7 +100,7 @@ export const GroupInteractiveCard: FC<GroupInteractiveCardProps> = ({
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Badge
                   variant="secondary"
-                  className="font-mono-tabular text-[11px] font-semibold py-0.5 px-2 gap-1 border-border/40"
+                  className="font-mono-tabular text-xs font-semibold py-0.5 px-2 gap-1 border-border/40"
                 >
                   <Users className="w-3 h-3 text-primary" aria-hidden="true" />
                   <span>
@@ -110,7 +110,7 @@ export const GroupInteractiveCard: FC<GroupInteractiveCardProps> = ({
                 {isOwner && (
                   <Badge
                     variant="tag-amber"
-                    className="text-[10px] font-bold py-0.5 px-1.5 gap-1"
+                    className="text-xs font-bold py-0.5 px-1.5 gap-1"
                   >
                     <Shield className="w-2.5 h-2.5" />
                     <span>Admin</span>
@@ -157,7 +157,7 @@ export const GroupInteractiveCard: FC<GroupInteractiveCardProps> = ({
             variant="ghost"
             size="xs"
             onClick={handleCopyCode}
-            className="h-7 text-[11px] font-bold text-muted-foreground bg-muted/40 border border-border/40 hover:bg-muted/70 hover:text-foreground px-2 py-0.5 rounded-lg transition-colors font-mono-tabular active:scale-95"
+            className="h-7 text-xs font-bold text-muted-foreground bg-muted/40 border border-border/40 hover:bg-muted/70 hover:text-foreground px-2 py-0.5 rounded-lg transition-colors font-mono-tabular active:scale-95"
             title={t('groups.copyInviteLink')}
             aria-label={copied ? t('groups.copied') : t('groups.copyInviteLink')}
           >

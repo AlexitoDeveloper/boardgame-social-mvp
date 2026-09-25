@@ -58,7 +58,7 @@ function MobileBottomNavItem({ to, label, icon, badgeCount = 0 }: MobileNavItemP
                   ),
                 })}
                 {badgeCount > 0 && (
-                  <span className="absolute -top-1 -right-2.5 min-w-[17px] h-[17px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ring-2 ring-background shadow-xs pointer-events-none">
+                  <span className="absolute -top-1 -right-2.5 min-w-[17px] h-[17px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shrink-0 ring-2 ring-background shadow-xs pointer-events-none">
                     {badgeCount}
                   </span>
                 )}

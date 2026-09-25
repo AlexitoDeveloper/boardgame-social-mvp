@@ -63,7 +63,7 @@ export const QuickLogAttendeesSection: FC<QuickLogAttendeesSectionProps> = ({
               >
                 <Avatar className="w-5 h-5 shrink-0 border border-primary/20">
                   <AvatarImage src={attendee.avatarUrl || undefined} />
-                  <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-black">
+                  <AvatarFallback className="text-xs bg-primary/10 text-primary font-black">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

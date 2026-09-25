@@ -33,7 +33,7 @@ export function CardShowcase() {
           <div>
             {/* Header: Status & Group Affiliation */}
             <div className="flex items-center justify-between mb-3">
-              <Badge variant="slatenavy" className="text-[11px] font-bold">
+              <Badge variant="slatenavy" className="text-xs font-bold">
                 Grupo: Eurogamers BCN
               </Badge>
               <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
@@ -44,7 +44,7 @@ export function CardShowcase() {
 
             {/* Game & Title */}
             <div className="space-y-1 mb-3">
-              <span className="text-[11px] font-black uppercase tracking-wider text-primary dark:text-[#FF80B0]">
+              <span className="text-xs font-black uppercase tracking-wider text-primary dark:text-[#FF80B0]">
                 Ark Nova + Marine Worlds
               </span>
               <CardTitle className="text-base font-black text-foreground tracking-tight">
@@ -59,13 +59,13 @@ export function CardShowcase() {
             <div className="flex items-center justify-between py-2.5 px-3 rounded-xl bg-surface-elevated/60 border border-border/60 text-xs mb-4">
               <div className="flex items-center gap-2">
                 <Avatar className="size-6 border border-border">
-                  <AvatarFallback className="bg-primary/20 text-primary dark:text-[#FF80B0] text-[10px] font-black">
+                  <AvatarFallback className="bg-primary/20 text-primary dark:text-[#FF80B0] text-xs font-black">
                     MR
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-left leading-tight">
                   <span className="font-bold text-foreground block">Marc R.</span>
-                  <span className="text-[10px] text-muted-foreground">Anfitrión Verificado</span>
+                  <span className="text-xs text-muted-foreground">Anfitrión Verificado</span>
                 </div>
               </div>
               <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
@@ -79,13 +79,13 @@ export function CardShowcase() {
           <div className="pt-3 border-t border-border/60 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-1.5 overflow-hidden">
-                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#243447] text-white text-[9px] font-black border-2 border-card">
+                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#243447] text-white text-xs font-black border-2 border-card">
                   JD
                 </span>
-                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#C51F5D] text-white text-[9px] font-black border-2 border-card">
+                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#C51F5D] text-white text-xs font-black border-2 border-card">
                   AL
                 </span>
-                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#10B981] text-white text-[9px] font-black border-2 border-card">
+                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#10B981] text-white text-xs font-black border-2 border-card">
                   ES
                 </span>
               </div>
@@ -119,7 +119,7 @@ export function CardShowcase() {
             </div>
 
             <div className="space-y-1 mb-3">
-              <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
                 Dune: Imperium – Uprising
               </span>
               <CardTitle className="text-base font-black text-foreground tracking-tight">
@@ -133,7 +133,7 @@ export function CardShowcase() {
                 <div className="flex items-center gap-2">
                   <span className="text-amber-400 font-black text-xs font-mono">#1</span>
                   <span className="font-black text-foreground">Carlos M.</span>
-                  <span className="text-[10px] text-muted-foreground">(Fremen)</span>
+                  <span className="text-xs text-muted-foreground">(Fremen)</span>
                 </div>
                 <span className="font-mono font-black text-xs text-primary dark:text-[#FF80B0]">
                   11 VP
@@ -144,7 +144,7 @@ export function CardShowcase() {
                 <div className="flex items-center gap-2">
                   <span className="text-zinc-400 font-bold text-xs font-mono">#2</span>
                   <span className="font-medium text-foreground">Laura G.</span>
-                  <span className="text-[10px] text-muted-foreground">(Bene G.)</span>
+                  <span className="text-xs text-muted-foreground">(Bene G.)</span>
                 </div>
                 <span className="font-mono font-bold text-xs text-muted-foreground">
                   10 VP
@@ -155,7 +155,7 @@ export function CardShowcase() {
                 <div className="flex items-center gap-2">
                   <span className="text-zinc-500 font-bold text-xs font-mono">#3</span>
                   <span className="font-medium text-foreground">Alex B.</span>
-                  <span className="text-[10px] text-muted-foreground">(Atreides)</span>
+                  <span className="text-xs text-muted-foreground">(Atreides)</span>
                 </div>
                 <span className="font-mono font-bold text-xs text-muted-foreground">
                   8 VP
@@ -167,10 +167,10 @@ export function CardShowcase() {
           {/* Footer: Tags & Detail CTA */}
           <div className="pt-3 border-t border-border/60 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Badge variant="outline" className="text-[10px] py-0 px-2 font-mono">
+              <Badge variant="outline" className="text-xs py-0 px-2 font-mono">
                 +24 ELO
               </Badge>
-              <Badge variant="outline" className="text-[10px] py-0 px-2 font-mono text-muted-foreground">
+              <Badge variant="outline" className="text-xs py-0 px-2 font-mono text-muted-foreground">
                 Competición
               </Badge>
             </div>
@@ -186,7 +186,7 @@ export function CardShowcase() {
           <div>
             {/* Header: Weight & BGG Rating */}
             <div className="flex items-center justify-between mb-3">
-              <Badge variant="tag-emerald" className="gap-1 text-[11px] font-black">
+              <Badge variant="tag-emerald" className="gap-1 text-xs font-black">
                 <Star className="size-3 fill-current" />
                 8.6 BGG
               </Badge>
@@ -196,7 +196,7 @@ export function CardShowcase() {
             </div>
 
             <div className="space-y-1 mb-3">
-              <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
                 Alexander Pfister · 2019
               </span>
               <CardTitle className="text-base font-black text-foreground tracking-tight">
@@ -210,15 +210,15 @@ export function CardShowcase() {
             {/* Spec grid */}
             <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-elevated/60 border border-border/60 text-center mb-4">
               <div>
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Jugadores</span>
+                <span className="block text-xs text-muted-foreground uppercase font-bold">Jugadores</span>
                 <span className="font-mono text-xs font-black text-foreground">1 – 4</span>
               </div>
               <div className="border-x border-border/60">
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">Tiempo</span>
+                <span className="block text-xs text-muted-foreground uppercase font-bold">Tiempo</span>
                 <span className="font-mono text-xs font-black text-foreground">120 min</span>
               </div>
               <div>
-                <span className="block text-[10px] text-muted-foreground uppercase font-bold">En Club</span>
+                <span className="block text-xs text-muted-foreground uppercase font-bold">En Club</span>
                 <span className="font-mono text-xs font-black text-emerald-400">3 Copias</span>
               </div>
             </div>

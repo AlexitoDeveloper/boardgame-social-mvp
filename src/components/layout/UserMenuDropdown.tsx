@@ -102,7 +102,7 @@ export function UserMenuDropdown({
           </Avatar>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-foreground truncate">{username}</p>
-            <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export function UserMenuDropdown({
               )}
               <span>{t('nav.theme')}</span>
             </div>
-            <span className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">
+            <span className="text-muted-foreground text-xs uppercase font-bold tracking-wider">
               {isDark ? t('nav.dark') : t('nav.light')}
             </span>
           </Button>
@@ -181,7 +181,7 @@ export function UserMenuDropdown({
               <Languages aria-hidden="true" focusable={false} className="h-4 w-4 text-primary" />
               <span>{t('nav.changeLang')}</span>
             </div>
-            <span className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">
+            <span className="text-muted-foreground text-xs uppercase font-bold tracking-wider">
               {language === 'es' ? t('nav.es') : t('nav.en')}
             </span>
           </Button>

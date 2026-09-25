@@ -78,7 +78,7 @@ export function GamePosterCard({
           {/* Unplayed / Shelf of Shame Indicator Tag (Bottom Left) */}
           {isUnplayed && (
             <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-md border border-amber-300 select-none">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-wider bg-amber-400 text-zinc-950 shadow-md border border-amber-300 select-none">
                 Sin jugar
               </span>
             </div>
@@ -90,7 +90,7 @@ export function GamePosterCard({
           <h4 className="font-extrabold text-xs text-foreground group-hover:text-primary transition-colors truncate">
             {gameTitle}
           </h4>
-          <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono-tabular text-muted-foreground font-semibold">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-mono-tabular text-muted-foreground font-semibold">
             {game.is_expansion && <ExpansionBadge size="xs" />}
             <span>{game.year_published || 'N/A'}</span>
           </div>

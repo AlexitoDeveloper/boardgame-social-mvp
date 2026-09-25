@@ -207,20 +207,6 @@
     display: none;  /* Chrome, Safari and Opera */
   }
 
-  /* Accessibility floor: minimum typography size 12px (0.75rem) */
-  [class*="text-[6px]"],
-  [class*="text-[7px]"],
-  [class*="text-[7.5px]"],
-  [class*="text-[8px]"],
-  [class*="text-[8.5px]"],
-  [class*="text-[9px]"],
-  [class*="text-[9.5px]"],
-  [class*="text-[10px]"],
-  [class*="text-[10.5px]"],
-  [class*="text-[11px]"] {
-    font-size: 0.75rem !important;
-    line-height: 1rem !important;
-  }
 
   /* Die-cut Ticket Notch for Match/Session Cards */
   .card-notch {

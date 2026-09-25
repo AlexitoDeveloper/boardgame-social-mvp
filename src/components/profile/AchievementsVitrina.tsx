@@ -90,7 +90,7 @@ export function AchievementsVitrina({
               <div className="w-full min-h-[32px] sm:min-h-[36px] flex items-center justify-center mt-1 px-0.5">
                 <span
                   className={cn(
-                    "text-[10px] sm:text-[11px] font-bold tracking-tight text-center leading-snug line-clamp-2 break-words",
+                    "text-xs font-bold tracking-tight text-center leading-snug line-clamp-2 break-words",
                     hasUnlocked
                       ? isActive
                         ? "text-primary font-black"
@@ -103,7 +103,7 @@ export function AchievementsVitrina({
               </div>
 
               {/* Value / Progress label */}
-              <span className="text-[10px] font-mono-tabular font-bold text-muted-foreground/80 mt-0.5">
+              <span className="text-xs font-mono-tabular font-bold text-muted-foreground/80 mt-0.5">
                 {ach.id === 'reliable' ? `${stats.karma}%` : `${ach.progressVal}`}
               </span>
 

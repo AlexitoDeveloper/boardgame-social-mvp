@@ -69,7 +69,7 @@ export function ChatHeader({
                 {meetup.title}
               </h2>
               {game && (
-                <Badge variant="secondary" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 font-bold shrink-0">
+                <Badge variant="secondary" className="hidden sm:inline-flex text-xs py-0 px-1.5 font-bold shrink-0">
                   {game.title}
                 </Badge>
               )}

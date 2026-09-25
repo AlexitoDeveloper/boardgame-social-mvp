@@ -65,7 +65,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
         <CardContent className="p-3.5 sm:p-4 text-left space-y-1 relative z-10">
           <div className="flex items-center gap-1.5 text-emerald-500">
             <Dices className="w-3.5 h-3.5 shrink-0" />
-            <span className="text-[11px] font-black uppercase tracking-wider truncate">
+            <span className="text-xs font-black uppercase tracking-wider truncate">
               {t('profile.statsTotalPlays', 'Total Partidas')}
             </span>
           </div>
@@ -74,7 +74,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
               {stats.played}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold truncate leading-tight">
+          <p className="text-xs text-muted-foreground font-semibold truncate leading-tight">
             {stats.played === 1 ? 'Partida completada' : 'Partidas completadas'}
           </p>
         </CardContent>
@@ -88,7 +88,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
         <CardContent className="p-3.5 sm:p-4 text-left space-y-1 relative z-10">
           <div className="flex items-center gap-1.5 text-amber-500 dark:text-amber-400">
             <Trophy className="w-3.5 h-3.5 shrink-0" />
-            <span className="text-[11px] font-black uppercase tracking-wider truncate">
+            <span className="text-xs font-black uppercase tracking-wider truncate">
               {t('profile.winRate', '% Victoria')}
             </span>
           </div>
@@ -97,7 +97,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
               {stats.winRate}%
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold truncate leading-tight">
+          <p className="text-xs text-muted-foreground font-semibold truncate leading-tight">
             {stats.won} {stats.won === 1 ? 'victoria' : 'victorias'}
           </p>
         </CardContent>
@@ -112,7 +112,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
           <div className="flex items-center justify-between gap-1 text-sky-500 dark:text-sky-400">
             <div className="flex items-center gap-1.5 min-w-0">
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[11px] font-black uppercase tracking-wider truncate">
+              <span className="text-xs font-black uppercase tracking-wider truncate">
                 {t('profile.statsUniqueGames', 'Títulos Únicos')}
               </span>
             </div>
@@ -143,7 +143,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
               {uniqueGamesCount}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold truncate leading-tight">
+          <p className="text-xs text-muted-foreground font-semibold truncate leading-tight">
             {uniqueGamesCount === 1 ? '1 juego explorado' : `${uniqueGamesCount} juegos explorados`}
           </p>
         </CardContent>
@@ -157,7 +157,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
         <CardContent className="p-3.5 sm:p-4 text-left space-y-1 relative z-10">
           <div className="flex items-center gap-1.5 text-purple-500 dark:text-purple-400">
             <Layers className="w-3.5 h-3.5 shrink-0" />
-            <span className="text-[11px] font-black uppercase tracking-wider truncate">
+            <span className="text-xs font-black uppercase tracking-wider truncate">
               {t('profile.statsFavoriteFaction', 'Mecánica Top')}
             </span>
           </div>
@@ -166,7 +166,7 @@ export function StatsDashboard({ stats, meetups = [], profileId }: StatsDashboar
               {topCategory}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold truncate leading-tight">
+          <p className="text-xs text-muted-foreground font-semibold truncate leading-tight">
             {stats.played > 0 ? t('profile.statsFavoriteFactionDesc', 'Mecánica más jugada') : 'Sin datos de juego'}
           </p>
         </CardContent>

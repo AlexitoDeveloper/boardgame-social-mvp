@@ -51,19 +51,19 @@ export const GroupGuestCard: React.FC<GroupGuestCardProps> = ({
                   e.stopPropagation()
                   onProfileClick?.(associatedMember.username)
                 }}
-                className="text-[10px] px-1.5 py-0.5 leading-tight gap-1 cursor-pointer hover:bg-primary/20 hover:border-primary/40 transition-colors"
+                className="text-xs px-1.5 py-0.5 leading-tight gap-1 cursor-pointer hover:bg-primary/20 hover:border-primary/40 transition-colors"
                 title={t('groups.viewLinkedProfile', 'Ver perfil de @{{username}}', { username: associatedMember.username })}
               >
                 <Link2 className="w-2.5 h-2.5 shrink-0" aria-hidden="true" />
                 <span className="truncate">@{associatedMember.username}</span>
               </Badge>
             ) : (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 leading-tight">
+              <Badge variant="secondary" className="text-xs px-1.5 py-0 leading-tight">
                 {t('groups.habitualGuestBadge', 'Invitado habitual')}
               </Badge>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground font-semibold font-mono-tabular mt-0.5">
+          <p className="text-xs text-muted-foreground font-semibold font-mono-tabular mt-0.5">
             {t('groups.guestAdded', 'Añadido')}{' '}
             {formatDate(guest.created_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}
           </p>

@@ -89,7 +89,7 @@ export function MeetupsTab({
                         )}
                       </div>
                       {gamesList.length > 1 && (
-                        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] font-black px-1.5 py-0.5 rounded-md border border-background shadow-xs font-mono-tabular">
+                        <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs font-black px-1.5 py-0.5 rounded-md border border-background shadow-xs font-mono-tabular">
                           +{gamesList.length - 1}
                         </div>
                       )}

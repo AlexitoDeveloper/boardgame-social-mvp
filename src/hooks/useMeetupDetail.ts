@@ -190,8 +190,21 @@ export function useMeetupDetail(id: string | undefined, user: User | null) {
            }
          }).filter(Boolean) as Game[]
         
+        let voiceLink = data.voice_link || null
+        if (data.is_online && id) {
+          try {
+            const { data: vLink } = await supabase.rpc('get_meetup_voice_link', { p_meetup_id: id })
+            if (vLink) {
+              voiceLink = vLink
+            }
+          } catch {
+            // Non-authorized visitor or RPC error; voiceLink remains null
+          }
+        }
+
         const formattedMeetup: Meetup = {
           ...data,
+          voice_link: voiceLink,
           games: mGames
         }
 

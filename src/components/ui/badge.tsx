@@ -69,7 +69,7 @@ const badgeVariants = cva(
           "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30",
       },
       size: {
-        sm: "px-2 py-0.5 text-[11px]",
+        sm: "px-2 py-0.5 text-xs",
         default: "px-2.5 py-0.5 text-xs",
         lg: "px-3 py-1 text-xs",
       },

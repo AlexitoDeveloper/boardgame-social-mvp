@@ -1,5 +1,5 @@
 import React from 'react'
-import { Users, Clock, Flame, ChevronRight, Check } from 'lucide-react'
+import { Users, Clock, Flame, ChevronRight } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
 import { ExpansionBadge } from '../../ui/expansion-badge'
@@ -21,7 +21,6 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
 }) => {
   const { game, owners } = item
   const title = game.title_es || game.title
-  const isMine = owners.some((o) => o.user_id === user?.id)
 
   return (
     <div
@@ -62,16 +61,6 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
             <h4 className="font-bold text-xs sm:text-sm text-foreground truncate group-hover:text-primary transition-colors">
               {title}
             </h4>
-            {isMine && (
-              <Badge
-                variant="raspberry"
-                size="sm"
-                className="text-white font-black text-xs px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 shrink-0 rounded-lg"
-              >
-                <Check className="w-3 h-3 stroke-[3]" />
-                Mío
-              </Badge>
-            )}
             {game.is_expansion && (
               <ExpansionBadge size="xs" />
             )}
@@ -109,14 +98,21 @@ export const LudotecaLedgerRow: React.FC<LudotecaLedgerRowProps> = ({
       {/* Owners Stack & Arrow */}
       <div className="flex items-center gap-3 shrink-0">
         <div className="hidden sm:flex items-center -space-x-1.5">
-          {owners.slice(0, 3).map((owner) => (
-            <Avatar key={owner.user_id} className="h-6 w-6 border-2 border-background shadow-xs ring-1 ring-border/20">
-              <AvatarImage src={owner.avatar_url || undefined} />
-              <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
-                {owner.username.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          ))}
+          {owners.slice(0, 3).map((owner) => {
+            const isMe = owner.user_id === user?.id
+            return (
+              <Avatar
+                key={owner.user_id}
+                className="h-6 w-6 border-2 border-background shadow-xs ring-1 ring-border/20"
+                title={isMe ? 'Tú aportaste esta copia' : owner.username}
+              >
+                <AvatarImage src={owner.avatar_url || undefined} />
+                <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
+                  {owner.username.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            )
+          })}
           {owners.length > 3 && (
             <span className="text-xs font-black text-muted-foreground px-1 font-mono-tabular">
               +{owners.length - 3}

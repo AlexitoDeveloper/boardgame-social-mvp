@@ -208,7 +208,7 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                 <Users className="w-3.5 h-3.5 text-primary" />
                 <span>{t('groups.selectGameOwner', 'Propietario del juego')}</span>
               </span>
-              <span className="text-muted-foreground text-[11px] font-medium">
+              <span className="text-muted-foreground text-xs font-medium">
                 {t('groups.whoBringsGame', '¿Quién aporta este juego?')}
               </span>
             </div>
@@ -232,13 +232,13 @@ export const AddGameToLibraryModal: FC<AddGameToLibraryModalProps> = ({
                   >
                     <Avatar className="w-4 h-4 border border-border/30">
                       <AvatarImage src={member.avatarUrl || ''} alt={member.name} />
-                      <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-black">
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary font-black">
                         {member.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span className="truncate max-w-[120px]">{displayName}</span>
                     {member.isGuest && (
-                      <span className="text-[10px] text-muted-foreground font-semibold">
+                      <span className="text-xs text-muted-foreground font-semibold">
                         ({t('common.guest', 'Invitado')})
                       </span>
                     )}

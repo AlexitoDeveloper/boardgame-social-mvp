@@ -247,7 +247,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
         <CardContent className="p-4 pt-2">
           {hasEnoughData ? (
             <ChartContainer config={chartConfig} className="aspect-square max-h-[240px] w-full">
-              <RadarChart data={radarData} margin={{ top: 8, right: 16, bottom: 8, left: 16 }}>
+              <RadarChart data={radarData} margin={{ top: 12, right: 28, bottom: 12, left: 28 }}>
                 <PolarGrid
                   stroke="hsl(var(--border))"
                   strokeOpacity={0.4}
@@ -255,7 +255,7 @@ export function AdvancedStats({ stats, meetups, profileId }: AdvancedStatsProps)
                 <PolarAngleAxis
                   dataKey="axis"
                   tick={{
-                    fontSize: 9,
+                    fontSize: 12,
                     fontWeight: 700,
                     fill: 'hsl(var(--muted-foreground))',
                     textAnchor: 'middle',

@@ -68,7 +68,7 @@ export function FormShowcase() {
               placeholder="Buscar por juego, diseñador o anfitrión..."
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Contraste de borde optimizado para modo diurno y nocturno.
           </p>
         </div>
@@ -89,7 +89,7 @@ export function FormShowcase() {
               placeholder="0"
             />
           </div>
-          <p className="text-[11px] text-muted-foreground font-mono">
+          <p className="text-xs text-muted-foreground font-mono">
             Tabular-nums previene el jitter horizontal en pantallas de conteo.
           </p>
         </div>
@@ -102,7 +102,7 @@ export function FormShowcase() {
                 <Clock className="size-3.5 text-muted-foreground" />
                 Temporizador de Turno
               </p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Alerta de tiempo por jugador activada
               </p>
             </div>
@@ -137,12 +137,12 @@ export function FormShowcase() {
               <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Stepper 8BEES (Progreso de Mesa / Wizard)
               </Label>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Indicadores táctiles con Raspberry activo, Emerald Jade completado y tipografía accesible sin degradación en modo oscuro.
               </p>
             </div>
             <div className="flex items-center gap-1.5 self-start sm:self-auto">
-              <span className="text-[11px] font-mono-tabular text-muted-foreground">
+              <span className="text-xs font-mono-tabular text-muted-foreground">
                 Paso actual: <strong>{activeStep}</strong>/3
               </span>
             </div>

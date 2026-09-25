@@ -202,12 +202,12 @@ export function WizardStepGame({
                         <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${
                           isChecked ? 'bg-primary border-primary text-primary-foreground' : 'border-border/80 bg-background'
                         }`}>
-                          {isChecked && <span className="text-[10px] font-black leading-none">✓</span>}
+                          {isChecked && <span className="text-xs font-black leading-none">✓</span>}
                         </div>
                         {getGameCover(exp) || exp.image_url ? (
                           <OptimizedImage src={getGameCover(exp) || exp.image_url!} alt={getGameTitle(exp) || exp.title} widthSize={40} heightSize={40} className="w-7 h-7 rounded-md object-cover shrink-0" />
                         ) : (
-                          <div className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center text-[10px] font-extrabold text-muted-foreground shrink-0">?</div>
+                          <div className="w-7 h-7 rounded-md bg-muted/60 flex items-center justify-center text-xs font-extrabold text-muted-foreground shrink-0">?</div>
                         )}
                         <span className="truncate flex-1">{exp.title}</span>
                       </div>

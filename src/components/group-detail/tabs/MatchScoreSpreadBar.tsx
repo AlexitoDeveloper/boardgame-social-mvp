@@ -51,7 +51,7 @@ export const MatchScoreSpreadBar: React.FC<MatchScoreSpreadBarProps> = ({ scores
               </div>
 
               <span className={`w-12 text-right font-mono font-black text-xs ${isVictor ? 'text-amber-500 font-extrabold' : 'text-muted-foreground'}`}>
-                {p.score} <span className="text-[10px] font-normal text-muted-foreground/70">pts</span>
+                {p.score} <span className="text-xs font-normal text-muted-foreground/70">pts</span>
               </span>
             </div>
           )

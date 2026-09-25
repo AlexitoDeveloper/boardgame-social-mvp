@@ -115,7 +115,7 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
           {t('quickLog.gameSection')}
         </span>
         {isSearchingCatalog && (
-          <span className="text-[11px] font-bold text-primary animate-pulse">{t('quickLog.searching')}</span>
+          <span className="text-xs font-bold text-primary animate-pulse">{t('quickLog.searching')}</span>
         )}
       </div>
 
@@ -163,12 +163,12 @@ export const QuickLogGameSelector: FC<QuickLogGameSelectorProps> = ({
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs font-bold text-foreground truncate">{title}</span>
                     {isGroup && (
-                      <span className="text-[10px] font-black uppercase px-1.5 py-0.2 rounded-md bg-primary/15 text-primary border border-primary/20 shrink-0">
+                      <span className="text-xs font-black uppercase px-1.5 py-0.2 rounded-md bg-primary/15 text-primary border border-primary/20 shrink-0">
                         {t('quickLog.ludotecaBadge')}
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
                     {game.min_players && <span>{game.min_players}-{game.max_players} {t('quickLog.playersAbbr')}</span>}
                     {game.year_published && <span>({game.year_published})</span>}
                   </div>

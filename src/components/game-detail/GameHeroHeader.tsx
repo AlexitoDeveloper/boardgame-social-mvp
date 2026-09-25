@@ -103,7 +103,7 @@ export function GameHeroHeader({ game, title, coverUrl, language }: GameHeroHead
               <div className="p-2 rounded-full bg-black/60 backdrop-blur-xs shadow-md border border-white/10">
                 <ZoomIn className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <span className="text-[10px] sm:text-xs font-bold leading-tight drop-shadow-md hidden sm:inline-block">
+              <span className="text-xs font-bold leading-tight drop-shadow-md hidden sm:inline-block">
                 {t('gameDetail.viewCover')}
               </span>
             </div>

@@ -109,7 +109,7 @@ export const AssociateGuestModal: React.FC<AssociateGuestModalProps> = ({
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Avatar className="w-8 h-8 shrink-0 border border-border/40">
                       <AvatarImage src={member.avatar_url || undefined} />
-                      <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-black">
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary font-black">
                         {member.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -118,7 +118,7 @@ export const AssociateGuestModal: React.FC<AssociateGuestModalProps> = ({
                         {member.username}
                       </p>
                       {isAlreadyLinked && (
-                        <p className="text-[10px] text-primary font-bold">
+                        <p className="text-xs text-primary font-bold">
                           {t('groups.currentlyLinked', 'Actualmente vinculado')}
                         </p>
                       )}

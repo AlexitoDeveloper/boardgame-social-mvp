@@ -219,7 +219,7 @@ export function CreateMatchPage() {
             <p className="text-xs font-bold text-foreground truncate">
               {selectedGame ? selectedGame.title_es || selectedGame.title : t('quickLog.selectGameHint', 'Selecciona un juego')}
             </p>
-            <p className="text-[11px] text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {activeAttendees.length} {t('common.players', 'jugadores')}
               {winnerAttendee && ` • Ganador: ${winnerAttendee.name}`}
             </p>

@@ -180,7 +180,7 @@ export function ToastContainer() {
                   {t.message}
                 </p>
                 {t.description && (
-                  <p className={cn('text-[11px] sm:text-xs mt-0.5 leading-tight', style.desc)}>
+                  <p className={cn('text-xs mt-0.5 leading-tight', style.desc)}>
                     {t.description}
                   </p>
                 )}

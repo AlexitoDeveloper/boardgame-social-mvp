@@ -10,8 +10,8 @@ export interface BrandLogoProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const sizeMap = {
-  xs: { icon: 'w-6 h-6', text: 'text-sm', badge: 'text-[9px] px-1 py-0.2' },
-  sm: { icon: 'w-8 h-8', text: 'text-base', badge: 'text-[10px] px-1.5 py-0.5' },
+  xs: { icon: 'w-6 h-6', text: 'text-sm', badge: 'text-xs px-1.5 py-0.5' },
+  sm: { icon: 'w-8 h-8', text: 'text-base', badge: 'text-xs px-1.5 py-0.5' },
   md: { icon: 'w-10 h-10', text: 'text-lg', badge: 'text-xs px-2 py-0.5' },
   lg: { icon: 'w-12 h-12', text: 'text-xl', badge: 'text-xs px-2 py-0.5' },
   xl: { icon: 'w-16 h-16', text: 'text-2xl', badge: 'text-sm px-2.5 py-1' },
@@ -71,7 +71,7 @@ export function BrandLogo({
               </span>
             )}
           </div>
-          <span className="text-[11px] font-medium text-muted-foreground mt-0.5">
+          <span className="text-xs font-medium text-muted-foreground mt-0.5">
             Tu Club de Juegos de Mesa
           </span>
         </div>

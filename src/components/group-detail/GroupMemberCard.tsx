@@ -50,22 +50,22 @@ export const GroupMemberCard: React.FC<GroupMemberCardProps> = ({
               {member.username}
             </span>
             {isMe && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 leading-tight">
+              <Badge variant="secondary" className="text-xs px-1.5 py-0 leading-tight">
                 {t('common.you', 'Tú')}
               </Badge>
             )}
             {isMemberCreator ? (
-              <Badge variant="tag-amber" className="text-[10px] px-1.5 py-0 leading-tight flex items-center gap-0.5">
+              <Badge variant="tag-amber" className="text-xs px-1.5 py-0 leading-tight flex items-center gap-0.5">
                 <Crown className="w-2.5 h-2.5 fill-amber text-amber" aria-hidden="true" /> {t('common.creator', 'Creador')}
               </Badge>
             ) : isMemberAdmin ? (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 leading-tight flex items-center gap-0.5 text-primary border-primary/30 bg-primary/5">
+              <Badge variant="outline" className="text-xs px-1.5 py-0 leading-tight flex items-center gap-0.5 text-primary border-primary/30 bg-primary/5">
                 <Shield className="w-2.5 h-2.5 text-primary" aria-hidden="true" /> {t('common.admin', 'Admin')}
               </Badge>
             ) : null}
           </div>
 
-          <p className="text-[11px] text-muted-foreground font-semibold mt-0.5 truncate">
+          <p className="text-xs text-muted-foreground font-semibold mt-0.5 truncate">
             {t('groups.memberSince', 'Miembro desde')}{' '}
             <span className="font-mono-tabular">
               {formatDate(member.joined_at, { day: 'numeric', month: 'short', year: 'numeric' }, language)}

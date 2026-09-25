@@ -65,7 +65,7 @@ export const NextMeetupSpotlight: React.FC<NextMeetupSpotlightProps> = ({
               </div>
             )}
             <div className="absolute top-1.5 left-1.5">
-              <Badge variant="default" size="sm" className="text-[10px] shadow-sm font-black">
+              <Badge variant="default" size="sm" className="text-xs shadow-sm font-black">
                 <Sparkles className="w-2.5 h-2.5 mr-0.5" />
                 <span>{t('groups.nextUp', 'Próxima')}</span>
               </Badge>
@@ -121,13 +121,13 @@ export const NextMeetupSpotlight: React.FC<NextMeetupSpotlightProps> = ({
                 {attendeeMembers.slice(0, 5).map((m) => (
                   <Avatar key={m.user_id} className="h-7 w-7 border-2 border-card shadow-xs ring-1 ring-border/20">
                     <AvatarImage src={m.avatar_url || undefined} />
-                    <AvatarFallback className="text-[9px] font-black bg-primary/10 text-primary">
+                    <AvatarFallback className="text-xs font-black bg-primary/10 text-primary">
                       {m.username.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 ))}
                 {joinedCount > 5 && (
-                  <span className="h-7 min-w-7 px-1.5 rounded-full bg-muted border border-border/40 text-[10px] font-bold text-muted-foreground flex items-center justify-center">
+                  <span className="h-7 min-w-7 px-1.5 rounded-full bg-muted border border-border/40 text-xs font-bold text-muted-foreground flex items-center justify-center">
                     +{joinedCount - 5}
                   </span>
                 )}

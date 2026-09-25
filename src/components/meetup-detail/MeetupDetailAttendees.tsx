@@ -67,7 +67,7 @@ export function MeetupDetailAttendees({
               <div key={a.id} className="relative">
                 <Avatar className="w-7 h-7 border-2 border-background ring-1 ring-border/20">
                   <AvatarImage src={a.avatar_url || undefined} />
-                  <AvatarFallback className="text-[9px] font-bold bg-primary/10 text-primary">
+                  <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
                     {a.username?.slice(0, 2).toUpperCase() || 'P'}
                   </AvatarFallback>
                 </Avatar>

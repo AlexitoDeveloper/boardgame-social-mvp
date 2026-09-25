@@ -61,7 +61,7 @@ export const GroupsFilters: FC<GroupsFiltersProps> = ({
           selected={filterMode === 'all'}
           onClick={() => onFilterChange('all')}
           icon={Layers}
-          badge={<span className="text-[10px] opacity-75 font-mono-tabular">{totalFiltered}</span>}
+          badge={<span className="text-xs opacity-75 font-mono-tabular">{totalFiltered}</span>}
         >
           Todos
         </Chip>

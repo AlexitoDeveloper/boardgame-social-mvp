@@ -101,7 +101,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
                   style={{ width: `${(complexity / 5) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground font-bold">
+              <div className="flex justify-between text-xs text-muted-foreground font-bold">
                 <span>{t('gameDetail.light')}</span>
                 <span>{t('gameDetail.medium')}</span>
                 <span>{t('gameDetail.heavy')}</span>

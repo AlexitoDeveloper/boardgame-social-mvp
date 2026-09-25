@@ -81,7 +81,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
 
       {/* Active Attendees with 1-Tap Winner Selection & Optional Score Inputs */}
       <div className="space-y-1.5">
-        <div className="text-[11px] font-bold text-muted-foreground">
+        <div className="text-xs font-bold text-muted-foreground">
           {winnerMode === 'player'
             ? t('quickLog.selectWinnerHint')
             : t('quickLog.optionalScoresHint')}
@@ -120,7 +120,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                 <div className="flex items-center gap-2 min-w-0">
                   <Avatar className="w-6 h-6 shrink-0 border border-primary/20">
                     <AvatarImage src={attendee.avatarUrl || undefined} />
-                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-black">
+                    <AvatarFallback className="text-xs bg-primary/10 text-primary font-black">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -130,7 +130,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                       {attendee.name}
                     </span>
                     {attendee.isGuest && (
-                      <Badge variant="outline" className="text-[9px] px-1 py-0 leading-tight text-muted-foreground border-border/50">
+                      <Badge variant="outline" className="text-xs px-1 py-0 leading-tight text-muted-foreground border-border/50">
                         {t('common.guest', 'Invitado')}
                       </Badge>
                     )}
@@ -153,7 +153,7 @@ export const QuickLogWinnerSection: FC<QuickLogWinnerSectionProps> = ({
                     onChange={(e) => setPlayerScore(attendee.id, e.target.value)}
                     className="w-16 h-7 text-xs text-center font-mono-tabular font-black rounded-lg"
                   />
-                  <span className="text-[10px] text-muted-foreground font-semibold">{t('quickLog.pointsAbbr')}</span>
+                  <span className="text-xs text-muted-foreground font-semibold">{t('quickLog.pointsAbbr')}</span>
                 </div>
               </div>
             )

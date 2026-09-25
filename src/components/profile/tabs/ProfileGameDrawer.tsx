@@ -104,12 +104,12 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
             {/* Quick Badges Row */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
               {isUnplayed && (
-                <Badge variant="warning" size="sm" className="font-bold text-[10px] py-0 px-2">
+                <Badge variant="warning" size="sm" className="font-bold text-xs py-0 px-2">
                   Sin jugar
                 </Badge>
               )}
               {(game.min_players || game.max_players) && (
-                <Badge variant="secondary" size="sm" className="font-mono text-[10px] py-0 px-2">
+                <Badge variant="secondary" size="sm" className="font-mono text-xs py-0 px-2">
                   <Users className="w-2.5 h-2.5 mr-1 text-primary" />
                   {game.min_players === game.max_players
                     ? `${game.min_players} jug.`
@@ -117,7 +117,7 @@ export const ProfileGameDrawer: React.FC<ProfileGameDrawerProps> = ({
                 </Badge>
               )}
               {game.playing_time && (
-                <Badge variant="secondary" size="sm" className="font-mono text-[10px] py-0 px-2">
+                <Badge variant="secondary" size="sm" className="font-mono text-xs py-0 px-2">
                   <Clock className="w-2.5 h-2.5 mr-1 text-muted-foreground" />
                   {game.playing_time}m
                 </Badge>

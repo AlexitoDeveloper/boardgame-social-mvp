@@ -1,5 +1,5 @@
 import React from 'react'
-import { Users, Clock, Flame, Check } from 'lucide-react'
+import { Users, Clock, Flame } from 'lucide-react'
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
 import { ExpansionBadge } from '../../ui/expansion-badge'
@@ -21,7 +21,6 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
 }) => {
   const { game, owners } = item
   const title = game.title_es || game.title
-  const isMine = owners.some((o) => o.user_id === user?.id)
 
   return (
     <div
@@ -74,22 +73,12 @@ export const LudotecaGameCard: React.FC<LudotecaGameCardProps> = ({
           )}
         </div>
 
-        {/* Top Left Badges: Ownership & Expansion */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-          {isMine && (
-            <Badge
-              variant="raspberry"
-              size="sm"
-              className="text-white font-black text-xs px-2 py-0.5 shadow-tactile-raspberry flex items-center gap-1 rounded-lg"
-            >
-              <Check className="w-3 h-3 stroke-[3]" />
-              Mío
-            </Badge>
-          )}
-          {game.is_expansion && (
+        {/* Top Left Badges: Expansion */}
+        {game.is_expansion && (
+          <div className="absolute top-2 left-2 z-10">
             <ExpansionBadge size="xs" />
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Bottom Floating Owner Stack */}
         <div className="absolute bottom-2 left-2.5 z-10 flex items-center -space-x-1.5">

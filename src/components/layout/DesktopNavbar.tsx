@@ -85,7 +85,7 @@ function DesktopNavItem({
             <span>{label}</span>
           </div>
           {badgeCount > 0 && (
-            <span className="relative z-10 min-w-[18px] h-[18px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-black shrink-0 shadow-xs ring-1 ring-background">
+            <span className="relative z-10 min-w-[18px] h-[18px] px-1 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shrink-0 shadow-xs ring-1 ring-background">
               {badgeCount}
             </span>
           )}
@@ -149,9 +149,9 @@ export function DesktopNavbar({
       </div>
 
       {/* Legal Attribution */}
-      <div className="mt-4 text-[11px] text-center text-muted-foreground/50 font-semibold select-none shrink-0">
+      <div className="mt-4 text-xs text-center text-muted-foreground/50 font-semibold select-none shrink-0">
         {t('appShell.bggAttribution')}{' '}
-        <Button asChild variant="link" className="p-0 h-auto text-[11px] font-semibold text-muted-foreground/70 hover:text-primary underline-offset-2">
+        <Button asChild variant="link" className="p-0 h-auto text-xs font-semibold text-muted-foreground/70 hover:text-primary underline-offset-2">
           <a
             href="https://boardgamegeek.com"
             target="_blank"

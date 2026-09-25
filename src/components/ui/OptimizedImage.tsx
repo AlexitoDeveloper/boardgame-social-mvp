@@ -80,7 +80,7 @@ export function OptimizedImage({
           <Dices className="h-6 w-6" />
         </div>
         {!hidePlaceholderText && alt && (
-          <span className="text-[11px] font-bold text-foreground/75 line-clamp-2 px-1 leading-tight tracking-tight">
+          <span className="text-xs font-bold text-foreground/75 line-clamp-2 px-1 leading-tight tracking-tight">
             {alt}
           </span>
         )}

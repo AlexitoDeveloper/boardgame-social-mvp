@@ -88,7 +88,7 @@ export const PlayFilterBar: FC<PlayFilterBarProps> = ({
                   {t('play.filters.title')}
                 </span>
                 {hasActiveFilters && (
-                  <span className="px-1.5 py-0.5 rounded-md bg-primary/15 text-primary text-[10px] font-black uppercase font-mono-tabular">
+                  <span className="px-1.5 py-0.5 rounded-md bg-primary/15 text-primary text-xs font-black uppercase font-mono-tabular">
                     {t('play.filters.activeBadge')}
                   </span>
                 )}

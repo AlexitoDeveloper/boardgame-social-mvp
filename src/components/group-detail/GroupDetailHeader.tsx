@@ -141,18 +141,18 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
                   {group.name}
                 </h1>
 
-                <Badge variant="secondary" className="text-[11px] font-bold py-0.5 px-2 gap-1 border-border/40">
+                <Badge variant="secondary" className="text-xs font-bold py-0.5 px-2 gap-1 border-border/40">
                   <Lock className="w-3 h-3 text-muted-foreground" />
                   <span>Privado</span>
                 </Badge>
 
                 {isCreator ? (
-                  <Badge variant="tag-amber" className="text-[11px] font-bold py-0.5 px-2 gap-1">
+                  <Badge variant="tag-amber" className="text-xs font-bold py-0.5 px-2 gap-1">
                     <Crown className="w-3 h-3 text-[#D97706] dark:text-[#FBBF24]" />
                     <span>Creador</span>
                   </Badge>
                 ) : isAdmin ? (
-                  <Badge variant="primary-soft" className="text-[11px] font-bold py-0.5 px-2 gap-1">
+                  <Badge variant="primary-soft" className="text-xs font-bold py-0.5 px-2 gap-1">
                     <Shield className="w-3 h-3" />
                     <span>Admin</span>
                   </Badge>
@@ -171,7 +171,7 @@ export const GroupDetailHeader: FC<GroupDetailHeaderProps> = ({
                     {previewMembers.map((m) => (
                       <Avatar key={m.user_id} className="inline-block h-6 w-6 rounded-full ring-2 ring-card">
                         <AvatarImage src={m.avatar_url || undefined} />
-                        <AvatarFallback className="text-[9px] font-black bg-primary/20 text-primary">
+                        <AvatarFallback className="text-xs font-black bg-primary/20 text-primary">
                           {m.username.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>

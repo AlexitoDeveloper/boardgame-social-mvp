@@ -143,7 +143,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
                 title={t('meetup.boardPhotosZoom')}
               >
                 <ZoomIn className='w-5 h-5 drop-shadow' />
-                <span className='text-[10px] font-bold drop-shadow'>{t('meetup.boardPhotosZoom')}</span>
+                <span className='text-xs font-bold drop-shadow'>{t('meetup.boardPhotosZoom')}</span>
               </div>
               {isEditable && (
                 <Button
@@ -175,7 +175,7 @@ export const BoardPhotoUploader: FC<BoardPhotoUploaderProps> = ({
               ? t('meetup.boardPhotosEmptyDropzone')
               : t('meetup.boardPhotosAddMore', { remaining: MAX_PHOTOS - photos.length })}
           </p>
-          <p className='text-[11px] text-muted-foreground mt-0.5 mb-3'>
+          <p className='text-xs text-muted-foreground mt-0.5 mb-3'>
             {t('meetup.boardPhotosLimitHint')}
           </p>
 

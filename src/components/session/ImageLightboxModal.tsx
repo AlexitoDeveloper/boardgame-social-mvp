@@ -66,7 +66,7 @@ export function ImageLightboxModal({
           <div className='flex items-center gap-2'>
             <span className='text-xs font-bold text-white/80'>{displayTitle}</span>
             {total > 1 && (
-              <span className='text-[11px] font-black uppercase px-2 py-0.5 rounded-md bg-white/10 text-white/90'>
+              <span className='text-xs font-black uppercase px-2 py-0.5 rounded-md bg-white/10 text-white/90'>
                 {currentIndex + 1} / {total}
               </span>
             )}

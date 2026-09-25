@@ -93,7 +93,7 @@ export function BadgeShowcase() {
               selected={selectedCategory === "all"}
               onClick={() => setSelectedCategory("all")}
               size="sm"
-              badge={<span className="text-[10px] font-mono-tabular opacity-80">24</span>}
+              badge={<span className="text-xs font-mono-tabular opacity-80">24</span>}
             >
               Todas las Mesas
             </Chip>
@@ -101,7 +101,7 @@ export function BadgeShowcase() {
               selected={selectedCategory === "my-games"}
               onClick={() => setSelectedCategory("my-games")}
               size="sm"
-              badge={<span className="text-[10px] font-mono-tabular opacity-80">4</span>}
+              badge={<span className="text-xs font-mono-tabular opacity-80">4</span>}
             >
               Mis Quedadas
             </Chip>
@@ -109,7 +109,7 @@ export function BadgeShowcase() {
               selected={selectedCategory === "eurogames"}
               onClick={() => setSelectedCategory("eurogames")}
               size="sm"
-              badge={<span className="text-[10px] font-mono-tabular opacity-80">11</span>}
+              badge={<span className="text-xs font-mono-tabular opacity-80">11</span>}
             >
               Eurogames
             </Chip>
@@ -117,7 +117,7 @@ export function BadgeShowcase() {
               selected={selectedCategory === "ameritrash"}
               onClick={() => setSelectedCategory("ameritrash")}
               size="sm"
-              badge={<span className="text-[10px] font-mono-tabular opacity-80">6</span>}
+              badge={<span className="text-xs font-mono-tabular opacity-80">6</span>}
             >
               Temáticos
             </Chip>
@@ -125,7 +125,7 @@ export function BadgeShowcase() {
               selected={selectedCategory === "party"}
               onClick={() => setSelectedCategory("party")}
               size="sm"
-              badge={<span className="text-[10px] font-mono-tabular opacity-80">3</span>}
+              badge={<span className="text-xs font-mono-tabular opacity-80">3</span>}
             >
               Party / Fillers
             </Chip>

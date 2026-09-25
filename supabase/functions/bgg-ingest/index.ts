@@ -217,7 +217,28 @@ Deno.serve(async (request) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRole);
 
-    // 2. Parse action and parameters from request body
+    // 2. Validate caller authentication from Authorization header
+    const authHeader = request.headers.get("Authorization") || "";
+    let callerUser: any = null;
+
+    if (authHeader) {
+      const token = authHeader.replace(/^Bearer\s+/i, "");
+      if (token === supabaseServiceRole) {
+        // Internal service role caller
+        callerUser = { id: "service-role", role: "service_role" };
+      } else if (token) {
+        try {
+          const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+          if (!authErr && user) {
+            callerUser = user;
+          }
+        } catch (err: any) {
+          console.warn("[Auth] Failed to verify caller JWT:", err.message);
+        }
+      }
+    }
+
+    // 3. Parse action and parameters from request body
     let action = null;
     let query = "";
     let bggIds: number[] = [];
@@ -249,20 +270,24 @@ Deno.serve(async (request) => {
 
     // Handle Import Collection Action
     if (action === "import-collection") {
+      if (!callerUser) {
+        return new Response(JSON.stringify({ error: "Unauthorized: You must be logged in to import a collection." }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
       if (!bggUsername.trim()) {
         return new Response(JSON.stringify({ error: "Missing username parameter" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
-      if (!userId.trim()) {
-        return new Response(JSON.stringify({ error: "Missing userId parameter" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
-      }
 
-      console.log(`[BGG Collection] Importing collection for BGG user: "${bggUsername}" to Supabase user: "${userId}"...`);
+      // Security: Always bind to authenticated caller's ID to prevent IDOR unless service_role
+      const targetUserId = (callerUser.role === "service_role" && userId.trim()) ? userId.trim() : callerUser.id;
+
+      console.log(`[BGG Collection] Importing collection for BGG user: "${bggUsername}" to Supabase user: "${targetUserId}"...`);
       
       const xmlText = await fetchBggCollection(bggUsername, bggToken);
       const jsonObj = xmlParser.parse(xmlText);
@@ -370,7 +395,7 @@ Deno.serve(async (request) => {
       }
 
       const collectionInserts = bggIds.map(id => ({
-        user_id: userId,
+        user_id: targetUserId,
         game_id: id
       }));
 
@@ -394,6 +419,13 @@ Deno.serve(async (request) => {
 
     // Handle Search Action
     if (action === "search") {
+      if (!callerUser) {
+        return new Response(JSON.stringify({ error: "Unauthorized: Authentication required." }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
       if (!query.trim()) {
         return new Response(JSON.stringify({ error: "Missing query parameter" }), {
           status: 400,
@@ -466,15 +498,29 @@ Deno.serve(async (request) => {
     let idsToFetch: number[] = [];
 
     if (action === "ingest") {
+      if (!callerUser) {
+        return new Response(JSON.stringify({ error: "Unauthorized: Authentication required to ingest games." }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
       if (bggIds.length === 0) {
         return new Response(JSON.stringify({ error: "Missing bggIds parameter" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
-      idsToFetch = bggIds;
+      // Clamp to max 30 IDs to prevent abuse and API exhaustion
+      idsToFetch = bggIds.slice(0, 30);
       console.log(`[On-Demand Ingest] Preparing to ingest specified IDs: ${idsToFetch.join(", ")}`);
-    } else {
+    } else if (action === "batch-ingest") {
+      if (callerUser?.role !== "service_role") {
+        return new Response(JSON.stringify({ error: "Forbidden: Only service_role can trigger batch ingestion." }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
       console.log(`=== Starting Edge Function Ingestion Batch (Limit: ${limit}) ===`);
 
       // 3. Find MAX(bgg_id) in database
@@ -498,6 +544,11 @@ Deno.serve(async (request) => {
 
       // 4. Prepare batch of IDs
       idsToFetch = Array.from({ length: limit }, (_, i) => startId + i);
+    } else {
+      return new Response(JSON.stringify({ error: "Invalid action. Supported actions: import-collection, search, ingest, batch-ingest." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
     // 5. Fetch XML from BGG

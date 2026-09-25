@@ -63,7 +63,7 @@ export function MeetupDetailActionDock({
                 <div key={attendee.id} className="relative group">
                   <Avatar className="w-8 h-8 border-2 border-background ring-1 ring-border/30 shadow-sm">
                     <AvatarImage src={attendee.avatar_url || undefined} alt={attendee.username} />
-                    <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
+                    <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
                       {attendee.username?.slice(0, 2).toUpperCase() || 'PL'}
                     </AvatarFallback>
                   </Avatar>
@@ -76,7 +76,7 @@ export function MeetupDetailActionDock({
               )
             })}
             {extraCount > 0 && (
-              <div className="w-8 h-8 rounded-full border-2 border-background bg-muted/80 flex items-center justify-center text-[10px] font-black text-muted-foreground ring-1 ring-border/30">
+              <div className="w-8 h-8 rounded-full border-2 border-background bg-muted/80 flex items-center justify-center text-xs font-black text-muted-foreground ring-1 ring-border/30">
                 +{extraCount}
               </div>
             )}
@@ -90,7 +90,7 @@ export function MeetupDetailActionDock({
               </span>
               <Badge
                 variant={isFull ? 'destructive' : spotsRemaining === 1 ? 'warning' : 'primary-soft'}
-                className="text-[10px] px-1.5 py-0 font-bold"
+                className="text-xs px-1.5 py-0 font-bold"
               >
                 {isPast
                   ? t('common.completed')
@@ -99,7 +99,7 @@ export function MeetupDetailActionDock({
                   : `${spotsRemaining} ${spotsRemaining === 1 ? t('common.free') : t('common.frees')}`}
               </Badge>
             </div>
-            <span className="text-[11px] text-muted-foreground truncate font-medium">
+            <span className="text-xs text-muted-foreground truncate font-medium">
               {organizer ? `${t('create.organizedBy')} ${organizer.username}` : t('common.host')}
             </span>
           </div>

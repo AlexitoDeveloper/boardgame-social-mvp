@@ -95,7 +95,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
             />
 
             <div className="absolute bottom-2 inset-x-0 text-center pointer-events-none">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
                 {isRolling ? t('tableHub.diceRoller.rollingOnTable') : t('tableHub.diceRoller.tapHint')}
               </span>
             </div>
@@ -140,7 +140,7 @@ export function DiceRollerModal({ open, onOpenChange }: DiceRollerModalProps) {
           {/* Recent Rolls History */}
           {history.length > 0 && (
             <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">
                 {t('tableHub.diceRoller.previousRolls')}
               </span>
               <div className="flex flex-wrap gap-2">

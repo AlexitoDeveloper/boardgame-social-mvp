@@ -81,7 +81,7 @@ export function TableToolsBar({ attendees }: TableToolsBarProps) {
                 <h4 className="text-xs sm:text-sm font-black text-foreground group-hover:text-primary transition-colors">
                   {tool.title}
                 </h4>
-                <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5 font-medium">
+                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 font-medium">
                   {tool.desc}
                 </p>
               </div>

@@ -114,7 +114,7 @@ export function AwwwardsShowcase() {
                   <div
                     className={`size-6 rounded-lg ${token.bgClass} shadow-xs border border-white/10`}
                   />
-                  <span className="text-[10px] font-mono font-black text-muted-foreground">
+                  <span className="text-xs font-mono font-black text-muted-foreground">
                     {token.contrast}
                   </span>
                 </div>
@@ -122,10 +122,10 @@ export function AwwwardsShowcase() {
                   <span className="text-xs font-black text-foreground block truncate">
                     {token.name}
                   </span>
-                  <span className="text-[11px] font-mono text-muted-foreground block">
+                  <span className="text-xs font-mono text-muted-foreground block">
                     {token.hex}
                   </span>
-                  <span className="text-[10px] text-muted-foreground/80 mt-1 block leading-tight">
+                  <span className="text-xs text-muted-foreground/80 mt-1 block leading-tight">
                     {token.role}
                   </span>
                 </div>
@@ -140,7 +140,7 @@ export function AwwwardsShowcase() {
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               Composición Social en Vivo (Interactúa con el botón)
             </p>
-            <span className="text-[11px] font-mono text-muted-foreground">
+            <span className="text-xs font-mono text-muted-foreground">
               Estado: {isJoined ? "Inscrito" : "Espectador"}
             </span>
           </div>
@@ -179,7 +179,7 @@ export function AwwwardsShowcase() {
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-1">
                 <div className="flex items-center gap-2">
                   <Avatar className="size-6 border border-border">
-                    <AvatarFallback className="bg-primary/20 text-primary dark:text-[#FF80B0] text-[10px] font-black">
+                    <AvatarFallback className="bg-primary/20 text-primary dark:text-[#FF80B0] text-xs font-black">
                       AL
                     </AvatarFallback>
                   </Avatar>
@@ -197,17 +197,17 @@ export function AwwwardsShowcase() {
             <div className="lg:border-l lg:border-border/60 lg:pl-6 flex flex-row lg:flex-col items-center justify-between lg:justify-center gap-4 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2 overflow-hidden">
-                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#243447] text-white text-[10px] font-black border-2 border-background">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#243447] text-white text-xs font-black border-2 border-background">
                     MR
                   </span>
-                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#10B981] text-white text-[10px] font-black border-2 border-background">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#10B981] text-white text-xs font-black border-2 border-background">
                     CG
                   </span>
-                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#4F46E5] text-white text-[10px] font-black border-2 border-background">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#4F46E5] text-white text-xs font-black border-2 border-background">
                     LP
                   </span>
                   {isJoined && (
-                    <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#C51F5D] text-white text-[10px] font-black border-2 border-background animate-in zoom-in-50 duration-200">
+                    <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#C51F5D] text-white text-xs font-black border-2 border-background animate-in zoom-in-50 duration-200">
                       TÚ
                     </span>
                   )}
@@ -216,7 +216,7 @@ export function AwwwardsShowcase() {
                   <span className="font-mono text-sm font-black text-foreground block">
                     {attendeeCount} / 4
                   </span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {4 - attendeeCount === 0 ? "Sin plazas" : `${4 - attendeeCount} libre(s)`}
                   </span>
                 </div>
@@ -242,7 +242,7 @@ export function AwwwardsShowcase() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3.5 rounded-xl border border-border/60 bg-surface-elevated/40 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider block">
                   Índice Elo Grupal
                 </span>
                 <span className="font-mono-tabular text-xl font-black text-foreground">
@@ -257,7 +257,7 @@ export function AwwwardsShowcase() {
 
             <div className="p-3.5 rounded-xl border border-border/60 bg-surface-elevated/40 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider block">
                   Tiempo Total Jugado
                 </span>
                 <span className="font-mono-tabular text-xl font-black text-foreground">
@@ -269,7 +269,7 @@ export function AwwwardsShowcase() {
 
             <div className="p-3.5 rounded-xl border border-border/60 bg-surface-elevated/40 flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider block">
                   Tasa de Victoria
                 </span>
                 <span className="font-mono-tabular text-xl font-black text-primary dark:text-[#FF80B0]">

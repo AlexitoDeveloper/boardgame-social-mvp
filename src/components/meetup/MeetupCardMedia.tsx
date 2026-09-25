@@ -153,7 +153,7 @@ export function MeetupCardMedia({
 
       {/* Top Left: Modality Badge */}
       <div className="absolute top-3 left-3 z-20 flex gap-1.5">
-        <Badge variant="slatenavy" className="shadow-md gap-1.5 text-[11px]">
+        <Badge variant="slatenavy" className="shadow-md gap-1.5 text-xs">
           {isOnline ? (
             <>
               <Laptop className="w-3 h-3 text-white" />
@@ -170,12 +170,12 @@ export function MeetupCardMedia({
 
       {/* Top Right: Spots Remaining Badge */}
       <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1.5">
-        <Badge variant="secondary" className="shadow-md gap-1.5 font-mono-tabular text-[11px]">
+        <Badge variant="secondary" className="shadow-md gap-1.5 font-mono-tabular text-xs">
           <Users className="w-3 h-3 text-muted-foreground" />
           <span>{totalAttendees} / {maxPlayers} {t('common.spotsText')}</span>
         </Badge>
         {isLastSpot && !isCompleted && (
-          <Badge variant="raspberry" className="shadow-md text-[11px] animate-pulse">
+          <Badge variant="raspberry" className="shadow-md text-xs animate-pulse">
             {t('common.lastSpot')}
           </Badge>
         )}
